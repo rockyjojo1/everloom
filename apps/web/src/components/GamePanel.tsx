@@ -149,11 +149,11 @@ export function GamePanel() {
         </div>
       )}
 
-      {/* Stone tab bar */}
+      {/* Stone tab bar (with safe-area padding for notch/home indicator) */}
       <div
         style={{
           position: "absolute",
-          bottom: 8,
+          bottom: "calc(8px + max(0px, env(safe-area-inset-bottom)))",
           right: 8,
           zIndex: 100,
           display: "grid",
