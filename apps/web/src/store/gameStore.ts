@@ -55,6 +55,7 @@ interface GameStore {
   initFromSupabase: () => Promise<void>;
   createCharacter: (name: string, mode: "cozy" | "standard" | "ironbound", appearance?: CharacterAppearance | undefined) => Promise<void>;
   startAction: (action: ActionDescriptor) => void;
+  equipTool: (itemId: string) => void;
   tickFrame: () => void;
   commitToServer: () => Promise<void>;
   tapGlimmer: () => void;
@@ -182,6 +183,56 @@ export const useGameStore = create<GameStore>((set, get) => ({
       GAME_DATA
     );
     set({ playerState: result.state });
+    void get().commitToServer();
+  },
+
+  equipTool: (itemId) => {
+    const { playerState } = get();
+    if (!playerState) return;
+
+    // Determine tool type from itemId
+    const hatchetIds = ["worn_hatchet", "copper_hatchet", "iron_hatchet"];
+    const pickaxeIds = ["worn_pickaxe", "copper_pickaxe", "iron_pickaxe"];
+    const rodIds = ["copper_fishing_rod", "iron_fishing_rod"];
+
+    let toolSlot: "hatchet" | "pickaxe" | "fishingRod" | null = null;
+    if (hatchetIds.includes(itemId)) toolSlot = "hatchet";
+    else if (pickaxeIds.includes(itemId)) toolSlot = "pickaxe";
+    else if (rodIds.includes(itemId)) toolSlot = "fishingRod";
+
+    if (!toolSlot) return;
+
+    // Find item in inventory
+    const invIndex = playerState.inventory.findIndex((s) => s.itemId === itemId);
+    if (invIndex === -1) return;
+
+    const newInventory = [...playerState.inventory];
+    newInventory.splice(invIndex, 1);
+
+    // Get tool metadata from head tier (simplified: assume tier 0 for now)
+    const toolComponent = {
+      headId: itemId,
+      haftId: null,
+      bindingId: null,
+      headTier: itemId.includes("copper") ? 1 : itemId.includes("iron") ? 2 : 0,
+      haftTier: 1, // Default values for now
+      bindingTier: 1,
+      wearMastery: 0,
+      wearPct: 1000,
+    };
+
+    const newEquipment = {
+      ...playerState.equipment,
+      [toolSlot]: toolComponent,
+    };
+
+    const newPlayerState = {
+      ...playerState,
+      inventory: newInventory,
+      equipment: newEquipment,
+    };
+
+    set({ playerState: newPlayerState });
     void get().commitToServer();
   },
 
