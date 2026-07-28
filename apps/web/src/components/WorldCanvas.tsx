@@ -28,6 +28,16 @@ interface Bird {
   duration: number;
 }
 
+interface Particle {
+  id: string;
+  px: number;
+  py: number;
+  vx: number;
+  vy: number;
+  startTime: number;
+  color: string; // "gold" or "white"
+}
+
 const TILE_SIZE_SRC = 32; // source size
 const TILE_SIZE_DRAWN = 64; // drawn at 2× scale
 const WATER_FRAME_DURATION = 150; // ms per frame
@@ -38,6 +48,8 @@ const WATERFALL_SCROLL_SPEED = 0.3; // pixels per ms
 const CLOUD_CYCLE_DURATION = 4000; // 4 seconds per cloud cycle
 const BIRD_SPAWN_INTERVAL = 8000; // spawn every 8 seconds
 const BIRD_FLIGHT_DURATION = 3000; // fly for 3 seconds
+const LEVEL_UP_PARTICLE_DURATION = 700; // ms total for level-up particles
+const LEVEL_UP_PARTICLE_COUNT = 20; // number of particles per level-up
 
 /**
  * WorldCanvas: Main game world renderer with movement, pathfinding, and click handling
@@ -64,6 +76,8 @@ export function WorldCanvas() {
   ]);
   const birdsRef = useRef<Bird[]>([]);
   const lastBirdSpawnRef = useRef(Date.now());
+  const particlesRef = useRef<Particle[]>([]);
+  const lastSeenLevelUpEventIdRef = useRef<string>("");
 
   // Movement state
   const movementRef = useRef<MovementState>({
@@ -83,8 +97,47 @@ export function WorldCanvas() {
   // Get current action from game store
   const playerState = useGameStore((s) => s.playerState);
   const startAction = useGameStore((s) => s.startAction);
+  const pendingEvents = useGameStore((s) => s.pendingEvents);
   const currentAction = playerState?.currentAction;
   const appearance = playerState?.appearance;
+
+  // Watch for level-up events and spawn particles
+  useEffect(() => {
+    for (const event of pendingEvents) {
+      if (event.kind === "level_up") {
+        const eventKey = `${event.skill}_${event.newLevel}`;
+        if (eventKey !== lastSeenLevelUpEventIdRef.current) {
+          lastSeenLevelUpEventIdRef.current = eventKey;
+          // Spawn particles at character center
+          const charCenterX = movementRef.current.px;
+          const charCenterY = movementRef.current.py - 20;
+          spawnLevelUpParticles(charCenterX, charCenterY);
+        }
+      }
+    }
+  }, [pendingEvents]);
+
+  // Spawn level-up particles
+  const spawnLevelUpParticles = (cx: number, cy: number) => {
+    const now = Date.now();
+    const newParticles: Particle[] = [];
+    for (let i = 0; i < LEVEL_UP_PARTICLE_COUNT; i++) {
+      const angle = (i / LEVEL_UP_PARTICLE_COUNT) * Math.PI * 2;
+      const speed = 100 + Math.random() * 150;
+      const vx = Math.cos(angle) * speed;
+      const vy = Math.sin(angle) * speed - 100; // upward bias
+      newParticles.push({
+        id: `p_${now}_${i}`,
+        px: cx,
+        py: cy,
+        vx,
+        vy,
+        startTime: now,
+        color: i % 2 === 0 ? "gold" : "white",
+      });
+    }
+    particlesRef.current.push(...newParticles);
+  };
 
   // Load sprites and character on mount
   useEffect(() => {
@@ -295,6 +348,33 @@ export function WorldCanvas() {
         .filter((bird) => now - bird.startTime < bird.duration);
     };
 
+    const updateParticles = (deltaTime: number) => {
+      const now = Date.now();
+      particlesRef.current = particlesRef.current
+        .map((p) => ({
+          ...p,
+          px: p.px + p.vx * (deltaTime / 1000),
+          py: p.py + p.vy * (deltaTime / 1000) + (9.8 * (deltaTime / 1000) * (deltaTime / 1000) * 20), // gravity
+          vy: p.vy + 9.8 * (deltaTime / 1000) * 20, // gravity
+        }))
+        .filter((p) => now - p.startTime < LEVEL_UP_PARTICLE_DURATION);
+    };
+
+    const drawParticles = (now: number) => {
+      for (const p of particlesRef.current) {
+        const elapsed = now - p.startTime;
+        const progress = elapsed / LEVEL_UP_PARTICLE_DURATION;
+        const alpha = Math.max(0, 1 - progress);
+
+        ctx!.globalAlpha = alpha;
+        ctx!.fillStyle = p.color === "gold" ? "#FFD700" : "#FFFFFF";
+        ctx!.beginPath();
+        ctx!.arc(p.px, p.py, 3, 0, Math.PI * 2);
+        ctx!.fill();
+      }
+      ctx!.globalAlpha = 1;
+    };
+
     const drawClickMarker = (marker: ClickMarker) => {
       const elapsed = Date.now() - marker.startTime;
       if (elapsed > CLICK_MARKER_DURATION) return false; // marker expired
@@ -402,6 +482,7 @@ export function WorldCanvas() {
       updateCampfireFrame();
       updateWaterfallScroll(deltaTime);
       updateBirds(deltaTime);
+      updateParticles(deltaTime);
 
       // Update movement
       if (movementRef.current.walking) {
@@ -523,6 +604,9 @@ export function WorldCanvas() {
 
       // 2.5 Birds (drawn above entities)
       drawBirds();
+
+      // 2.6 Particles (drawn above birds)
+      drawParticles(now);
 
       // 3. Click markers
       clickMarkersRef.current = clickMarkersRef.current.filter(drawClickMarker);
