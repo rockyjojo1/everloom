@@ -83,6 +83,23 @@ export function WorldCanvas() {
   const lastBirdSpawnRef = useRef(Date.now());
   const particlesRef = useRef<Particle[]>([]);
   const drawErrorLoggedRef = useRef(false);
+  // Bumped on resize/rotate so the render effect recomputes the viewport.
+  const [viewportTick, setViewportTick] = useState(0);
+
+  useEffect(() => {
+    let raf = 0;
+    const onResize = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => setViewportTick((t) => t + 1));
+    };
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onResize);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onResize);
+    };
+  }, []);
   const lastSeenLevelUpEventIdRef = useRef<string>("");
 
   // Movement state
@@ -196,12 +213,40 @@ export function WorldCanvas() {
     if (!ctx) return;
 
     const zone = MEADOWREST;
-    const canvasWidth = zone.width * TILE_SIZE_DRAWN;
-    const canvasHeight = zone.height * TILE_SIZE_DRAWN;
+    const worldWidth = zone.width * TILE_SIZE_DRAWN;
+    const worldHeight = zone.height * TILE_SIZE_DRAWN;
+
+    /**
+     * Viewport: on a wide screen we show the whole zone; on a narrow/portrait
+     * screen fitting a 20x11 landscape map would letterbox it into a thin
+     * strip, so we show a player-centred window instead (OSRS-mobile style).
+     */
+    const container = canvas.parentElement;
+    const availW = container?.clientWidth ?? window.innerWidth;
+    const availH = container?.clientHeight ?? window.innerHeight;
+    const portrait = availH > availW;
+
+    const canvasWidth = portrait
+      ? Math.min(worldWidth, Math.round(11 * TILE_SIZE_DRAWN))
+      : worldWidth;
+    const canvasHeight = portrait
+      ? Math.min(worldHeight, Math.round(canvasWidth * (availH / availW)))
+      : worldHeight;
 
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
     ctx.imageSmoothingEnabled = false;
+
+    /** Camera offset in world px, clamped so we never show outside the map. */
+    const camera = () => {
+      if (!portrait) return { x: 0, y: 0 };
+      const cx = movementRef.current.px - canvasWidth / 2;
+      const cy = movementRef.current.py - canvasHeight / 2;
+      return {
+        x: Math.max(0, Math.min(worldWidth - canvasWidth, cx)),
+        y: Math.max(0, Math.min(worldHeight - canvasHeight, cy)),
+      };
+    };
 
     // Click handler
     const handleCanvasClick = (e: MouseEvent) => {
@@ -214,10 +259,14 @@ export function WorldCanvas() {
       const drawnH = canvas.height * scale;
       const originX = rect.left + (rect.width - drawnW) / 2;
       const originY = rect.top + (rect.height - drawnH) / 2;
-      const clickX = (e.clientX - originX) / scale;
-      const clickY = (e.clientY - originY) / scale;
+      const viewX = (e.clientX - originX) / scale;
+      const viewY = (e.clientY - originY) / scale;
       // Ignore taps that land on the letterbox bars.
-      if (clickX < 0 || clickY < 0 || clickX > canvas.width || clickY > canvas.height) return;
+      if (viewX < 0 || viewY < 0 || viewX > canvas.width || viewY > canvas.height) return;
+      // Add the camera offset to get world coords (identity on wide screens).
+      const cam = camera();
+      const clickX = viewX + cam.x;
+      const clickY = viewY + cam.y;
 
       // Hit-test nodes first
       for (const node of zone.nodes) {
@@ -505,6 +554,12 @@ export function WorldCanvas() {
 
       const tilesTexture = textures[TILES_FILE]!.img;
 
+      // Apply the camera for everything drawn in world space. Restored at the
+      // end of the frame so screen-space overlays are unaffected.
+      const cam = camera();
+      ctx!.save();
+      ctx!.translate(-cam.x, -cam.y);
+
       // 1. Ground layer — every cell comes from atlasLayout, never a literal.
       for (let ty = 0; ty < zone.height; ty++) {
         for (let tx = 0; tx < zone.width; tx++) {
@@ -626,8 +681,10 @@ export function WorldCanvas() {
       // 2.6 Particles (drawn above birds)
       drawParticles(now);
 
-      // 3. Click markers
+      // 3. Click markers (still world space — they mark a world position)
       clickMarkersRef.current = clickMarkersRef.current.filter(drawClickMarker);
+
+      ctx!.restore(); // end camera transform
 
       animationFrameRef.current = requestAnimationFrame(render);
     };
@@ -640,7 +697,7 @@ export function WorldCanvas() {
       }
       canvas.removeEventListener('click', handleCanvasClick);
     };
-  }, [textures, characterSprite, currentAction, startAction]);
+  }, [textures, characterSprite, currentAction, startAction, viewportTick]);
 
   // Reset animation timer when action changes
   useEffect(() => {
