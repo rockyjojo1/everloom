@@ -5,6 +5,7 @@ import { ActionHUD } from "./ActionHUD";
 import { TabStrip } from "./TabStrip";
 import { InventoryBar } from "./InventoryBar";
 import { SatchelPanel } from "./panels/SatchelPanel";
+import { EquipmentPanel } from "./panels/EquipmentPanel";
 import { BenchPanel } from "./panels/BenchPanel";
 import { AtlasPanel } from "./panels/AtlasPanel";
 import { LedgerPanel } from "./panels/LedgerPanel";
@@ -15,11 +16,12 @@ function Panels() {
   const setActivePanel = useGameStore((s) => s.setActivePanel);
 
   const panels: Record<string, React.ReactNode> = {
-    satchel:  <SatchelPanel />,
-    bench:    <BenchPanel />,
-    atlas:    <AtlasPanel />,
-    ledger:   <LedgerPanel />,
-    exchange: <ExchangePanel />,
+    satchel:    <SatchelPanel />,
+    equipment:  <EquipmentPanel />,
+    bench:      <BenchPanel />,
+    atlas:      <AtlasPanel />,
+    ledger:     <LedgerPanel />,
+    exchange:   <ExchangePanel />,
   };
 
   const isOpen = activePanel !== "none";

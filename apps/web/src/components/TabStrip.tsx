@@ -1,11 +1,12 @@
 import { useGameStore, type ActivePanel } from "../store/gameStore";
 
 const TABS: Array<{ id: ActivePanel; icon: string; label: string }> = [
-  { id: "satchel",  icon: "🎒", label: "Satchel"  },
-  { id: "bench",    icon: "🔨", label: "Bench"     },
-  { id: "atlas",    icon: "🗺️",  label: "Atlas"    },
-  { id: "ledger",   icon: "📖", label: "Ledger"   },
-  { id: "exchange", icon: "⚖️",  label: "Exchange" },
+  { id: "satchel",    icon: "🎒", label: "Satchel"     },
+  { id: "equipment",  icon: "⚔️", label: "Equipment"   },
+  { id: "bench",      icon: "🔨", label: "Bench"       },
+  { id: "atlas",      icon: "🗺️",  label: "Atlas"      },
+  { id: "ledger",     icon: "📖", label: "Ledger"     },
+  { id: "exchange",   icon: "⚖️",  label: "Exchange"   },
 ];
 
 export function TabStrip() {
