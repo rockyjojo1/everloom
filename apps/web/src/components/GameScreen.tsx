@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useGameStore } from "../store/gameStore";
-import { Diorama } from "./Diorama";
+import { WorldCanvas } from "./WorldCanvas";
 import { ActionHUD } from "./ActionHUD";
 import { TabStrip } from "./TabStrip";
 import { InventoryBar } from "./InventoryBar";
@@ -84,7 +84,7 @@ export function GameScreen() {
       className={shaking ? "shake" : ""}
     >
       {/* Scene fills entire viewport */}
-      <Diorama />
+      <WorldCanvas />
 
       {/* Floating action HUD — top strip */}
       <ActionHUD />
