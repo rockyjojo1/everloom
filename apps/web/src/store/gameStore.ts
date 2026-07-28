@@ -283,6 +283,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
       if (event.kind === "blueprint_found") {
         newToasts.push({ id: toastCounter++, message: "Blueprint found!", kind: "discovery" });
       }
+      if (event.kind === "tool_required") {
+        const skillName = event.skill.replace(/_/g, " ");
+        const toolMap: Record<string, string> = {
+          woodcutting: "hatchet",
+          mining: "pickaxe",
+          fishing: "fishing rod",
+        };
+        const toolName = toolMap[event.skill] ?? event.skill;
+        newToasts.push({ id: toastCounter++, message: `You need a ${toolName}.`, kind: "normal" });
+      }
       if (event.kind === "glimmer") {
         set({ activeGlimmer: { nodeId: event.nodeId, x: 0, y: 0 }, glimmerWindowOpen: true });
         setTimeout(() => set({ activeGlimmer: null, glimmerWindowOpen: false }), 1200);

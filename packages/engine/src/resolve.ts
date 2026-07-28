@@ -412,7 +412,7 @@ function resolveGathering(
     }
 
     // Pet roll (simplified).
-    if (node.petChance > 0 && !newPets.includes(node.petId)) {
+    if (node.petId && node.petChance > 0 && !newPets.includes(node.petId)) {
       if (successfulActions / node.petChance >= 1) {
         newPets.push(node.petId);
         events.push({ kind: "pet_found", petId: node.petId, atSeconds: elapsedSeconds });
@@ -525,7 +525,7 @@ function resolveGathering(
       }
 
       // Pet roll.
-      if (node.petChance > 0 && !newPets.includes(node.petId)) {
+      if (node.petId && node.petChance > 0 && !newPets.includes(node.petId)) {
         if (rng() < 1 / node.petChance) {
           newPets.push(node.petId);
           events.push({ kind: "pet_found", petId: node.petId, atSeconds });
