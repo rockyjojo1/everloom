@@ -1,47 +1,7 @@
 import { useEffect } from "react";
 import { useGameStore } from "../store/gameStore";
 import { WorldCanvas } from "./WorldCanvas";
-import { ActionHUD } from "./ActionHUD";
-import { TabStrip } from "./TabStrip";
-import { InventoryBar } from "./InventoryBar";
-import { SatchelPanel } from "./panels/SatchelPanel";
-import { EquipmentPanel } from "./panels/EquipmentPanel";
-import { BenchPanel } from "./panels/BenchPanel";
-import { AtlasPanel } from "./panels/AtlasPanel";
-import { LedgerPanel } from "./panels/LedgerPanel";
-import { ExchangePanel } from "./panels/ExchangePanel";
-
-function Panels() {
-  const activePanel = useGameStore((s) => s.activePanel);
-  const setActivePanel = useGameStore((s) => s.setActivePanel);
-
-  const panels: Record<string, React.ReactNode> = {
-    satchel:    <SatchelPanel />,
-    equipment:  <EquipmentPanel />,
-    bench:      <BenchPanel />,
-    atlas:      <AtlasPanel />,
-    ledger:     <LedgerPanel />,
-    exchange:   <ExchangePanel />,
-  };
-
-  const isOpen = activePanel !== "none";
-
-  return (
-    <>
-      {isOpen && (
-        <div
-          className="scrim active"
-          onClick={() => setActivePanel("none")}
-        />
-      )}
-      {Object.entries(panels).map(([id, content]) => (
-        <div key={id} className={`panel compact-panel ${activePanel === id ? "open" : ""}`}>
-          {content}
-        </div>
-      ))}
-    </>
-  );
-}
+import { GamePanel } from "./GamePanel";
 
 function Toasts() {
   const toasts = useGameStore((s) => s.toasts);
@@ -88,17 +48,8 @@ export function GameScreen() {
       {/* Scene fills entire viewport */}
       <WorldCanvas />
 
-      {/* Floating action HUD — top strip */}
-      <ActionHUD />
-
-      {/* Always-visible inventory bar — right side */}
-      <InventoryBar />
-
-      {/* Compact tab strip — bottom right */}
-      <TabStrip />
-
-      {/* Corner panels */}
-      <Panels />
+      {/* Unified game panel with HUD, tabs, and inventory */}
+      <GamePanel />
 
       {/* Toast notifications */}
       <Toasts />
