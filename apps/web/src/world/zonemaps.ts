@@ -180,23 +180,6 @@ export function getTile(map: ZoneMap, tx: number, ty: number): TileType | undefi
   return map.tiles[idx];
 }
 
-/**
- * Sprite mappings: nodeId/spriteId → (atlasRow, atlasCol) in 32×32 grid
- * Will be loaded from sprite atlases in Phase 2
- */
-export const SPRITE_SOURCES: Record<string, { file: string; row: number; col: number }> = {
-  tree_oak: { file: 'world/trees.png', row: 0, col: 0 },
-  tree_pine: { file: 'world/trees.png', row: 0, col: 1 },
-  tree_willow: { file: 'world/trees.png', row: 0, col: 2 },
-  tree_dead: { file: 'world/trees.png', row: 1, col: 0 },
-
-  node_pine: { file: 'world/trees.png', row: 0, col: 1 },
-  node_willow: { file: 'world/trees.png', row: 0, col: 2 },
-  node_campfire: { file: 'world/terrain.png', row: 0, col: 0 }, // placeholder
-  node_copper_vein: { file: 'world/rocks.png', row: 0, col: 0 },
-  node_tin_vein: { file: 'world/rocks.png', row: 0, col: 1 },
-  node_trout_stream: { file: 'world/terrain.png', row: 0, col: 1 }, // placeholder
-  node_minnow_pool: { file: 'world/terrain.png', row: 0, col: 2 }, // placeholder
-  node_furnace: { file: 'world/terrain.png', row: 1, col: 0 },     // placeholder
-  node_anvil: { file: 'world/terrain.png', row: 1, col: 1 },       // placeholder
-};
+// Sprite geometry now lives in world/atlasLayout.ts, which is the single
+// source of truth shared with scripts/gen-tiles.js. Decor spriteIds in the
+// zone maps must match a key in that file's PROPS table.

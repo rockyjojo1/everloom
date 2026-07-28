@@ -45,9 +45,13 @@ const FRAME_SIZE = 64; // px
  * Animation definitions extracted from LPC spritesheet rows
  */
 export const ANIMATIONS: Record<ActionAnimationType, Animation | Record<WalkDirection, Animation>> = {
+  // Idle stands on rows 0-3 (up/left/down/right) so the character keeps
+  // facing whatever they last walked toward instead of snapping south.
   idle: {
-    frames: [{ row: 0, col: 0, duration: 500 }],
-    loop: true,
+    up:    { frames: [{ row: 0, col: 0, duration: 500 }], loop: true },
+    left:  { frames: [{ row: 1, col: 0, duration: 500 }], loop: true },
+    down:  { frames: [{ row: 2, col: 0, duration: 500 }], loop: true },
+    right: { frames: [{ row: 3, col: 0, duration: 500 }], loop: true },
   },
 
   walk: {
@@ -145,11 +149,12 @@ export const ANIMATIONS: Record<ActionAnimationType, Animation | Record<WalkDire
     loop: true,
   },
 
+  // Cooking has no dedicated sheet rows; it reuses the idle stand block
+  // (rows 0-3) so the direction offset lands on a valid row.
   cook: {
     frames: [
-      { row: 2, col: 0, duration: 100 },
-      { row: 2, col: 1, duration: 100 },
-      { row: 2, col: 2, duration: 100 },
+      { row: 0, col: 0, duration: 220 },
+      { row: 0, col: 0, duration: 220 },
     ],
     loop: true,
   },
@@ -250,22 +255,41 @@ export function getCurrentFrame(
   direction: WalkDirection,
   elapsed: number // ms since action start
 ): AnimationFrame {
+  const FALLBACK: AnimationFrame = { row: 0, col: 0, duration: 100 };
+
+  // LPC sheets store the four facings as consecutive rows, so a flat
+  // animation's row is a base that gets offset by the facing index.
+  const DIR_INDEX: Record<WalkDirection, number> = { up: 0, left: 1, down: 2, right: 3 };
+  const dirOffset = DIR_INDEX[direction] ?? 0;
+  // Which flat animations are direction-blocked (base row + facing).
+  const DIRECTIONAL_ACTIONS = new Set(['chop', 'mine', 'fish', 'cook']);
+
+  const animData = ANIMATIONS[action] as
+    | Animation
+    | Record<WalkDirection, Animation>
+    | undefined;
+
   let anim: Animation | undefined;
+  let applyDirOffset = false;
 
-  if (action === 'walk') {
-    const walkAnims = ANIMATIONS.walk as Record<WalkDirection, Animation>;
-    anim = walkAnims[direction];
-  } else {
-    const animData = ANIMATIONS[action];
-    if (animData && 'frames' in animData) {
-      anim = animData as Animation;
-    }
+  if (animData && 'frames' in animData) {
+    anim = animData as Animation;
+    applyDirOffset = DIRECTIONAL_ACTIONS.has(action);
+  } else if (animData) {
+    // Directional record (walk, idle) — already per-facing, no offset needed.
+    anim = (animData as Record<WalkDirection, Animation>)[direction];
   }
 
-  if (!anim) {
-    const idleAnim = ANIMATIONS.idle as Animation;
-    return idleAnim.frames[0] || { row: 0, col: 0, duration: 100 };
+  if (!anim || !anim.frames || anim.frames.length === 0) {
+    const idleData = ANIMATIONS.idle as Animation | Record<WalkDirection, Animation>;
+    const idleAnim = (idleData && 'frames' in idleData)
+      ? (idleData as Animation)
+      : (idleData as Record<WalkDirection, Animation>)?.[direction];
+    return idleAnim?.frames?.[0] ?? FALLBACK;
   }
+
+  const withDir = (f: AnimationFrame): AnimationFrame =>
+    applyDirOffset ? { ...f, row: f.row + dirOffset } : f;
 
   // Calculate current frame based on elapsed time
   let totalDuration = 0;
@@ -278,10 +302,11 @@ export function getCurrentFrame(
 
   for (const frame of anim.frames) {
     if (currentTime + frame.duration > adjustedElapsed) {
-      return frame;
+      return withDir(frame);
     }
     currentTime += frame.duration;
   }
 
-  return anim.frames[anim.frames.length - 1] || { row: 0, col: 0, duration: 100 };
+  const last = anim.frames[anim.frames.length - 1];
+  return last ? withDir(last) : FALLBACK;
 }

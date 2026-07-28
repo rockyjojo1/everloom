@@ -1,10 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { MEADOWREST, getTile, isWalkable, ZoneMap } from '../world/zonemaps';
 import { useGameStore } from '../store/gameStore';
-import { loadCharacterLayers, tintSpriteLayer, compositeLayers } from '../world/characterSprites';
+import { buildCharacterSheet } from '../world/characterSprites';
 import { ANIMATIONS, getCurrentFrame, extractFrame, ActionAnimationType } from '../world/character';
 import { appearanceToColors } from '../lib/appearanceColors';
 import { MovementState, findPath, getAdjacentWalkable, updateMovement, startWalking, stopWalking } from '../world/movement';
+import {
+  TILE_PX, PROP_PX, TILES_FILE, PROPS_FILE,
+  GROUND, WATER_FRAMES, PROPS, CAMPFIRE_FRAMES, RIPPLE_FRAMES,
+  NODE_PROP, FISHING_NODES, CAMPFIRE_NODES, variantFor,
+} from '../world/atlasLayout';
 
 interface LoadedTexture {
   img: HTMLImageElement;
@@ -77,6 +82,7 @@ export function WorldCanvas() {
   const birdsRef = useRef<Bird[]>([]);
   const lastBirdSpawnRef = useRef(Date.now());
   const particlesRef = useRef<Particle[]>([]);
+  const drawErrorLoggedRef = useRef(false);
   const lastSeenLevelUpEventIdRef = useRef<string>("");
 
   // Movement state
@@ -139,15 +145,16 @@ export function WorldCanvas() {
     particlesRef.current.push(...newParticles);
   };
 
-  // Load sprites and character on mount
+  // Load world atlases exactly once. This must NOT depend on player state:
+  // re-running it clears `textures`, which makes the render loop bail and the
+  // whole scene blank until the images decode again.
   useEffect(() => {
     const loaded: Record<string, LoadedTexture> = {};
-    const textureFiles = ['world/terrain.png', 'world/trees.png', 'world/rocks.png', 'world/water_anim.png'];
+    const textureFiles = [TILES_FILE, PROPS_FILE];
 
     const loadTexture = (file: string) => {
       return new Promise<void>((resolve) => {
         const img = new Image();
-        img.crossOrigin = 'anonymous';
         img.onload = () => {
           loaded[file] = { img, loaded: true };
           resolve();
@@ -161,37 +168,29 @@ export function WorldCanvas() {
       });
     };
 
-    Promise.all(textureFiles.map(loadTexture)).then(() => {
-      setTextures(loaded);
-    });
+    Promise.all(textureFiles.map(loadTexture)).then(() => setTextures(loaded));
+  }, []);
 
-    // Load character sprites
-    (async () => {
-      try {
-        const layers = await loadCharacterLayers();
-        const appColors = appearanceToColors(appearance);
+  // Rebuild the character sheet only when the appearance VALUES change.
+  // The store hands back a fresh object every tick, so keying on identity
+  // would rebuild a 576x1024 sheet many times a second.
+  const appearanceKey = appearance
+    ? `${appearance.skinTone}|${appearance.hairStyle}|${appearance.hairColor}|${appearance.torsoColor}|${appearance.legsColor}`
+    : 'default';
 
-        // Tint each layer based on appearance
-        const tintedLayers: Record<string, HTMLCanvasElement> = {
-          body: tintSpriteLayer(layers.body, appColors.skin),
-          legs: tintSpriteLayer(layers.legs, appColors.legs),
-          torso: tintSpriteLayer(layers.torso, appColors.torso),
-          hair: tintSpriteLayer(layers.hair, appColors.hair),
-        };
-
-        // Composite all layers
-        const composite = compositeLayers(tintedLayers);
-        setCharacterSprite(composite);
-      } catch (err) {
-        console.error('Failed to load character sprites:', err);
-      }
-    })();
-  }, [appearance]);
+  useEffect(() => {
+    try {
+      setCharacterSprite(buildCharacterSheet(appearanceToColors(appearance)));
+    } catch (err) {
+      console.error('Failed to build character sprite sheet:', err);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [appearanceKey]);
 
   // Main render loop
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !textures['world/terrain.png']?.loaded) return;
+    if (!canvas || !textures[TILES_FILE]?.loaded || !textures[PROPS_FILE]?.loaded) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -206,9 +205,19 @@ export function WorldCanvas() {
 
     // Click handler
     const handleCanvasClick = (e: MouseEvent) => {
+      // The canvas is object-fit:contain, so the drawn content is centred
+      // inside the element with letterbox bars. Map client coords through that
+      // same transform, or clicks land offset from where the player aimed.
       const rect = canvas.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const clickY = e.clientY - rect.top;
+      const scale = Math.min(rect.width / canvas.width, rect.height / canvas.height);
+      const drawnW = canvas.width * scale;
+      const drawnH = canvas.height * scale;
+      const originX = rect.left + (rect.width - drawnW) / 2;
+      const originY = rect.top + (rect.height - drawnH) / 2;
+      const clickX = (e.clientX - originX) / scale;
+      const clickY = (e.clientY - originY) / scale;
+      // Ignore taps that land on the letterbox bars.
+      if (clickX < 0 || clickY < 0 || clickX > canvas.width || clickY > canvas.height) return;
 
       // Hit-test nodes first
       for (const node of zone.nodes) {
@@ -268,15 +277,25 @@ export function WorldCanvas() {
     canvas.addEventListener('click', handleCanvasClick);
 
     const drawTile = (tx: number, ty: number, row: number, col: number, texture: HTMLImageElement) => {
-      const sx = col * TILE_SIZE_SRC;
-      const sy = row * TILE_SIZE_SRC;
-      const dx = tx * TILE_SIZE_DRAWN;
-      const dy = ty * TILE_SIZE_DRAWN;
-
       ctx!.drawImage(
         texture,
-        sx, sy, TILE_SIZE_SRC, TILE_SIZE_SRC,
-        dx, dy, TILE_SIZE_DRAWN, TILE_SIZE_DRAWN
+        col * TILE_PX, row * TILE_PX, TILE_PX, TILE_PX,
+        tx * TILE_SIZE_DRAWN, ty * TILE_SIZE_DRAWN, TILE_SIZE_DRAWN, TILE_SIZE_DRAWN
+      );
+    };
+
+    /**
+     * Props are 64px cells whose art is bottom-anchored, so (px,py) is the
+     * entity's ground contact point and the sprite is drawn up from there.
+     */
+    const drawProp = (px: number, py: number, row: number, col: number) => {
+      const tex = textures[PROPS_FILE];
+      if (!tex?.loaded) return;
+      const size = TILE_SIZE_DRAWN * 1.5; // props stand taller than one tile
+      ctx!.drawImage(
+        tex.img,
+        col * PROP_PX, row * PROP_PX, PROP_PX, PROP_PX,
+        px - size / 2, py - size, size, size
       );
     };
 
@@ -405,39 +424,20 @@ export function WorldCanvas() {
     };
 
     const drawCampfire = (px: number, py: number) => {
-      if (!textures['world/water_anim.png']?.loaded) return;
-      const waterTexture = textures['world/water_anim.png']!.img;
-
-      // Fire is frames 0-3 in row 1 of water_anim.png (4x4 frame grid)
-      const row = 1; // fire row
-      const col = campfireFrameRef.current;
-      const sx = col * TILE_SIZE_SRC;
-      const sy = row * TILE_SIZE_SRC;
-
-      ctx!.drawImage(
-        waterTexture,
-        sx, sy, TILE_SIZE_SRC, TILE_SIZE_SRC,
-        px - TILE_SIZE_DRAWN / 2, py - TILE_SIZE_DRAWN, TILE_SIZE_DRAWN, TILE_SIZE_DRAWN
-      );
+      const cell = CAMPFIRE_FRAMES[campfireFrameRef.current % CAMPFIRE_FRAMES.length]!;
+      drawProp(px, py, cell.row, cell.col);
     };
 
     const drawRipple = (px: number, py: number, frame: number) => {
-      if (!textures['world/water_anim.png']?.loaded) return;
-      const waterTexture = textures['world/water_anim.png']!.img;
-
-      // Ripples are frames 0-2 in row 0 of water_anim.png
-      const row = 0; // ripple row
-      const col = frame;
-      const sx = col * TILE_SIZE_SRC;
-      const sy = row * TILE_SIZE_SRC;
-
-      ctx!.globalAlpha = 0.6 + Math.random() * 0.2; // subtle shimmer
+      const cell = RIPPLE_FRAMES[frame % RIPPLE_FRAMES.length]!;
+      // Ripples sit flat on the water rather than standing up like a prop.
+      const tex = textures[PROPS_FILE];
+      if (!tex?.loaded) return;
       ctx!.drawImage(
-        waterTexture,
-        sx, sy, TILE_SIZE_SRC, TILE_SIZE_SRC,
-        px - TILE_SIZE_DRAWN / 2, py - TILE_SIZE_DRAWN, TILE_SIZE_DRAWN, TILE_SIZE_DRAWN
+        tex.img,
+        cell.col * PROP_PX, cell.row * PROP_PX, PROP_PX, PROP_PX,
+        px - TILE_SIZE_DRAWN / 2, py - TILE_SIZE_DRAWN * 0.85, TILE_SIZE_DRAWN, TILE_SIZE_DRAWN
       );
-      ctx!.globalAlpha = 1;
     };
 
     const drawCloudShadows = (now: number) => {
@@ -503,28 +503,29 @@ export function WorldCanvas() {
         }
       }
 
-      const terrainTexture = textures['world/terrain.png']!.img;
+      const tilesTexture = textures[TILES_FILE]!.img;
 
-      // 1. Ground layer
+      // 1. Ground layer — every cell comes from atlasLayout, never a literal.
       for (let ty = 0; ty < zone.height; ty++) {
         for (let tx = 0; tx < zone.width; tx++) {
           const tile = getTile(zone, tx, ty);
           if (!tile || tile === '.') continue;
 
-          let row = 0, col = 0;
-          switch (tile) {
-            case 'g': row = 0; col = 0; break;
-            case 'G': row = 0; col = 1; break;
-            case 'p': row = 1; col = 0; break;
-            case 'w': row = 2; col = waterFrameRef.current; break;
-            case 'W': row = 2; col = 3 + waterFrameRef.current; break;
-            case 'c': row = 3; col = 0; break;
-            case 's': row = 1; col = 1; break; // stone floor
-            case 'S': row = 3; col = 1; break; // dark stone wall
-            case 'T': row = 0; col = 0; break; // charwood (drawn as decor)
+          let cell;
+          if (tile === 'w' || tile === 'W') {
+            cell = WATER_FRAMES[waterFrameRef.current % WATER_FRAMES.length]!;
+          } else {
+            const variants = GROUND[tile] ?? GROUND['g']!;
+            cell = variants[variantFor(tx, ty, variants.length)]!;
           }
 
-          drawTile(tx, ty, row, col, terrainTexture);
+          drawTile(tx, ty, cell.row, cell.col, tilesTexture);
+
+          // Deep water sits darker than shallow so the river reads with depth.
+          if (tile === 'W') {
+            ctx!.fillStyle = 'rgba(10, 28, 44, 0.28)';
+            ctx!.fillRect(tx * TILE_SIZE_DRAWN, ty * TILE_SIZE_DRAWN, TILE_SIZE_DRAWN, TILE_SIZE_DRAWN);
+          }
         }
       }
 
@@ -565,42 +566,56 @@ export function WorldCanvas() {
 
       entities.sort((a, b) => a.py - b.py || a.ty - b.ty);
 
-      // Draw sorted entities
+      // Draw sorted entities. Each is isolated: a throw while drawing one
+      // entity must not blank every entity behind it in the sort order.
       for (const ent of entities) {
+        try {
         if (ent.type === 'node') {
-          ctx!.fillStyle = '#8B4513';
-          ctx!.fillRect(ent.px - 16, ent.py - 32, 32, 32);
-
-          // Draw node-specific animations
-          if (ent.id === 'meadowrest_campfire') {
+          if (CAMPFIRE_NODES.has(ent.id)) {
             drawCampfire(ent.px, ent.py);
-          } else if (ent.id === 'meadowrest_trout_stream' || ent.id === 'meadowrest_minnow_pool') {
+          } else if (FISHING_NODES.has(ent.id)) {
             updateFishingRipples(ent.id);
             const ripple = fishingRipplesRef.current[ent.id];
-            if (ripple) {
-              drawRipple(ent.px, ent.py, ripple.frame);
-            }
+            drawRipple(ent.px, ent.py, ripple ? ripple.frame : 0);
+          } else {
+            const propKey = NODE_PROP[ent.id];
+            const cell = propKey ? PROPS[propKey] : undefined;
+            if (cell) drawProp(ent.px, ent.py, cell.row, cell.col);
           }
         } else if (ent.type === 'decor') {
-          ctx!.fillStyle = '#228B22';
-          ctx!.fillRect(ent.px - 16, ent.py - 48, 32, 32);
+          const cell = PROPS[ent.id] ?? PROPS['tree_pine']!;
+          drawProp(ent.px, ent.py, cell.row, cell.col);
         } else if (ent.type === 'char' && characterSprite) {
-          if (currentAction) {
-            const actionType = (currentAction.type === 'woodcutting' ? 'chop' :
-                               currentAction.type === 'mining' ? 'mine' :
-                               currentAction.type === 'fishing' ? 'fish' :
-                               currentAction.type === 'cooking' ? 'cook' :
-                               'idle') as ActionAnimationType;
+          // Walking always wins over the skill animation — you can't chop
+          // while travelling. Falls back to a directional idle stand.
+          let actionType: ActionAnimationType;
+          let elapsedMs: number;
 
-            const elapsedMs = Date.now() - actionStartTimeRef.current;
-            const frame = getCurrentFrame(actionType, movementRef.current.facing, elapsedMs);
-            const frameCanvas = extractFrame(characterSprite, frame.row, frame.col);
+          if (movementRef.current.walking) {
+            actionType = 'walk' as ActionAnimationType;
+            elapsedMs = Date.now();
+          } else {
+            actionType = (currentAction?.type === 'woodcutting' ? 'chop' :
+                          currentAction?.type === 'mining' ? 'mine' :
+                          currentAction?.type === 'fishing' ? 'fish' :
+                          currentAction?.type === 'cooking' ? 'cook' :
+                          'idle') as ActionAnimationType;
+            elapsedMs = Date.now() - actionStartTimeRef.current;
+          }
 
-            ctx!.drawImage(
-              frameCanvas,
-              ent.px - 32,
-              ent.py - 64
-            );
+          const frame = getCurrentFrame(actionType, movementRef.current.facing, elapsedMs);
+          // Draw straight from the sheet — extractFrame allocated a canvas
+          // every frame, which churned GC during the rAF loop.
+          ctx!.drawImage(
+            characterSprite,
+            frame.col * 64, frame.row * 64, 64, 64,
+            ent.px - 32, ent.py - 60, 64, 64
+          );
+        }
+        } catch (err) {
+          if (!drawErrorLoggedRef.current) {
+            console.error('Entity draw failed for', ent.id, err);
+            drawErrorLoggedRef.current = true; // log once, not every frame
           }
         }
       }
@@ -638,9 +653,16 @@ export function WorldCanvas() {
       style={{
         display: 'block',
         flex: 1,
-        imageRendering: 'crisp-edges',
-        backgroundColor: '#000',
+        minHeight: 0,
+        width: '100%',
+        height: '100%',
+        // Letterbox instead of stretching — without this the backing store is
+        // squashed to the container's aspect ratio and everything distorts.
+        objectFit: 'contain',
+        imageRendering: 'pixelated',
+        backgroundColor: '#1E2430',
         cursor: 'crosshair',
+        touchAction: 'manipulation',
       } as any}
     />
   );
