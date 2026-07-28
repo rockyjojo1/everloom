@@ -18,10 +18,26 @@ interface ClickMarker {
   isRed: boolean; // true for node interaction, false for walk
 }
 
+interface Bird {
+  id: string;
+  px: number;
+  py: number;
+  vx: number; // velocity
+  frame: number;
+  startTime: number;
+  duration: number;
+}
+
 const TILE_SIZE_SRC = 32; // source size
 const TILE_SIZE_DRAWN = 64; // drawn at 2× scale
 const WATER_FRAME_DURATION = 150; // ms per frame
 const CLICK_MARKER_DURATION = 400; // ms total
+const CAMPFIRE_FRAME_DURATION = 150; // ms per frame (4 frames total)
+const RIPPLE_FRAME_DURATION = 200; // ms per frame (3 frames)
+const WATERFALL_SCROLL_SPEED = 0.3; // pixels per ms
+const CLOUD_CYCLE_DURATION = 4000; // 4 seconds per cloud cycle
+const BIRD_SPAWN_INTERVAL = 8000; // spawn every 8 seconds
+const BIRD_FLIGHT_DURATION = 3000; // fly for 3 seconds
 
 /**
  * WorldCanvas: Main game world renderer with movement, pathfinding, and click handling
@@ -35,6 +51,19 @@ export function WorldCanvas() {
   const lastWaterTimeRef = useRef(Date.now());
   const lastFrameTimeRef = useRef(Date.now());
   const actionStartTimeRef = useRef(Date.now());
+
+  // Ambient animation state
+  const campfireFrameRef = useRef(0);
+  const lastCampfireTimeRef = useRef(Date.now());
+  const fishingRipplesRef = useRef<Record<string, { frame: number; lastTime: number }>>({});
+  const waterfallOffsetRef = useRef(0);
+  const cloudsRef = useRef<Array<{ x: number; y: number; size: number; offset: number }>>([
+    { x: 300, y: 150, size: 80, offset: 0 },
+    { x: 600, y: 200, size: 60, offset: 1000 },
+    { x: 1000, y: 120, size: 100, offset: 2000 },
+  ]);
+  const birdsRef = useRef<Bird[]>([]);
+  const lastBirdSpawnRef = useRef(Date.now());
 
   // Movement state
   const movementRef = useRef<MovementState>({
@@ -208,6 +237,64 @@ export function WorldCanvas() {
       }
     };
 
+    const updateCampfireFrame = () => {
+      const now = Date.now();
+      const elapsed = now - lastCampfireTimeRef.current;
+
+      if (elapsed >= CAMPFIRE_FRAME_DURATION) {
+        campfireFrameRef.current = (campfireFrameRef.current + 1) % 4;
+        lastCampfireTimeRef.current = now;
+      }
+    };
+
+    const updateFishingRipples = (nodeId: string) => {
+      const now = Date.now();
+      if (!fishingRipplesRef.current[nodeId]) {
+        fishingRipplesRef.current[nodeId] = { frame: 0, lastTime: now };
+        return;
+      }
+
+      const ripple = fishingRipplesRef.current[nodeId];
+      const elapsed = now - ripple.lastTime;
+
+      if (elapsed >= RIPPLE_FRAME_DURATION) {
+        ripple.frame = (ripple.frame + 1) % 3;
+        ripple.lastTime = now;
+      }
+    };
+
+    const updateWaterfallScroll = (deltaTime: number) => {
+      waterfallOffsetRef.current = (waterfallOffsetRef.current + WATERFALL_SCROLL_SPEED * deltaTime) % TILE_SIZE_SRC;
+    };
+
+    const updateBirds = (deltaTime: number) => {
+      const now = Date.now();
+
+      // Spawn new bird occasionally
+      if (now - lastBirdSpawnRef.current > BIRD_SPAWN_INTERVAL) {
+        const direction = Math.random() > 0.5 ? 1 : -1;
+        birdsRef.current.push({
+          id: `bird-${now}`,
+          px: direction > 0 ? -50 : MEADOWREST.width * TILE_SIZE_DRAWN + 50,
+          py: 100 + Math.random() * 150,
+          vx: direction * 0.15,
+          frame: 0,
+          startTime: now,
+          duration: BIRD_FLIGHT_DURATION,
+        });
+        lastBirdSpawnRef.current = now;
+      }
+
+      // Update bird positions
+      birdsRef.current = birdsRef.current
+        .map((bird) => ({
+          ...bird,
+          px: bird.px + bird.vx * deltaTime,
+          frame: Math.floor(((now - bird.startTime) / 200) % 3),
+        }))
+        .filter((bird) => now - bird.startTime < bird.duration);
+    };
+
     const drawClickMarker = (marker: ClickMarker) => {
       const elapsed = Date.now() - marker.startTime;
       if (elapsed > CLICK_MARKER_DURATION) return false; // marker expired
@@ -237,6 +324,74 @@ export function WorldCanvas() {
       return true;
     };
 
+    const drawCampfire = (px: number, py: number) => {
+      if (!textures['world/water_anim.png']?.loaded) return;
+      const waterTexture = textures['world/water_anim.png']!.img;
+
+      // Fire is frames 0-3 in row 1 of water_anim.png (4x4 frame grid)
+      const row = 1; // fire row
+      const col = campfireFrameRef.current;
+      const sx = col * TILE_SIZE_SRC;
+      const sy = row * TILE_SIZE_SRC;
+
+      ctx!.drawImage(
+        waterTexture,
+        sx, sy, TILE_SIZE_SRC, TILE_SIZE_SRC,
+        px - TILE_SIZE_DRAWN / 2, py - TILE_SIZE_DRAWN, TILE_SIZE_DRAWN, TILE_SIZE_DRAWN
+      );
+    };
+
+    const drawRipple = (px: number, py: number, frame: number) => {
+      if (!textures['world/water_anim.png']?.loaded) return;
+      const waterTexture = textures['world/water_anim.png']!.img;
+
+      // Ripples are frames 0-2 in row 0 of water_anim.png
+      const row = 0; // ripple row
+      const col = frame;
+      const sx = col * TILE_SIZE_SRC;
+      const sy = row * TILE_SIZE_SRC;
+
+      ctx!.globalAlpha = 0.6 + Math.random() * 0.2; // subtle shimmer
+      ctx!.drawImage(
+        waterTexture,
+        sx, sy, TILE_SIZE_SRC, TILE_SIZE_SRC,
+        px - TILE_SIZE_DRAWN / 2, py - TILE_SIZE_DRAWN, TILE_SIZE_DRAWN, TILE_SIZE_DRAWN
+      );
+      ctx!.globalAlpha = 1;
+    };
+
+    const drawCloudShadows = (now: number) => {
+      ctx!.fillStyle = 'rgba(0, 0, 0, 0.12)';
+
+      for (const cloud of cloudsRef.current) {
+        const cycleProgress = ((now - cloud.offset) % CLOUD_CYCLE_DURATION) / CLOUD_CYCLE_DURATION;
+        const cloudX = 50 + cycleProgress * (MEADOWREST.width * TILE_SIZE_DRAWN - 100);
+
+        ctx!.beginPath();
+        ctx!.ellipse(cloudX, cloud.y, cloud.size, cloud.size * 0.4, 0, 0, Math.PI * 2);
+        ctx!.fill();
+      }
+    };
+
+    const drawBirds = () => {
+      ctx!.fillStyle = '#333';
+      const birdSize = 12;
+
+      for (const bird of birdsRef.current) {
+        // Simple bird silhouette: body + wings
+        const wingOffset = Math.sin(bird.frame * Math.PI / 1.5) * 4; // flap animation
+        const bodyX = bird.px;
+        const bodyY = bird.py;
+
+        // Body
+        ctx!.fillRect(bodyX - 4, bodyY - 3, 8, 6);
+        // Left wing
+        ctx!.fillRect(bodyX - 8, bodyY - 2, 4, 4);
+        // Right wing
+        ctx!.fillRect(bodyX + 4, bodyY - 2, 4, 4);
+      }
+    };
+
     const render = () => {
       // Update frame timing
       const now = Date.now();
@@ -244,6 +399,9 @@ export function WorldCanvas() {
       lastFrameTimeRef.current = now;
 
       updateWaterFrame();
+      updateCampfireFrame();
+      updateWaterfallScroll(deltaTime);
+      updateBirds(deltaTime);
 
       // Update movement
       if (movementRef.current.walking) {
@@ -286,6 +444,9 @@ export function WorldCanvas() {
         }
       }
 
+      // 1.5 Ambient animations (before entities for layering)
+      drawCloudShadows(now);
+
       // 2. Y-sorted entities
       const entities: Array<{ ty: number; px: number; py: number; id: string; type: 'node' | 'decor' | 'char' }> = [];
 
@@ -325,6 +486,17 @@ export function WorldCanvas() {
         if (ent.type === 'node') {
           ctx!.fillStyle = '#8B4513';
           ctx!.fillRect(ent.px - 16, ent.py - 32, 32, 32);
+
+          // Draw node-specific animations
+          if (ent.id === 'meadowrest_campfire') {
+            drawCampfire(ent.px, ent.py);
+          } else if (ent.id === 'meadowrest_trout_stream' || ent.id === 'meadowrest_minnow_pool') {
+            updateFishingRipples(ent.id);
+            const ripple = fishingRipplesRef.current[ent.id];
+            if (ripple) {
+              drawRipple(ent.px, ent.py, ripple.frame);
+            }
+          }
         } else if (ent.type === 'decor') {
           ctx!.fillStyle = '#228B22';
           ctx!.fillRect(ent.px - 16, ent.py - 48, 32, 32);
@@ -348,6 +520,9 @@ export function WorldCanvas() {
           }
         }
       }
+
+      // 2.5 Birds (drawn above entities)
+      drawBirds();
 
       // 3. Click markers
       clickMarkersRef.current = clickMarkersRef.current.filter(drawClickMarker);
