@@ -1,8 +1,52 @@
-# Everloom Graphics Overhaul — Implementation Plan (v2)
+# Everloom Overhaul — Implementation Plan (v3)
 
 > **Audience**: implementing model/agent. Read this whole file before writing code.
-> **Baseline**: repo builds green (`pnpm build`), deployed logic works, engine is done.
-> **This plan changes PRESENTATION ONLY. Do not modify `packages/engine` logic or Supabase code.**
+> **Baseline**: repo builds green (`pnpm build`), engine/Supabase logic works.
+> Allowed engine changes are ONLY those explicitly scoped in §5b.1 and §6b.
+
+---
+
+## 0. Audit — what was asked vs. what was delivered
+
+Honest scorecard of the user's requests across all sessions. ❌ items are THE
+point of this plan; do not consider the project good until they're ✅.
+
+| # | Request | Status | Gap |
+|---|---------|--------|-----|
+| 1 | Animated character doing skills | ❌ missed twice | SVG rectangles w/ CSS rotation ≠ sprite animation. → Phase 2 |
+| 2 | Immersive forest/river/cliff diorama | ❌ | Flat SVG shapes read as placeholder. → Phase 1 tilemap |
+| 3 | Cooking needs a lit fire | ✅ | Campfire node → charges → recipes consume them |
+| 4 | Smithing needs rock + hammer + fire | ❌ | Bench crafts anywhere; no hammer, no anvil/furnace. → §5b.6 |
+| 5 | Raw fish heavier in inventory | ✅ | fish stack cap 3 |
+| 6 | Zone 2 travel: walk or wayfaring teleport | ⚠️ | Timer-based travel exists; no walking journey/teleport UI. → Phase 6 |
+| 7 | Email/password + appearance creator | ✅ | works |
+| 8 | Multi-character select | ⚠️ | Select screen exists but only 1 slot. → later, low priority |
+| 9 | Offline return report | ✅ | works |
+| 10 | OSRS-style UI, inventory always visible | ⚠️ | Rail + strip exist but don't look/behave like OSRS. → Phase 4 (§6, rewritten) |
+| 11 | Point-and-click walking | ❌ | Character teleport-glides via CSS. → Phase 3 |
+| 12 | Equipment: find → build → equip → use | ❌ | Engine supports it; never surfaced. → Phase 3b |
+| 13 | Slow, grindy, OSRS-paced progression | ❌ | Lvl 10 WC in minutes. → Phase P (§6b) — DO THIS FIRST |
+
+**Root-cause notes for the implementing model**
+- The repeated graphics miss happened because SVG programmer-art was iterated
+  instead of adopting real game assets. Do not repeat this: if a phase's output
+  could be mistaken for a placeholder, it fails its acceptance criteria.
+- "Feels like you just click and that's it" = three missing layers: movement
+  (walking is the verb of OSRS), equipment (preparation before action), and
+  pacing (scarcity of progress). All three are phased below.
+
+## 0b. Design pillars (priority order — settle every tradeoff by this list)
+
+1. **OSRS first**: the world is a place. You walk, you click things, tools and
+   levels gate you, progress is slow and therefore meaningful. Interfaces are
+   compact, diegetic-feeling stone/parchment panels. Numbers are earned.
+2. **Melvor second**: clean skill panels, always-visible "next unlock at Lv X"
+   teasers, mastery per node, offline progress that respects the same rates.
+3. **Idle Slayer third**: the ACTIVE layer — small tap bonuses (glimmers),
+   occasional flying rare (bird/spirit crossing the screen you can tap for a
+   mote burst). Active play should feel ~20-30% better than idle, never required.
+4. **BETTER**: no energy systems, no ads, no fake timers. The grind is honest;
+   the world is cozy; every level-up feels like a small event (see §6c).
 
 ---
 
@@ -278,48 +322,216 @@ New module `apps/web/src/world/groundItems.ts` + rendering in WorldCanvas:
   item icon, tier, and a wear bar; wear < 20% tints the bar red and shows
   *"Your hatchet is about to break."*
 
+### 5b.6 Facilities — smithing done right (the user's ORIGINAL ask:
+### "rock + hammer + fire")
+OSRS model: smelting happens AT a furnace, smithing AT an anvil WITH a hammer,
+cooking AT a fire. Implement as **interaction-gated menus**, no engine change:
+- Add two facility nodes to the Meadowrest map (near the cliff base): a
+  **stone furnace** (rough rock chimney sprite) and an **anvil** (on a flat
+  rock). They're world objects like trees — click → character walks over.
+- Arriving at a facility opens its menu in the GamePanel (§6): furnace →
+  smelting recipes only; anvil → smith recipes only (and shows a red header
+  *"You need a hammer to work the anvil"* if no hammer in inventory); campfire →
+  cooking recipes (charge system stays as-is).
+- The free-standing Bench tab keeps ONLY crafting + fletching (whittling and
+  tying don't need a facility).
+- New item `hammer` (materialClass "tool", untradeable starter variant
+  `worn_hammer` ground-spawns beside the anvil; craftable proper hammer:
+  1 bronze_bar + pine_haft at the anvil).
+- Gating is enforced at action-START only (client): once smelting begins it
+  continues offline like everything else. Document this in code comments.
+
 ### Phase 3b acceptance criteria
 ✔ Fresh character cannot chop/mine/fish; red message explains why.
 ✔ Worn hatchet visible on the ground, Take → inventory → Equip → chopping works.
 ✔ Assembling copper hatchet at bench from 3 components works and equips.
 ✔ Equipment tab shows tools + wear; wear decreases with use (engine already
   does this — verify it displays).
+✔ Smelting only possible at the furnace; anvil demands a hammer; the worn
+  hammer is findable on the ground beside it.
 
-## 6. OSRS-style UI (Phase 4)
+## 6. OSRS-mobile-style interface (Phase 4) — REWRITTEN per user feedback
 
-Replace `InventoryBar` + `TabStrip` + sliding panels with a **SidePanel** docked
-right (desktop ≥ 700px wide) / **bottom sheet** (mobile):
+The user's exact spec: *"inventory + other tabs exactly like it would work on
+OSRS — a small shown area on the bottom right that you can toggle — and given
+we'll be looking to increase the inventory, make it scrollable."*
 
-- Frame: dark stone/parchment 9-slice look. Colors from existing palette
-  (`--walnut` browns, `--iron-gall` dark) — draw the border as CSS
-  `border-image` from a small 24×24 stone-corner PNG (make one, or nested
-  box-shadows are acceptable).
-- **Inventory grid**: 4 columns (OSRS is 4×7). Render `ps.slots` slots (10 now,
-  grows with satchel upgrades). Item icons from the icon atlas + qty number
-  bottom-right in yellow (OSRS convention, `--weld`).
-- **Tab row** under/above the grid, icon-only stone buttons:
-  `🎒 inventory | ⚔ equipment | 📊 skills | 🗺 atlas | 📖 ledger | ⚖ exchange | 🔨 bench`
-  (swap emoji for atlas icons in the same pass). Active tab = lighter stone +
-  gold underline. Clicking a tab swaps the PANEL CONTENT INSIDE the side panel —
-  **never** a full-screen overlay.
-- **Skills tab** (new, Melvor-style): grid of all 10 skills, each cell = icon,
-  level big, xp progress bar. Reuse `levelFromXp`/`XP_TABLE`.
-- ActionHUD: keep, restyle to a compact top-left "activity card": skill icon,
-  node name, xp/hr estimate (compute: xpPerAction / actionTime × 3600), progress
-  of current action cycle.
-- **XP drops**: on `xp_gain` events, spawn floating `+N ⚒` text rising from the
-  character position on the canvas (or DOM-positioned over it) — OSRS xp-drop
-  style. Existing `xp-popup` CSS is a starting point.
+This is the **OSRS Mobile** interaction model. Delete `InventoryBar`,
+`TabStrip`, and ALL slide-up `.panel` sheets. Build one component:
+`apps/web/src/components/GamePanel.tsx`.
+
+### 6.1 Collapsed state (default)
+A single **stone tab bar** anchored bottom-right of the game view
+(`position:absolute; right:8px; bottom:calc(8px+env(safe-area-inset-bottom))`).
+Row of 7 square stone buttons (44×44px min — Apple tap-target rule):
+`inventory | equipment | skills | bench | atlas | ledger | exchange`.
+Nothing else on screen — the world stays fully visible while skilling; the
+ActionHUD (top-left activity card) and xp drops carry the feedback.
+
+### 6.2 Open state (toggle)
+Tapping a tab opens a **compact panel that grows UP from the tab bar**,
+bottom-right anchored — OSRS mobile behavior exactly:
+- Size: `width: min(340px, 62vw)` desktop / `min(320px, 86vw)` phones;
+  `height: min(420px, 58%)` of game view. NEVER full-screen.
+- The tab bar remains visible (docked to panel bottom edge); active tab stone
+  is "pressed" (darker + gold top edge, OSRS-style).
+- Tap active tab again OR tap the world → panel collapses. Small ✕ too.
+- Open/close = 140ms translateY+fade. No scrim, no blur — the world stays live
+  behind it (you watch your character keep chopping — this is core to the vibe).
+- Frame: parchment interior (`--linen` texture), 3px `--walnut` border,
+  corner rivets (4 small darker squares) — reads "OSRS panel" without ripping art.
+
+### 6.3 Inventory tab (the default tab)
+- **4 columns fixed** (OSRS), rows = ceil(slots/4), **vertical scroll** inside
+  the panel (`overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch`)
+  — REQUIRED because slots grow (10 → 28 → 56+ via satchels/bank upgrades).
+  Grid must stay smooth at 100+ slots (it's just divs; no virtualization needed
+  below 200).
+- Slot: 56×56px stone-inset square; item icon centered; qty bottom-right in
+  yellow `--weld` (OSRS convention: yellow < 100k). Empty slot = darker inset.
+- Tap item → context menu (§5b.4): `Equip/Eat/Use | Examine | Drop`.
+- Header strip: `Satchel 12/28` + weight-free (no OSRS weight — idle game).
+- Larder + Bank become **sub-tabs inside the inventory tab** (small text tabs
+  at top: Satchel · Larder · Bank), each a scrollable 4-col grid.
+
+### 6.4 Other tabs (all same panel shell, all scrollable)
+- **Equipment**: §5b.5 — tool slots + armour paper-doll column, wear bars.
+- **Skills** (Melvor-style): list rows, one per skill: icon, name, `Lv 23/99`,
+  thin xp bar, and **"Next: Oak trees at 15"** unlock teaser line (§6c.2).
+- **Bench / Atlas / Ledger / Exchange**: port existing panel content into the
+  new shell; 4-col or list layouts; everything scrolls within the panel.
+
+### 6.5 HUD (outside the panel)
+- Top-left compact activity card: skill icon + node name + action progress bar
+  (fills per action tick) + `+N xp` accumulator + xp/hr.
+- XP drops float up from the character on the canvas.
+- Top-right: HP orb (small, OSRS-style circle) only in danger zones.
 
 ---
+
+## 6b. Pacing & XP economy (Phase P — DO THIS FIRST, before any graphics work)
+
+User verdict: leveling is far too fast ("sat a short while, already 10
+woodcutting"). The XP TABLE is already OSRS-exact (`packages/engine/src/xp.ts`) —
+the problem is throughput: every action succeeds, action xp is generous, and
+level/haft speed bonuses compound. Fix throughput, not the table.
+
+### 6b.1 Success rolls (the OSRS lever) — scoped engine change
+In `resolveGathering`, before drops/xp each iteration, roll success on the
+existing rng stream:
+```
+successFP = clamp(180 + skillLevel*11 + headTier*70 + masteryLevel*3, 180, 850)  // ×1000
+```
+- Lv1, tier-1 worn tool → ~26%. Lv30 + copper → ~58%. Cap 85% forever (OSRS
+  trees never hit 100%).
+- Failure consumes the full action time, yields NO xp and NO drop (a swing and
+  a miss). Mastery xp DOES accrue on failure at 1 (familiarity with the spot) —
+  this keeps mastery meaningful and softens frustration, Melvor-style.
+- **Offline windows > 2h**: switch to expected-value (`successes =
+  floor(actions × successFP / 1000)`) so 300h resolves stay <50ms and results
+  stay deterministic/composable. Same rates idle vs active — pillar #4 honesty
+  (the active edge comes from glimmers, §6c.4, not secret idle nerfs).
+- Emit nothing on failures (no event spam); ActionHUD shows a brief "miss"
+  shimmer client-side by watching action ticks without xp.
+
+### 6b.2 Data rebalance (`gamedata` only)
+- Gathering `xpPerAction` ×0.65 (pine 12→8, willow 18→12, copper/tin 14→9,
+  minnow 10→6, trout 22→14, oak 38→25, iron 35→23, perch 40→26, coal 50→32,
+  charwood 58→38, eel 55→36). Campfire lighting 3→2.
+- Production `xpPerAction` ×0.6 across recipes.json (round sensibly).
+- `masteryXpPerAction` halved (mastery should trail skill early).
+- Kill the speed snowball: in `resolveGathering`, `speedBonus = skillLevel*3 +
+  haftTier*120` (was `*8`/`*200`) — same engine file/section as 6b.1.
+- Zone `richness` stays (it's the reward for pushing into danger).
+
+### 6b.3 Feel targets (verify by simulation, not vibes)
+Write a throwaway script (`scripts/pace-sim.ts`, run with tsx, delete after or
+keep in repo) that calls `resolve()` over simulated hours and prints time-to-level:
+
+| Milestone | Target (active play) |
+|---|---|
+| Woodcutting 10 | ~50-70 min |
+| First copper hatchet crafted | ~2 hours in (needs WC + mining + all 3 components) |
+| Any skill 30 | 2-3 days of casual idle |
+| Any skill 50 | ~2-3 weeks |
+| Any skill 70 | ~2 months |
+| 99 | a year of devotion — a real flex |
+
+If sim results are >±30% off target, tune §6b.2 numbers and rerun. Commit the
+sim output table in the commit message.
+
+### 6b.4 Early-game friction (deliberate, OSRS-style)
+- Worn tools (§5b) are tier 1 AND get a flat −8% success (they're WORN) — one
+  more reason the first crafted copper tool feels amazing.
+- Satchel starts at 10 slots (already true) — banking trips are part of the
+  loop until Small Satchel (~crafting 5).
+
+## 6c. Retention, juice & "one more level" (Phase 5b)
+
+What makes it addictive without dark patterns:
+
+1. **Onboarding deed (first 15 min, scripted)**: wake at cold ashes → sparkle
+   nudge to worn hatchet → chop 3 logs (misses teach the success roll — add
+   message *"You swing at the tree... nothing yet."*) → light the campfire
+   (consumes 2 logs) → cook first minnow → Deed complete → reward: **Dusty Lamp**
+   (OSRS-style xp lamp item: use → pick a skill → +50xp). Implement as a simple
+   ordered checklist in a `deeds.json` + store slice; show as a subtle quest-log
+   line under the HUD.
+2. **Next-unlock teasers everywhere** (Melvor's best trick): skills tab rows and
+   the ActionHUD show *"Next: Oak trees at Woodcutting 15"* — computed from a
+   static `unlocks.ts` table (node/recipe level reqs already in gamedata).
+3. **Level-up moment** (OSRS fireworks): canvas particle burst above the
+   character (gold/white, 20 particles, 700ms), skill-icon toast, panel row
+   glow. Milestone levels (10/25/50/75/92/99) get a bigger burst + full-width
+   banner toast.
+4. **Glimmers = the Idle Slayer layer**: keep random glimmer spawns; tapping one
+   now ALSO grants **Focus: +12% gather success for 90s** (client-passed flag →
+   include in successFP calc via a `focusUntil` timestamp in PlayerState?— NO:
+   keep engine pure; implement Focus as a client-side buff that calls
+   startAction with a `focus` node... TOO COMPLEX → simplest honest version:
+   glimmer tap grants motes + instantly completes the current action. Ship that.)
+5. **Collection log** (OSRS): `collectedItemIds` already tracks firsts — add a
+   Log sub-tab (inventory tab) showing all items as silhouettes, filled when
+   collected, with per-zone completion %. Rares/pets get gold borders.
+6. **Pets follow you**: pet drops exist in engine (1/50k actions). When owned,
+   draw the pet sprite trailing 1 tile behind the character. Announce with
+   fanfare + collection log entry. (LPC has cat/dog/bird sprites.)
+7. **Examine text**: every item and node gets one wry line (items.json
+   `examine` field). Message log, bottom-left, last 4 messages, fades.
+8. **Backlog (do NOT build now, note for later)**: zone achievement diaries,
+   shooting-star style random events, traveling merchant, bank placeholders,
+   loadout presets, seasonal patterns on the Loom.
+
+## 6d. iOS readiness checklist (verify at Phase 4 and again at Phase 6)
+
+- [ ] **Create real PWA icons** — `apps/web/public/icon-192.png` and
+      `icon-512.png` are referenced by the manifest but DO NOT EXIST (also
+      note: a stray `public/` at repo root is unused by Vite — assets belong in
+      `apps/web/public/`). Draw a simple loom/tree pixel icon.
+- [ ] `apple-touch-icon` 180px + correct manifest `display: standalone`.
+- [ ] Test 390×844 and 430×932 portrait: no horizontal scroll, panel usable,
+      canvas letterboxes around the 20×11 tile world gracefully.
+- [ ] All tap targets ≥ 44px; no hover-only affordances (context menu =
+      long-press 350ms on touch).
+- [ ] `100dvh` root (done), safe-area padding on tab bar (done — keep).
+- [ ] Panel scroll uses `-webkit-overflow-scrolling: touch`;
+      `overscroll-behavior: contain` so the page never rubber-bands.
+- [ ] Add-to-Home-Screen: after the onboarding deed completes, show a one-time
+      dismissible hint ("Install Everloom for offline play").
+- [ ] Verify Supabase auth persists in standalone PWA mode (localStorage does).
 
 ## 7. Phases, order, and acceptance criteria
 
 Work strictly in this order; each phase must build (`pnpm build`) and be
 verified in the browser before the next.
 
+**Phase P — pacing (§6b), FIRST**: success rolls, data rebalance, pace
+simulation. Do this before graphics so every later playtest happens at real
+speed. ✔ sim table hits §6b.3 targets; fresh character takes ~an hour to WC 10.
+
 **Phase 0 — assets** (no code): download sheets listed in §3 into
-`public/sprites/`, update CREDITS.md with authors. ✔ files exist, licenses noted.
+`apps/web/public/sprites/`, update CREDITS.md with authors. ✔ files exist,
+licenses noted.
 
 **Phase 1 — WorldCanvas + tilemap**: canvas renders Meadowrest map w/ animated
 water, decor, node sprites at tile positions, name labels. Old SVG scene gone.
@@ -336,21 +548,32 @@ it, chops, logs appear in inventory; click water mid-chop → cancels and walks.
 **Phase 3b — equipment & tools** (§5b): no-tool gating, ground item spawns,
 assemble/equip flow, context menu, equipment tab data. ✔ criteria in §5b.
 
-**Phase 4 — OSRS UI**: SidePanel + tabs (incl. equipment tab UI) + icon atlas +
-xp drops; delete InventoryBar/TabStrip/slide-up panels. ✔ inventory always
-visible during skilling on desktop AND iPhone-width; no full-screen overlays
-remain.
+**Phase 4 — OSRS-mobile interface (§6 rewritten)**: GamePanel toggleable
+bottom-right, scrollable 4-col inventory, all tabs in the shell, facility
+menus, icon atlas, xp drops; delete InventoryBar/TabStrip/slide-up panels.
+✔ panel behaves exactly like OSRS mobile at desktop AND iPhone width; world
+stays visible and live behind it; inventory scrolls smoothly at 56+ slots.
 
 **Phase 5 — ambience**: campfire 4-frame fire, fishing ripples, waterfall anim
 (2-frame offset scroll), cloud shadows (slow moving translucent ellipses),
 birds (3-frame, occasional flyover). ✔ scene feels alive at idle.
 
-**Phase 6 — zones 2+3 maps + deploy**: bramblewood (dusk palette tiles) and
-ashen_delve (cave tileset) maps + node placements; run full build; push; verify
-Vercel deployment on desktop + iPhone. ✔ live URL shared with user.
+**Phase 5b — retention & juice (§6c)**: onboarding deed + lamp, next-unlock
+teasers, level-up fireworks, glimmer action-complete, collection log, pet
+follower, examine/message log. ✔ a new player's first 15 minutes is guided and
+ends with a cooked minnow and a lamp; leveling visibly celebrates.
 
-**Definition of done for the whole overhaul**: a stranger screenshots the game
-and it reads as "a cute OSRS-like", not "developer placeholder art".
+**Phase 6 — zones 2+3 maps + deploy**: bramblewood (dusk palette tiles) and
+ashen_delve (cave tileset) maps + node placements + facility placements; iOS
+checklist (§6d) full pass; run full build; push; verify Vercel deployment on
+desktop + iPhone. ✔ live URL shared with user.
+
+**Definition of done for the whole overhaul**:
+1. A stranger screenshots the game and reads "a cute OSRS-like", not
+   "developer placeholder art".
+2. A fresh account's first hour: guided by the deed, blocked without tools,
+   finds/builds them, reaches ~WC 8-10, has opened/closed the bottom-right
+   panel naturally on a phone — and wants tomorrow's return report.
 
 ---
 
