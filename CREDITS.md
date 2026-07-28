@@ -2,29 +2,54 @@
 
 This file documents all external assets used in Everloom, their licenses, and sources.
 
-## Pixel Art & Character Graphics
+## Pixel Art & Graphics
 
-### LPC (Liberated Pixel Cup) Assets
-- **Source**: OpenGameArt.org — LPC Base sprite sheets
+### World Terrain (LPC Terrains)
+- **Source**: https://opengameart.org/content/lpc-terrains
+- **File**: `apps/web/public/sprites/world/terrain.png`
 - **License**: CC-BY-SA 3.0
-- **Usage**: Character customization (skin tones, hair styles, clothing colors) — inline SVG implementation
-- **Attribution**: Derived from LPC community submissions; customized as 12×24px pixel character SVG
+- **Attribution**: LPC Terrains contributors (see OpenGameArt page for full credits)
+- **Usage**: Grass tiles, dirt paths, water edges, cliffs
 
-### Kenney.nl Assets (CC0)
-- **Source**: https://kenney.nl/
-- **License**: CC0 (Public Domain) — no attribution required
-- **Asset Packs Used**:
-  - Nature Pack (tiles, vegetation, rocks)
-  - Farming Pack (fields, crops, water)
-  - Medieval Builder (structures, terrain)
-  - Mining Pack (ore veins, minerals, tools)
-  - Fantasy Pack (magic, effects, environment)
-- **Usage**: Forest dioramas, node sprites (trees, ore veins, water), environmental backgrounds
-- **Status**: Planned for v0.2+ sprite atlas; currently using inline SVG implementations
+### Trees (LPC Trees)
+- **Source**: https://opengameart.org/content/lpc-trees
+- **File**: `apps/web/public/sprites/world/trees.png`
+- **License**: CC-BY-SA 3.0
+- **Attribution**: LPC Trees contributors (Zabin, Tuomo Untinen, Sepia Taku, and others per OpenGameArt page)
+- **Usage**: Pine, oak, willow, dead/charwood tree sprites
+
+### Animated Water & Fire (LPC Animated Water and Fire)
+- **Source**: https://opengameart.org/content/lpc-animated-water-and-fire
+- **File**: `apps/web/public/sprites/world/water_anim.png`
+- **License**: CC-BY 3.0
+- **Attribution**: Sharm, Curt (https://opengameart.org/content/lpc-animated-water-and-fire)
+- **Usage**: Animated water edges (3-frame), animated fire (4-frame for campfire)
+
+### Rocks & Ore (LPC Rocks)
+- **Source**: https://opengameart.org/content/lpc-rocks
+- **File**: `apps/web/public/sprites/world/rocks.png`
+- **License**: CC-BY-SA 4.0 / CC-BY-SA 3.0
+- **Attribution**: Multiple LPC contributors (see CREDITS-rocks.txt in source archive)
+- **Usage**: Base rock sprites, ore overlays for copper/tin/iron/coal
+
+### Character Sprites (Universal LPC Spritesheet Generator)
+- **Source**: https://github.com/sanderfrenken/Universal-LPC-Spritesheet-Character-Generator
+- **Live**: https://liberatedpixelcup.github.io/Universal-LPC-Spritesheet-Character-Generator/
+- **License**: CC-BY-SA 3.0 / GPL 3.0
+- **Attribution**: LPC community contributors (Sanderfrenken, LPC team, and all sprite artists)
+- **Usage**: Player character customization — body tones, hair styles, clothing colors
+- **Status**: Character sheets to be generated per appearance editor selections and stored in `apps/web/public/sprites/char/`
+- **Note**: Generator outputs are composited from layered spritesheets (body, legs, torso, hair)
+
+### Item Icons (496 Pixel Art Icons)
+- **Source**: https://opengameart.org/content/496-pixel-art-icons-for-medievalfantasy-rpg
+- **License**: CC0 (Public Domain)
+- **Usage**: Inventory item icons (logs, ore, fish, tools, armor, etc.)
+- **Note**: Planned for Phase 4; currently using emoji placeholders
 
 ## Fonts
 
-### IBM Plex Sans (Apache 2.0)
+### IBM Plex Sans (SIL Open Font License 1.1)
 - **Source**: https://github.com/IBM/plex
 - **License**: SIL Open Font License 1.1
 - **Usage**: Display, UI, body text
@@ -51,5 +76,12 @@ All game data (items, recipes, nodes, zones, enemies) is original content create
 
 ---
 
+## Legal Compliance Notes
+
+- All CC-BY-SA assets are properly attributed on this page
+- CC0 assets (item icons) require no attribution but are noted for reference
+- GPL 3.0 components (LPC Generator) are used in accordance with license terms
+- No Jagex/RSPS assets are used (OSRS/RuneScape-inspired mechanics only, no ripped graphics)
+
 **Everloom** is a community project celebrating the craft of idle games and pixel art.  
-Built with ❤️ and respect for open-source creators.
+Built with respect for open-source creators and proper licensing compliance.
