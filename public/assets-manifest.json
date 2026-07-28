@@ -1,0 +1,110 @@
+{
+  "version": "0.1.0",
+  "description": "Sprite atlas manifest for Everloom. Maps tile/sprite IDs to Kenney.nl asset packs.",
+  "assetPacks": {
+    "kenney_nature": {
+      "name": "Kenney Nature Pack",
+      "source": "https://kenney.nl/assets/nature-pack",
+      "license": "CC0",
+      "format": "PNG (16×16 tile set)"
+    },
+    "kenney_medieval": {
+      "name": "Kenney Medieval Pack",
+      "source": "https://kenney.nl/assets/medieval-pack",
+      "license": "CC0",
+      "format": "PNG (16×16 tile set)"
+    },
+    "kenney_mining": {
+      "name": "Kenney Mining Pack",
+      "source": "https://kenney.nl/assets/mining-pack",
+      "license": "CC0",
+      "format": "PNG (16×16 tile set)"
+    }
+  },
+  "sprites": {
+    "node_pine": {
+      "pack": "kenney_nature",
+      "description": "Pine tree",
+      "status": "v0.2-planned",
+      "current": "inline SVG"
+    },
+    "node_oak": {
+      "pack": "kenney_nature",
+      "description": "Oak tree",
+      "status": "v0.2-planned",
+      "current": "inline SVG"
+    },
+    "node_willow": {
+      "pack": "kenney_nature",
+      "description": "Willow tree",
+      "status": "v0.2-planned",
+      "current": "inline SVG"
+    },
+    "node_charwood": {
+      "pack": "kenney_nature",
+      "description": "Dark charwood",
+      "status": "v0.2-planned",
+      "current": "inline SVG"
+    },
+    "node_copper_vein": {
+      "pack": "kenney_mining",
+      "description": "Copper ore vein",
+      "status": "v0.2-planned",
+      "current": "inline SVG"
+    },
+    "node_tin_vein": {
+      "pack": "kenney_mining",
+      "description": "Tin ore vein",
+      "status": "v0.2-planned",
+      "current": "inline SVG"
+    },
+    "node_iron_vein": {
+      "pack": "kenney_mining",
+      "description": "Iron ore vein",
+      "status": "v0.2-planned",
+      "current": "inline SVG"
+    },
+    "node_coal_seam": {
+      "pack": "kenney_mining",
+      "description": "Coal seam",
+      "status": "v0.2-planned",
+      "current": "inline SVG"
+    },
+    "node_minnow_pool": {
+      "pack": "kenney_nature",
+      "description": "Water pool",
+      "status": "v0.2-planned",
+      "current": "inline SVG"
+    },
+    "node_trout_stream": {
+      "pack": "kenney_nature",
+      "description": "Running stream",
+      "status": "v0.2-planned",
+      "current": "inline SVG"
+    },
+    "node_perch_pool": {
+      "pack": "kenney_nature",
+      "description": "Deep pool",
+      "status": "v0.2-planned",
+      "current": "inline SVG"
+    },
+    "node_cave_eel": {
+      "pack": "kenney_nature",
+      "description": "Underground grotto",
+      "status": "v0.2-planned",
+      "current": "inline SVG"
+    },
+    "node_campfire": {
+      "pack": "kenney_medieval",
+      "description": "Campfire / forge",
+      "status": "v0.2-planned",
+      "current": "inline SVG"
+    }
+  },
+  "roadmap": {
+    "v0.1": "Launch with inline SVG sprites (complete)",
+    "v0.2": "Integrate Kenney atlas; compile static sprite sheet",
+    "v0.3": "Performance optimization; consider WebP atlas",
+    "v1.0": "Full feature parity + animations"
+  }
+}

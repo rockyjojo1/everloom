@@ -1,0 +1,35 @@
+[
+  {
+    "id": "thornwretch",
+    "name": "Thornwretch",
+    "description": "A bramble-wrapped creature with brittle claws. More persistent than dangerous.",
+    "zoneId": "bramblewood",
+    "damagePerHit": 3,
+    "hitIntervalSeconds": 12,
+    "spriteId": "enemy_thornwretch",
+    "maxHp": 20,
+    "attackRating": 10,
+    "defenceRating": 5,
+    "drops": [
+      { "itemId": "beast_sinew", "chance": 50, "qty": 1 }
+    ],
+    "slayerXp": 15
+  },
+  {
+    "id": "shade_crawler",
+    "name": "Shade Crawler",
+    "description": "A thing of condensed shadow that drains warmth on contact. Keep your fire burning.",
+    "zoneId": "ashen_delve",
+    "damagePerHit": 7,
+    "hitIntervalSeconds": 10,
+    "spriteId": "enemy_shade_crawler",
+    "maxHp": 35,
+    "attackRating": 20,
+    "defenceRating": 12,
+    "drops": [
+      { "itemId": "beast_sinew", "chance": 40, "qty": 1 },
+      { "itemId": "shadow_fragment", "chance": 15, "qty": 1 }
+    ],
+    "slayerXp": 30
+  }
+]

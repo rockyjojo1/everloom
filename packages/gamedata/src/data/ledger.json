@@ -1,0 +1,191 @@
+{
+  "bundles": [
+    {
+      "id": "prospectors_bundle",
+      "name": "The Prospector's Bundle",
+      "description": "A miner's first kit — copper, tin, and the will to dig deeper.",
+      "rewardDescription": "Unlocks Bramblewood — the forest thickens, and with it, richer veins.",
+      "rewardType": "unlock_zone",
+      "rewardValue": "bramblewood",
+      "items": [
+        { "itemId": "copper_ore", "qty": 10 },
+        { "itemId": "tin_ore", "qty": 10 },
+        { "itemId": "iron_ore", "qty": 1 }
+      ]
+    },
+    {
+      "id": "larder_starter",
+      "name": "The First Larder",
+      "description": "A cook's pantry needs a solid foundation.",
+      "rewardDescription": "+5 Larder capacity (permanent).",
+      "rewardType": "larder_bonus",
+      "rewardValue": 5,
+      "items": [
+        { "itemId": "cooked_minnow", "qty": 10 },
+        { "itemId": "cooked_trout", "qty": 5 }
+      ]
+    },
+    {
+      "id": "woodcutters_bundle",
+      "name": "The Woodcutter's Bundle",
+      "description": "Pine boards, willow shafts — the bones of everything you'll build.",
+      "rewardDescription": "+2 inventory slots (permanent).",
+      "rewardType": "slot_bonus",
+      "rewardValue": 2,
+      "items": [
+        { "itemId": "pine_board", "qty": 20 },
+        { "itemId": "willow_shaft", "qty": 15 },
+        { "itemId": "pine_log", "qty": 30 }
+      ]
+    },
+    {
+      "id": "smiths_foundation",
+      "name": "The Smith's Foundation",
+      "description": "Bronze and iron — the first rungs of the material ladder.",
+      "rewardDescription": "Unlocks the Copper Stack upgrade — ore stacks to 25.",
+      "rewardType": "stack_cap_upgrade",
+      "rewardValue": { "materialClass": "ore", "newCap": 25 },
+      "items": [
+        { "itemId": "bronze_bar", "qty": 10 },
+        { "itemId": "iron_bar", "qty": 5 }
+      ]
+    },
+    {
+      "id": "deep_road_bundle",
+      "name": "The Deep Road Bundle",
+      "description": "The road underground needs rope, boards, and a lantern.",
+      "rewardDescription": "Unlocks the Ashen Delve.",
+      "rewardType": "unlock_zone",
+      "rewardValue": "ashen_delve",
+      "items": [
+        { "itemId": "rope", "qty": 5 },
+        { "itemId": "pine_board", "qty": 20 },
+        { "itemId": "lantern", "qty": 2 }
+      ]
+    },
+    {
+      "id": "couriers_trust",
+      "name": "The Courier's Trust",
+      "description": "Pip is ready to run. All they ask is a token of commitment.",
+      "rewardDescription": "Unlocks your second Courier slot.",
+      "rewardType": "courier_slot",
+      "rewardValue": 1,
+      "items": [
+        { "itemId": "courier_token", "qty": 1 },
+        { "itemId": "cooked_trout", "qty": 20 }
+      ]
+    },
+    {
+      "id": "armourers_bundle",
+      "name": "The Armourer's Bundle",
+      "description": "A full set of bronze. Not the finest protection, but better than nothing.",
+      "rewardDescription": "+5 max HP (permanent).",
+      "rewardType": "max_hp_bonus",
+      "rewardValue": 5,
+      "items": [
+        { "itemId": "bronze_helm", "qty": 1 },
+        { "itemId": "bronze_body", "qty": 1 },
+        { "itemId": "bronze_legs", "qty": 1 }
+      ]
+    },
+    {
+      "id": "gem_hunters_bundle",
+      "name": "The Gem Hunter's Bundle",
+      "description": "Riches found in stone, polished by patience.",
+      "rewardDescription": "Unlocks the Exchange — sell directly to the market.",
+      "rewardType": "unlock_exchange",
+      "rewardValue": null,
+      "items": [
+        { "itemId": "uncut_sapphire", "qty": 1 },
+        { "itemId": "uncut_emerald", "qty": 1 }
+      ]
+    },
+    {
+      "id": "delvers_haul",
+      "name": "The Delver's Haul",
+      "description": "The deep earth gives up its secrets to those who persist.",
+      "rewardDescription": "Coal stacks to 50. A permanent shortcut halves Ashen Delve travel time.",
+      "rewardType": "multi",
+      "rewardValue": ["stack_cap:ore:50", "travel_discount:ashen_delve:50"],
+      "items": [
+        { "itemId": "coal", "qty": 50 },
+        { "itemId": "charwood_log", "qty": 20 },
+        { "itemId": "raw_cave_eel", "qty": 10 }
+      ]
+    },
+    {
+      "id": "ironbound_offering",
+      "name": "The Ironbound Offering",
+      "description": "Iron from the deep, wrought into something that endures.",
+      "rewardDescription": "Unlocks Iron Satchel upgrade blueprints at the Bench.",
+      "rewardType": "unlock_blueprints",
+      "rewardValue": ["craft_satchel_iron"],
+      "items": [
+        { "itemId": "iron_bar", "qty": 20 },
+        { "itemId": "iron_rivet", "qty": 10 },
+        { "itemId": "iron_helm", "qty": 1 }
+      ]
+    },
+    {
+      "id": "loomweavers_gift",
+      "name": "The Loomweaver's Gift",
+      "description": "Ancient bark, shadow, and sinew — the weave demands unusual things.",
+      "rewardDescription": "Unlocks the first Pattern slot. The Loom begins its work.",
+      "rewardType": "pattern_slot",
+      "rewardValue": 1,
+      "items": [
+        { "itemId": "ancient_bark", "qty": 3 },
+        { "itemId": "shadow_fragment", "qty": 2 },
+        { "itemId": "beast_sinew", "qty": 5 }
+      ]
+    },
+    {
+      "id": "collectors_bundle",
+      "name": "The Collector's Bundle",
+      "description": "Something from everywhere. The Loomhall wants proof you've wandered.",
+      "rewardDescription": "Collection Log display unlocked in Homestead.",
+      "rewardType": "unlock_feature",
+      "rewardValue": "collection_log",
+      "items": [
+        { "itemId": "birds_nest", "qty": 1 },
+        { "itemId": "uncut_ruby", "qty": 1 },
+        { "itemId": "ancient_bark", "qty": 1 },
+        { "itemId": "shadow_fragment", "qty": 1 }
+      ]
+    }
+  ],
+  "weeklyContracts": [
+    {
+      "id": "wc_copper_bulk",
+      "name": "The Copper Run",
+      "description": "The Exchange needs copper this week.",
+      "items": [{ "itemId": "copper_ore", "qty": 200 }],
+      "rewardMotes": 50,
+      "rotationGroup": 0
+    },
+    {
+      "id": "wc_fish_feast",
+      "name": "The Fish Feast",
+      "description": "Cook enough to feed the Loomhall workers.",
+      "items": [{ "itemId": "cooked_trout", "qty": 50 }],
+      "rewardMotes": 60,
+      "rotationGroup": 1
+    },
+    {
+      "id": "wc_board_supply",
+      "name": "The Board Supply",
+      "description": "Building season — boards are scarce.",
+      "items": [{ "itemId": "pine_board", "qty": 100 }],
+      "rewardMotes": 55,
+      "rotationGroup": 2
+    },
+    {
+      "id": "wc_iron_demand",
+      "name": "The Iron Demand",
+      "description": "Smiths across the region have run short.",
+      "items": [{ "itemId": "iron_bar", "qty": 30 }],
+      "rewardMotes": 80,
+      "rotationGroup": 3
+    }
+  ]
+}

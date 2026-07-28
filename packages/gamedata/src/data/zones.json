@@ -1,0 +1,38 @@
+[
+  {
+    "id": "meadowrest",
+    "name": "Meadowrest",
+    "description": "A gentle clearing where the tapestry begins. No danger here — only the quiet rhythm of work.",
+    "danger": 0,
+    "richness": 1000,
+    "travelTimeSec": 0,
+    "unlockBundleId": null,
+    "ambientEnemyId": null,
+    "palette": "lichen",
+    "nodes": ["meadowrest_willow", "meadowrest_pine", "meadowrest_copper_vein", "meadowrest_tin_vein", "meadowrest_campfire", "meadowrest_minnow_pool", "meadowrest_trout_stream"]
+  },
+  {
+    "id": "bramblewood",
+    "name": "Bramblewood",
+    "description": "The forest thickens here. Thornwretches roam between the oaks — bring armour and keep your Larder stocked.",
+    "danger": 10,
+    "richness": 1150,
+    "travelTimeSec": 120,
+    "unlockBundleId": "prospectors_bundle",
+    "ambientEnemyId": "thornwretch",
+    "palette": "lichen",
+    "nodes": ["bramblewood_oak", "bramblewood_iron_vein", "bramblewood_perch_pool"]
+  },
+  {
+    "id": "ashen_delve",
+    "name": "Ashen Delve",
+    "description": "Underground passages choked with coal dust. The cave eels are large and the shadows move on their own.",
+    "danger": 25,
+    "richness": 1300,
+    "travelTimeSec": 300,
+    "unlockBundleId": "deep_road_bundle",
+    "ambientEnemyId": "shade_crawler",
+    "palette": "iron_gall",
+    "nodes": ["ashen_delve_coal_vein", "ashen_delve_iron_vein", "ashen_delve_charwood", "ashen_delve_cave_eel_pool"]
+  }
+]

@@ -1,0 +1,252 @@
+[
+  {
+    "id": "meadowrest_willow",
+    "name": "Willow Tree",
+    "skill": "woodcutting",
+    "zoneId": "meadowrest",
+    "hardness": 1,
+    "baseActionTimeSec": 8,
+    "xpPerAction": 18,
+    "masteryXpPerAction": 3,
+    "petId": "pet_woodpecker",
+    "petChance": 50000,
+    "spriteId": "node_willow",
+    "drops": [
+      { "itemId": "willow_log", "materialClass": "log", "chance": 1000, "qty": 1 }
+    ],
+    "rareDrops": []
+  },
+  {
+    "id": "meadowrest_pine",
+    "name": "Pine Tree",
+    "skill": "woodcutting",
+    "zoneId": "meadowrest",
+    "hardness": 1,
+    "baseActionTimeSec": 6,
+    "xpPerAction": 12,
+    "masteryXpPerAction": 2,
+    "petId": "pet_woodpecker",
+    "petChance": 50000,
+    "spriteId": "node_pine",
+    "drops": [
+      { "itemId": "pine_log", "materialClass": "log", "chance": 1000, "qty": 1 }
+    ],
+    "rareDrops": [
+      { "itemId": "birds_nest", "chance": 256 }
+    ]
+  },
+  {
+    "id": "meadowrest_copper_vein",
+    "name": "Copper Vein",
+    "skill": "mining",
+    "zoneId": "meadowrest",
+    "hardness": 1,
+    "baseActionTimeSec": 10,
+    "xpPerAction": 14,
+    "masteryXpPerAction": 2,
+    "petId": "pet_rock_lizard",
+    "petChance": 50000,
+    "spriteId": "node_copper_vein",
+    "drops": [
+      { "itemId": "copper_ore", "materialClass": "ore", "chance": 1000, "qty": 1 }
+    ],
+    "rareDrops": [
+      { "itemId": "uncut_sapphire", "chance": 1024 }
+    ]
+  },
+  {
+    "id": "meadowrest_tin_vein",
+    "name": "Tin Vein",
+    "skill": "mining",
+    "zoneId": "meadowrest",
+    "hardness": 1,
+    "baseActionTimeSec": 9,
+    "xpPerAction": 14,
+    "masteryXpPerAction": 2,
+    "petId": "pet_rock_lizard",
+    "petChance": 50000,
+    "spriteId": "node_tin_vein",
+    "drops": [
+      { "itemId": "tin_ore", "materialClass": "ore", "chance": 1000, "qty": 1 }
+    ],
+    "rareDrops": []
+  },
+  {
+    "id": "meadowrest_campfire",
+    "name": "Campfire",
+    "skill": "cooking",
+    "zoneId": "meadowrest",
+    "hardness": 0,
+    "baseActionTimeSec": 5,
+    "xpPerAction": 3,
+    "masteryXpPerAction": 1,
+    "petId": "pet_woodpecker",
+    "petChance": 999999,
+    "spriteId": "node_campfire",
+    "drops": [
+      { "itemId": "campfire_charge", "materialClass": "fuel", "chance": 1000, "qty": 3 }
+    ],
+    "rareDrops": []
+  },
+  {
+    "id": "meadowrest_minnow_pool",
+    "name": "Minnow Pool",
+    "skill": "fishing",
+    "zoneId": "meadowrest",
+    "hardness": 1,
+    "baseActionTimeSec": 7,
+    "xpPerAction": 10,
+    "masteryXpPerAction": 2,
+    "petId": "pet_tiny_otter",
+    "petChance": 50000,
+    "spriteId": "node_minnow_pool",
+    "drops": [
+      { "itemId": "raw_minnow", "materialClass": "fish", "chance": 1000, "qty": 1 }
+    ],
+    "rareDrops": []
+  },
+  {
+    "id": "meadowrest_trout_stream",
+    "name": "Trout Stream",
+    "skill": "fishing",
+    "zoneId": "meadowrest",
+    "hardness": 1,
+    "baseActionTimeSec": 11,
+    "xpPerAction": 22,
+    "masteryXpPerAction": 3,
+    "petId": "pet_tiny_otter",
+    "petChance": 50000,
+    "spriteId": "node_trout_stream",
+    "drops": [
+      { "itemId": "raw_trout", "materialClass": "fish", "chance": 1000, "qty": 1 }
+    ],
+    "rareDrops": []
+  },
+  {
+    "id": "bramblewood_oak",
+    "name": "Oak Tree",
+    "skill": "woodcutting",
+    "zoneId": "bramblewood",
+    "hardness": 2,
+    "baseActionTimeSec": 9,
+    "xpPerAction": 38,
+    "masteryXpPerAction": 5,
+    "petId": "pet_woodpecker",
+    "petChance": 50000,
+    "spriteId": "node_oak",
+    "drops": [
+      { "itemId": "oak_log", "materialClass": "log", "chance": 1000, "qty": 1 }
+    ],
+    "rareDrops": [
+      { "itemId": "birds_nest", "chance": 128 }
+    ]
+  },
+  {
+    "id": "bramblewood_iron_vein",
+    "name": "Iron Vein",
+    "skill": "mining",
+    "zoneId": "bramblewood",
+    "hardness": 2,
+    "baseActionTimeSec": 12,
+    "xpPerAction": 35,
+    "masteryXpPerAction": 5,
+    "petId": "pet_rock_lizard",
+    "petChance": 50000,
+    "spriteId": "node_iron_vein",
+    "drops": [
+      { "itemId": "iron_ore", "materialClass": "ore", "chance": 1000, "qty": 1 }
+    ],
+    "rareDrops": [
+      { "itemId": "uncut_emerald", "chance": 512 }
+    ]
+  },
+  {
+    "id": "bramblewood_perch_pool",
+    "name": "Perch Hollow",
+    "skill": "fishing",
+    "zoneId": "bramblewood",
+    "hardness": 2,
+    "baseActionTimeSec": 10,
+    "xpPerAction": 40,
+    "masteryXpPerAction": 5,
+    "petId": "pet_tiny_otter",
+    "petChance": 50000,
+    "spriteId": "node_perch_pool",
+    "drops": [
+      { "itemId": "raw_perch", "materialClass": "fish", "chance": 1000, "qty": 1 }
+    ],
+    "rareDrops": []
+  },
+  {
+    "id": "ashen_delve_coal_vein",
+    "name": "Coal Seam",
+    "skill": "mining",
+    "zoneId": "ashen_delve",
+    "hardness": 3,
+    "baseActionTimeSec": 14,
+    "xpPerAction": 50,
+    "masteryXpPerAction": 7,
+    "petId": "pet_rock_lizard",
+    "petChance": 50000,
+    "spriteId": "node_coal_seam",
+    "drops": [
+      { "itemId": "coal", "materialClass": "ore", "chance": 1000, "qty": 1 }
+    ],
+    "rareDrops": [
+      { "itemId": "uncut_ruby", "chance": 256 }
+    ]
+  },
+  {
+    "id": "ashen_delve_iron_vein",
+    "name": "Deep Iron Vein",
+    "skill": "mining",
+    "zoneId": "ashen_delve",
+    "hardness": 2,
+    "baseActionTimeSec": 11,
+    "xpPerAction": 42,
+    "masteryXpPerAction": 6,
+    "petId": "pet_rock_lizard",
+    "petChance": 50000,
+    "spriteId": "node_iron_vein",
+    "drops": [
+      { "itemId": "iron_ore", "materialClass": "ore", "chance": 1000, "qty": 1 }
+    ],
+    "rareDrops": []
+  },
+  {
+    "id": "ashen_delve_charwood",
+    "name": "Charwood Stand",
+    "skill": "woodcutting",
+    "zoneId": "ashen_delve",
+    "hardness": 3,
+    "baseActionTimeSec": 11,
+    "xpPerAction": 58,
+    "masteryXpPerAction": 8,
+    "petId": "pet_woodpecker",
+    "petChance": 50000,
+    "spriteId": "node_charwood",
+    "drops": [
+      { "itemId": "charwood_log", "materialClass": "log", "chance": 1000, "qty": 1 }
+    ],
+    "rareDrops": [
+      { "itemId": "ancient_bark", "chance": 200 }
+    ]
+  },
+  {
+    "id": "ashen_delve_cave_eel_pool",
+    "name": "Cave Eel Grotto",
+    "skill": "fishing",
+    "zoneId": "ashen_delve",
+    "hardness": 3,
+    "baseActionTimeSec": 13,
+    "xpPerAction": 55,
+    "masteryXpPerAction": 7,
+    "petId": "pet_tiny_otter",
+    "petChance": 50000,
+    "spriteId": "node_cave_eel",
+    "drops": [
+      { "itemId": "raw_cave_eel", "materialClass": "fish", "chance": 1000, "qty": 1 }
+    ],
+    "rareDrops": []
+  }
+]

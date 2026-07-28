@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.turbo/
+.vercel/
+*.local
+.env
+.env.*
+!.env.example
+coverage/
