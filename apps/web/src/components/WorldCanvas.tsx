@@ -519,6 +519,9 @@ export function WorldCanvas() {
             case 'w': row = 2; col = waterFrameRef.current; break;
             case 'W': row = 2; col = 3 + waterFrameRef.current; break;
             case 'c': row = 3; col = 0; break;
+            case 's': row = 1; col = 1; break; // stone floor
+            case 'S': row = 3; col = 1; break; // dark stone wall
+            case 'T': row = 0; col = 0; break; // charwood (drawn as decor)
           }
 
           drawTile(tx, ty, row, col, terrainTexture);

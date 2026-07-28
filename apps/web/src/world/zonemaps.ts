@@ -3,7 +3,7 @@
  * Tile size: 32px source → 64px drawn at 2× scale
  */
 
-export type TileType = 'g' | 'G' | 'w' | 'W' | 'c' | 'p' | 't' | '.';
+export type TileType = 'g' | 'G' | 'w' | 'W' | 'c' | 'p' | 't' | '.' | 's' | 'S' | 'T';
 
 export interface TileMap {
   width: number;
@@ -89,15 +89,86 @@ export const MEADOWREST: ZoneMap = {
   spawnTy: 5,
 };
 
+// Bramblewood: zone 2, dusk forest with charwood trees and stream
+// Legend: g=grass, G=dark grass/forest, w=water, c=cliff, p=path, T=charwood tree
+const BRAMBLEWOOD_TILES: TileType[] = [
+  'c','c','c','c','c','G','G','G','G','G','G','G','G','G','G','G','G','G','c','c',
+  'c','G','G','G','G','G','G','G','G','G','G','G','w','w','G','G','G','G','G','c',
+  'c','G','G','G','G','G','G','G','p','p','G','w','w','w','G','G','G','G','G','c',
+  'c','G','G','G','G','G','p','p','p','p','w','w','G','G','G','G','G','G','G','c',
+  'c','G','G','G','G','p','p','G','G','p','w','G','G','G','G','G','G','G','G','c',
+  'c','G','G','G','p','p','G','G','G','p','G','G','G','G','G','G','G','G','G','c',
+  'c','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','c',
+  'c','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','c',
+  'c','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','G','c',
+  'c','c','c','G','G','G','G','G','G','G','G','G','G','G','G','G','G','c','c','c',
+  'c','c','c','c','c','c','c','c','c','c','c','c','c','c','c','c','c','c','c','c',
+];
+
+export const BRAMBLEWOOD: ZoneMap = {
+  zoneId: 'bramblewood',
+  name: 'Bramblewood',
+  width: 20,
+  height: 11,
+  tiles: BRAMBLEWOOD_TILES,
+  nodes: [
+    { nodeId: 'bramblewood_charwood',  tx: 4,  ty: 2 },
+    { nodeId: 'bramblewood_perch',     tx: 10, ty: 3 },
+    { nodeId: 'bramblewood_cave_entrance', tx: 15, ty: 5 },
+    { nodeId: 'bramblewood_ancient_bark', tx: 3, ty: 7 },
+  ],
+  decor: [
+    { spriteId: 'tree_dead', tx: 6, ty: 6 },
+    { spriteId: 'tree_dead', tx: 14, ty: 8 },
+  ],
+  spawnTx: 8,
+  spawnTy: 9,
+};
+
+// Ashen Delve: zone 3, underground cave with stone and darkness
+// Legend: s=stone, S=dark stone, w=water (pool), p=path, c=wall
+const ASHEN_DELVE_TILES: TileType[] = [
+  'c','c','c','c','c','c','c','c','c','c','c','c','c','c','c','c','c','c','c','c',
+  'c','S','S','S','S','S','S','S','S','S','S','S','S','S','S','S','S','S','S','c',
+  'c','S','s','s','s','s','s','s','s','s','s','s','s','s','s','s','s','S','S','c',
+  'c','S','s','s','s','p','p','s','s','s','s','s','p','p','s','s','s','S','S','c',
+  'c','S','s','s','p','p','s','s','s','s','s','p','p','s','s','s','s','S','S','c',
+  'c','S','s','s','s','s','s','s','w','w','s','s','s','s','s','s','s','S','S','c',
+  'c','S','s','s','s','s','s','w','w','w','s','s','s','s','s','s','s','S','S','c',
+  'c','S','s','s','s','s','s','s','s','s','s','s','s','s','s','s','s','S','S','c',
+  'c','S','s','s','s','s','s','s','s','s','s','s','s','s','s','s','s','S','S','c',
+  'c','S','S','S','S','S','S','S','S','S','S','S','S','S','S','S','S','S','S','c',
+  'c','c','c','c','c','c','c','c','c','c','c','c','c','c','c','c','c','c','c','c',
+];
+
+export const ASHEN_DELVE: ZoneMap = {
+  zoneId: 'ashen_delve',
+  name: 'Ashen Delve',
+  width: 20,
+  height: 11,
+  tiles: ASHEN_DELVE_TILES,
+  nodes: [
+    { nodeId: 'ashen_delve_coal',      tx: 5,  ty: 3 },
+    { nodeId: 'ashen_delve_iron_ore',  tx: 12, ty: 3 },
+    { nodeId: 'ashen_delve_eel_pool',  tx: 9,  ty: 6 },
+    { nodeId: 'ashen_delve_deep_iron', tx: 3,  ty: 7 },
+  ],
+  decor: [],
+  spawnTx: 2,
+  spawnTy: 2,
+};
+
 export const ZONES: Record<string, ZoneMap> = {
   meadowrest: MEADOWREST,
+  bramblewood: BRAMBLEWOOD,
+  ashen_delve: ASHEN_DELVE,
 };
 
 /**
  * Check if a tile is walkable (player can move there)
  */
 export function isWalkable(tile: TileType): boolean {
-  return tile === 'g' || tile === 'G' || tile === 'p';
+  return tile === 'g' || tile === 'G' || tile === 'p' || tile === 's' || tile === 'S';
 }
 
 /**
