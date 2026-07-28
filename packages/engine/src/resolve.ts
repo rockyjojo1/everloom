@@ -288,7 +288,7 @@ function resolveGathering(
     tierGap === 2 ? 12 : tierGap === 1 ? 3 : 1;
 
   // Action time: base × hardnessMult, reduced by skill level and haft tier.
-  const speedBonus = Math.floor(skillLevel * 8 + haftTier * 200); // fixed-point ×1000
+  const speedBonus = Math.floor(skillLevel * 3 + haftTier * 120); // fixed-point ×1000; nerfed for pacing
   const actionTimeFP = Math.max(
     4000, // 4s minimum
     node.baseActionTimeSec * 1000 * hardnessMult - speedBonus
@@ -306,6 +306,12 @@ function resolveGathering(
   const rng = splitmix32(deriveSeed(rngSeed, nodeId, 0));
   const events: GameEvent[] = [];
 
+  // Success roll formula (out of 1000).
+  const successFP = Math.min(
+    Math.max(180 + skillLevel * 11 + headTier * 70 + masteryLevel * 3, 180),
+    850
+  );
+
   let newSkillXp = skillXp;
   let newMasteryXp = masteryXp;
   let newInventory = [...state.inventory];
@@ -322,49 +328,47 @@ function resolveGathering(
   let prevSkillLevel = skillLevel;
   let prevMasteryLevel = masteryLevel;
 
-  while (secondsRemaining >= actionTimeSec) {
-    secondsRemaining -= actionTimeSec;
-    const atSeconds = elapsedSeconds - secondsRemaining;
+  // Optimize for offline windows > 2h using expected values.
+  const useExpectedValue = elapsedSeconds > 7200; // 2 hours
+  let actionsCompleted = 0;
 
-    // XP gain.
-    const xpGain = Math.floor(node.xpPerAction * richnessFP / 1000);
+  if (useExpectedValue) {
+    const totalActions = Math.floor(elapsedSeconds / actionTimeSec);
+    const successfulActions = Math.floor((totalActions * successFP) / 1000);
+    const masteryFailureActions = totalActions - successfulActions;
+
+    // Apply successful actions.
+    const xpGain = Math.floor(node.xpPerAction * richnessFP * successfulActions / 1000);
     newSkillXp += xpGain;
-    events.push({ kind: "xp_gain", skill: node.skill, amount: xpGain, atSeconds });
+    if (xpGain > 0) {
+      events.push({ kind: "xp_gain", skill: node.skill, amount: xpGain, atSeconds: elapsedSeconds });
+    }
 
-    const masteryGain = node.masteryXpPerAction;
+    // Mastery accrues on all actions (success + failure) at 1 per failure.
+    const masteryGain = node.masteryXpPerAction * successfulActions + masteryFailureActions;
     newMasteryXp += masteryGain;
-    events.push({ kind: "mastery_gain", nodeId, amount: masteryGain, atSeconds });
-
-    // Level up events.
-    const newSkillLevel = levelFromXp(newSkillXp);
-    if (newSkillLevel > prevSkillLevel) {
-      events.push({ kind: "level_up", skill: node.skill, newLevel: newSkillLevel, atSeconds });
-      prevSkillLevel = newSkillLevel;
-    }
-    const newMastLvl = masteryLevelFromXp(newMasteryXp);
-    if (newMastLvl > prevMasteryLevel) {
-      events.push({ kind: "mastery_level_up", nodeId, newLevel: newMastLvl, atSeconds });
-      prevMasteryLevel = newMastLvl;
+    if (masteryGain > 0) {
+      events.push({ kind: "mastery_gain", nodeId, amount: masteryGain, atSeconds: elapsedSeconds });
     }
 
-    // Drops.
+    // Apply drops from successful actions.
     for (const drop of node.drops) {
-      if (!rollChanceFP(rng, drop.chance * 100)) continue;
+      const dropCount = Math.floor((successfulActions * drop.chance) / 1000);
+      if (dropCount <= 0) continue;
 
-      let qty = drop.qty;
-      // Double yield (mastery bonus).
-      if (rollChanceFP(rng, doubleYieldChanceFP)) qty *= 2;
-      // Richness bonus.
+      let qty = drop.qty * dropCount;
+      // Double yield applies per successful action (simplified for efficiency).
+      const doubleCount = Math.floor((successfulActions * doubleYieldChanceFP) / 1000);
+      qty += drop.qty * doubleCount;
       qty = Math.max(1, Math.floor(qty * richnessFP / 1000));
 
-      // Food drops from cooking nodes go to larder; fuel/misc drops go to inventory.
       const dropItem = gameData.items[drop.itemId];
       if (node.skill === "cooking" && (dropItem?.healAmount ?? 0) > 0) {
-        const freshAt = nowSeconds + 7 * 24 * 3600; // 7 days freshness
+        const freshAt = nowSeconds + 7 * 24 * 3600;
         const result = addToLarder(newLarder, drop.itemId, qty, freshAt, larderCap);
         newLarder = result.larder;
         if (result.added > 0) {
-          events.push({ kind: "item_gained", itemId: drop.itemId, qty: result.added, atSeconds });
+          events.push({ kind: "item_gained", itemId: drop.itemId, qty: result.added, atSeconds: elapsedSeconds });
         }
       } else {
         const result = addToInventory(
@@ -377,44 +381,152 @@ function resolveGathering(
         );
         newInventory = result.inventory as typeof newInventory;
         if (result.added > 0) {
-          events.push({ kind: "item_gained", itemId: drop.itemId, qty: result.added, atSeconds });
+          events.push({ kind: "item_gained", itemId: drop.itemId, qty: result.added, atSeconds: elapsedSeconds });
           if (!newCollected.includes(drop.itemId)) newCollected.push(drop.itemId);
         }
-
-        // Satchel full — try to dispatch couriers.
-        if (isInventoryFull(newInventory, state.slots)) {
-          events.push({ kind: "satchel_full", atSeconds });
-          const hasCourier = state.couriers.some((c) => c.state === "idle");
-          if (hasCourier) {
-            // Dispatch handled outside this function in the main resolve.
-          } else {
-            break; // stop gathering, satchel full
-          }
-        }
       }
+    }
 
-      // Rare drops.
-      for (const rare of node.rareDrops) {
-        if (rng() < 1 / rare.chance) {
+    // Rare drops (simplified).
+    for (const rare of node.rareDrops) {
+      // Expected number of rares.
+      const expectedRares = (successfulActions / rare.chance);
+      if (expectedRares >= 1) {
+        const rareCount = Math.floor(expectedRares);
+        for (let i = 0; i < rareCount; i++) {
           const rResult = addToInventory(newInventory, rare.itemId, 1, state.slots, state.stackCaps, "rare");
           newInventory = rResult.inventory as typeof newInventory;
-          events.push({ kind: "item_gained", itemId: rare.itemId, qty: 1, atSeconds });
+          events.push({ kind: "item_gained", itemId: rare.itemId, qty: 1, atSeconds: elapsedSeconds });
           if (!newCollected.includes(rare.itemId)) newCollected.push(rare.itemId);
         }
       }
     }
 
-    // Pet roll.
+    // Pet roll (simplified).
     if (node.petChance > 0 && !newPets.includes(node.petId)) {
-      if (rng() < 1 / node.petChance) {
+      if (successfulActions / node.petChance >= 1) {
         newPets.push(node.petId);
-        events.push({ kind: "pet_found", petId: node.petId, atSeconds });
+        events.push({ kind: "pet_found", petId: node.petId, atSeconds: elapsedSeconds });
       }
     }
 
-    // Glimmer (1.2s window, ~1-in-30 actions for active feel).
-    if (rng() < 1 / 30) {
-      events.push({ kind: "glimmer", nodeId, motes: 2, atSeconds });
+    // Level up events.
+    const newSkillLevel = levelFromXp(newSkillXp);
+    if (newSkillLevel > prevSkillLevel) {
+      events.push({ kind: "level_up", skill: node.skill, newLevel: newSkillLevel, atSeconds: elapsedSeconds });
+    }
+    const newMastLvl = masteryLevelFromXp(newMasteryXp);
+    if (newMastLvl > prevMasteryLevel) {
+      events.push({ kind: "mastery_level_up", nodeId, newLevel: newMastLvl, atSeconds: elapsedSeconds });
+    }
+
+    secondsRemaining = 0;
+  } else {
+    // Per-action simulation for active play < 2h.
+    while (secondsRemaining >= actionTimeSec) {
+      secondsRemaining -= actionTimeSec;
+      const atSeconds = elapsedSeconds - secondsRemaining;
+
+      // Success roll.
+      const succeeded = rollChanceFP(rng, successFP);
+
+      if (!succeeded) {
+        // Failure: consume time, gain 1 mastery xp only, no skill xp or drops.
+        newMasteryXp += 1;
+        events.push({ kind: "mastery_gain", nodeId, amount: 1, atSeconds });
+        continue;
+      }
+
+      // XP gain (only on success).
+      const xpGain = Math.floor(node.xpPerAction * richnessFP / 1000);
+      newSkillXp += xpGain;
+      events.push({ kind: "xp_gain", skill: node.skill, amount: xpGain, atSeconds });
+
+      const masteryGain = node.masteryXpPerAction;
+      newMasteryXp += masteryGain;
+      events.push({ kind: "mastery_gain", nodeId, amount: masteryGain, atSeconds });
+
+      // Level up events.
+      const newSkillLevel = levelFromXp(newSkillXp);
+      if (newSkillLevel > prevSkillLevel) {
+        events.push({ kind: "level_up", skill: node.skill, newLevel: newSkillLevel, atSeconds });
+        prevSkillLevel = newSkillLevel;
+      }
+      const newMastLvl = masteryLevelFromXp(newMasteryXp);
+      if (newMastLvl > prevMasteryLevel) {
+        events.push({ kind: "mastery_level_up", nodeId, newLevel: newMastLvl, atSeconds });
+        prevMasteryLevel = newMastLvl;
+      }
+
+      // Drops (only on success).
+      for (const drop of node.drops) {
+        if (!rollChanceFP(rng, drop.chance * 100)) continue;
+
+        let qty = drop.qty;
+        // Double yield (mastery bonus).
+        if (rollChanceFP(rng, doubleYieldChanceFP)) qty *= 2;
+        // Richness bonus.
+        qty = Math.max(1, Math.floor(qty * richnessFP / 1000));
+
+        // Food drops from cooking nodes go to larder; fuel/misc drops go to inventory.
+        const dropItem = gameData.items[drop.itemId];
+        if (node.skill === "cooking" && (dropItem?.healAmount ?? 0) > 0) {
+          const freshAt = nowSeconds + 7 * 24 * 3600; // 7 days freshness
+          const result = addToLarder(newLarder, drop.itemId, qty, freshAt, larderCap);
+          newLarder = result.larder;
+          if (result.added > 0) {
+            events.push({ kind: "item_gained", itemId: drop.itemId, qty: result.added, atSeconds });
+          }
+        } else {
+          const result = addToInventory(
+            newInventory,
+            drop.itemId,
+            qty,
+            state.slots,
+            state.stackCaps,
+            drop.materialClass
+          );
+          newInventory = result.inventory as typeof newInventory;
+          if (result.added > 0) {
+            events.push({ kind: "item_gained", itemId: drop.itemId, qty: result.added, atSeconds });
+            if (!newCollected.includes(drop.itemId)) newCollected.push(drop.itemId);
+          }
+
+          // Satchel full — try to dispatch couriers.
+          if (isInventoryFull(newInventory, state.slots)) {
+            events.push({ kind: "satchel_full", atSeconds });
+            const hasCourier = state.couriers.some((c) => c.state === "idle");
+            if (hasCourier) {
+              // Dispatch handled outside this function in the main resolve.
+            } else {
+              break; // stop gathering, satchel full
+            }
+          }
+        }
+
+        // Rare drops.
+        for (const rare of node.rareDrops) {
+          if (rng() < 1 / rare.chance) {
+            const rResult = addToInventory(newInventory, rare.itemId, 1, state.slots, state.stackCaps, "rare");
+            newInventory = rResult.inventory as typeof newInventory;
+            events.push({ kind: "item_gained", itemId: rare.itemId, qty: 1, atSeconds });
+            if (!newCollected.includes(rare.itemId)) newCollected.push(rare.itemId);
+          }
+        }
+      }
+
+      // Pet roll.
+      if (node.petChance > 0 && !newPets.includes(node.petId)) {
+        if (rng() < 1 / node.petChance) {
+          newPets.push(node.petId);
+          events.push({ kind: "pet_found", petId: node.petId, atSeconds });
+        }
+      }
+
+      // Glimmer (1.2s window, ~1-in-30 actions for active feel).
+      if (rng() < 1 / 30) {
+        events.push({ kind: "glimmer", nodeId, motes: 2, atSeconds });
+      }
     }
   }
 
