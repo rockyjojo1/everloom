@@ -1,6 +1,7 @@
 import { useGameStore } from "../../store/gameStore";
 import { ITEMS } from "@everloom/gamedata";
 import { levelFromXp } from "@everloom/engine";
+import { useState } from "react";
 
 const ITEM_ICONS: Record<string, string> = {
   pine_log: "🪵", willow_log: "🌿", oak_log: "🌳", charwood_log: "🖤",
@@ -31,8 +32,16 @@ function getIcon(itemId: string): string {
   return ITEM_ICONS[itemId] ?? "📦";
 }
 
+const TOOL_ITEM_IDS = [
+  "worn_hatchet", "worn_pickaxe",
+  "copper_hatchet", "copper_pickaxe", "iron_hatchet", "iron_pickaxe",
+  "copper_fishing_rod", "iron_fishing_rod",
+];
+
 export function SatchelPanel() {
   const ps = useGameStore((s) => s.playerState);
+  const equipTool = useGameStore((s) => s.equipTool);
+  const [hoveredTool, setHoveredTool] = useState<string | null>(null);
   if (!ps) return null;
 
   const cookingLevel = levelFromXp(ps.skills.cooking ?? 0);
@@ -76,10 +85,43 @@ export function SatchelPanel() {
         <div className="inv-grid" style={{ marginBottom: 12 }}>
           {ps.inventory.map((stack, i) => {
             const itemData = ITEMS.find((it) => it.id === stack.itemId);
+            const isTool = TOOL_ITEM_IDS.includes(stack.itemId);
+            const isHovered = hoveredTool === stack.itemId;
+
             return (
-              <div key={i} className="inv-slot">
+              <div
+                key={i}
+                className="inv-slot"
+                onMouseEnter={() => isTool && setHoveredTool(stack.itemId)}
+                onMouseLeave={() => setHoveredTool(null)}
+                style={{ position: "relative" }}
+              >
                 <span className="item-icon">{getIcon(stack.itemId)}</span>
                 <span className="item-qty">{stack.qty > 1 ? stack.qty : ""}</span>
+                {isTool && isHovered && (
+                  <button
+                    onClick={() => equipTool(stack.itemId)}
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      height: "100%",
+                      background: "rgba(0,0,0,0.8)",
+                      border: "none",
+                      color: "white",
+                      fontSize: 9,
+                      fontFamily: "var(--font-ui)",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderRadius: 3,
+                    }}
+                  >
+                    Equip
+                  </button>
+                )}
               </div>
             );
           })}
