@@ -61,5 +61,6 @@
   { "id": "iron_hatchet",      "name": "Iron Hatchet",     "materialClass":"tool","healAmount":0,"freshnessDecaySec":0,"baseValue":400,"tradeable":true   },
   { "id": "iron_pickaxe",      "name": "Iron Pickaxe",     "materialClass":"tool","healAmount":0,"freshnessDecaySec":0,"baseValue":400,"tradeable":true   },
   { "id": "copper_fishing_rod", "name": "Copper Fishing Rod", "materialClass":"tool","healAmount":0,"freshnessDecaySec":0,"baseValue":120,"tradeable":true  },
-  { "id": "iron_fishing_rod",  "name": "Iron Fishing Rod",  "materialClass":"tool","healAmount":0,"freshnessDecaySec":0,"baseValue":350,"tradeable":true   }
+  { "id": "iron_fishing_rod",  "name": "Iron Fishing Rod",  "materialClass":"tool","healAmount":0,"freshnessDecaySec":0,"baseValue":350,"tradeable":true   },
+  { "id": "dusty_lamp",        "name": "Dusty Lamp",       "materialClass":"reward","healAmount":0,"freshnessDecaySec":0,"baseValue":0,  "tradeable":false  }
 ]

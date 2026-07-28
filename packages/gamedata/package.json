@@ -8,6 +8,10 @@
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./unlocks": {
+      "import": "./dist/unlocks.js",
+      "types": "./dist/unlocks.d.ts"
     }
   },
   "scripts": {

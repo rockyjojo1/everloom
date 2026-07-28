@@ -1,0 +1,42 @@
+[
+  {
+    "id": "onboarding_gather",
+    "name": "A Spark in the Darkness",
+    "description": "Light the campfire and prepare your first meal",
+    "steps": [
+      {
+        "id": "find_hatchet",
+        "description": "Find a worn hatchet",
+        "targetItemId": "worn_hatchet",
+        "targetQty": 1,
+        "type": "collect"
+      },
+      {
+        "id": "chop_logs",
+        "description": "Chop 3 logs from a tree",
+        "targetNodeId": "woodcutting",
+        "targetQty": 3,
+        "type": "gather"
+      },
+      {
+        "id": "light_campfire",
+        "description": "Light the campfire (needs 2 logs)",
+        "targetNodeId": "campfire",
+        "targetQty": 1,
+        "type": "use"
+      },
+      {
+        "id": "cook_food",
+        "description": "Cook a minnow at the campfire",
+        "targetRecipeId": "cook_minnow",
+        "targetQty": 1,
+        "type": "craft"
+      }
+    ],
+    "reward": {
+      "itemId": "dusty_lamp",
+      "qty": 1
+    },
+    "milestoneXp": 50
+  }
+]

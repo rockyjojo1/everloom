@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useGameStore } from "../store/gameStore";
 import { levelFromXp, masteryLevelFromXp, XP_TABLE, MASTERY_TABLE } from "@everloom/engine";
-import { NODES } from "@everloom/gamedata";
+import { NODES, getNextUnlock } from "@everloom/gamedata";
 import type { SkillId } from "@everloom/engine";
 
 // Import tab content
@@ -47,6 +47,7 @@ function SkillsTabContent() {
         const nextXp = XP_TABLE[level + 1] ?? xp;
         const thisXp = XP_TABLE[level] ?? 0;
         const pct = nextXp > thisXp ? Math.floor(((xp - thisXp) / (nextXp - thisXp)) * 100) : 100;
+        const nextUnlock = getNextUnlock(skill, level);
 
         return (
           <div key={skill} style={{ padding: "0 4px" }}>
@@ -60,6 +61,11 @@ function SkillsTabContent() {
             <div className="progress-wrap" style={{ marginBottom: 2 }}>
               <div className="progress-fill" style={{ width: `${pct}%` }} />
             </div>
+            {nextUnlock && (
+              <div style={{ fontFamily: "var(--font-ui)", fontSize: 8, opacity: 0.6, marginTop: 2 }}>
+                Next: {nextUnlock.teaserText} at {nextUnlock.requiredLevel}
+              </div>
+            )}
           </div>
         );
       })}

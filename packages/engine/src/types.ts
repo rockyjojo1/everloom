@@ -220,6 +220,11 @@ export interface PlayerState {
   readonly completedWeeklyContractIds: readonly string[];
   readonly foundBlueprintIds: readonly string[];
 
+  // Deeds (quests/progression)
+  readonly activeDeedId: string | null;
+  readonly completedDeedIds: readonly string[];
+  readonly deedProgress: Readonly<Record<string, number>>; // deedId -> step index
+
   // Pets (1 per skill, ~1/50000 per action)
   readonly pets: readonly string[];
 

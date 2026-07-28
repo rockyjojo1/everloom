@@ -4,6 +4,7 @@ import recipesRaw from "./data/recipes.json" assert { type: "json" };
 import nodesRaw from "./data/nodes.json" assert { type: "json" };
 import ledgerRaw from "./data/ledger.json" assert { type: "json" };
 import enemiesRaw from "./data/enemies.json" assert { type: "json" };
+import deedsRaw from "./data/deeds.json" assert { type: "json" };
 
 import type { GameData, ItemData, NodeData, RecipeData, ZoneData } from "@everloom/engine";
 import type { ZoneThreat } from "@everloom/engine";
@@ -76,5 +77,9 @@ export const RECIPES = recipesRaw;
 export const NODES = nodesRaw;
 export const LEDGER = ledgerRaw;
 export const ENEMIES = enemiesRaw;
+export const DEEDS = deedsRaw;
 
 export type { GameData, ItemData, NodeData, RecipeData, ZoneData };
+
+// ── Unlock system (next-unlock teasers) ──────────────────────
+export * from "./unlocks";
