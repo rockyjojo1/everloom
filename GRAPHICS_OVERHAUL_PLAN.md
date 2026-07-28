@@ -27,6 +27,15 @@ The user has repeatedly asked for and NOT yet received:
    The engine already does this. Don't touch it.
 6. **iOS-friendly** — must run and look right on iPhone Safari (tap = click,
    dvh viewport, safe-area). Already partially done; keep it working.
+7. **Equipment matters (OSRS-style tool progression)** — you can NOT gather with
+   bare hands. Tools must be FOUND (ground items), BUILT (head + haft + binding),
+   EQUIPPED (equipment tab), and they WEAR OUT. The engine already models all of
+   this (`ToolComponent`, tiers, wearPct, hardness gating) — it's just never
+   surfaced or enforced. See §5b.
+
+> **Art licensing rule**: take MECHANICS inspiration from OSRS/RSPS freely
+> (ground items, examine text, interfaces), but NEVER use Jagex/RSPS-ripped
+> sprites or cache assets. All art comes from the LPC/CC0 sources in §3.
 
 **Anti-goals**: no more inline-SVG "programmer art" for world/character; no
 full-screen modal panels covering the game; no emoji as item icons in the final
@@ -215,6 +224,67 @@ rendering once WorldCanvas is live.
 
 ---
 
+## 5b. Equipment & tool progression (Phase 3b) — "find it, build it, use it"
+
+The engine already supports everything below — read `packages/engine/src/types.ts`
+(`ToolComponent`, `Equipment`) and `resolve.ts` (`resolveGathering` lines ~273-292:
+headTier vs node hardness gates speed; tierGap ≥ 3 blocks). What's missing is
+enforcement, acquisition, and UI.
+
+### 5b.1 The one allowed engine change
+`resolveGathering`: if `getToolForSkill(state, skill)` returns `null` for
+woodcutting/mining/fishing → return no progress AND emit a new event
+`{ kind: "tool_required", skill, atSeconds: 0 }` (add to the `GameEvent` union).
+Cooking at a campfire needs no tool. This makes bare-handed gathering impossible
+instead of merely slow. Keep it pure; add a unit-style check that resolve with
+no tool yields zero xp events.
+
+### 5b.2 Starting state change (`apps/web/src/lib/playerInit.ts`)
+Remove the free copper hatchet: `hatchet: null`. New characters own NOTHING.
+
+### 5b.3 Ground items (new, OSRS-style)
+New module `apps/web/src/world/groundItems.ts` + rendering in WorldCanvas:
+- Zone maps define **spawn points**: Meadowrest spawns a `worn_hatchet` beside
+  the spawn tile and a `worn_pickaxe` near the copper vein (both new items in
+  `gamedata/items.json`, tier-1 heads pre-assembled, `tradeable: false`).
+- Render: small item sprite on the tile + floating label on hover/tap
+  (`Take Worn hatchet` — OSRS ground-text style, item name in orange).
+- Click/tap → character walks to the tile → item goes to inventory → spawn
+  point starts a 60s respawn timer (client-side; these are starter tools, dupes
+  are harmless — satchel/bank caps already limit hoarding).
+- First-session guidance: if player owns no hatchet, a subtle arrow/sparkle on
+  the ground spawn (Melvor-style onboarding nudge).
+
+### 5b.4 Assembly & equipping
+- New "assemble" recipes in `gamedata/recipes.json` (crafting skill, at bench):
+  `head + haft + binding → tool item`, e.g. `copper_hatchet_head + pine_haft +
+  rough_binding → copper_hatchet`. Add tool items for copper/iron ×
+  hatchet/pickaxe/rod. Output `materialClass: "tool"`.
+- Clicking a tool in inventory → context menu `Equip / Examine / Drop`
+  (long-press on mobile). Equip moves it into `equipment.hatchet` as a
+  `ToolComponent` (map item → component tiers in a new
+  `apps/web/src/lib/toolItems.ts`); the previously equipped tool returns to
+  inventory as its item form.
+- `worn_*` tools equip the same way but have tier 1 and start at 40% wearPct —
+  they get you going, a crafted copper tool is the first real upgrade, iron
+  needs Bramblewood ore. That's the OSRS ladder: bronze → iron → …
+
+### 5b.5 Feedback & flavor (RSPS-inspired, no ripped art)
+- Attempt to gather with no tool → red game-message toast, OSRS wording:
+  *"You need a hatchet to chop this tree."* (drive off the `tool_required` event).
+- **Examine** on any item/node → flavor text line in a small message log
+  (add `examine` strings to items.json; 1 sentence, wry OSRS tone).
+- Equipment tab shows the three tool slots + armour slots with the equipped
+  item icon, tier, and a wear bar; wear < 20% tints the bar red and shows
+  *"Your hatchet is about to break."*
+
+### Phase 3b acceptance criteria
+✔ Fresh character cannot chop/mine/fish; red message explains why.
+✔ Worn hatchet visible on the ground, Take → inventory → Equip → chopping works.
+✔ Assembling copper hatchet at bench from 3 components works and equips.
+✔ Equipment tab shows tools + wear; wear decreases with use (engine already
+  does this — verify it displays).
+
 ## 6. OSRS-style UI (Phase 4)
 
 Replace `InventoryBar` + `TabStrip` + sliding panels with a **SidePanel** docked
@@ -228,7 +298,7 @@ right (desktop ≥ 700px wide) / **bottom sheet** (mobile):
   grows with satchel upgrades). Item icons from the icon atlas + qty number
   bottom-right in yellow (OSRS convention, `--weld`).
 - **Tab row** under/above the grid, icon-only stone buttons:
-  `🎒 inventory | 📊 skills | 🗺 atlas | 📖 ledger | ⚖ exchange | 🔨 bench`
+  `🎒 inventory | ⚔ equipment | 📊 skills | 🗺 atlas | 📖 ledger | ⚖ exchange | 🔨 bench`
   (swap emoji for atlas icons in the same pass). Active tab = lighter stone +
   gold underline. Clicking a tab swaps the PANEL CONTENT INSIDE the side panel —
   **never** a full-screen overlay.
@@ -263,9 +333,13 @@ mine/fish anims play from sheet rows; character drawn y-sorted.
 walking cancels action. ✔ click ground → walks there; click pine → walks, faces
 it, chops, logs appear in inventory; click water mid-chop → cancels and walks.
 
-**Phase 4 — OSRS UI**: SidePanel + tabs + icon atlas + xp drops; delete
-InventoryBar/TabStrip/slide-up panels. ✔ inventory always visible during
-skilling on desktop AND iPhone-width; no full-screen overlays remain.
+**Phase 3b — equipment & tools** (§5b): no-tool gating, ground item spawns,
+assemble/equip flow, context menu, equipment tab data. ✔ criteria in §5b.
+
+**Phase 4 — OSRS UI**: SidePanel + tabs (incl. equipment tab UI) + icon atlas +
+xp drops; delete InventoryBar/TabStrip/slide-up panels. ✔ inventory always
+visible during skilling on desktop AND iPhone-width; no full-screen overlays
+remain.
 
 **Phase 5 — ambience**: campfire 4-frame fire, fishing ripples, waterfall anim
 (2-frame offset scroll), cloud shadows (slow moving translucent ellipses),
@@ -293,5 +367,6 @@ and it reads as "a cute OSRS-like", not "developer placeholder art".
 ## 9. Explicitly out of scope (do not build now)
 
 - Sound. Minimap. Camera scrolling/zoom. Combat visuals. Trading UI.
-- Any engine/gamedata/Supabase changes beyond what §5 requires (none).
+- Any engine/gamedata/Supabase changes beyond the single scoped change in §5b.1
+  and the gamedata additions in §5b (new items/recipes/examine text).
 - New skills (user said: graphics first, skills later).
