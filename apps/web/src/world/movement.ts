@@ -13,12 +13,19 @@ export interface MovementState {
   path: Array<{ tx: number; ty: number }>;
   walking: boolean;
   lastWalkTime: number; // time of last tile advancement
+  /** Tile we're interpolating FROM, so the lerp is linear and arrives exactly. */
+  fromTx?: number;
+  fromTy?: number;
   pendingAction: PendingAction | null;
 }
 
 export interface PendingAction {
-  type: 'gather' | 'idle';
+  type: 'gather' | 'idle' | 'pickup';
   nodeId?: string;
+  /** pickup only: identifies the ground spawn so it can't be taken twice. */
+  groundKey?: string;
+  itemId?: string;
+  qty?: number;
 }
 
 const TILE_SIZE_DRAWN = 64;
@@ -123,34 +130,42 @@ export function updateMovement(state: MovementState, elapsedMs: number): boolean
 
   state.lastWalkTime += elapsedMs;
 
-  if (state.lastWalkTime >= TILE_ADVANCE_TIME_MS) {
-    // Advance to next tile
+  // Interpolate strictly between the tile we left and the tile we're entering.
+  // The previous version eased from the CURRENT pixel position toward the
+  // target by `progress` each frame — a decaying approach that is frame-rate
+  // dependent, never actually arrives, and visibly stutters on every tile
+  // boundary. That was the walking jank.
+  while (state.lastWalkTime >= TILE_ADVANCE_TIME_MS && state.path.length > 0) {
     state.lastWalkTime -= TILE_ADVANCE_TIME_MS;
 
     const nextTile = state.path.shift()!;
 
-    // Update facing direction
     if (nextTile.tx < state.tx) state.facing = 'left';
     else if (nextTile.tx > state.tx) state.facing = 'right';
     else if (nextTile.ty < state.ty) state.facing = 'up';
     else if (nextTile.ty > state.ty) state.facing = 'down';
 
+    state.fromTx = state.tx;
+    state.fromTy = state.ty;
     state.tx = nextTile.tx;
     state.ty = nextTile.ty;
 
     if (state.path.length === 0) {
+      state.px = state.tx * TILE_SIZE_DRAWN + TILE_SIZE_DRAWN / 2;
+      state.py = state.ty * TILE_SIZE_DRAWN + TILE_SIZE_DRAWN;
       state.walking = false;
-      return true; // reached destination
+      return true;
     }
   }
 
-  // Lerp pixels toward next tile
-  const targetPx = state.tx * TILE_SIZE_DRAWN + TILE_SIZE_DRAWN / 2;
-  const targetPy = state.ty * TILE_SIZE_DRAWN + TILE_SIZE_DRAWN;
+  const fromPx = (state.fromTx ?? state.tx) * TILE_SIZE_DRAWN + TILE_SIZE_DRAWN / 2;
+  const fromPy = (state.fromTy ?? state.ty) * TILE_SIZE_DRAWN + TILE_SIZE_DRAWN;
+  const toPx = state.tx * TILE_SIZE_DRAWN + TILE_SIZE_DRAWN / 2;
+  const toPy = state.ty * TILE_SIZE_DRAWN + TILE_SIZE_DRAWN;
 
-  const progress = state.lastWalkTime / TILE_ADVANCE_TIME_MS;
-  state.px = state.px + (targetPx - state.px) * progress;
-  state.py = state.py + (targetPy - state.py) * progress;
+  const t = Math.min(1, state.lastWalkTime / TILE_ADVANCE_TIME_MS);
+  state.px = fromPx + (toPx - fromPx) * t;
+  state.py = fromPy + (toPy - fromPy) * t;
 
   return false;
 }
@@ -165,6 +180,8 @@ export function startWalking(state: MovementState, zone: ZoneMap, endTx: number,
   state.path = path;
   state.walking = true;
   state.lastWalkTime = 0;
+  state.fromTx = state.tx;
+  state.fromTy = state.ty;
   state.pendingAction = action;
 }
 

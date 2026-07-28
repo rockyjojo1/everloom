@@ -5,6 +5,8 @@ import { buildCharacterSheet } from '../world/characterSprites';
 import { ANIMATIONS, getCurrentFrame, extractFrame, ActionAnimationType } from '../world/character';
 import { appearanceToColors } from '../lib/appearanceColors';
 import { MovementState, findPath, getAdjacentWalkable, updateMovement, startWalking, stopWalking } from '../world/movement';
+import { NODES as NODE_LIST } from '@everloom/gamedata';
+import type { ActionDescriptor } from '@everloom/engine';
 import {
   TILE_PX, PROP_PX, TILES_FILE, PROPS_FILE,
   GROUND, WATER_FRAMES, PROPS, CAMPFIRE_FRAMES, RIPPLE_FRAMES,
@@ -121,7 +123,14 @@ export function WorldCanvas() {
   const playerState = useGameStore((s) => s.playerState);
   const startAction = useGameStore((s) => s.startAction);
   const pendingEvents = useGameStore((s) => s.pendingEvents);
+  const takenGroundItems = useGameStore((s) => s.takenGroundItems);
+  const pickUpGroundItem = useGameStore((s) => s.pickUpGroundItem);
   const currentAction = playerState?.currentAction;
+
+  // Live handle on the current action for the rAF loop, so the loop never has
+  // to be rebuilt (and never resets walk timing) when the action changes.
+  const currentActionRef = useRef(currentAction);
+  currentActionRef.current = currentAction;
   const appearance = playerState?.appearance;
 
   // Watch for level-up events and spawn particles
@@ -268,13 +277,39 @@ export function WorldCanvas() {
       const clickX = viewX + cam.x;
       const clickY = viewY + cam.y;
 
-      // Hit-test nodes first
+      // Ground items first — they sit on the floor, under everything.
+      for (const gi of zone.groundItems ?? []) {
+        const key = `${zone.zoneId}:${gi.tx}:${gi.ty}`;
+        if (takenGroundItems.includes(key)) continue;
+        const gx = gi.tx * TILE_SIZE_DRAWN + TILE_SIZE_DRAWN / 2;
+        const gy = gi.ty * TILE_SIZE_DRAWN + TILE_SIZE_DRAWN / 2;
+        if (Math.abs(clickX - gx) < 32 && Math.abs(clickY - gy) < 32) {
+          const adj = isWalkable(getTile(zone, gi.tx, gi.ty) ?? '.')
+            ? { tx: gi.tx, ty: gi.ty }
+            : getAdjacentWalkable(zone, gi.tx, gi.ty);
+          if (adj) {
+            stopWalking(movementRef.current);
+            startWalking(movementRef.current, zone, adj.tx, adj.ty, {
+              type: 'pickup', groundKey: key, itemId: gi.itemId, qty: gi.qty,
+            } as any);
+            clickMarkersRef.current.push({ px: clickX, py: clickY, startTime: Date.now(), isRed: true });
+            return;
+          }
+        }
+      }
+
+      // Hit-test nodes. The sprite is drawn 1.5 tiles tall ABOVE its ground
+      // point, so the hitbox must cover the art, not just the base tile —
+      // otherwise you have to click the dirt under a tree to chop it.
       for (const node of zone.nodes) {
         const nodePx = node.tx * TILE_SIZE_DRAWN + TILE_SIZE_DRAWN / 2;
         const nodePy = node.ty * TILE_SIZE_DRAWN + TILE_SIZE_DRAWN;
+        const spriteH = TILE_SIZE_DRAWN * 1.5;
 
-        // Hit-box around node
-        if (Math.abs(clickX - nodePx) < 32 && Math.abs(clickY - nodePy) < 32) {
+        const withinX = Math.abs(clickX - nodePx) < TILE_SIZE_DRAWN * 0.6;
+        const withinY = clickY <= nodePy + 8 && clickY >= nodePy - spriteH;
+
+        if (withinX && withinY) {
           // Click on a node
           const adjTile = getAdjacentWalkable(zone, node.tx, node.ty);
           if (adjTile) {
@@ -302,7 +337,8 @@ export function WorldCanvas() {
         const tile = getTile(zone, tileX, tileY);
         if (tile && isWalkable(tile)) {
           // Cancel current action and walk
-          if (currentAction && currentAction.type !== 'idle') {
+          const live = currentActionRef.current;
+          if (live && live.type !== 'idle') {
             startAction({
               type: 'idle',
               nodeId: null,
@@ -540,13 +576,19 @@ export function WorldCanvas() {
           // Execute pending action
           const action = movementRef.current.pendingAction;
           if (action.type === 'gather' && action.nodeId) {
+            // Use the node's own skill — this was hard-coded to woodcutting,
+            // so clicking an ore vein or fishing spot started chopping it.
+            const nodeData = (NODE_LIST as Array<{ id: string; skill: string }>)
+              .find((n) => n.id === action.nodeId);
             startAction({
-              type: 'woodcutting',
+              type: (nodeData?.skill ?? 'woodcutting') as ActionDescriptor['type'],
               nodeId: action.nodeId,
               zoneId: zone.zoneId as any,
               recipeId: null,
               targetZoneId: null,
             });
+          } else if (action.type === 'pickup' && action.groundKey && action.itemId) {
+            pickUpGroundItem(action.groundKey, action.itemId, action.qty ?? 1);
           }
           movementRef.current.pendingAction = null;
         }
@@ -582,6 +624,36 @@ export function WorldCanvas() {
             ctx!.fillRect(tx * TILE_SIZE_DRAWN, ty * TILE_SIZE_DRAWN, TILE_SIZE_DRAWN, TILE_SIZE_DRAWN);
           }
         }
+      }
+
+      // 1.2 Ground items — drawn on the floor with a pulsing glow so they read
+      // as "pick me up" (OSRS ground items are notoriously easy to walk past).
+      for (const gi of zone.groundItems ?? []) {
+        const key = `${zone.zoneId}:${gi.tx}:${gi.ty}`;
+        if (takenGroundItems.includes(key)) continue;
+        const gx = gi.tx * TILE_SIZE_DRAWN + TILE_SIZE_DRAWN / 2;
+        const gy = gi.ty * TILE_SIZE_DRAWN + TILE_SIZE_DRAWN / 2;
+
+        const pulse = 0.55 + 0.45 * Math.sin(now / 320);
+        ctx!.save();
+        ctx!.globalAlpha = 0.35 * pulse;
+        ctx!.fillStyle = '#F5D053';
+        ctx!.beginPath();
+        ctx!.ellipse(gx, gy + 6, 18, 8, 0, 0, Math.PI * 2);
+        ctx!.fill();
+        ctx!.restore();
+
+        // simple readable tool silhouette
+        ctx!.save();
+        ctx!.translate(gx, gy);
+        ctx!.rotate(-0.5);
+        ctx!.fillStyle = '#6b4f33';
+        ctx!.fillRect(-2, -12, 4, 24);
+        ctx!.fillStyle = '#c8ced6';
+        if (gi.itemId.includes('hatchet')) ctx!.fillRect(0, -14, 11, 8);
+        else if (gi.itemId.includes('pickaxe')) ctx!.fillRect(-9, -14, 20, 4);
+        else ctx!.fillRect(-1, -18, 2, 10);
+        ctx!.restore();
       }
 
       // 1.5 Ambient animations (before entities for layering)
@@ -650,10 +722,11 @@ export function WorldCanvas() {
             actionType = 'walk' as ActionAnimationType;
             elapsedMs = Date.now();
           } else {
-            actionType = (currentAction?.type === 'woodcutting' ? 'chop' :
-                          currentAction?.type === 'mining' ? 'mine' :
-                          currentAction?.type === 'fishing' ? 'fish' :
-                          currentAction?.type === 'cooking' ? 'cook' :
+            const live = currentActionRef.current;
+            actionType = (live?.type === 'woodcutting' ? 'chop' :
+                          live?.type === 'mining' ? 'mine' :
+                          live?.type === 'fishing' ? 'fish' :
+                          live?.type === 'cooking' ? 'cook' :
                           'idle') as ActionAnimationType;
             elapsedMs = Date.now() - actionStartTimeRef.current;
           }
@@ -697,7 +770,11 @@ export function WorldCanvas() {
       }
       canvas.removeEventListener('click', handleCanvasClick);
     };
-  }, [textures, characterSprite, currentAction, startAction, viewportTick]);
+    // NOTE: deliberately does NOT depend on currentAction. Including it tore
+    // down and rebuilt the rAF loop on every action change, resetting frame
+    // timing mid-stride — that was the visible walking jank. The loop reads
+    // the live action through a ref instead.
+  }, [textures, characterSprite, startAction, viewportTick]);
 
   // Reset animation timer when action changes
   useEffect(() => {

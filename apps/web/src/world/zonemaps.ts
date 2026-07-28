@@ -82,8 +82,9 @@ export const MEADOWREST: ZoneMap = {
     { spriteId: 'tree_oak', tx: 18, ty: 3 },
   ],
   groundItems: [
-    { itemId: 'worn_hatchet', tx: 10, ty: 5, qty: 1 },    // at spawn
+    { itemId: 'worn_hatchet', tx: 11, ty: 5, qty: 1 },    // beside spawn
     { itemId: 'worn_pickaxe', tx: 14, ty: 2, qty: 1 },    // near copper vein
+    { itemId: 'worn_fishing_rod', tx: 9, ty: 6, qty: 1 }, // by the riverbank
   ],
   spawnTx: 10,
   spawnTy: 5,

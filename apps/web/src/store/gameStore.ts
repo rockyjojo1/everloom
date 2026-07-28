@@ -56,6 +56,9 @@ interface GameStore {
   createCharacter: (name: string, mode: "cozy" | "standard" | "ironbound", appearance?: CharacterAppearance | undefined) => Promise<void>;
   startAction: (action: ActionDescriptor) => void;
   equipTool: (itemId: string) => void;
+  /** Keys of ground-item spawns already collected, as `zoneId:tx:ty`. */
+  takenGroundItems: string[];
+  pickUpGroundItem: (key: string, itemId: string, qty: number) => void;
   tickFrame: () => void;
   commitToServer: () => Promise<void>;
   tapGlimmer: () => void;
@@ -186,6 +189,32 @@ export const useGameStore = create<GameStore>((set, get) => ({
     void get().commitToServer();
   },
 
+  takenGroundItems: [],
+
+  pickUpGroundItem: (key, itemId, qty) => {
+    const { playerState, takenGroundItems } = get();
+    if (!playerState || takenGroundItems.includes(key)) return;
+
+    if (playerState.inventory.length >= playerState.slots) {
+      get().addToast("Your satchel is full.", "normal");
+      return;
+    }
+
+    const inv = [...playerState.inventory];
+    const existing = inv.findIndex((s) => s.itemId === itemId);
+    if (existing >= 0) {
+      inv[existing] = { ...inv[existing]!, qty: inv[existing]!.qty + qty };
+    } else {
+      inv.push({ itemId, qty });
+    }
+
+    set({
+      playerState: { ...playerState, inventory: inv },
+      takenGroundItems: [...takenGroundItems, key],
+    });
+    get().addToast(`You pick up the ${itemId.replace(/_/g, " ")}.`, "discovery");
+  },
+
   equipTool: (itemId) => {
     const { playerState } = get();
     if (!playerState) return;
@@ -193,7 +222,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     // Determine tool type from itemId
     const hatchetIds = ["worn_hatchet", "copper_hatchet", "iron_hatchet"];
     const pickaxeIds = ["worn_pickaxe", "copper_pickaxe", "iron_pickaxe"];
-    const rodIds = ["copper_fishing_rod", "iron_fishing_rod"];
+    const rodIds = ["worn_fishing_rod", "copper_fishing_rod", "iron_fishing_rod"];
 
     let toolSlot: "hatchet" | "pickaxe" | "fishingRod" | null = null;
     if (hatchetIds.includes(itemId)) toolSlot = "hatchet";
@@ -214,7 +243,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
       headId: itemId,
       haftId: null,
       bindingId: null,
-      headTier: itemId.includes("copper") ? 1 : itemId.includes("iron") ? 2 : 0,
+      // Worn tools are tier 1 — tier 0 would fail the hardness gate on every
+      // node, making a found tool useless. Crafted copper is the first upgrade.
+      headTier: itemId.includes("iron") ? 3 : itemId.includes("copper") ? 2 : 1,
       haftTier: 1, // Default values for now
       bindingTier: 1,
       wearMastery: 0,

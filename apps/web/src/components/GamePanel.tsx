@@ -75,7 +75,9 @@ function SkillsTabContent() {
 
 export function GamePanel() {
   const ps = useGameStore((s) => s.playerState);
-  const [isOpen, setIsOpen] = useState(false);
+  // Open on load showing the inventory. This is a shown area you can toggle
+  // away, not a drawer you have to discover.
+  const [isOpen, setIsOpen] = useState(true);
   const [activeTab, setActiveTab] = useState<TabId>("inventory");
 
   if (!ps) return null;
@@ -202,16 +204,10 @@ export function GamePanel() {
       {/* Main panel (open state) */}
       {isOpen && (
         <>
-          {/* Scrim (click to close) */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              zIndex: 99,
-              background: "rgba(0,0,0,0.3)",
-            }}
-            onClick={() => setIsOpen(false)}
-          />
+          {/* No scrim: the world must stay visible AND clickable behind the
+              panel. A full-bleed overlay here swallowed every world click
+              (you couldn't click a tree) and dimmed the whole scene 30%.
+              Close via the active tab or the ✕ instead. */}
 
           {/* Panel container */}
           <div

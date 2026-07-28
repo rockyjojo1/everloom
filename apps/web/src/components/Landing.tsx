@@ -9,10 +9,12 @@ export function Landing() {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit() {
     setError("");
+    setNotice("");
     if (!email.trim() || !password) return;
     if (tab === "signup" && password !== confirm) {
       setError("Passwords don't match.");
@@ -23,8 +25,24 @@ export function Landing() {
       const { error: err } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       if (err) { setError(err.message); setLoading(false); return; }
     } else {
-      const { error: err } = await supabase.auth.signUp({ email: email.trim(), password });
+      const { data, error: err } = await supabase.auth.signUp({ email: email.trim(), password });
       if (err) { setError(err.message); setLoading(false); return; }
+
+      // If the project has "Confirm email" enabled (Supabase default), signUp
+      // returns a user but NO session — the account exists yet nothing is
+      // logged in. Previously we fell through to initFromSupabase(), which
+      // silently created an anonymous guest instead, so the account appeared
+      // not to be remembered. Tell the user to confirm rather than guessing.
+      if (!data.session) {
+        setNotice(
+          "Account created. Check your email for a confirmation link, then log in."
+        );
+        setTab("login");
+        setPassword("");
+        setConfirm("");
+        setLoading(false);
+        return;
+      }
     }
     await initFromSupabase();
     setLoading(false);
@@ -104,6 +122,16 @@ export function Landing() {
             borderRadius: 4, padding: "6px 10px",
           }}>
             {error}
+          </div>
+        )}
+
+        {notice && (
+          <div style={{
+            fontFamily: "var(--font-ui)", fontSize: 10, color: "var(--weld)",
+            background: "rgba(217,164,65,0.15)", border: "1px solid var(--weld)",
+            borderRadius: 4, padding: "6px 10px",
+          }}>
+            {notice}
           </div>
         )}
 
