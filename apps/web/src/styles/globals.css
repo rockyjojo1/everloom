@@ -22,6 +22,10 @@
   --shadow: 2px 2px 0 var(--walnut);
   --shadow-sm: 1px 1px 0 var(--walnut);
 
+  /* Width of the always-visible inventory rail on the right edge.
+     Everything anchored to the right edge must offset by this. */
+  --inv-rail: 72px;
+
   /* Stitch border */
   --stitch: repeating-linear-gradient(
     90deg,
@@ -41,6 +45,17 @@ html, body, #root {
   width: 100%;
   overflow: hidden;
   background: var(--iron-gall);
+}
+
+/* iOS Safari: 100% tracks the *largest* viewport, so the bottom of the UI
+   hides behind the URL bar. dvh tracks the visible area as the bar shows/hides. */
+@supports (height: 100dvh) {
+  html, body, #root { height: 100dvh; }
+}
+
+/* Narrow phones: shrink the inventory rail so the scene keeps usable width. */
+@media (max-width: 420px) {
+  :root { --inv-rail: 58px; }
 }
 
 body {
@@ -258,7 +273,7 @@ body {
 .tab-strip {
   position: absolute;
   bottom: calc(4px + env(safe-area-inset-bottom));
-  right: 4px;
+  right: calc(var(--inv-rail) + 4px);
   display: flex;
   flex-direction: row;
   gap: 3px;
@@ -330,7 +345,7 @@ body {
 /* ── Floating action HUD (top overlay) ──────────────────────── */
 .action-hud {
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0; left: 0; right: var(--inv-rail);
   background: rgba(30,36,48,0.82);
   border-bottom: 2px solid rgba(74,55,40,0.8);
   padding: 6px 10px 5px;

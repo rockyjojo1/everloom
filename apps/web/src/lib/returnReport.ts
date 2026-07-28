@@ -92,7 +92,8 @@ export function buildReturnReport(
   let consecutiveXp = 0;
 
   for (const event of events) {
-    const at = event.atSeconds;
+    // The `death` event carries its timestamp on the nested record.
+    const at = event.kind === "death" ? event.record.atSeconds : event.atSeconds;
 
     switch (event.kind) {
       case "xp_gain":

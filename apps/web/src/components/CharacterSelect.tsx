@@ -7,7 +7,7 @@ const HAIR_COLORS  = ["#3C2514","#6B4226","#9B6633","#D9A441","#E8DCC4","#A63A32
 const TORSO_COLORS = ["#3C5A73","#A63A32","#5E7350","#4A3728","#D9A441","#7D3C98","#2C3E50","#C0392B","#1E8449","#1E2430"];
 const LEGS_COLORS  = ["#4A3728","#2C3E50","#1A5276","#A63A32","#5E7350","#7D3C98","#6B4226","#E8DCC4","#1E2430","#3C5A73"];
 
-function MiniChar({ app }: { app?: CharacterAppearance }) {
+function MiniChar({ app }: { app?: CharacterAppearance | undefined }) {
   const skin  = SKIN_TONES[app?.skinTone  ?? 0]!;
   const hair  = HAIR_COLORS[app?.hairColor ?? 3]!;
   const torso = TORSO_COLORS[app?.torsoColor ?? 0]!;

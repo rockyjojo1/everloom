@@ -53,7 +53,7 @@ interface GameStore {
   setScreen: (s: AppScreen) => void;
   setActivePanel: (p: ActivePanel) => void;
   initFromSupabase: () => Promise<void>;
-  createCharacter: (name: string, mode: "cozy" | "standard" | "ironbound", appearance?: CharacterAppearance) => Promise<void>;
+  createCharacter: (name: string, mode: "cozy" | "standard" | "ironbound", appearance?: CharacterAppearance | undefined) => Promise<void>;
   startAction: (action: ActionDescriptor) => void;
   tickFrame: () => void;
   commitToServer: () => Promise<void>;

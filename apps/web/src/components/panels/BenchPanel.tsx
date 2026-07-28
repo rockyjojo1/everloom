@@ -20,7 +20,7 @@ export function BenchPanel() {
 
   function handleCraft(recipeId: string) {
     const action: ActionDescriptor = {
-      type: RECIPES.find((r) => r.id === recipeId)?.skill as SkillId ?? "crafting",
+      type: (RECIPES.find((r) => r.id === recipeId)?.skill as ActionDescriptor["type"]) ?? "crafting",
       nodeId: null,
       zoneId: ps!.zoneId,
       recipeId,

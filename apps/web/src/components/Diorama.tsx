@@ -10,7 +10,7 @@ const HAIR_COLORS  = ["#3C2514","#6B4226","#9B6633","#D9A441","#E8DCC4","#A63A32
 const TORSO_COLORS = ["#3C5A73","#A63A32","#5E7350","#4A3728","#D9A441","#7D3C98","#2C3E50","#C0392B","#1E8449","#1E2430"];
 const LEGS_COLORS  = ["#4A3728","#2C3E50","#1A5276","#A63A32","#5E7350","#7D3C98","#6B4226","#E8DCC4","#1E2430","#3C5A73"];
 
-function PixelCharacter({ appearance, action }: { appearance?: CharacterAppearance; action: string }) {
+function PixelCharacter({ appearance, action }: { appearance?: CharacterAppearance | undefined; action: string }) {
   const skin  = SKIN_TONES[appearance?.skinTone   ?? 0]!;
   const hair  = HAIR_COLORS[appearance?.hairColor  ?? 3]!;
   const torso = TORSO_COLORS[appearance?.torsoColor ?? 0]!;
@@ -113,46 +113,65 @@ function SceneMeadowrest() {
       <ellipse cx="40" cy="44" rx="22" ry="4" fill="#8bc77a" opacity="0.3" />
       <ellipse cx="60" cy="46" rx="18" ry="3" fill="#8bc77a" opacity="0.25" />
 
-      {/* River — runs diagonally across lower middle */}
-      <path d="M5 60 Q28 56 52 58 Q72 56 95 62 L95 72 Q72 70 52 68 Q28 72 5 72 Z"
+      {/* River — runs across the lower third */}
+      <path d="M0 62 Q28 58 52 60 Q72 58 100 63 L100 78 Q72 76 52 74 Q28 78 0 77 Z"
         fill="url(#river-mr)" />
-      {/* River shimmer lines */}
-      <rect x="15" y="62" width="9"  height="1.2" fill="white" opacity="0.35" rx="1" />
-      <rect x="42" y="65" width="12" height="1.2" fill="white" opacity="0.35" rx="1" />
-      <rect x="68" y="63" width="7"  height="1.2" fill="white" opacity="0.35" rx="1" />
-      {/* Lily pads */}
-      <ellipse cx="30" cy="67" rx="3" ry="1.5" fill="#4a8a3a" opacity="0.7" />
-      <ellipse cx="60" cy="64" rx="2.5" ry="1.2" fill="#4a8a3a" opacity="0.7" />
+      {/* Bank shading where water meets grass */}
+      <path d="M0 62 Q28 58 52 60 Q72 58 100 63 L100 64.5 Q72 59.5 52 61.5 Q28 59.5 0 63.5 Z"
+        fill="#2f4a5e" opacity="0.5" />
+      {/* Shimmer — must stay sub-unit thin: 1 unit ≈ 15px on screen */}
+      <rect x="14" y="66"  width="7"  height="0.35" fill="white" opacity="0.3" rx="0.2" />
+      <rect x="40" y="69"  width="10" height="0.35" fill="white" opacity="0.28" rx="0.2" />
+      <rect x="66" y="67"  width="6"  height="0.35" fill="white" opacity="0.26" rx="0.2" />
+      <rect x="26" y="72"  width="8"  height="0.3"  fill="white" opacity="0.2"  rx="0.2" />
+      {/* Lily pads — small, with a notch */}
+      <ellipse cx="30" cy="71" rx="1.1" ry="0.55" fill="#4a8a3a" opacity="0.75" />
+      <ellipse cx="58" cy="68" rx="0.9" ry="0.45" fill="#4a8a3a" opacity="0.75" />
+      <ellipse cx="44" cy="74" rx="1"   ry="0.5"  fill="#3f7a32" opacity="0.7" />
 
-      {/* RIGHT — cliff + waterfall */}
-      <path d="M76 0 L100 0 L100 66 L85 60 L78 65 Z" fill="#5A6270" />
-      <path d="M80 0 L100 0 L100 62 L87 57 L81 60 Z" fill="#4B5563" />
-      {/* Waterfall */}
-      <rect x="82" y="0" width="3" height="55" fill="url(#fall-mr)" rx="1" />
-      <rect x="86" y="0" width="2" height="52" fill="white" opacity="0.25" rx="1" />
-      {/* Mist at base */}
-      <ellipse cx="84" cy="57" rx="7" ry="3" fill="white" opacity="0.3" />
+      {/* RIGHT — cliff face */}
+      <path d="M84 0 L100 0 L100 64 L90 60 L86 63 Z" fill="#5A6270" />
+      <path d="M88 0 L100 0 L100 61 L92 57 L89 59 Z" fill="#4B5563" />
+      {/* Cliff strata — thin horizontal seams */}
+      <rect x="86" y="16" width="14" height="0.3" fill="#3a4049" opacity="0.6" />
+      <rect x="87" y="30" width="13" height="0.3" fill="#3a4049" opacity="0.5" />
+      <rect x="88" y="44" width="12" height="0.3" fill="#3a4049" opacity="0.45" />
+      {/* Waterfall — narrow falling ribbons, not a slab */}
+      <rect x="90.4" y="4" width="0.8" height="55" fill="url(#fall-mr)" opacity="0.85" rx="0.4" />
+      <rect x="91.6" y="6" width="0.5" height="53" fill="white" opacity="0.45" rx="0.3" />
+      <rect x="92.6" y="3" width="0.4" height="56" fill="white" opacity="0.3"  rx="0.2" />
+      {/* Mist pool at the base */}
+      <ellipse cx="91.5" cy="60" rx="4" ry="1.4" fill="white" opacity="0.22" />
+      <ellipse cx="91.5" cy="60.5" rx="2.4" ry="0.8" fill="white" opacity="0.18" />
       {/* Rocks at cliff base */}
-      <ellipse cx="80" cy="64" rx="6.5" ry="3.5" fill="#4B5563" />
-      <ellipse cx="87" cy="66" rx="5"   ry="3"   fill="#374151" />
-      <ellipse cx="76" cy="65" rx="4"   ry="2.5" fill="#374151" />
+      <ellipse cx="86" cy="63" rx="3.2" ry="1.6" fill="#4B5563" />
+      <ellipse cx="92" cy="64" rx="2.6" ry="1.3" fill="#374151" />
 
-      {/* LEFT — foreground trees */}
-      <polygon points="-2,55 8,22 18,55" fill="#2d4a2a" />
-      <polygon points="6,55  18,16 30,55" fill="#3d5e3a" />
-      <polygon points="13,55 24,28 35,55" fill="#2d4a2a" opacity="0.85" />
-      {/* Tree trunks */}
-      <rect x="6"  y="50" width="3" height="6" fill="#4A3728" opacity="0.7" />
-      <rect x="15" y="50" width="3" height="6" fill="#4A3728" opacity="0.7" />
-      <rect x="22" y="50" width="3" height="6" fill="#4A3728" opacity="0.7" />
+      {/* LEFT — treeline framing the edge (kept small so nodes stay dominant) */}
+      <polygon points="-3,57 1.5,40 6,57"   fill="#24401f" />
+      <polygon points="2,57  6.5,36 11,57"  fill="#2d4f27" />
+      <polygon points="7.5,57 11,43 14.5,57" fill="#24401f" opacity="0.9" />
+      {/* Trunks */}
+      <rect x="1.1" y="54" width="0.8" height="4" fill="#3a2b1c" opacity="0.8" />
+      <rect x="6.1" y="54" width="0.8" height="4" fill="#3a2b1c" opacity="0.8" />
+      <rect x="10.6" y="54" width="0.7" height="4" fill="#3a2b1c" opacity="0.7" />
       {/* Forest floor shadow */}
-      <ellipse cx="12" cy="55" rx="16" ry="3.5" fill="#1e3018" opacity="0.5" />
+      <ellipse cx="6" cy="57.5" rx="9" ry="1.4" fill="#1e3018" opacity="0.45" />
 
-      {/* Grass tufts in clearing */}
-      <path d="M38 55 Q39.5 51 41 55" stroke="#5E7350" strokeWidth="0.9" fill="none" />
-      <path d="M50 54 Q51.5 50 53 54" stroke="#5E7350" strokeWidth="0.9" fill="none" />
-      <path d="M58 55 Q59.5 51 61 55" stroke="#5E7350" strokeWidth="0.9" fill="none" />
-      <path d="M44 57 Q45.5 53 47 57" stroke="#5E7350" strokeWidth="0.8" fill="none" />
+      {/* Ground texture — soft dappled patches so the clearing isn't flat */}
+      <ellipse cx="36" cy="52" rx="13" ry="3"   fill="#8bc77a" opacity="0.16" />
+      <ellipse cx="64" cy="56" rx="15" ry="3.4" fill="#8bc77a" opacity="0.13" />
+      <ellipse cx="52" cy="47" rx="10" ry="2.2" fill="#6f9c5e" opacity="0.18" />
+      <ellipse cx="80" cy="50" rx="9"  ry="2"   fill="#8bc77a" opacity="0.12" />
+
+      {/* Grass tufts — thin blades, ~0.15 units wide */}
+      {[[34,57],[41,59],[52,57],[60,58],[47,61],[66,59],[28,60]].map(([gx, gy], i) => (
+        <g key={i} stroke="#4f6644" strokeWidth="0.15" fill="none" opacity="0.8">
+          <path d={`M${gx} ${gy} Q${gx! - 0.4} ${gy! - 1.4} ${gx! - 0.9} ${gy! - 2.1}`} />
+          <path d={`M${gx} ${gy} Q${gx! + 0.1} ${gy! - 1.6} ${gx! + 0.2} ${gy! - 2.4}`} />
+          <path d={`M${gx} ${gy} Q${gx! + 0.6} ${gy! - 1.3} ${gx! + 1.1} ${gy! - 1.9}`} />
+        </g>
+      ))}
     </svg>
   );
 }
@@ -296,13 +315,13 @@ function ZoneScene({ zoneId }: { zoneId: string }) {
 
 const NODE_POS: Record<string, Array<{ nodeId: string; x: number; y: number }>> = {
   meadowrest: [
-    { nodeId: "meadowrest_pine",         x: 18, y: 38 },
-    { nodeId: "meadowrest_willow",       x: 30, y: 50 },
-    { nodeId: "meadowrest_copper_vein",  x: 62, y: 47 },
-    { nodeId: "meadowrest_tin_vein",     x: 70, y: 36 },
-    { nodeId: "meadowrest_campfire",     x: 44, y: 50 },
-    { nodeId: "meadowrest_minnow_pool",  x: 74, y: 65 },
-    { nodeId: "meadowrest_trout_stream", x: 55, y: 65 },
+    { nodeId: "meadowrest_pine",         x: 16, y: 40 },
+    { nodeId: "meadowrest_willow",       x: 29, y: 52 },
+    { nodeId: "meadowrest_campfire",     x: 44, y: 44 },
+    { nodeId: "meadowrest_copper_vein",  x: 60, y: 50 },
+    { nodeId: "meadowrest_tin_vein",     x: 72, y: 38 },
+    { nodeId: "meadowrest_trout_stream", x: 50, y: 68 },
+    { nodeId: "meadowrest_minnow_pool",  x: 74, y: 70 },
   ],
   bramblewood: [
     { nodeId: "bramblewood_oak",         x: 22, y: 42 },
@@ -508,14 +527,11 @@ export function Diorama() {
   const actionType    = ps.currentAction.type;
   const isSkilling    = actionType !== "idle" && actionType !== "traveling";
 
-  // Character walks smoothly to active node.
+  // Character walks to the active node, standing just beside/below it so the
+  // node art stays visible. Idle spot is deliberately clear of every node.
   const activePos = positions.find((p) => p.nodeId === currentNodeId);
-  const targetX = activePos ? Math.max(10, activePos.x - 6) : 44;
-  const targetY = activePos ? activePos.y + 4 : 60;
-
-  // Smooth walk: when action changes, animate to target over 1.2s
-  const charX = targetX;
-  const charY = targetY;
+  const charX = activePos ? Math.max(8, activePos.x - 7) : 36;
+  const charY = activePos ? activePos.y + 9 : 62;
 
   const threat = zone?.danger ? {
     zoneId: ps.zoneId as import("@everloom/engine").ZoneId,
@@ -544,7 +560,14 @@ export function Diorama() {
   return (
     <div
       ref={containerRef}
-      style={{ flex: 1, position: "relative", overflow: "hidden", minHeight: 0 }}
+      style={{
+        flex: 1,
+        position: "relative",
+        overflow: "hidden",
+        minHeight: 0,
+        // Keep the scene (and its node hitboxes) clear of the inventory rail.
+        marginRight: "var(--inv-rail)",
+      }}
     >
       {/* ── Zone scene background ── */}
       <ZoneScene zoneId={ps.zoneId} />
@@ -671,14 +694,6 @@ export function Diorama() {
         pointerEvents: "none",
       }}>
         ✨ {ps.motes}
-      </div>
-      <div style={{
-        position: "absolute", bottom: 6, right: 200, zIndex: 10,
-        fontFamily: "var(--font-ui)", fontSize: 10, color: "var(--linen-dark)",
-        background: "rgba(30,36,48,0.65)", padding: "2px 7px", borderRadius: 3,
-        pointerEvents: "none",
-      }}>
-        🎒 {ps.inventory.length}/{ps.slots}
       </div>
 
       {/* ── CSS animations ── */}

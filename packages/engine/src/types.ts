@@ -176,7 +176,7 @@ export interface PlayerState {
   readonly displayName: string;
   readonly mode: DeathMode;
   readonly rngSeed: bigint;
-  readonly appearance?: CharacterAppearance;
+  readonly appearance?: CharacterAppearance | undefined;
 
   // Checkpoint — THE critical field
   readonly checkpointAt: number;   // unix timestamp (seconds)
