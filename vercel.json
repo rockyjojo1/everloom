@@ -1,12 +1,7 @@
 {
-  "version": 2,
   "buildCommand": "pnpm run build",
   "outputDirectory": "apps/web/dist",
   "installCommand": "pnpm install",
-  "env": {
-    "VITE_SUPABASE_URL": "@supabase_url",
-    "VITE_SUPABASE_ANON_KEY": "@supabase_anon_key"
-  },
   "rewrites": [
     {
       "source": "/(.*)",
