@@ -23,6 +23,13 @@ export interface DecorSprite {
   ty: number;
 }
 
+export interface GroundItem {
+  itemId: string;
+  tx: number;
+  ty: number;
+  qty: number;
+}
+
 export interface ZoneMap {
   zoneId: string;
   name: string;
@@ -31,6 +38,7 @@ export interface ZoneMap {
   tiles: TileType[];
   nodes: NodePlacement[];
   decor: DecorSprite[];
+  groundItems?: GroundItem[];
   spawnTx: number;
   spawnTy: number;
 }
@@ -65,11 +73,17 @@ export const MEADOWREST: ZoneMap = {
     { nodeId: 'meadowrest_tin_vein',     tx: 15, ty: 4 },
     { nodeId: 'meadowrest_trout_stream', tx: 8,  ty: 7 },
     { nodeId: 'meadowrest_minnow_pool',  tx: 13, ty: 7 },
+    { nodeId: 'meadowrest_furnace',      tx: 16, ty: 6 },
+    { nodeId: 'meadowrest_anvil',        tx: 17, ty: 6 },
   ],
   decor: [
     // Edge trees and cliffs (visual only, non-interactive)
     { spriteId: 'tree_oak', tx: 1, ty: 1 },
     { spriteId: 'tree_oak', tx: 18, ty: 3 },
+  ],
+  groundItems: [
+    { itemId: 'worn_hatchet', tx: 10, ty: 5, qty: 1 },    // at spawn
+    { itemId: 'worn_pickaxe', tx: 14, ty: 2, qty: 1 },    // near copper vein
   ],
   spawnTx: 10,
   spawnTy: 5,
@@ -112,4 +126,6 @@ export const SPRITE_SOURCES: Record<string, { file: string; row: number; col: nu
   node_tin_vein: { file: 'world/rocks.png', row: 0, col: 1 },
   node_trout_stream: { file: 'world/terrain.png', row: 0, col: 1 }, // placeholder
   node_minnow_pool: { file: 'world/terrain.png', row: 0, col: 2 }, // placeholder
+  node_furnace: { file: 'world/terrain.png', row: 1, col: 0 },     // placeholder
+  node_anvil: { file: 'world/terrain.png', row: 1, col: 1 },       // placeholder
 };

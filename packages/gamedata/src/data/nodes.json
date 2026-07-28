@@ -248,5 +248,37 @@
       { "itemId": "raw_cave_eel", "materialClass": "fish", "chance": 1000, "qty": 1 }
     ],
     "rareDrops": []
+  },
+  {
+    "id": "meadowrest_furnace",
+    "name": "Furnace",
+    "skill": "smithing",
+    "zoneId": "meadowrest",
+    "hardness": 0,
+    "baseActionTimeSec": 5,
+    "xpPerAction": 0,
+    "masteryXpPerAction": 0,
+    "petId": null,
+    "petChance": 0,
+    "spriteId": "node_furnace",
+    "drops": [],
+    "rareDrops": [],
+    "facilityType": "furnace"
+  },
+  {
+    "id": "meadowrest_anvil",
+    "name": "Anvil",
+    "skill": "smithing",
+    "zoneId": "meadowrest",
+    "hardness": 0,
+    "baseActionTimeSec": 5,
+    "xpPerAction": 0,
+    "masteryXpPerAction": 0,
+    "petId": null,
+    "petChance": 0,
+    "spriteId": "node_anvil",
+    "drops": [],
+    "rareDrops": [],
+    "facilityType": "anvil"
   }
 ]

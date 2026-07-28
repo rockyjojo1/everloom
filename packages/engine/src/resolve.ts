@@ -57,7 +57,9 @@ export interface NodeData {
     readonly chance: number;       // 1-in-N
   }[];
   readonly petChance: number;      // 1-in-N per action
-  readonly petId: string;
+  readonly petId: string | null;
+  readonly spriteId?: string;      // for rendering
+  readonly facilityType?: "furnace" | "anvil"; // for facilities
 }
 
 export interface ItemData {
@@ -273,12 +275,19 @@ function resolveGathering(
   const masteryXp = state.mastery[nodeId] ?? 0;
   const masteryLevel = masteryLevelFromXp(masteryXp);
 
-  // Tool head tier determines speed multiplier.
+  // Tool is required for gathering.
   const tool = getToolForSkill(state, node.skill);
-  const headTier = tool?.headTier ?? 0;
-  const haftTier = tool?.haftTier ?? 0;
-  const bindingTier = tool?.bindingTier ?? 0;
-  const wearPct = tool?.wearPct ?? 1000;
+  if (!tool) {
+    return {
+      state,
+      events: [{ kind: "tool_required", skill: node.skill, atSeconds: nowSeconds }],
+    };
+  }
+
+  const headTier = tool.headTier;
+  const haftTier = tool.haftTier;
+  const bindingTier = tool.bindingTier;
+  const wearPct = tool.wearPct;
 
   // Hardness penalty (3.1 and 4B.3).
   const tierGap = node.hardness - headTier;

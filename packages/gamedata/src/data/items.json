@@ -53,5 +53,13 @@
   { "id": "iron_body",         "name": "Iron Body",        "materialClass":"armour","healAmount":0,"freshnessDecaySec":0,"baseValue":2000,"tradeable":true  },
   { "id": "iron_legs",         "name": "Iron Legs",        "materialClass":"armour","healAmount":0,"freshnessDecaySec":0,"baseValue":1500,"tradeable":true  },
   { "id": "courier_token",     "name": "Courier Token",    "materialClass":"misc","healAmount":0,"freshnessDecaySec":0,"baseValue":500,"tradeable":false  },
-  { "id": "campfire_charge",   "name": "Campfire Charge",  "materialClass":"fuel","healAmount":0,"freshnessDecaySec":0,"baseValue":1,  "tradeable":false  }
+  { "id": "campfire_charge",   "name": "Campfire Charge",  "materialClass":"fuel","healAmount":0,"freshnessDecaySec":0,"baseValue":1,  "tradeable":false  },
+  { "id": "worn_hatchet",      "name": "Worn Hatchet",     "materialClass":"tool","healAmount":0,"freshnessDecaySec":0,"baseValue":50, "tradeable":true   },
+  { "id": "worn_pickaxe",      "name": "Worn Pickaxe",     "materialClass":"tool","healAmount":0,"freshnessDecaySec":0,"baseValue":50, "tradeable":true   },
+  { "id": "copper_hatchet",    "name": "Copper Hatchet",   "materialClass":"tool","healAmount":0,"freshnessDecaySec":0,"baseValue":150,"tradeable":true   },
+  { "id": "copper_pickaxe",    "name": "Copper Pickaxe",   "materialClass":"tool","healAmount":0,"freshnessDecaySec":0,"baseValue":150,"tradeable":true   },
+  { "id": "iron_hatchet",      "name": "Iron Hatchet",     "materialClass":"tool","healAmount":0,"freshnessDecaySec":0,"baseValue":400,"tradeable":true   },
+  { "id": "iron_pickaxe",      "name": "Iron Pickaxe",     "materialClass":"tool","healAmount":0,"freshnessDecaySec":0,"baseValue":400,"tradeable":true   },
+  { "id": "copper_fishing_rod", "name": "Copper Fishing Rod", "materialClass":"tool","healAmount":0,"freshnessDecaySec":0,"baseValue":120,"tradeable":true  },
+  { "id": "iron_fishing_rod",  "name": "Iron Fishing Rod",  "materialClass":"tool","healAmount":0,"freshnessDecaySec":0,"baseValue":350,"tradeable":true   }
 ]

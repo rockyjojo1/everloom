@@ -274,6 +274,7 @@ export type GameEvent =
   | { readonly kind: "bundle_completed"; readonly bundleId: string; readonly atSeconds: number }
   | { readonly kind: "weekly_contract_completed"; readonly contractId: string; readonly atSeconds: number }
   | { readonly kind: "tool_degraded"; readonly toolSlot: "hatchet" | "pickaxe" | "fishingRod"; readonly atSeconds: number }
+  | { readonly kind: "tool_required"; readonly skill: SkillId; readonly atSeconds: number }
   | { readonly kind: "pet_found"; readonly petId: string; readonly atSeconds: number }
   | { readonly kind: "blueprint_found"; readonly blueprintId: string; readonly itemId: string; readonly atSeconds: number }
   | { readonly kind: "glimmer"; readonly nodeId: string; readonly motes: number; readonly atSeconds: number };
