@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { MEADOWREST, getTile, isWalkable, ZoneMap } from '../world/zonemaps';
+import { useGameStore } from '../store/gameStore';
+import { loadCharacterLayers, tintSpriteLayer, compositeLayers } from '../world/characterSprites';
+import { ANIMATIONS, getCurrentFrame, extractFrame, ActionAnimationType } from '../world/character';
+import { appearanceToColors } from '../lib/appearanceColors';
 
 interface LoadedTexture {
   img: HTMLImageElement;
@@ -22,11 +26,18 @@ const WATER_FRAME_DURATION = 150; // ms per frame (3 frames ≈ 450ms total)
 export function WorldCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [textures, setTextures] = useState<Record<string, LoadedTexture>>({});
+  const [characterSprite, setCharacterSprite] = useState<HTMLCanvasElement | null>(null);
   const animationFrameRef = useRef<number>();
   const waterFrameRef = useRef(0);
   const lastWaterTimeRef = useRef(Date.now());
+  const actionStartTimeRef = useRef(Date.now());
 
-  // Load sprites on mount
+  // Get current action from game store
+  const playerState = useGameStore((s) => s.playerState);
+  const currentAction = playerState?.currentAction;
+  const appearance = playerState?.appearance;
+
+  // Load sprites and character on mount
   useEffect(() => {
     const loaded: Record<string, LoadedTexture> = {};
     const textureFiles = ['world/terrain.png', 'world/trees.png', 'world/rocks.png', 'world/water_anim.png'];
@@ -51,7 +62,29 @@ export function WorldCanvas() {
     Promise.all(textureFiles.map(loadTexture)).then(() => {
       setTextures(loaded);
     });
-  }, []);
+
+    // Load character sprites
+    (async () => {
+      try {
+        const layers = await loadCharacterLayers();
+        const appColors = appearanceToColors(appearance);
+
+        // Tint each layer based on appearance
+        const tintedLayers: Record<string, HTMLCanvasElement> = {
+          body: tintSpriteLayer(layers.body, appColors.skin),
+          legs: tintSpriteLayer(layers.legs, appColors.legs),
+          torso: tintSpriteLayer(layers.torso, appColors.torso),
+          hair: tintSpriteLayer(layers.hair, appColors.hair),
+        };
+
+        // Composite all layers
+        const composite = compositeLayers(tintedLayers);
+        setCharacterSprite(composite);
+      } catch (err) {
+        console.error('Failed to load character sprites:', err);
+      }
+    })();
+  }, [appearance]);
 
   // Main render loop
   useEffect(() => {
@@ -177,10 +210,26 @@ export function WorldCanvas() {
           // Draw decor (placeholder)
           ctx!.fillStyle = '#228B22';
           ctx!.fillRect(ent.px - 16, ent.py - 48, 32, 32);
-        } else if (ent.type === 'char') {
-          // Draw character (placeholder: 16×32 sprite-like shape)
-          ctx!.fillStyle = '#FFC0CB';
-          ctx!.fillRect(ent.px - 12, ent.py - 32, 24, 32);
+        } else if (ent.type === 'char' && characterSprite) {
+          // Draw character sprite with animation
+          if (currentAction) {
+            const actionType = (currentAction.type === 'woodcutting' ? 'chop' :
+                               currentAction.type === 'mining' ? 'mine' :
+                               currentAction.type === 'fishing' ? 'fish' :
+                               currentAction.type === 'cooking' ? 'cook' :
+                               'idle') as ActionAnimationType;
+
+            const elapsedMs = Date.now() - actionStartTimeRef.current;
+            const frame = getCurrentFrame(actionType, 'down', elapsedMs);
+            const frameCanvas = extractFrame(characterSprite, frame.row, frame.col);
+
+            // Draw at character position (centered, y-sorted)
+            ctx!.drawImage(
+              frameCanvas,
+              ent.px - 32, // centered (64px frame width)
+              ent.py - 64  // bottom of character at py
+            );
+          }
         }
       }
 
@@ -197,7 +246,12 @@ export function WorldCanvas() {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [textures]);
+  }, [textures, characterSprite, currentAction]);
+
+  // Reset animation timer when action changes
+  useEffect(() => {
+    actionStartTimeRef.current = Date.now();
+  }, [currentAction?.type]);
 
   return (
     <canvas
