@@ -1,4 +1,5 @@
-import { ASSET_CATALOG, ASSET_REGISTRY, isAssetUsed } from "@everloom/assets";
+import { ASSET_CATALOG, isAssetUsed } from "@everloom/assets/catalog";
+import { ASSET_REGISTRY } from "@everloom/assets/runtime";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";

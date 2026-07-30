@@ -3,9 +3,15 @@ import { DebugPanel } from "./components/DebugPanel";
 import { Hud } from "./components/Hud";
 import { OfflineReport } from "./components/OfflineReport";
 import { useGameStore } from "./game/store";
-import { GameWorld } from "./world/GameWorld";
 import "./styles.css";
 import "./phase-two.css";
+
+const loadGameWorld = async () => {
+  const module = await import("./world/GameWorld");
+  return { default: module.GameWorld };
+};
+
+const GameWorld = lazy(loadGameWorld);
 
 const AssetBrowser = lazy(async () => {
   const module = await import("./components/AssetBrowser");
@@ -39,7 +45,9 @@ export default function App() {
 
   const intro = !save.worldFlags.intro_seen;
   return <main className="game-shell">
-    <GameWorld />
+    {!intro && <Suspense fallback={<div className="world-loading" role="status">Preparing Meadowrest…</div>}>
+      <GameWorld />
+    </Suspense>}
     <Hud />
     <OfflineReport />
     <DebugPanel />
@@ -47,7 +55,7 @@ export default function App() {
       <span className="eyebrow">A LOCAL-FIRST ADVENTURE</span><h1>Meadowrest remembers.</h1>
       <p>The First Loomstone has gone quiet. Mara waits in the village circle, and every path begins with a tool left close at hand.</p>
       <div className="intro-notes"><span>Tap the ground to move</span><span>Tap people and resources to act</span><span>Your progress stays on this device</span></div>
-      <button className="primary" onClick={beginIntro}>Enter Meadowrest</button>
+      <button className="primary" onPointerDown={() => void loadGameWorld()} onClick={beginIntro}>Enter Meadowrest</button>
     </section></div>}
     <div className="rotate"><div className="loom-mark" /><h1>Turn to landscape</h1><p>Everloom is shaped for a wider view.</p></div>
   </main>;

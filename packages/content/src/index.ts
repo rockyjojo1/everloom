@@ -1,4 +1,4 @@
-import { ASSET_REGISTRY } from "@everloom/assets";
+import { ASSET_REGISTRY } from "@everloom/assets/runtime";
 import type {
   ContentBundle,
   EnemyDefinition,

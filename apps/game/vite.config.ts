@@ -78,4 +78,17 @@ export default defineConfig({
     host: "127.0.0.1",
     port: 4311,
   },
+  build: {
+    // Three.js is isolated and deferred behind world entry; the player-shell budget is enforced separately.
+    chunkSizeWarningLimit: 550,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          const normalized = id.replaceAll("\\", "/");
+          if (normalized.includes("/node_modules/three/examples/")) return "three-addons";
+          if (normalized.includes("/node_modules/three/")) return "three-core";
+        },
+      },
+    },
+  },
 });

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader, type GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
-import { ASSET_REGISTRY, assetUrl } from "@everloom/assets";
+import { ASSET_REGISTRY, assetUrl } from "@everloom/assets/runtime";
 
 const loader = new GLTFLoader();
 const cache = new Map<string, Promise<GLTF>>();
