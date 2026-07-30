@@ -495,13 +495,14 @@ export function advanceSimulation(
       if (spent < needed) continue;
 
       const sequence = state.activitySequence;
+      const weaponBonus = state.equipment.weapon ? 2 : 0;
       const playerDamage = deterministicRange(
         state.rngSeed,
         sequence,
         "combat:player-damage",
         activity.targetId,
-        enemy.minPlayerDamage,
-        enemy.maxPlayerDamage,
+        enemy.minPlayerDamage + weaponBonus,
+        enemy.maxPlayerDamage + weaponBonus,
       );
       const enemyHp = Math.max(0, activity.enemyHp - playerDamage);
       events.push({ type: "damage", target: "enemy", amount: playerDamage });

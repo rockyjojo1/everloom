@@ -2,47 +2,21 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { CONTENT } from "@everloom/content";
 import type { GridPosition, ZoneInteractable } from "@everloom/core";
-import { blockedSet, findPath, pathToTarget, surfaceAt } from "../game/pathfinding";
+import { blockedSet, findPath, pathToTarget } from "../game/pathfinding";
 import { useGameStore } from "../game/store";
 import { instantiateAsset } from "./assets";
+import { buildEnvironment, terrainHeight, updateEnvironment } from "./environment";
 
 const zone = CONTENT.zones.meadowrest!;
-const world = (p: GridPosition) => new THREE.Vector3((p.x - zone.width / 2) * zone.cellSize, 0, (p.z - zone.depth / 2) * zone.cellSize);
+const world = (p: GridPosition) => new THREE.Vector3(
+  (p.x - zone.width / 2) * zone.cellSize,
+  terrainHeight(zone, p.x, p.z),
+  (p.z - zone.depth / 2) * zone.cellSize,
+);
 const grid = (p: THREE.Vector3): GridPosition => ({
   x: Math.max(0, Math.min(zone.width - 1, Math.round(p.x / zone.cellSize + zone.width / 2))),
   z: Math.max(0, Math.min(zone.depth - 1, Math.round(p.z / zone.cellSize + zone.depth / 2))),
 });
-
-const COLORS: Record<string, number> = {
-  grass: 0x668e54, meadow: 0x7ca463, path: 0xb69a6b, stone: 0x78766e, water: 0x4d91a0, soil: 0x836a4b,
-};
-
-function buildTerrain(): THREE.Group {
-  const root = new THREE.Group();
-  const geometry = new THREE.BoxGeometry(zone.cellSize + 0.025, 0.12, zone.cellSize + 0.025);
-  const grouped = new Map<string, THREE.Matrix4[]>();
-  for (let x = 0; x < zone.width; x += 1) {
-    for (let z = 0; z < zone.depth; z += 1) {
-      const surface = surfaceAt(zone, x, z);
-      const position = world({ x, z });
-      position.y = surface === "water" ? -0.1 : -0.03 + Math.sin(x * 1.7 + z * 0.8) * 0.015;
-      const matrices = grouped.get(surface) ?? [];
-      matrices.push(new THREE.Matrix4().setPosition(position));
-      grouped.set(surface, matrices);
-    }
-  }
-  for (const [surface, matrices] of grouped) {
-    const tiles = new THREE.InstancedMesh(geometry, new THREE.MeshStandardMaterial({
-      color: COLORS[surface], roughness: 0.94, transparent: surface === "water", opacity: surface === "water" ? 0.78 : 1,
-    }), matrices.length);
-    matrices.forEach((matrix, index) => tiles.setMatrixAt(index, matrix));
-    tiles.instanceMatrix.needsUpdate = true;
-    tiles.receiveShadow = true;
-    tiles.userData.ground = true;
-    root.add(tiles);
-  }
-  return root;
-}
 
 function targetAvailable(target: ZoneInteractable, state: ReturnType<typeof useGameStore.getState>["save"]): boolean {
   if (!state) return false;
@@ -59,21 +33,39 @@ export function GameWorld() {
     if (!host.current) return;
     const element = host.current;
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xa9ced0);
-    scene.fog = new THREE.Fog(0xa9ced0, 38, 82);
-    const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 150);
-    camera.position.set(17, 21, 22);
+    scene.background = new THREE.Color(0x91b9b7);
+    scene.fog = new THREE.Fog(0x91b9b7, 45, 94);
+    const camera = new THREE.PerspectiveCamera(43, 1, 0.1, 160);
+    camera.position.set(16, 19, 20);
     const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.08;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     element.appendChild(renderer.domElement);
-    scene.add(new THREE.HemisphereLight(0xdaf4ef, 0x58604b, 2.2));
-    const sun = new THREE.DirectionalLight(0xffefcf, 2.8);
-    sun.position.set(-20, 30, 15);
+    const metrics = document.createElement("output");
+    metrics.className = "world-metrics";
+    if (import.meta.env.DEV && new URLSearchParams(location.search).has("debug")) element.appendChild(metrics);
+    scene.add(new THREE.HemisphereLight(0xdff5ee, 0x435047, 2.05));
+    const sun = new THREE.DirectionalLight(0xffe5b1, 3.1);
+    sun.position.set(-24, 34, 18);
     sun.castShadow = true;
-    sun.shadow.mapSize.set(1024, 1024);
-    scene.add(sun, buildTerrain());
+    sun.shadow.mapSize.set(1536, 1536);
+    sun.shadow.camera.left = -34;
+    sun.shadow.camera.right = 34;
+    sun.shadow.camera.top = 28;
+    sun.shadow.camera.bottom = -28;
+    const environment = buildEnvironment(zone, useGameStore.getState().save?.settings.quality ?? "standard");
+    scene.add(sun, environment.root);
+
+    const fireLight = new THREE.PointLight(0xff9a45, 2.2, 8, 2);
+    fireLight.position.copy(world({ x: 22, z: 19 })).add(new THREE.Vector3(0, 1.1, 0));
+    scene.add(fireLight);
+    const debugGrid = new THREE.GridHelper(zone.width * zone.cellSize, zone.width, 0xe8c979, 0x4b584d);
+    debugGrid.position.y = 0.16;
+    debugGrid.visible = false;
+    scene.add(debugGrid);
 
     const marker = new THREE.Mesh(
       new THREE.RingGeometry(0.25, 0.43, 24),
@@ -82,6 +74,20 @@ export function GameWorld() {
     marker.rotation.x = -Math.PI / 2;
     marker.visible = false;
     scene.add(marker);
+    const targetHalo = new THREE.Mesh(
+      new THREE.RingGeometry(0.58, 0.72, 32),
+      new THREE.MeshBasicMaterial({ color: 0xffdc82, transparent: true, opacity: 0.72, side: THREE.DoubleSide, depthWrite: false }),
+    );
+    targetHalo.rotation.x = -Math.PI / 2;
+    targetHalo.visible = false;
+    scene.add(targetHalo);
+    const effectPositions = new Float32Array(36);
+    const activityEffect = new THREE.Points(
+      new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(effectPositions, 3)),
+      new THREE.PointsMaterial({ color: 0xe9bd72, size: 0.12, transparent: true, opacity: 0.82, depthWrite: false }),
+    );
+    activityEffect.visible = false;
+    scene.add(activityEffect);
 
     const targets = new Map<string, THREE.Object3D>();
     const mixers: THREE.AnimationMixer[] = [];
@@ -89,17 +95,24 @@ export function GameWorld() {
     scene.add(playerRoot);
     let playerMixer: THREE.AnimationMixer | null = null;
     let currentClip = "";
+    let oneShotUntil = 0;
     let route: GridPosition[] = [];
     let afterArrival: (() => void) | null = null;
     let disposed = false;
 
-    const play = (name: string) => {
+    const play = (name: string, once = false) => {
       if (!playerMixer || name === currentClip) return;
       const options = (playerMixer as THREE.AnimationMixer & { _root?: THREE.Object3D })._root?.userData.animations as THREE.AnimationClip[] | undefined;
       const clip = options?.find((entry) => entry.name === name) ?? options?.find((entry) => entry.name.toLowerCase().includes(name.toLowerCase()));
       if (!clip) return;
       playerMixer.stopAllAction();
-      playerMixer.clipAction(clip).reset().fadeIn(0.12).play();
+      const action = playerMixer.clipAction(clip).reset().fadeIn(0.12);
+      if (once) {
+        action.setLoop(THREE.LoopOnce, 1);
+        action.clampWhenFinished = true;
+        oneShotUntil = performance.now() + Math.min(900, clip.duration * 1000);
+      }
+      action.play();
       currentClip = name;
     };
 
@@ -119,6 +132,7 @@ export function GameWorld() {
         const { object, animations } = await instantiateAsset(assetId, tint);
         if (disposed) return;
         object.position.copy(world({ x, z }));
+        if (assetId === "custom.fishing-ripples") object.position.y = -0.03;
         object.position.y += elevation;
         object.rotation.y = rotation;
         object.scale.multiplyScalar(scale);
@@ -155,9 +169,16 @@ export function GameWorld() {
     };
     const actOn = (target: ZoneInteractable) => {
       const store = useGameStore.getState();
+      const direction = world(target).sub(playerRoot.position);
+      playerRoot.rotation.y = Math.atan2(direction.x, direction.z);
       store.setSelectedTarget(target.id);
-      if (target.kind === "ground_item") store.pickup(target.id);
-      else if (target.kind === "npc" || target.kind === "landmark") store.interact(target.id);
+      if (target.kind === "ground_item") {
+        play("PickUp", true);
+        store.pickup(target.id);
+      } else if (target.kind === "npc" || target.kind === "landmark") {
+        play("Interact", true);
+        store.interact(target.id);
+      }
       else store.startTargetActivity(target.id);
     };
     const onPointer = (event: PointerEvent) => {
@@ -209,6 +230,9 @@ export function GameWorld() {
 
     let last = performance.now();
     let frame = 0;
+    let metricFrame = 0;
+    let metricStart = last;
+    let activeQuality = useGameStore.getState().save?.settings.quality ?? "standard";
     const animate = (now: number) => {
       if (disposed) return;
       requestAnimationFrame(animate);
@@ -217,6 +241,13 @@ export function GameWorld() {
       last = now;
       if (!document.hidden) useGameStore.getState().tick(elapsedMs);
       const save = useGameStore.getState().save;
+      const nextQuality = save?.settings.quality ?? "standard";
+      if (nextQuality !== activeQuality) {
+        activeQuality = nextQuality;
+        renderer.shadowMap.enabled = activeQuality !== "low";
+        sun.castShadow = activeQuality !== "low";
+        resize();
+      }
       if (save) {
         const desired = world(save.position);
         if (route.length && !document.hidden) {
@@ -240,7 +271,18 @@ export function GameWorld() {
           }
         } else {
           playerRoot.position.lerp(desired, 0.25);
-          play(save.currentActivity?.type === "combat" ? "1H_Melee_Attack_Chop" : save.currentActivity ? "Interact" : "Idle");
+          if (now >= oneShotUntil) {
+            if (save.player.hp <= 0) {
+              play("Death_A");
+            } else if (save.currentActivity?.type === "combat") {
+              play("1H_Melee_Attack_Chop");
+            } else if (save.currentActivity?.type === "gathering") {
+              const skill = CONTENT.resources[save.currentActivity.resourceId]?.skill;
+              play(skill === "fishing" ? "1H_Ranged_Aiming" : "1H_Melee_Attack_Chop");
+            } else {
+              play(save.currentActivity ? "Interact" : "Idle");
+            }
+          }
         }
         for (const target of zone.interactables) {
           const object = targets.get(target.id);
@@ -252,8 +294,49 @@ export function GameWorld() {
       }
       for (const mixer of mixers) mixer.update(dt);
       marker.material.opacity = 0.55 + Math.sin(now / 180) * 0.25;
+      updateEnvironment(environment, dt);
+      debugGrid.visible = import.meta.env.DEV && useGameStore.getState().debug.grid;
+      const selectedId = useGameStore.getState().selectedTargetId;
+      const selected = selectedId ? zone.interactables.find((target) => target.id === selectedId) : undefined;
+      if (selected && save && targetAvailable(selected, save)) {
+        targetHalo.position.copy(world(selected));
+        targetHalo.position.y += 0.08;
+        targetHalo.scale.setScalar(1 + Math.sin(now / 260) * 0.08);
+        targetHalo.visible = true;
+      } else {
+        targetHalo.visible = false;
+      }
+      const activity = save?.currentActivity;
+      const activityTarget = activity
+        ? zone.interactables.find((target) => target.id === activity.targetId)
+        : undefined;
+      if (activityTarget && activity) {
+        activityEffect.position.copy(world(activityTarget));
+        activityEffect.position.y += 0.2;
+        const points = activityEffect.geometry.getAttribute("position") as THREE.BufferAttribute;
+        for (let index = 0; index < 12; index += 1) {
+          const phase = (now * 0.00055 + index * 0.173) % 1;
+          points.setXYZ(index, Math.sin(index * 2.41) * phase * 0.58, phase * 1.25, Math.cos(index * 1.73) * phase * 0.58);
+        }
+        points.needsUpdate = true;
+        const effectMaterial = activityEffect.material as THREE.PointsMaterial;
+        const gatheringSkill = activity.type === "gathering"
+          ? CONTENT.resources[activity.resourceId]?.skill
+          : undefined;
+        effectMaterial.color.set(activity.type === "combat" ? 0xef795f : activity.type === "cooking" ? 0xffa34e : gatheringSkill === "fishing" ? 0x7fdce5 : 0xe9bd72);
+        activityEffect.visible = true;
+      } else {
+        activityEffect.visible = false;
+      }
       renderer.render(scene, camera);
       frame += 1;
+      metricFrame += 1;
+      if (metrics.isConnected && now - metricStart >= 1000) {
+        const position = save?.position;
+        metrics.textContent = `${Math.round(metricFrame * 1000 / (now - metricStart))} FPS · ${renderer.info.render.calls} draws · ${renderer.info.render.triangles.toLocaleString()} tris${position ? ` · ${position.x},${position.z}` : ""}`;
+        metricFrame = 0;
+        metricStart = now;
+      }
       if (frame % 30 === 0) element.dataset.ready = "true";
     };
     requestAnimationFrame(animate);
@@ -261,8 +344,7 @@ export function GameWorld() {
     const resize = () => {
       const width = element.clientWidth;
       const height = element.clientHeight;
-      const quality = useGameStore.getState().save?.settings.quality ?? "standard";
-      renderer.setPixelRatio(Math.min(devicePixelRatio, quality === "high" ? 2 : quality === "low" ? 1 : 1.5));
+      renderer.setPixelRatio(Math.min(devicePixelRatio, activeQuality === "high" ? 2 : activeQuality === "low" ? 1 : 1.5));
       renderer.setSize(width, height, false);
       camera.aspect = width / Math.max(1, height);
       camera.updateProjectionMatrix();

@@ -66,7 +66,7 @@ test("all Phase One skills and The First Thread work through the browser", async
 
   await startAndResolve(page, "skeleton_east", 10_000, /Return to Mara/i, testInfo.outputPath("everloom-combat.png"));
   await activate(page, "npc_mara", /First Loomstone/i);
-  await activate(page, "first_loomstone", /Loomstone hums/i);
+  await activate(page, "first_loomstone", /Strengthen every Meadowrest skill to level 5/i);
 
   const snapshot = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.snapshot());
   expect(snapshot.quests.first_thread.status).toBe("completed");

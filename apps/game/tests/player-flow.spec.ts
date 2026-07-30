@@ -56,25 +56,10 @@ test("active gathering resumes through the real IndexedDB offline-load path", as
   await expect(page.getByRole("button", { name: "Stop" })).toBeVisible();
   await page.evaluate(async () => {
     await (window as unknown as { __EVERLOOM_TEST__: { save: () => Promise<void> } }).__EVERLOOM_TEST__.save();
-    const request = indexedDB.open("everloom-local", 1);
-    const db = await new Promise<IDBDatabase>((resolve, reject) => {
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
-    const transaction = db.transaction("saves", "readwrite");
-    const store = transaction.objectStore("saves");
-    const save = await new Promise<Record<string, unknown>>((resolve, reject) => {
-      const get = store.get("current");
-      get.onsuccess = () => resolve(get.result as Record<string, unknown>);
-      get.onerror = () => reject(get.error);
-    });
-    save.lastActiveAt = Date.now() - 25_000;
-    store.put(save, "current");
-    await new Promise<void>((resolve, reject) => {
-      transaction.oncomplete = () => resolve();
-      transaction.onerror = () => reject(transaction.error);
-    });
-    db.close();
+  });
+  await page.addInitScript(() => {
+    const resumedAt = Date.now() + 25_000;
+    Date.now = () => resumedAt;
   });
   await page.reload();
   await expect(page.getByText("WHILE YOU WERE AWAY")).toBeVisible();

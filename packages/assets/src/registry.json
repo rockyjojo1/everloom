@@ -209,6 +209,116 @@
     "notes": "River landmark."
   },
   {
+    "id": "town.cottage",
+    "sourceFile": "composite://kenney-fantasy/cottage",
+    "pack": "everloom-composite",
+    "category": "building",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+    "notes": "Runtime composition of unmodified Kenney Fantasy Town wall, roof, door, window, chimney and stair modules."
+  },
+  {
+    "id": "town.cart",
+    "sourceFile": "kenney-fantasy/cart.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "scale": 1.4,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+    "notes": "Village silhouette and market detail."
+  },
+  {
+    "id": "town.fence",
+    "sourceFile": "kenney-fantasy/fence.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "scale": 1.25,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+    "notes": "Village plot boundary."
+  },
+  {
+    "id": "town.lantern",
+    "sourceFile": "kenney-fantasy/lantern.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "scale": 1.15,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+    "notes": "Warm town detail."
+  },
+  {
+    "id": "nature.tree-detailed",
+    "sourceFile": "kenney-nature/tree_detailed.glb",
+    "pack": "kenney-nature",
+    "category": "tree",
+    "scale": 2.15,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "Large canopy tree used for denser authored silhouettes."
+  },
+  {
+    "id": "nature.tree-round",
+    "sourceFile": "kenney-nature/tree_pineRoundC.glb",
+    "pack": "kenney-nature",
+    "category": "tree",
+    "scale": 1.75,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "Secondary evergreen silhouette."
+  },
+  {
+    "id": "nature.bush-detailed",
+    "sourceFile": "kenney-nature/plant_bushDetailed.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "scale": 1.35,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "Foreground foliage cluster."
+  },
+  {
+    "id": "nature.flower-yellow",
+    "sourceFile": "kenney-nature/flower_yellowB.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "scale": 1.15,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "Warm meadow colour accent."
+  },
+  {
+    "id": "nature.cliff-rock",
+    "sourceFile": "kenney-nature/cliff_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "scale": 2.1,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "Rock face used to frame zone edges."
+  },
+  {
+    "id": "nature.path-rocks",
+    "sourceFile": "kenney-nature/ground_pathRocks.glb",
+    "pack": "kenney-nature",
+    "category": "ground-detail",
+    "scale": 1.2,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "Breaks up path edges without changing collision."
+  },
+  {
     "id": "dungeon.crates",
     "sourceFile": "kaykit-dungeon/crates_stacked.gltf.glb",
     "pack": "kaykit-dungeon",

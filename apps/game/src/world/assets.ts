@@ -60,6 +60,46 @@ function procedural(id: string): THREE.Object3D {
   return proceduralTool(id);
 }
 
+async function buildCottage(): Promise<THREE.Group> {
+  const root = new THREE.Group();
+  const add = async (
+    assetId: string,
+    x: number,
+    y: number,
+    z: number,
+    rotation = 0,
+    scale: [number, number, number] = [1, 1, 1],
+  ) => {
+    const { object } = await instantiateAsset(assetId);
+    object.position.set(x, y, z);
+    object.rotation.y = rotation;
+    object.scale.multiply(new THREE.Vector3(...scale));
+    root.add(object);
+  };
+  const jobs: Promise<void>[] = [];
+  for (const x of [-1, 0, 1]) {
+    jobs.push(add(x === 0 ? "town.wall-door" : "town.wall-window", x, 0, 1.08, Math.PI / 2));
+    jobs.push(add(x === 0 ? "town.wall-window" : "town.wall", x, 0, -1.08, -Math.PI / 2));
+    jobs.push(add("town.roof", x * 1.05, 1.05, 0, 0, [1.03, 1.08, 1.92]));
+  }
+  for (const z of [-0.55, 0.55]) {
+    jobs.push(add("town.wall", -1.55, 0, z));
+    jobs.push(add("town.wall", 1.55, 0, z, Math.PI));
+  }
+  jobs.push(add("town.chimney", 0.62, 1.42, -0.2, 0, [1.2, 1.35, 1.2]));
+  await Promise.all(jobs);
+  const porch = new THREE.Mesh(
+    new THREE.BoxGeometry(1.45, 0.13, 0.68),
+    new THREE.MeshStandardMaterial({ color: 0x6d492e, roughness: 0.9 }),
+  );
+  porch.position.set(0, 0.07, 1.42);
+  porch.castShadow = true;
+  porch.receiveShadow = true;
+  root.add(porch);
+  root.scale.setScalar(1.55);
+  return root;
+}
+
 export async function instantiateAsset(assetId: string, tint?: string | null): Promise<{ object: THREE.Object3D; animations: THREE.AnimationClip[] }> {
   const record = ASSET_REGISTRY[assetId];
   if (!record) throw new Error(`Missing asset registry entry: ${assetId}`);
@@ -67,6 +107,10 @@ export async function instantiateAsset(assetId: string, tint?: string | null): P
     const object = procedural(assetId);
     object.scale.setScalar(record.scale);
     return { object, animations: [] };
+  }
+  if (record.sourceFile.startsWith("composite://")) {
+    if (assetId !== "town.cottage") throw new Error(`Unknown composite asset: ${assetId}`);
+    return { object: await buildCottage(), animations: [] };
   }
   let promise = cache.get(assetId);
   if (!promise) {
@@ -88,4 +132,3 @@ export async function instantiateAsset(assetId: string, tint?: string | null): P
   });
   return { object, animations: gltf.animations };
 }
-

@@ -1,11 +1,16 @@
-import { useEffect } from "react";
-import { AssetBrowser } from "./components/AssetBrowser";
+import { lazy, Suspense, useEffect } from "react";
 import { DebugPanel } from "./components/DebugPanel";
 import { Hud } from "./components/Hud";
 import { OfflineReport } from "./components/OfflineReport";
 import { useGameStore } from "./game/store";
 import { GameWorld } from "./world/GameWorld";
 import "./styles.css";
+import "./phase-two.css";
+
+const AssetBrowser = lazy(async () => {
+  const module = await import("./components/AssetBrowser");
+  return { default: module.AssetBrowser };
+});
 
 export default function App() {
   const status = useGameStore((state) => state.status);
@@ -28,7 +33,7 @@ export default function App() {
     };
   }, []);
 
-  if (new URLSearchParams(location.search).has("asset-browser")) return <AssetBrowser />;
+  if (new URLSearchParams(location.search).has("asset-browser")) return <Suspense fallback={<main className="loading"><div className="loom-mark" /><span>Opening the asset archive…</span></main>}><AssetBrowser /></Suspense>;
   if (status === "error") return <main className="fatal"><h1>The thread snagged.</h1><p>{error}</p><button onClick={() => location.reload()}>Try again</button></main>;
   if (status !== "ready" || !save) return <main className="loading"><div className="loom-mark" /><span>Weaving Meadowrest…</span></main>;
 
@@ -47,4 +52,3 @@ export default function App() {
     <div className="rotate"><div className="loom-mark" /><h1>Turn to landscape</h1><p>Everloom is shaped for a wider view.</p></div>
   </main>;
 }
-

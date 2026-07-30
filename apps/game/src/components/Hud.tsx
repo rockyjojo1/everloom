@@ -3,6 +3,8 @@ import { levelFromXp, masteryRankFromXp } from "@everloom/core";
 import { useRef } from "react";
 import { inventoryCount, type PanelId, useGameStore } from "../game/store";
 import { Icon } from "./Icons";
+import { Minimap } from "./Minimap";
+import { ItemIcon } from "./ItemIcon";
 
 const tabs: { id: PanelId; label: string }[] = [
   { id: "inventory", label: "Pack" }, { id: "skills", label: "Skills" }, { id: "quest", label: "Thread" },
@@ -17,19 +19,33 @@ export function Hud() {
   const quest = save.quests.first_thread;
   const questDef = CONTENT.quests.first_thread!;
   const step = quest?.status === "completed" ? null : questDef.steps[quest?.stepIndex ?? 0];
+  const attunedSkills = Object.values(save.skills).filter((progress) => levelFromXp(progress.xp) >= 5).length;
+  const objectiveText = step?.objective ?? (attunedSkills < 5
+    ? `Strengthen every Meadowrest skill to level 5. ${attunedSkills} of 5 attuned.`
+    : "Return to the First Loomstone. The Verdant Thread is ready to reveal itself.");
   const activity = save.currentActivity;
+  const activityDuration = activity?.type === "gathering"
+    ? CONTENT.resources[activity.resourceId]?.actionDurationMs
+    : activity?.type === "cooking"
+      ? CONTENT.recipes[activity.recipeId]?.actionDurationMs
+      : activity?.type === "combat"
+        ? CONTENT.enemies[activity.enemyId]?.attackIntervalMs
+        : undefined;
+  const activityProgress = activity && activityDuration ? Math.min(100, activity.progressMs / activityDuration * 100) : 0;
 
   return <div className="hud">
     <section className="objective glass">
       <span className="eyebrow">THE FIRST THREAD</span>
-      <strong>{step?.objective ?? "The Loomstone hums with a new beginning."}</strong>
+      <strong>{objectiveText}</strong>
       {step && step.count > 1 && <small>{quest?.stepProgress ?? 0} / {step.count}</small>}
     </section>
     <section className="vitals glass">
       <span>HP</span><div><i style={{ width: `${save.player.hp / save.player.maxHp * 100}%` }} /></div><b>{save.player.hp}/{save.player.maxHp}</b>
     </section>
+    <Minimap />
     {activity && <section className="activity glass">
       <span>{activity.type === "gathering" ? CONTENT.resources[activity.resourceId]?.name : activity.type === "cooking" ? CONTENT.recipes[activity.recipeId]?.name : CONTENT.enemies[activity.enemyId]?.name}</span>
+      <i className="activity-progress"><b style={{ width: `${activityProgress}%` }} /></i>
       <button onClick={store.cancelCurrentActivity}>Stop</button>
     </section>}
     <div className="log" aria-live="polite">{store.logs.map((entry) => <span key={entry.id} className={entry.tone}>{entry.text}</span>)}</div>
@@ -49,7 +65,7 @@ export function Hud() {
             {save.inventory.map((stack) => {
               const item = CONTENT.items[stack.itemId]!;
               const equipped = Object.values(save.equipment).includes(item.id);
-              return <article key={item.id}><div className={`item-glyph ${item.category}`}>{item.name.slice(0, 1)}</div>
+              return <article key={item.id}><div className={`item-glyph ${item.category}`}><ItemIcon iconId={item.iconId} /></div>
                 <div><strong>{item.name}</strong><small>{item.description}</small></div><b>×{stack.quantity}</b>
                 {(item.equipmentSlot || item.healAmount > 0) && <button onClick={() => item.healAmount ? store.consumeFood(item.id) : store.equip(item.id)}>
                   {item.healAmount ? "Eat" : equipped ? "Equipped" : "Equip"}</button>}
@@ -67,11 +83,20 @@ export function Hud() {
           <h3>{questDef.name}</h3><p>{questDef.summary}</p>
           {questDef.steps.map((item, index) => <div key={item.id} className={index < (quest?.stepIndex ?? 0) || quest?.status === "completed" ? "done" : index === (quest?.stepIndex ?? 0) ? "current" : ""}>
             <i>{index + 1}</i><span>{item.objective}</span></div>)}
+          {quest?.status === "completed" && <section className="loomstone-network">
+            <span className="eyebrow">THE LOOMSTONE NETWORK</span>
+            <div className="loomstone-track">
+              {["First", "Verdant", "Tidal", "Ember", "Astral"].map((name, index) =>
+                <i key={name} className={index === 0 ? "restored" : index === 1 && attunedSkills === 5 ? "ready" : ""} title={`${name} Loomstone`} />)}
+            </div>
+            <strong>1 of 5 restored</strong>
+            <p>{attunedSkills < 5 ? `Attune all five skills to level 5 (${attunedSkills}/5).` : "The path toward the Verdant Loomstone is ready."}</p>
+          </section>}
         </div>}
         {store.panel === "collection" && <div className="collection">
           {Object.values(CONTENT.items).filter((item) => item.collection).map((item) => {
             const found = save.collections.includes(item.id) || inventoryCount(save, item.id) > 0;
-            return <article className={found ? "found" : ""} key={item.id}><div className="item-glyph">{found ? item.name[0] : "?"}</div><span>{found ? item.name : "Undiscovered"}</span></article>;
+            return <article className={found ? "found" : ""} key={item.id}><div className="item-glyph">{found ? <ItemIcon iconId={item.iconId} /> : "?"}</div><span>{found ? item.name : "Undiscovered"}</span></article>;
           })}
           {!Object.values(CONTENT.items).some((item) => item.collection) && <p className="empty">Rare finds will be recorded here.</p>}
         </div>}
@@ -90,4 +115,3 @@ export function Hud() {
     </aside>}
   </div>;
 }
-

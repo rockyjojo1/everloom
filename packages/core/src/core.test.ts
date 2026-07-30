@@ -123,6 +123,21 @@ describe("offline stop conditions", () => {
     expect(result.state.currentActivity).toBeNull();
   });
 
+  it("makes an equipped weapon meaningfully increase melee damage", () => {
+    const unarmed = startActivityForTarget(
+      { ...createNewSave(0, "weapon-seed", { x: 5, z: 5 }), quests: {} },
+      "enemy",
+      TEST_CONTENT,
+    ).state;
+    const armed = { ...unarmed, equipment: { ...unarmed.equipment, weapon: "training_blade" } };
+    const unarmedHit = advanceSimulation(unarmed, 1_000, TEST_CONTENT).events
+      .find((event) => event.type === "damage" && event.target === "enemy");
+    const armedHit = advanceSimulation(armed, 1_000, TEST_CONTENT).events
+      .find((event) => event.type === "damage" && event.target === "enemy");
+    expect(unarmedHit?.type === "damage" ? unarmedHit.amount : 0).toBeGreaterThan(0);
+    expect(armedHit?.type === "damage" ? armedHit.amount : 0).toBe((unarmedHit?.type === "damage" ? unarmedHit.amount : 0) + 2);
+  });
+
   it("handles hours and several days without negative or corrupt elapsed time", () => {
     expect(calculateOfflineElapsed(10_000, 1_000)).toBe(9_000);
     expect(calculateOfflineElapsed(1_000, 10_000)).toBe(0);

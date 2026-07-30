@@ -1,0 +1,198 @@
+/* Warm, carved MMORPG framing around a world-dominant viewport. */
+.glass {
+  background: linear-gradient(145deg, rgba(40, 36, 28, .94), rgba(22, 25, 21, .92));
+  border-color: rgba(228, 189, 103, .28);
+  box-shadow: 0 4px 0 rgba(8, 11, 9, .36), 0 14px 34px rgba(3, 8, 6, .28);
+}
+
+.objective {
+  border-width: 2px;
+  border-color: rgba(207, 172, 103, .38);
+}
+
+.vitals {
+  right: max(135px, calc(env(safe-area-inset-right) + 123px));
+  border-color: rgba(207, 172, 103, .42);
+}
+
+.minimap {
+  position: absolute;
+  z-index: 2;
+  right: max(10px, env(safe-area-inset-right));
+  top: max(10px, env(safe-area-inset-top));
+  width: 116px;
+  height: 116px;
+  padding: 5px;
+  overflow: hidden;
+  border: 3px solid #5a4932;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #d1ae6b, 0 7px 22px #09110d66;
+  pointer-events: none;
+}
+
+.minimap svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #5e8b52;
+}
+
+.minimap > span {
+  position: absolute;
+  left: 50%;
+  bottom: 5px;
+  padding: 2px 7px;
+  border-radius: 8px;
+  background: #1b1d18df;
+  color: #efd08a;
+  font-size: 7px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  transform: translateX(-50%);
+}
+
+.dock {
+  padding: 5px 7px;
+  border: 2px solid rgba(207, 172, 103, .38);
+}
+
+.dock button.active,
+.dock button:hover {
+  background: linear-gradient(#8a704524, #d9ad5d29);
+  box-shadow: inset 0 0 0 1px #e4bd6740;
+}
+
+.panel {
+  border: 2px solid rgba(207, 172, 103, .4);
+}
+
+.panel header {
+  background: linear-gradient(90deg, #4b3a27aa, #1c221dbb);
+}
+
+.activity {
+  border-color: #d1ae6b70;
+}
+
+.activity::before {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: #f0c86d;
+  box-shadow: 0 0 8px #f0c86d;
+  content: "";
+}
+
+.activity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.activity-progress {
+  display: block;
+  width: 74px;
+  height: 6px;
+  overflow: hidden;
+  border: 1px solid #d5b66b55;
+  border-radius: 5px;
+  background: #090d0b99;
+}
+
+.activity-progress b {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #d49a4f, #f1d47e);
+  transition: width .12s linear;
+}
+
+.item-icon {
+  width: 24px;
+  height: 24px;
+  color: #f2deb0;
+}
+
+.loomstone-network {
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid #d5b66b44;
+  border-radius: 12px;
+  background: radial-gradient(circle at 15% 35%, #8a6b9b30, transparent 32%), #ffffff08;
+}
+
+.loomstone-network p {
+  margin-bottom: 0;
+  color: #bec9bc;
+  font-size: 11px;
+}
+
+.loomstone-track {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 12px 4px 8px;
+}
+
+.loomstone-track::before {
+  position: absolute;
+  right: 28px;
+  left: 28px;
+  height: 2px;
+  background: #75654b;
+  content: "";
+}
+
+.loomstone-track i {
+  position: relative;
+  z-index: 1;
+  width: 17px;
+  height: 17px;
+  border: 3px solid #544f42;
+  background: #252923;
+  transform: rotate(45deg);
+}
+
+.loomstone-track i.restored {
+  border-color: #d7b96f;
+  background: #8f71a9;
+  box-shadow: 0 0 12px #b78cda;
+}
+
+.loomstone-track i.ready {
+  border-color: #9ccf83;
+  box-shadow: 0 0 9px #8ac86c;
+}
+
+.world-metrics {
+  position: absolute;
+  z-index: 12;
+  right: 12px;
+  bottom: 76px;
+  padding: 5px 8px;
+  border: 1px solid #d5b66b55;
+  border-radius: 7px;
+  background: #101713dd;
+  color: #d6e2d4;
+  font: 10px ui-monospace, monospace;
+  pointer-events: none;
+}
+
+@media (max-height: 430px) {
+  .minimap {
+    width: 96px;
+    height: 96px;
+  }
+
+  .vitals {
+    right: 116px;
+  }
+
+  .objective {
+    width: min(310px, 38vw);
+  }
+}
