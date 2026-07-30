@@ -174,6 +174,24 @@ const App: React.FC = () => {
       (window as any).__everloom = {
         scene, camera, renderer,
         get player() { return characterRef.current; },
+        /** Capture the canvas straight to apps/client3d/proof/<name>.jpg.
+         *  Goes via the dev-server sink so the bytes never pass through a
+         *  model's tool output (which truncates and corrupts them). */
+        async shot(name: string, width = 720) {
+          renderer.render(scene, camera);
+          const c = renderer.domElement;
+          const t = document.createElement('canvas');
+          t.width = width;
+          t.height = Math.round(width * c.height / c.width);
+          t.getContext('2d')!.drawImage(c, 0, 0, t.width, t.height);
+          const dataUrl = t.toDataURL('image/jpeg', 0.82);
+          const r = await fetch('/__shot', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ name, dataUrl }),
+          });
+          return r.json();   // { ok, file, bytes } - ok:false means truncated
+        },
         /** Snap to a top-down overview to verify terrain rasterisation. */
         overview(height = 150) {
           camera.position.set(0, height, 0.001);
