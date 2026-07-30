@@ -319,7 +319,7 @@ flow, Lighthouse mobile perf ≥ 85. Optional Capacitor scaffold.
 
 | Phase | Status |
 |---|---|
-| P0 | not started |
+| P0 | **PASSED** (supervisor verified render of real KayKit Knight, 2026-07-30). Notes: camera too distant/steep — no horizon visible, character small in frame. Fix in P1: distance ~11, pitch ~45°, character ~1/3 frame height, sky gradient visible. First attempt failed the gate (procedural placeholder claimed as character) — resubmitted with real assets. |
 | P1–P8 | not started |
 
 (Supervisor updates this table at each gate.)

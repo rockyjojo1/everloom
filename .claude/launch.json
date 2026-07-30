@@ -6,6 +6,12 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "@everloom/web", "dev", "--", "--port", "5174"],
       "port": 5174
+    },
+    {
+      "name": "client3d-dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@everloom/client3d", "dev", "--", "--port", "5175"],
+      "port": 5175
     }
   ]
 }

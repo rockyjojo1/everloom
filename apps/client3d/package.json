@@ -1,0 +1,29 @@
+{
+  "name": "@everloom/client3d",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@everloom/engine": "workspace:*",
+    "@everloom/gamedata": "workspace:*",
+    "@supabase/supabase-js": "^2.47.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "three": "^0.155.0",
+    "zustand": "^5.0.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.14",
+    "@types/react-dom": "^18.3.2",
+    "@types/three": "^0.155.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.7"
+  }
+}
