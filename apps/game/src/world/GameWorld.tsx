@@ -299,6 +299,7 @@ export function GameWorld() {
         stop: () => useGameStore.getState().cancelCurrentActivity(),
         dismissReport: () => useGameStore.getState().dismissOfflineReport(),
         save: () => useGameStore.getState().saveNow("e2e-checkpoint", true),
+        resume: () => useGameStore.getState().resumeFromBackground(),
         activateTarget(targetId: string) {
           const target = zone.interactables.find((entry) => entry.id === targetId);
           const save = useGameStore.getState().save;

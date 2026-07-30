@@ -29,7 +29,10 @@ export default function App() {
   useEffect(() => { void initialize(); }, [initialize]);
   useEffect(() => {
     const persist = () => void useGameStore.getState().saveNow("lifecycle", true);
-    const visibility = () => { if (document.hidden) persist(); };
+    const visibility = () => {
+      if (document.hidden) persist();
+      else void useGameStore.getState().resumeFromBackground();
+    };
     document.addEventListener("visibilitychange", visibility);
     window.addEventListener("pagehide", persist);
     const autosave = window.setInterval(() => void useGameStore.getState().saveNow("autosave"), 30_000);

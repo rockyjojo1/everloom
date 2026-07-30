@@ -98,3 +98,37 @@ test("a lost WebGL context checkpoints progress and offers recovery", async ({ p
   await expect(page.getByText("Your progress has been checkpointed.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Reload world" })).toBeVisible();
 });
+
+test("returning to an open backgrounded game applies offline progression", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "Lifecycle reconciliation is viewport-independent.");
+  test.setTimeout(120_000);
+  await page.goto("/?e2e=1");
+  await page.getByRole("button", { name: "Enter Meadowrest" }).click();
+  await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true");
+
+  const activate = (targetId: string) => page.evaluate((id) =>
+    (window as unknown as { __EVERLOOM_TEST__: { activateTarget: (value: string) => boolean } })
+      .__EVERLOOM_TEST__.activateTarget(id), targetId);
+  await activate("npc_mara");
+  await expect(page.getByText(/Pick up the worn hatchet/i)).toBeVisible({ timeout: 35_000 });
+  await activate("ground_worn_hatchet");
+  await expect(page.getByText(/equip the worn hatchet/i)).toBeVisible({ timeout: 35_000 });
+  await page.evaluate(() =>
+    (window as unknown as { __EVERLOOM_TEST__: { equip: (id: string) => boolean } })
+      .__EVERLOOM_TEST__.equip("worn_hatchet"));
+  await activate("oak_west_1");
+  await expect(page.getByRole("button", { name: "Stop" })).toBeVisible({ timeout: 35_000 });
+
+  await page.evaluate(async () => {
+    const resumedAt = Date.now() + 25_000;
+    Date.now = () => resumedAt;
+    await (window as unknown as { __EVERLOOM_TEST__: { resume: () => Promise<void> } })
+      .__EVERLOOM_TEST__.resume();
+  });
+
+  await expect(page.getByText("WHILE YOU WERE AWAY")).toBeVisible();
+  await expect(page.getByText(/productive minutes/i)).toBeVisible();
+  await page.getByRole("button", { name: "Return to Meadowrest" }).click();
+  await page.getByRole("button", { name: "Pack" }).click();
+  await expect(page.getByText("Meadow Log", { exact: true }).first()).toBeVisible();
+});

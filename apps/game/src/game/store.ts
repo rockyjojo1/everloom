@@ -64,6 +64,7 @@ interface GameStore {
   togglePanel: () => void;
   dismissOfflineReport: () => void;
   saveNow: (reason: string, backup?: boolean) => Promise<void>;
+  resumeFromBackground: () => Promise<void>;
   exportSave: () => void;
   importSaveText: (text: string) => Promise<void>;
   resetSave: () => Promise<void>;
@@ -294,6 +295,26 @@ export const useGameStore = create<GameStore>((set, get) => ({
   setPanel: (panel) => set({ panel, panelOpen: true }),
   togglePanel: () => set((state) => ({ panelOpen: !state.panelOpen })),
   dismissOfflineReport: () => set({ offlineReport: null }),
+
+  resumeFromBackground: async () => {
+    const save = get().save;
+    if (!save) return;
+    const now = Date.now();
+    const elapsed = calculateOfflineElapsed(now, save.lastActiveAt);
+    if (elapsed < 1_000) return;
+    const result = advanceSimulation(save, elapsed, CONTENT);
+    const next = { ...result.state, lastActiveAt: now, lastSavedAt: now };
+    const offlineReport = elapsed >= 10_000 &&
+      (result.report.productiveMs > 0 || result.report.stopReason !== "none")
+      ? result.report
+      : get().offlineReport;
+    set({
+      save: next,
+      offlineReport,
+      logs: result.events.length > 0 ? appendLogs(get().logs, result.events) : get().logs,
+    });
+    await get().saveNow("visibility-return", true);
+  },
 
   saveNow: async (reason, backup = false) => {
     const save = get().save;
