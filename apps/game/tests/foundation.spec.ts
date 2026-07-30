@@ -83,3 +83,18 @@ test("overlapping checkpoints persist the newest player state", async ({ page },
       .__EVERLOOM_TEST__.snapshot().equipment.tool,
   )).toBe("worn_hatchet");
 });
+
+test("a lost WebGL context checkpoints progress and offers recovery", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "Context recovery is viewport-independent.");
+  await page.goto("/?e2e=1");
+  await page.getByRole("button", { name: "Enter Meadowrest" }).click();
+  await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true");
+
+  await page.locator("canvas").evaluate((canvas) => {
+    canvas.dispatchEvent(new Event("webglcontextlost", { cancelable: true }));
+  });
+
+  await expect(page.getByText("The 3D view needs to restart.")).toBeVisible();
+  await expect(page.getByText("Your progress has been checkpointed.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Reload world" })).toBeVisible();
+});

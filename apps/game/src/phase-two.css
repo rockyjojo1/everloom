@@ -232,6 +232,34 @@
   color: #cad6ca;
 }
 
+.world-context-error {
+  position: absolute;
+  z-index: 14;
+  left: 50%;
+  bottom: 86px;
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+  width: min(360px, calc(100vw - 32px));
+  padding: 14px 18px;
+  color: #f3e4bd;
+  text-align: center;
+  transform: translateX(-50%);
+}
+
+.world-context-error[hidden] {
+  display: none;
+}
+
+.world-context-error span {
+  color: #cad6ca;
+  font-size: 11px;
+}
+
+.world-context-error button {
+  min-height: 38px;
+}
+
 @media (max-height: 430px) {
   .minimap {
     width: 96px;
