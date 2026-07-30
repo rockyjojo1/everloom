@@ -52,9 +52,6 @@ export const PAINT: Paint[] = [
   // Silverthread River (south)
   { shape: 'rect', surface: 'water', x: -60, z: 34, w: 120, d: 16 },
 
-  // Thimblewick square (town circle)
-  { shape: 'circle', surface: 'cobble', x: 0, z: 4, r: 15 },
-
   // 4 dirt roads
   // Road to forest (west): from (0,4) to (-43, -30)
   { shape: 'path', surface: 'dirt', from: [0, 4], to: [-43, -30], width: 3 },
@@ -67,6 +64,9 @@ export const PAINT: Paint[] = [
 
   // Road to river (south): from (0,4) to (0, 33)
   { shape: 'path', surface: 'dirt', from: [0, 4], to: [0, 33], width: 3 },
+
+  // Thimblewick square (town circle) — painted last to take precedence over roads
+  { shape: 'circle', surface: 'cobble', x: 0, z: 4, r: 15 },
 ];
 
 // ============================================================================

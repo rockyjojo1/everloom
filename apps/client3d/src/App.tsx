@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { buildTerrain } from './world/buildTerrain';
+import { SPAWN } from './world/worlddata';
 import './App.css';
 
 const App: React.FC = () => {
@@ -32,6 +34,9 @@ const App: React.FC = () => {
       ctx.fillRect(0, 0, 256, 256);
     }
     const skyTexture = new THREE.CanvasTexture(canvas);
+    // three >= r152 treats a CanvasTexture as linear unless told otherwise,
+    // which shifts the sky blues to lavender/purple.
+    skyTexture.colorSpace = THREE.SRGBColorSpace;
     scene.background = skyTexture;
 
     // Camera setup (per spec: FOV 45, pitch ~50° down, yaw 45°, distance ~14)
@@ -66,17 +71,10 @@ const App: React.FC = () => {
     renderer.shadowMap.enabled = false; // No shadows in v1
     containerRef.current.appendChild(renderer.domElement);
 
-    // Ground plane
-    const groundGeometry = new THREE.PlaneGeometry(120, 120);
-    const groundMaterial = new THREE.MeshStandardMaterial({
-      color: 0x7cb342,
-      roughness: 0.8,
-      metalness: 0,
-    });
-    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-    ground.rotation.x = -Math.PI / 2;
-    ground.receiveShadow = true;
-    scene.add(ground);
+    // Build terrain with vertex colors and water layer
+    const { mesh: terrainMesh, water: waterMesh } = buildTerrain();
+    scene.add(terrainMesh);
+    scene.add(waterMesh);
 
     // Lighting
     // Hemisphere light for ambient
@@ -97,7 +95,7 @@ const App: React.FC = () => {
       '/models/kaykit-adventurers/Character.glb',
       (gltf) => {
         characterGroup = gltf.scene;
-        characterGroup.position.set(0, 0, 0);
+        characterGroup.position.set(SPAWN.x, 0, SPAWN.z);
         scene.add(characterGroup);
         characterRef.current = characterGroup;
 
@@ -170,27 +168,49 @@ const App: React.FC = () => {
     };
     animate();
 
+    // DEV-ONLY supervisor handle: lets the reviewer inspect and reposition the
+    // scene from the console to verify rendering. Never referenced by game code.
+    if (import.meta.env.DEV) {
+      (window as any).__everloom = {
+        scene, camera, renderer,
+        get player() { return characterRef.current; },
+        /** Snap to a top-down overview to verify terrain rasterisation. */
+        overview(height = 150) {
+          camera.position.set(0, height, 0.001);
+          camera.lookAt(0, 0, 0);
+          camera.updateProjectionMatrix();
+          renderer.render(scene, camera);
+        },
+      };
+    }
+
     // Handle window resize
     const handleResize = () => {
       if (!containerRef.current) return;
-      const width = containerRef.current.clientWidth;
-      const height = containerRef.current.clientHeight;
+      const width = containerRef.current.clientWidth || window.innerWidth;
+      const height = containerRef.current.clientHeight || window.innerHeight;
+      if (width === 0 || height === 0) return;
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.setSize(width, height);
     };
+    // The container has no layout size during the mount effect, so sizing off
+    // clientWidth here yields a 0x0 canvas that only corrects if the window
+    // happens to resize. Observe the container and size on first callback.
+    const ro = new ResizeObserver(handleResize);
+    ro.observe(containerRef.current);
     window.addEventListener('resize', handleResize);
+    handleResize();
 
     // Cleanup
     return () => {
+      ro.disconnect();
       window.removeEventListener('resize', handleResize);
       if (raFrameIdRef.current) {
         cancelAnimationFrame(raFrameIdRef.current);
       }
       containerRef.current?.removeChild(renderer.domElement);
       renderer.dispose();
-      groundGeometry.dispose();
-      groundMaterial.dispose();
     };
   }, []);
 

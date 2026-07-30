@@ -8,7 +8,7 @@
       "port": 5174
     },
     {
-      "name": "client3d-dev",
+      "name": "client3d",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "@everloom/client3d", "dev", "--", "--port", "5175"],
       "port": 5175
