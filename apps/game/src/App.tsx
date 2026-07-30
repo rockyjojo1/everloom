@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from "react";
 import { DebugPanel } from "./components/DebugPanel";
 import { Hud } from "./components/Hud";
 import { OfflineReport } from "./components/OfflineReport";
+import { WorldBoundary } from "./components/WorldBoundary";
 import { useGameStore } from "./game/store";
 import "./styles.css";
 import "./phase-two.css";
@@ -45,9 +46,11 @@ export default function App() {
 
   const intro = !save.worldFlags.intro_seen;
   return <main className="game-shell">
-    {!intro && <Suspense fallback={<div className="world-loading" role="status">Preparing Meadowrest…</div>}>
-      <GameWorld />
-    </Suspense>}
+    {!intro && <WorldBoundary>
+      <Suspense fallback={<div className="world-loading" role="status">Preparing Meadowrest…</div>}>
+        <GameWorld />
+      </Suspense>
+    </WorldBoundary>}
     <Hud />
     <OfflineReport />
     <DebugPanel />

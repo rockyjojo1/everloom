@@ -22,3 +22,12 @@ test("the installed production game reopens offline with its world and save", as
   await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true");
   await expect(page.getByText(/Meet Mara beside Meadowrest/i)).toBeVisible();
 });
+
+test("a failed production world chunk leaves the save-safe recovery screen", async ({ page }) => {
+  await page.route(/\/assets\/GameWorld-[^/]+\.js$/, (route) => route.abort("failed"));
+  await page.goto("/");
+  await page.getByRole("button", { name: "Enter Meadowrest" }).click();
+
+  await expect(page.getByRole("heading", { name: "Meadowrest could not open." })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Reload Everloom" })).toBeVisible();
+});

@@ -209,6 +209,29 @@
   text-align: center;
 }
 
+.world-load-error {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  padding: 28px;
+  background: radial-gradient(circle at 50% 35%, #526f5c, #17251f 70%);
+  color: #f3e4bd;
+  text-align: center;
+}
+
+.world-load-error h1 {
+  margin: 10px 0 4px;
+  font: 700 28px/1.1 Georgia, serif;
+}
+
+.world-load-error p {
+  max-width: 430px;
+  color: #cad6ca;
+}
+
 @media (max-height: 430px) {
   .minimap {
     width: 96px;
