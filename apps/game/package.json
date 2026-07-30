@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run src",
     "test:e2e": "playwright test",
+    "test:pwa": "pnpm run build && playwright test tests/pwa-offline.spec.ts --config=playwright.pwa.config.ts",
     "preview": "vite preview"
   },
   "dependencies": {
