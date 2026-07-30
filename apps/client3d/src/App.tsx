@@ -43,10 +43,10 @@ const App: React.FC = () => {
     );
     cameraRef.current = camera;
 
-    // Calculate camera position: yaw 45°, pitch ~50° down, distance ~14
-    const distance = 14;
+    // Calculate camera position: yaw 45°, pitch ~45° down, distance ~11 (P1 adjusted per supervisor)
+    const distance = 11;
     const yaw = Math.PI / 4; // 45°
-    const pitch = -Math.PI / 3.6; // ~50° down
+    const pitch = -Math.PI / 4; // ~45° down
     camera.position.set(
       distance * Math.cos(pitch) * Math.cos(yaw),
       distance * Math.sin(-pitch),
