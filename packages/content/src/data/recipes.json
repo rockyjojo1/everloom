@@ -1,0 +1,14 @@
+[
+  {
+    "id": "cook_riverling",
+    "name": "Cook Riverling",
+    "skill": "cooking",
+    "actionDurationMs": 2500,
+    "xpPerSuccess": 30,
+    "inputs": [
+      { "itemId": "raw_riverling", "quantity": 1 }
+    ],
+    "output": { "itemId": "cooked_riverling", "quantity": 1 },
+    "facilityKind": "cooking_fire"
+  }
+]

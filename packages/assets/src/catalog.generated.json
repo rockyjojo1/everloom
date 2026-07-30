@@ -1,0 +1,4434 @@
+[
+  {
+    "id": "catalog.kaykit.adventurers.character",
+    "sourceFile": "kaykit-adventurers/Character.glb",
+    "pack": "kaykit-adventurers",
+    "category": "character",
+    "format": "glb",
+    "bytes": 3659532
+  },
+  {
+    "id": "catalog.kaykit.dungeon.banner.blue",
+    "sourceFile": "kaykit-dungeon/banner_blue.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 24216
+  },
+  {
+    "id": "catalog.kaykit.dungeon.barrel.large.decorated",
+    "sourceFile": "kaykit-dungeon/barrel_large_decorated.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 73628
+  },
+  {
+    "id": "catalog.kaykit.dungeon.barrel.large",
+    "sourceFile": "kaykit-dungeon/barrel_large.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 44292
+  },
+  {
+    "id": "catalog.kaykit.dungeon.barrel.small.stack",
+    "sourceFile": "kaykit-dungeon/barrel_small_stack.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 98092
+  },
+  {
+    "id": "catalog.kaykit.dungeon.barrel.small",
+    "sourceFile": "kaykit-dungeon/barrel_small.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 32060
+  },
+  {
+    "id": "catalog.kaykit.dungeon.chair",
+    "sourceFile": "kaykit-dungeon/chair.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 36252
+  },
+  {
+    "id": "catalog.kaykit.dungeon.chest.gold",
+    "sourceFile": "kaykit-dungeon/chest_gold.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 140140
+  },
+  {
+    "id": "catalog.kaykit.dungeon.coin.stack.large",
+    "sourceFile": "kaykit-dungeon/coin_stack_large.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 101076
+  },
+  {
+    "id": "catalog.kaykit.dungeon.coin.stack.medium",
+    "sourceFile": "kaykit-dungeon/coin_stack_medium.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 63996
+  },
+  {
+    "id": "catalog.kaykit.dungeon.coin.stack.small",
+    "sourceFile": "kaykit-dungeon/coin_stack_small.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 38404
+  },
+  {
+    "id": "catalog.kaykit.dungeon.coin",
+    "sourceFile": "kaykit-dungeon/coin.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 21776
+  },
+  {
+    "id": "catalog.kaykit.dungeon.crates.stacked",
+    "sourceFile": "kaykit-dungeon/crates_stacked.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 103704
+  },
+  {
+    "id": "catalog.kaykit.dungeon.floor.dirt.large.rocky",
+    "sourceFile": "kaykit-dungeon/floor_dirt_large_rocky.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 30216
+  },
+  {
+    "id": "catalog.kaykit.dungeon.floor.dirt.large",
+    "sourceFile": "kaykit-dungeon/floor_dirt_large.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 24620
+  },
+  {
+    "id": "catalog.kaykit.dungeon.floor.dirt.small.a",
+    "sourceFile": "kaykit-dungeon/floor_dirt_small_A.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 20460
+  },
+  {
+    "id": "catalog.kaykit.dungeon.floor.dirt.small.b",
+    "sourceFile": "kaykit-dungeon/floor_dirt_small_B.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 19536
+  },
+  {
+    "id": "catalog.kaykit.dungeon.floor.dirt.small.c",
+    "sourceFile": "kaykit-dungeon/floor_dirt_small_C.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 19484
+  },
+  {
+    "id": "catalog.kaykit.dungeon.floor.dirt.small.corner",
+    "sourceFile": "kaykit-dungeon/floor_dirt_small_corner.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 20752
+  },
+  {
+    "id": "catalog.kaykit.dungeon.pillar.decorated",
+    "sourceFile": "kaykit-dungeon/pillar_decorated.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 62460
+  },
+  {
+    "id": "catalog.kaykit.dungeon.stairs.narrow",
+    "sourceFile": "kaykit-dungeon/stairs_narrow.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 43372
+  },
+  {
+    "id": "catalog.kaykit.dungeon.stairs.wall.left",
+    "sourceFile": "kaykit-dungeon/stairs_wall_left.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 57640
+  },
+  {
+    "id": "catalog.kaykit.dungeon.stairs.wall.right",
+    "sourceFile": "kaykit-dungeon/stairs_wall_right.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 57704
+  },
+  {
+    "id": "catalog.kaykit.dungeon.stairs.walled",
+    "sourceFile": "kaykit-dungeon/stairs_walled.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 72072
+  },
+  {
+    "id": "catalog.kaykit.dungeon.stairs.wide",
+    "sourceFile": "kaykit-dungeon/stairs_wide.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 43372
+  },
+  {
+    "id": "catalog.kaykit.dungeon.stairs.wood",
+    "sourceFile": "kaykit-dungeon/stairs_wood.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 34632
+  },
+  {
+    "id": "catalog.kaykit.dungeon.table.long.broken",
+    "sourceFile": "kaykit-dungeon/table_long_broken.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 55192
+  },
+  {
+    "id": "catalog.kaykit.dungeon.table.long.decorated.a",
+    "sourceFile": "kaykit-dungeon/table_long_decorated_A.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 120792
+  },
+  {
+    "id": "catalog.kaykit.dungeon.table.long.decorated.c",
+    "sourceFile": "kaykit-dungeon/table_long_decorated_C.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 231608
+  },
+  {
+    "id": "catalog.kaykit.dungeon.table.long.tablecloth.decorated.a",
+    "sourceFile": "kaykit-dungeon/table_long_tablecloth_decorated_A.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 124064
+  },
+  {
+    "id": "catalog.kaykit.dungeon.table.long.tablecloth",
+    "sourceFile": "kaykit-dungeon/table_long_tablecloth.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 38400
+  },
+  {
+    "id": "catalog.kaykit.dungeon.table.long",
+    "sourceFile": "kaykit-dungeon/table_long.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 35128
+  },
+  {
+    "id": "catalog.kaykit.dungeon.torch.lit",
+    "sourceFile": "kaykit-dungeon/torch_lit.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 31244
+  },
+  {
+    "id": "catalog.kaykit.dungeon.torch.mounted",
+    "sourceFile": "kaykit-dungeon/torch_mounted.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 33220
+  },
+  {
+    "id": "catalog.kaykit.dungeon.torch",
+    "sourceFile": "kaykit-dungeon/torch.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 29380
+  },
+  {
+    "id": "catalog.kaykit.dungeon.wall.arched",
+    "sourceFile": "kaykit-dungeon/wall_arched.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 69124
+  },
+  {
+    "id": "catalog.kaykit.dungeon.wall.archedwindow.gated.scaffold",
+    "sourceFile": "kaykit-dungeon/wall_archedwindow_gated_scaffold.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 60988
+  },
+  {
+    "id": "catalog.kaykit.dungeon.wall.archedwindow.gated",
+    "sourceFile": "kaykit-dungeon/wall_archedwindow_gated.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 64752
+  },
+  {
+    "id": "catalog.kaykit.dungeon.wall.archedwindow.open",
+    "sourceFile": "kaykit-dungeon/wall_archedwindow_open.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 58028
+  },
+  {
+    "id": "catalog.kaykit.dungeon.wall.broken",
+    "sourceFile": "kaykit-dungeon/wall_broken.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 69276
+  },
+  {
+    "id": "catalog.kaykit.dungeon.wall.corner",
+    "sourceFile": "kaykit-dungeon/wall_corner.gltf.glb",
+    "pack": "kaykit-dungeon",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 49212
+  },
+  {
+    "id": "catalog.kaykit.skeletons.props.skeleton.arrow.broken.half",
+    "sourceFile": "kaykit-skeletons/props/Skeleton_Arrow_Broken_Half.gltf",
+    "pack": "kaykit-skeletons",
+    "category": "character",
+    "format": "gltf",
+    "bytes": 3069
+  },
+  {
+    "id": "catalog.kaykit.skeletons.props.skeleton.arrow.broken",
+    "sourceFile": "kaykit-skeletons/props/Skeleton_Arrow_Broken.gltf",
+    "pack": "kaykit-skeletons",
+    "category": "character",
+    "format": "gltf",
+    "bytes": 3061
+  },
+  {
+    "id": "catalog.kaykit.skeletons.props.skeleton.arrow.half",
+    "sourceFile": "kaykit-skeletons/props/Skeleton_Arrow_Half.gltf",
+    "pack": "kaykit-skeletons",
+    "category": "character",
+    "format": "gltf",
+    "bytes": 3051
+  },
+  {
+    "id": "catalog.kaykit.skeletons.props.skeleton.arrow",
+    "sourceFile": "kaykit-skeletons/props/Skeleton_Arrow.gltf",
+    "pack": "kaykit-skeletons",
+    "category": "character",
+    "format": "gltf",
+    "bytes": 3043
+  },
+  {
+    "id": "catalog.kaykit.skeletons.props.skeleton.axe",
+    "sourceFile": "kaykit-skeletons/props/Skeleton_Axe.gltf",
+    "pack": "kaykit-skeletons",
+    "category": "character",
+    "format": "gltf",
+    "bytes": 3045
+  },
+  {
+    "id": "catalog.kaykit.skeletons.props.skeleton.blade",
+    "sourceFile": "kaykit-skeletons/props/Skeleton_Blade.gltf",
+    "pack": "kaykit-skeletons",
+    "category": "character",
+    "format": "gltf",
+    "bytes": 3047
+  },
+  {
+    "id": "catalog.kaykit.skeletons.props.skeleton.crossbow",
+    "sourceFile": "kaykit-skeletons/props/Skeleton_Crossbow.gltf",
+    "pack": "kaykit-skeletons",
+    "category": "character",
+    "format": "gltf",
+    "bytes": 3052
+  },
+  {
+    "id": "catalog.kaykit.skeletons.props.skeleton.quiver",
+    "sourceFile": "kaykit-skeletons/props/Skeleton_Quiver.gltf",
+    "pack": "kaykit-skeletons",
+    "category": "character",
+    "format": "gltf",
+    "bytes": 3051
+  },
+  {
+    "id": "catalog.kaykit.skeletons.props.skeleton.shield.large.a",
+    "sourceFile": "kaykit-skeletons/props/Skeleton_Shield_Large_A.gltf",
+    "pack": "kaykit-skeletons",
+    "category": "character",
+    "format": "gltf",
+    "bytes": 3071
+  },
+  {
+    "id": "catalog.kaykit.skeletons.props.skeleton.shield.large.b",
+    "sourceFile": "kaykit-skeletons/props/Skeleton_Shield_Large_B.gltf",
+    "pack": "kaykit-skeletons",
+    "category": "character",
+    "format": "gltf",
+    "bytes": 3068
+  },
+  {
+    "id": "catalog.kaykit.skeletons.props.skeleton.shield.small.a",
+    "sourceFile": "kaykit-skeletons/props/Skeleton_Shield_Small_A.gltf",
+    "pack": "kaykit-skeletons",
+    "category": "character",
+    "format": "gltf",
+    "bytes": 3069
+  },
+  {
+    "id": "catalog.kaykit.skeletons.props.skeleton.shield.small.b",
+    "sourceFile": "kaykit-skeletons/props/Skeleton_Shield_Small_B.gltf",
+    "pack": "kaykit-skeletons",
+    "category": "character",
+    "format": "gltf",
+    "bytes": 3069
+  },
+  {
+    "id": "catalog.kaykit.skeletons.props.skeleton.staff",
+    "sourceFile": "kaykit-skeletons/props/Skeleton_Staff.gltf",
+    "pack": "kaykit-skeletons",
+    "category": "character",
+    "format": "gltf",
+    "bytes": 3057
+  },
+  {
+    "id": "catalog.kaykit.skeletons.skeleton.mage",
+    "sourceFile": "kaykit-skeletons/Skeleton_Mage.glb",
+    "pack": "kaykit-skeletons",
+    "category": "character",
+    "format": "glb",
+    "bytes": 4761048
+  },
+  {
+    "id": "catalog.kaykit.skeletons.skeleton.minion",
+    "sourceFile": "kaykit-skeletons/Skeleton_Minion.glb",
+    "pack": "kaykit-skeletons",
+    "category": "character",
+    "format": "glb",
+    "bytes": 4814296
+  },
+  {
+    "id": "catalog.kaykit.skeletons.skeleton.rogue",
+    "sourceFile": "kaykit-skeletons/Skeleton_Rogue.glb",
+    "pack": "kaykit-skeletons",
+    "category": "character",
+    "format": "glb",
+    "bytes": 4827024
+  },
+  {
+    "id": "catalog.kaykit.skeletons.skeleton.warrior",
+    "sourceFile": "kaykit-skeletons/Skeleton_Warrior.glb",
+    "pack": "kaykit-skeletons",
+    "category": "character",
+    "format": "glb",
+    "bytes": 4863620
+  },
+  {
+    "id": "catalog.kenney.fantasy.balcony.wall.fence",
+    "sourceFile": "kenney-fantasy/balcony-wall-fence.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 11236
+  },
+  {
+    "id": "catalog.kenney.fantasy.balcony.wall",
+    "sourceFile": "kenney-fantasy/balcony-wall.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 7424
+  },
+  {
+    "id": "catalog.kenney.fantasy.banner.green",
+    "sourceFile": "kenney-fantasy/banner-green.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 10200
+  },
+  {
+    "id": "catalog.kenney.fantasy.banner.red",
+    "sourceFile": "kenney-fantasy/banner-red.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 9988
+  },
+  {
+    "id": "catalog.kenney.fantasy.blade",
+    "sourceFile": "kenney-fantasy/blade.glb",
+    "pack": "kenney-fantasy",
+    "category": "equipment",
+    "format": "glb",
+    "bytes": 18792
+  },
+  {
+    "id": "catalog.kenney.fantasy.cart.high",
+    "sourceFile": "kenney-fantasy/cart-high.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 88560
+  },
+  {
+    "id": "catalog.kenney.fantasy.cart",
+    "sourceFile": "kenney-fantasy/cart.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 52920
+  },
+  {
+    "id": "catalog.kenney.fantasy.chimney.base",
+    "sourceFile": "kenney-fantasy/chimney-base.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 8408
+  },
+  {
+    "id": "catalog.kenney.fantasy.chimney.top",
+    "sourceFile": "kenney-fantasy/chimney-top.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 7896
+  },
+  {
+    "id": "catalog.kenney.fantasy.chimney",
+    "sourceFile": "kenney-fantasy/chimney.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 4656
+  },
+  {
+    "id": "catalog.kenney.fantasy.fence.broken",
+    "sourceFile": "kenney-fantasy/fence-broken.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 11960
+  },
+  {
+    "id": "catalog.kenney.fantasy.fence.curved",
+    "sourceFile": "kenney-fantasy/fence-curved.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 25408
+  },
+  {
+    "id": "catalog.kenney.fantasy.fence.gate",
+    "sourceFile": "kenney-fantasy/fence-gate.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 46340
+  },
+  {
+    "id": "catalog.kenney.fantasy.fence",
+    "sourceFile": "kenney-fantasy/fence.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 7672
+  },
+  {
+    "id": "catalog.kenney.fantasy.fountain.center",
+    "sourceFile": "kenney-fantasy/fountain-center.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 3280
+  },
+  {
+    "id": "catalog.kenney.fantasy.fountain.corner.inner.square",
+    "sourceFile": "kenney-fantasy/fountain-corner-inner-square.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 6908
+  },
+  {
+    "id": "catalog.kenney.fantasy.fountain.corner.inner",
+    "sourceFile": "kenney-fantasy/fountain-corner-inner.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 15000
+  },
+  {
+    "id": "catalog.kenney.fantasy.fountain.corner",
+    "sourceFile": "kenney-fantasy/fountain-corner.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 8272
+  },
+  {
+    "id": "catalog.kenney.fantasy.fountain.curved",
+    "sourceFile": "kenney-fantasy/fountain-curved.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 25048
+  },
+  {
+    "id": "catalog.kenney.fantasy.fountain.edge",
+    "sourceFile": "kenney-fantasy/fountain-edge.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 6024
+  },
+  {
+    "id": "catalog.kenney.fantasy.fountain.round.detail",
+    "sourceFile": "kenney-fantasy/fountain-round-detail.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 136888
+  },
+  {
+    "id": "catalog.kenney.fantasy.fountain.round",
+    "sourceFile": "kenney-fantasy/fountain-round.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 84848
+  },
+  {
+    "id": "catalog.kenney.fantasy.fountain.square.detail",
+    "sourceFile": "kenney-fantasy/fountain-square-detail.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 32092
+  },
+  {
+    "id": "catalog.kenney.fantasy.fountain.square",
+    "sourceFile": "kenney-fantasy/fountain-square.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 27104
+  },
+  {
+    "id": "catalog.kenney.fantasy.hedge.curved",
+    "sourceFile": "kenney-fantasy/hedge-curved.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 26312
+  },
+  {
+    "id": "catalog.kenney.fantasy.hedge.gate",
+    "sourceFile": "kenney-fantasy/hedge-gate.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 8432
+  },
+  {
+    "id": "catalog.kenney.fantasy.hedge.large.curved",
+    "sourceFile": "kenney-fantasy/hedge-large-curved.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 25024
+  },
+  {
+    "id": "catalog.kenney.fantasy.hedge.large.gate",
+    "sourceFile": "kenney-fantasy/hedge-large-gate.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 18072
+  },
+  {
+    "id": "catalog.kenney.fantasy.hedge.large",
+    "sourceFile": "kenney-fantasy/hedge-large.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 9568
+  },
+  {
+    "id": "catalog.kenney.fantasy.hedge",
+    "sourceFile": "kenney-fantasy/hedge.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 6524
+  },
+  {
+    "id": "catalog.kenney.fantasy.lantern",
+    "sourceFile": "kenney-fantasy/lantern.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 14984
+  },
+  {
+    "id": "catalog.kenney.fantasy.overhang",
+    "sourceFile": "kenney-fantasy/overhang.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 7648
+  },
+  {
+    "id": "catalog.kenney.fantasy.pillar.stone",
+    "sourceFile": "kenney-fantasy/pillar-stone.glb",
+    "pack": "kenney-fantasy",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 11324
+  },
+  {
+    "id": "catalog.kenney.fantasy.pillar.wood",
+    "sourceFile": "kenney-fantasy/pillar-wood.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 5312
+  },
+  {
+    "id": "catalog.kenney.fantasy.planks.half",
+    "sourceFile": "kenney-fantasy/planks-half.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 10164
+  },
+  {
+    "id": "catalog.kenney.fantasy.planks.opening",
+    "sourceFile": "kenney-fantasy/planks-opening.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 16360
+  },
+  {
+    "id": "catalog.kenney.fantasy.planks",
+    "sourceFile": "kenney-fantasy/planks.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 11148
+  },
+  {
+    "id": "catalog.kenney.fantasy.poles.horizontal",
+    "sourceFile": "kenney-fantasy/poles-horizontal.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 5660
+  },
+  {
+    "id": "catalog.kenney.fantasy.poles",
+    "sourceFile": "kenney-fantasy/poles.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 4212
+  },
+  {
+    "id": "catalog.kenney.fantasy.road.bend",
+    "sourceFile": "kenney-fantasy/road-bend.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 25044
+  },
+  {
+    "id": "catalog.kenney.fantasy.road.corner.inner",
+    "sourceFile": "kenney-fantasy/road-corner-inner.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 13552
+  },
+  {
+    "id": "catalog.kenney.fantasy.road.corner",
+    "sourceFile": "kenney-fantasy/road-corner.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 13736
+  },
+  {
+    "id": "catalog.kenney.fantasy.road.curb.end",
+    "sourceFile": "kenney-fantasy/road-curb-end.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 4828
+  },
+  {
+    "id": "catalog.kenney.fantasy.road.curb",
+    "sourceFile": "kenney-fantasy/road-curb.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 2804
+  },
+  {
+    "id": "catalog.kenney.fantasy.road.edge.slope",
+    "sourceFile": "kenney-fantasy/road-edge-slope.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 5724
+  },
+  {
+    "id": "catalog.kenney.fantasy.road.edge",
+    "sourceFile": "kenney-fantasy/road-edge.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 4912
+  },
+  {
+    "id": "catalog.kenney.fantasy.road.slope",
+    "sourceFile": "kenney-fantasy/road-slope.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 2820
+  },
+  {
+    "id": "catalog.kenney.fantasy.road",
+    "sourceFile": "kenney-fantasy/road.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 2788
+  },
+  {
+    "id": "catalog.kenney.fantasy.rock.large",
+    "sourceFile": "kenney-fantasy/rock-large.glb",
+    "pack": "kenney-fantasy",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 18876
+  },
+  {
+    "id": "catalog.kenney.fantasy.rock.small",
+    "sourceFile": "kenney-fantasy/rock-small.glb",
+    "pack": "kenney-fantasy",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 12620
+  },
+  {
+    "id": "catalog.kenney.fantasy.rock.wide",
+    "sourceFile": "kenney-fantasy/rock-wide.glb",
+    "pack": "kenney-fantasy",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 15172
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.corner.inner",
+    "sourceFile": "kenney-fantasy/roof-corner-inner.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 4464
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.corner.round",
+    "sourceFile": "kenney-fantasy/roof-corner-round.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 5836
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.corner",
+    "sourceFile": "kenney-fantasy/roof-corner.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 4996
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.flat",
+    "sourceFile": "kenney-fantasy/roof-flat.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 3448
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.gable.detail",
+    "sourceFile": "kenney-fantasy/roof-gable-detail.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 12028
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.gable.end",
+    "sourceFile": "kenney-fantasy/roof-gable-end.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 6056
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.gable.top",
+    "sourceFile": "kenney-fantasy/roof-gable-top.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 6572
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.gable",
+    "sourceFile": "kenney-fantasy/roof-gable.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 7632
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.high.corner.round",
+    "sourceFile": "kenney-fantasy/roof-high-corner-round.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 6056
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.high.corner",
+    "sourceFile": "kenney-fantasy/roof-high-corner.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 5008
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.high.cornerinner",
+    "sourceFile": "kenney-fantasy/roof-high-cornerinner.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 4284
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.high.flat",
+    "sourceFile": "kenney-fantasy/roof-high-flat.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 3464
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.high.gable.detail",
+    "sourceFile": "kenney-fantasy/roof-high-gable-detail.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 12840
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.high.gable.end",
+    "sourceFile": "kenney-fantasy/roof-high-gable-end.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 6268
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.high.gable.top",
+    "sourceFile": "kenney-fantasy/roof-high-gable-top.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 6568
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.high.gable",
+    "sourceFile": "kenney-fantasy/roof-high-gable.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 7456
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.high.left",
+    "sourceFile": "kenney-fantasy/roof-high-left.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 11376
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.high.point",
+    "sourceFile": "kenney-fantasy/roof-high-point.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 6192
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.high.right",
+    "sourceFile": "kenney-fantasy/roof-high-right.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 10996
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.high.window",
+    "sourceFile": "kenney-fantasy/roof-high-window.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 20732
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.high",
+    "sourceFile": "kenney-fantasy/roof-high.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 8088
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.left",
+    "sourceFile": "kenney-fantasy/roof-left.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 12904
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.point",
+    "sourceFile": "kenney-fantasy/roof-point.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 6180
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.right",
+    "sourceFile": "kenney-fantasy/roof-right.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 13004
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof.window",
+    "sourceFile": "kenney-fantasy/roof-window.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 15524
+  },
+  {
+    "id": "catalog.kenney.fantasy.roof",
+    "sourceFile": "kenney-fantasy/roof.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 9324
+  },
+  {
+    "id": "catalog.kenney.fantasy.stairs.full.corner.inner",
+    "sourceFile": "kenney-fantasy/stairs-full-corner-inner.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 8304
+  },
+  {
+    "id": "catalog.kenney.fantasy.stairs.full.corner.outer",
+    "sourceFile": "kenney-fantasy/stairs-full-corner-outer.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 9440
+  },
+  {
+    "id": "catalog.kenney.fantasy.stairs.full",
+    "sourceFile": "kenney-fantasy/stairs-full.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 7064
+  },
+  {
+    "id": "catalog.kenney.fantasy.stairs.stone.corner",
+    "sourceFile": "kenney-fantasy/stairs-stone-corner.glb",
+    "pack": "kenney-fantasy",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 12792
+  },
+  {
+    "id": "catalog.kenney.fantasy.stairs.stone.handrail",
+    "sourceFile": "kenney-fantasy/stairs-stone-handrail.glb",
+    "pack": "kenney-fantasy",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 23428
+  },
+  {
+    "id": "catalog.kenney.fantasy.stairs.stone.round",
+    "sourceFile": "kenney-fantasy/stairs-stone-round.glb",
+    "pack": "kenney-fantasy",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 17840
+  },
+  {
+    "id": "catalog.kenney.fantasy.stairs.stone",
+    "sourceFile": "kenney-fantasy/stairs-stone.glb",
+    "pack": "kenney-fantasy",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 12172
+  },
+  {
+    "id": "catalog.kenney.fantasy.stairs.wide.stone.handrail",
+    "sourceFile": "kenney-fantasy/stairs-wide-stone-handrail.glb",
+    "pack": "kenney-fantasy",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 23440
+  },
+  {
+    "id": "catalog.kenney.fantasy.stairs.wide.stone",
+    "sourceFile": "kenney-fantasy/stairs-wide-stone.glb",
+    "pack": "kenney-fantasy",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 12188
+  },
+  {
+    "id": "catalog.kenney.fantasy.stairs.wide.wood.handrail",
+    "sourceFile": "kenney-fantasy/stairs-wide-wood-handrail.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 43904
+  },
+  {
+    "id": "catalog.kenney.fantasy.stairs.wide.wood",
+    "sourceFile": "kenney-fantasy/stairs-wide-wood.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 33060
+  },
+  {
+    "id": "catalog.kenney.fantasy.stairs.wood.handrail",
+    "sourceFile": "kenney-fantasy/stairs-wood-handrail.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 44228
+  },
+  {
+    "id": "catalog.kenney.fantasy.stairs.wood",
+    "sourceFile": "kenney-fantasy/stairs-wood.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 33384
+  },
+  {
+    "id": "catalog.kenney.fantasy.stall.bench",
+    "sourceFile": "kenney-fantasy/stall-bench.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 14168
+  },
+  {
+    "id": "catalog.kenney.fantasy.stall.green",
+    "sourceFile": "kenney-fantasy/stall-green.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 27120
+  },
+  {
+    "id": "catalog.kenney.fantasy.stall.red",
+    "sourceFile": "kenney-fantasy/stall-red.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 24304
+  },
+  {
+    "id": "catalog.kenney.fantasy.stall.stool",
+    "sourceFile": "kenney-fantasy/stall-stool.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 14172
+  },
+  {
+    "id": "catalog.kenney.fantasy.stall",
+    "sourceFile": "kenney-fantasy/stall.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 11500
+  },
+  {
+    "id": "catalog.kenney.fantasy.tree.crooked",
+    "sourceFile": "kenney-fantasy/tree-crooked.glb",
+    "pack": "kenney-fantasy",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 19252
+  },
+  {
+    "id": "catalog.kenney.fantasy.tree.high.crooked",
+    "sourceFile": "kenney-fantasy/tree-high-crooked.glb",
+    "pack": "kenney-fantasy",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 21744
+  },
+  {
+    "id": "catalog.kenney.fantasy.tree.high.round",
+    "sourceFile": "kenney-fantasy/tree-high-round.glb",
+    "pack": "kenney-fantasy",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 13176
+  },
+  {
+    "id": "catalog.kenney.fantasy.tree.high",
+    "sourceFile": "kenney-fantasy/tree-high.glb",
+    "pack": "kenney-fantasy",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 20700
+  },
+  {
+    "id": "catalog.kenney.fantasy.tree",
+    "sourceFile": "kenney-fantasy/tree.glb",
+    "pack": "kenney-fantasy",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 18188
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.arch.top.detail",
+    "sourceFile": "kenney-fantasy/wall-arch-top-detail.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 16076
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.arch.top",
+    "sourceFile": "kenney-fantasy/wall-arch-top.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 12876
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.arch",
+    "sourceFile": "kenney-fantasy/wall-arch.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 4840
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.block.half",
+    "sourceFile": "kenney-fantasy/wall-block-half.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 8564
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.block",
+    "sourceFile": "kenney-fantasy/wall-block.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 8532
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.broken",
+    "sourceFile": "kenney-fantasy/wall-broken.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 16904
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.corner.detail",
+    "sourceFile": "kenney-fantasy/wall-corner-detail.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 15748
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.corner.diagonal.half",
+    "sourceFile": "kenney-fantasy/wall-corner-diagonal-half.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 4788
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.corner.diagonal",
+    "sourceFile": "kenney-fantasy/wall-corner-diagonal.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 6032
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.corner.edge",
+    "sourceFile": "kenney-fantasy/wall-corner-edge.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 5416
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.corner",
+    "sourceFile": "kenney-fantasy/wall-corner.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 6788
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.curved",
+    "sourceFile": "kenney-fantasy/wall-curved.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 11432
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.detail.cross",
+    "sourceFile": "kenney-fantasy/wall-detail-cross.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 8464
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.detail.diagonal",
+    "sourceFile": "kenney-fantasy/wall-detail-diagonal.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 6672
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.detail.horizontal",
+    "sourceFile": "kenney-fantasy/wall-detail-horizontal.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 6240
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.diagonal",
+    "sourceFile": "kenney-fantasy/wall-diagonal.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 5212
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.door",
+    "sourceFile": "kenney-fantasy/wall-door.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 29276
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.doorway.base",
+    "sourceFile": "kenney-fantasy/wall-doorway-base.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 8028
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.doorway.round",
+    "sourceFile": "kenney-fantasy/wall-doorway-round.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 13332
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.doorway.square.wide.curved",
+    "sourceFile": "kenney-fantasy/wall-doorway-square-wide-curved.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 14316
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.doorway.square.wide",
+    "sourceFile": "kenney-fantasy/wall-doorway-square-wide.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 5864
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.doorway.square",
+    "sourceFile": "kenney-fantasy/wall-doorway-square.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 7844
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.half",
+    "sourceFile": "kenney-fantasy/wall-half.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 4808
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.rounded",
+    "sourceFile": "kenney-fantasy/wall-rounded.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 12616
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.side",
+    "sourceFile": "kenney-fantasy/wall-side.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 3852
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.slope",
+    "sourceFile": "kenney-fantasy/wall-slope.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 4812
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.window.glass",
+    "sourceFile": "kenney-fantasy/wall-window-glass.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 15708
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.window.round",
+    "sourceFile": "kenney-fantasy/wall-window-round.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 22356
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.window.shutters",
+    "sourceFile": "kenney-fantasy/wall-window-shutters.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 23892
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.window.small",
+    "sourceFile": "kenney-fantasy/wall-window-small.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 9376
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.window.stone",
+    "sourceFile": "kenney-fantasy/wall-window-stone.glb",
+    "pack": "kenney-fantasy",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 12484
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.arch.top.detail",
+    "sourceFile": "kenney-fantasy/wall-wood-arch-top-detail.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 16092
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.arch.top",
+    "sourceFile": "kenney-fantasy/wall-wood-arch-top.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 12892
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.arch",
+    "sourceFile": "kenney-fantasy/wall-wood-arch.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 4856
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.block.half",
+    "sourceFile": "kenney-fantasy/wall-wood-block-half.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 8580
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.block",
+    "sourceFile": "kenney-fantasy/wall-wood-block.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 8548
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.broken",
+    "sourceFile": "kenney-fantasy/wall-wood-broken.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 16344
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.corner.diagonal.half",
+    "sourceFile": "kenney-fantasy/wall-wood-corner-diagonal-half.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 4804
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.corner.diagonal",
+    "sourceFile": "kenney-fantasy/wall-wood-corner-diagonal.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 6048
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.corner.edge",
+    "sourceFile": "kenney-fantasy/wall-wood-corner-edge.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 5432
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.corner",
+    "sourceFile": "kenney-fantasy/wall-wood-corner.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 6804
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.curved",
+    "sourceFile": "kenney-fantasy/wall-wood-curved.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 11444
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.detail.cross",
+    "sourceFile": "kenney-fantasy/wall-wood-detail-cross.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 8480
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.detail.diagonal",
+    "sourceFile": "kenney-fantasy/wall-wood-detail-diagonal.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 6684
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.detail.horizontal",
+    "sourceFile": "kenney-fantasy/wall-wood-detail-horizontal.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 6256
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.diagonal",
+    "sourceFile": "kenney-fantasy/wall-wood-diagonal.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 5228
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.door",
+    "sourceFile": "kenney-fantasy/wall-wood-door.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 30744
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.doorway.base",
+    "sourceFile": "kenney-fantasy/wall-wood-doorway-base.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 8044
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.doorway.round",
+    "sourceFile": "kenney-fantasy/wall-wood-doorway-round.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 15068
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.doorway.square.wide.curved",
+    "sourceFile": "kenney-fantasy/wall-wood-doorway-square-wide-curved.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 14332
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.doorway.square.wide",
+    "sourceFile": "kenney-fantasy/wall-wood-doorway-square-wide.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 5876
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.doorway.square",
+    "sourceFile": "kenney-fantasy/wall-wood-doorway-square.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 8664
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.half",
+    "sourceFile": "kenney-fantasy/wall-wood-half.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 4824
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.rounded",
+    "sourceFile": "kenney-fantasy/wall-wood-rounded.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 12632
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.side",
+    "sourceFile": "kenney-fantasy/wall-wood-side.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 3868
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.slope",
+    "sourceFile": "kenney-fantasy/wall-wood-slope.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 8544
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.window.glass",
+    "sourceFile": "kenney-fantasy/wall-wood-window-glass.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 11184
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.window.round",
+    "sourceFile": "kenney-fantasy/wall-wood-window-round.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 23636
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.window.shutters",
+    "sourceFile": "kenney-fantasy/wall-wood-window-shutters.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 10612
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.window.small",
+    "sourceFile": "kenney-fantasy/wall-wood-window-small.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 11808
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood.window.stone",
+    "sourceFile": "kenney-fantasy/wall-wood-window-stone.glb",
+    "pack": "kenney-fantasy",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 16844
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall.wood",
+    "sourceFile": "kenney-fantasy/wall-wood.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 4808
+  },
+  {
+    "id": "catalog.kenney.fantasy.wall",
+    "sourceFile": "kenney-fantasy/wall.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 4792
+  },
+  {
+    "id": "catalog.kenney.fantasy.watermill.wide",
+    "sourceFile": "kenney-fantasy/watermill-wide.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 53872
+  },
+  {
+    "id": "catalog.kenney.fantasy.watermill",
+    "sourceFile": "kenney-fantasy/watermill.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 53856
+  },
+  {
+    "id": "catalog.kenney.fantasy.wheel",
+    "sourceFile": "kenney-fantasy/wheel.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 17184
+  },
+  {
+    "id": "catalog.kenney.fantasy.windmill",
+    "sourceFile": "kenney-fantasy/windmill.glb",
+    "pack": "kenney-fantasy",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 71160
+  },
+  {
+    "id": "catalog.kenney.nature.bed.floor",
+    "sourceFile": "kenney-nature/bed_floor.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 10688
+  },
+  {
+    "id": "catalog.kenney.nature.bed",
+    "sourceFile": "kenney-nature/bed.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 19108
+  },
+  {
+    "id": "catalog.kenney.nature.bridge.center.stone",
+    "sourceFile": "kenney-nature/bridge_center_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5076
+  },
+  {
+    "id": "catalog.kenney.nature.bridge.center.stoneround",
+    "sourceFile": "kenney-nature/bridge_center_stoneRound.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5080
+  },
+  {
+    "id": "catalog.kenney.nature.bridge.center.wood",
+    "sourceFile": "kenney-nature/bridge_center_wood.glb",
+    "pack": "kenney-nature",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 5480
+  },
+  {
+    "id": "catalog.kenney.nature.bridge.center.woodround",
+    "sourceFile": "kenney-nature/bridge_center_woodRound.glb",
+    "pack": "kenney-nature",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 6280
+  },
+  {
+    "id": "catalog.kenney.nature.bridge.side.stone",
+    "sourceFile": "kenney-nature/bridge_side_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 11408
+  },
+  {
+    "id": "catalog.kenney.nature.bridge.side.stoneround",
+    "sourceFile": "kenney-nature/bridge_side_stoneRound.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 13540
+  },
+  {
+    "id": "catalog.kenney.nature.bridge.side.wood",
+    "sourceFile": "kenney-nature/bridge_side_wood.glb",
+    "pack": "kenney-nature",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 10604
+  },
+  {
+    "id": "catalog.kenney.nature.bridge.side.woodround",
+    "sourceFile": "kenney-nature/bridge_side_woodRound.glb",
+    "pack": "kenney-nature",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 13460
+  },
+  {
+    "id": "catalog.kenney.nature.bridge.stone",
+    "sourceFile": "kenney-nature/bridge_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 17708
+  },
+  {
+    "id": "catalog.kenney.nature.bridge.stonenarrow",
+    "sourceFile": "kenney-nature/bridge_stoneNarrow.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 17724
+  },
+  {
+    "id": "catalog.kenney.nature.bridge.stoneround",
+    "sourceFile": "kenney-nature/bridge_stoneRound.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 22552
+  },
+  {
+    "id": "catalog.kenney.nature.bridge.stoneroundnarrow",
+    "sourceFile": "kenney-nature/bridge_stoneRoundNarrow.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 22564
+  },
+  {
+    "id": "catalog.kenney.nature.bridge.wood",
+    "sourceFile": "kenney-nature/bridge_wood.glb",
+    "pack": "kenney-nature",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 15692
+  },
+  {
+    "id": "catalog.kenney.nature.bridge.woodnarrow",
+    "sourceFile": "kenney-nature/bridge_woodNarrow.glb",
+    "pack": "kenney-nature",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 15708
+  },
+  {
+    "id": "catalog.kenney.nature.bridge.woodround",
+    "sourceFile": "kenney-nature/bridge_woodRound.glb",
+    "pack": "kenney-nature",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 21192
+  },
+  {
+    "id": "catalog.kenney.nature.bridge.woodroundnarrow",
+    "sourceFile": "kenney-nature/bridge_woodRoundNarrow.glb",
+    "pack": "kenney-nature",
+    "category": "structure",
+    "format": "glb",
+    "bytes": 21204
+  },
+  {
+    "id": "catalog.kenney.nature.cactus.short",
+    "sourceFile": "kenney-nature/cactus_short.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 8844
+  },
+  {
+    "id": "catalog.kenney.nature.cactus.tall",
+    "sourceFile": "kenney-nature/cactus_tall.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 9668
+  },
+  {
+    "id": "catalog.kenney.nature.campfire.bricks",
+    "sourceFile": "kenney-nature/campfire_bricks.glb",
+    "pack": "kenney-nature",
+    "category": "facility",
+    "format": "glb",
+    "bytes": 10220
+  },
+  {
+    "id": "catalog.kenney.nature.campfire.logs",
+    "sourceFile": "kenney-nature/campfire_logs.glb",
+    "pack": "kenney-nature",
+    "category": "facility",
+    "format": "glb",
+    "bytes": 9284
+  },
+  {
+    "id": "catalog.kenney.nature.campfire.planks",
+    "sourceFile": "kenney-nature/campfire_planks.glb",
+    "pack": "kenney-nature",
+    "category": "facility",
+    "format": "glb",
+    "bytes": 8148
+  },
+  {
+    "id": "catalog.kenney.nature.campfire.stones",
+    "sourceFile": "kenney-nature/campfire_stones.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 17344
+  },
+  {
+    "id": "catalog.kenney.nature.canoe.paddle",
+    "sourceFile": "kenney-nature/canoe_paddle.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 3952
+  },
+  {
+    "id": "catalog.kenney.nature.canoe",
+    "sourceFile": "kenney-nature/canoe.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 15780
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.block.rock",
+    "sourceFile": "kenney-nature/cliff_block_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 2776
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.block.stone",
+    "sourceFile": "kenney-nature/cliff_block_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 2780
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.blockcave.rock",
+    "sourceFile": "kenney-nature/cliff_blockCave_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5432
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.blockcave.stone",
+    "sourceFile": "kenney-nature/cliff_blockCave_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5436
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.blockdiagonal.rock",
+    "sourceFile": "kenney-nature/cliff_blockDiagonal_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 2564
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.blockdiagonal.stone",
+    "sourceFile": "kenney-nature/cliff_blockDiagonal_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 2568
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.blockhalf.rock",
+    "sourceFile": "kenney-nature/cliff_blockHalf_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 2788
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.blockhalf.stone",
+    "sourceFile": "kenney-nature/cliff_blockHalf_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 2792
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.blockquarter.rock",
+    "sourceFile": "kenney-nature/cliff_blockQuarter_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 2796
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.blockquarter.stone",
+    "sourceFile": "kenney-nature/cliff_blockQuarter_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 2800
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.blockslope.rock",
+    "sourceFile": "kenney-nature/cliff_blockSlope_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 6720
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.blockslope.stone",
+    "sourceFile": "kenney-nature/cliff_blockSlope_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 6724
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.blockslopehalfwalls.rock",
+    "sourceFile": "kenney-nature/cliff_blockSlopeHalfWalls_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 8880
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.blockslopehalfwalls.stone",
+    "sourceFile": "kenney-nature/cliff_blockSlopeHalfWalls_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 8884
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.blockslopewalls.rock",
+    "sourceFile": "kenney-nature/cliff_blockSlopeWalls_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 8900
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.blockslopewalls.stone",
+    "sourceFile": "kenney-nature/cliff_blockSlopeWalls_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 8904
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.cave.rock",
+    "sourceFile": "kenney-nature/cliff_cave_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5480
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.cave.stone",
+    "sourceFile": "kenney-nature/cliff_cave_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5484
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.corner.rock",
+    "sourceFile": "kenney-nature/cliff_corner_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 2360
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.corner.stone",
+    "sourceFile": "kenney-nature/cliff_corner_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 2364
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.cornerinner.rock",
+    "sourceFile": "kenney-nature/cliff_cornerInner_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5008
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.cornerinner.stone",
+    "sourceFile": "kenney-nature/cliff_cornerInner_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 8568
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.cornerinnerlarge.rock",
+    "sourceFile": "kenney-nature/cliff_cornerInnerLarge_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 4296
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.cornerinnerlarge.stone",
+    "sourceFile": "kenney-nature/cliff_cornerInnerLarge_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 4300
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.cornerinnertop.rock",
+    "sourceFile": "kenney-nature/cliff_cornerInnerTop_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 7608
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.cornerinnertop.stone",
+    "sourceFile": "kenney-nature/cliff_cornerInnerTop_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 7612
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.cornerlarge.rock",
+    "sourceFile": "kenney-nature/cliff_cornerLarge_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 2376
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.cornerlarge.stone",
+    "sourceFile": "kenney-nature/cliff_cornerLarge_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 3296
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.cornertop.rock",
+    "sourceFile": "kenney-nature/cliff_cornerTop_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 3108
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.cornertop.stone",
+    "sourceFile": "kenney-nature/cliff_cornerTop_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 3112
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.diagonal.rock",
+    "sourceFile": "kenney-nature/cliff_diagonal_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 4296
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.diagonal.stone",
+    "sourceFile": "kenney-nature/cliff_diagonal_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 4236
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.half.rock",
+    "sourceFile": "kenney-nature/cliff_half_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5316
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.half.stone",
+    "sourceFile": "kenney-nature/cliff_half_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5320
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.halfcorner.rock",
+    "sourceFile": "kenney-nature/cliff_halfCorner_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 3128
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.halfcorner.stone",
+    "sourceFile": "kenney-nature/cliff_halfCorner_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 3132
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.halfcornerinner.rock",
+    "sourceFile": "kenney-nature/cliff_halfCornerInner_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 8016
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.halfcornerinner.stone",
+    "sourceFile": "kenney-nature/cliff_halfCornerInner_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 8020
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.large.rock",
+    "sourceFile": "kenney-nature/cliff_large_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 3560
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.large.stone",
+    "sourceFile": "kenney-nature/cliff_large_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 3564
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.rock",
+    "sourceFile": "kenney-nature/cliff_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 3556
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.steps.rock",
+    "sourceFile": "kenney-nature/cliff_steps_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 15952
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.steps.stone",
+    "sourceFile": "kenney-nature/cliff_steps_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 15956
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.stepscorner.rock",
+    "sourceFile": "kenney-nature/cliff_stepsCorner_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 17544
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.stepscorner.stone",
+    "sourceFile": "kenney-nature/cliff_stepsCorner_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 17548
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.stepscornerinner.rock",
+    "sourceFile": "kenney-nature/cliff_stepsCornerInner_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 15632
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.stepscornerinner.stone",
+    "sourceFile": "kenney-nature/cliff_stepsCornerInner_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 15636
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.stone",
+    "sourceFile": "kenney-nature/cliff_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 3560
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.top.rock",
+    "sourceFile": "kenney-nature/cliff_top_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5312
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.top.stone",
+    "sourceFile": "kenney-nature/cliff_top_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5316
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.topdiagonal.rock",
+    "sourceFile": "kenney-nature/cliff_topDiagonal_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 6220
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.topdiagonal.stone",
+    "sourceFile": "kenney-nature/cliff_topDiagonal_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 10540
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.waterfall.rock",
+    "sourceFile": "kenney-nature/cliff_waterfall_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 4488
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.waterfall.stone",
+    "sourceFile": "kenney-nature/cliff_waterfall_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 6100
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.waterfalltop.rock",
+    "sourceFile": "kenney-nature/cliff_waterfallTop_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 7076
+  },
+  {
+    "id": "catalog.kenney.nature.cliff.waterfalltop.stone",
+    "sourceFile": "kenney-nature/cliff_waterfallTop_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 7508
+  },
+  {
+    "id": "catalog.kenney.nature.crop.carrot",
+    "sourceFile": "kenney-nature/crop_carrot.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 12664
+  },
+  {
+    "id": "catalog.kenney.nature.crop.melon",
+    "sourceFile": "kenney-nature/crop_melon.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 13328
+  },
+  {
+    "id": "catalog.kenney.nature.crop.pumpkin",
+    "sourceFile": "kenney-nature/crop_pumpkin.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 10840
+  },
+  {
+    "id": "catalog.kenney.nature.crop.turnip",
+    "sourceFile": "kenney-nature/crop_turnip.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 14308
+  },
+  {
+    "id": "catalog.kenney.nature.crops.bamboostagea",
+    "sourceFile": "kenney-nature/crops_bambooStageA.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 22092
+  },
+  {
+    "id": "catalog.kenney.nature.crops.bamboostageb",
+    "sourceFile": "kenney-nature/crops_bambooStageB.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 40144
+  },
+  {
+    "id": "catalog.kenney.nature.crops.cornstagea",
+    "sourceFile": "kenney-nature/crops_cornStageA.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 9076
+  },
+  {
+    "id": "catalog.kenney.nature.crops.cornstageb",
+    "sourceFile": "kenney-nature/crops_cornStageB.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 9780
+  },
+  {
+    "id": "catalog.kenney.nature.crops.cornstagec",
+    "sourceFile": "kenney-nature/crops_cornStageC.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 11960
+  },
+  {
+    "id": "catalog.kenney.nature.crops.cornstaged",
+    "sourceFile": "kenney-nature/crops_cornStageD.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 29316
+  },
+  {
+    "id": "catalog.kenney.nature.crops.dirtdoublerow",
+    "sourceFile": "kenney-nature/crops_dirtDoubleRow.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 7560
+  },
+  {
+    "id": "catalog.kenney.nature.crops.dirtdoublerowcorner",
+    "sourceFile": "kenney-nature/crops_dirtDoubleRowCorner.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 5396
+  },
+  {
+    "id": "catalog.kenney.nature.crops.dirtdoublerowend",
+    "sourceFile": "kenney-nature/crops_dirtDoubleRowEnd.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 6248
+  },
+  {
+    "id": "catalog.kenney.nature.crops.dirtrow",
+    "sourceFile": "kenney-nature/crops_dirtRow.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 4712
+  },
+  {
+    "id": "catalog.kenney.nature.crops.dirtrowcorner",
+    "sourceFile": "kenney-nature/crops_dirtRowCorner.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 3248
+  },
+  {
+    "id": "catalog.kenney.nature.crops.dirtrowend",
+    "sourceFile": "kenney-nature/crops_dirtRowEnd.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 4064
+  },
+  {
+    "id": "catalog.kenney.nature.crops.dirtsingle",
+    "sourceFile": "kenney-nature/crops_dirtSingle.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 4196
+  },
+  {
+    "id": "catalog.kenney.nature.crops.leafsstagea",
+    "sourceFile": "kenney-nature/crops_leafsStageA.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 7144
+  },
+  {
+    "id": "catalog.kenney.nature.crops.leafsstageb",
+    "sourceFile": "kenney-nature/crops_leafsStageB.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 7768
+  },
+  {
+    "id": "catalog.kenney.nature.crops.wheatstagea",
+    "sourceFile": "kenney-nature/crops_wheatStageA.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 56228
+  },
+  {
+    "id": "catalog.kenney.nature.crops.wheatstageb",
+    "sourceFile": "kenney-nature/crops_wheatStageB.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 30040
+  },
+  {
+    "id": "catalog.kenney.nature.fence.bend",
+    "sourceFile": "kenney-nature/fence_bend.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 16276
+  },
+  {
+    "id": "catalog.kenney.nature.fence.bendcenter",
+    "sourceFile": "kenney-nature/fence_bendCenter.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 20016
+  },
+  {
+    "id": "catalog.kenney.nature.fence.corner",
+    "sourceFile": "kenney-nature/fence_corner.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 8644
+  },
+  {
+    "id": "catalog.kenney.nature.fence.gate",
+    "sourceFile": "kenney-nature/fence_gate.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 27652
+  },
+  {
+    "id": "catalog.kenney.nature.fence.planks",
+    "sourceFile": "kenney-nature/fence_planks.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 7720
+  },
+  {
+    "id": "catalog.kenney.nature.fence.planksdouble",
+    "sourceFile": "kenney-nature/fence_planksDouble.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 11160
+  },
+  {
+    "id": "catalog.kenney.nature.fence.simple",
+    "sourceFile": "kenney-nature/fence_simple.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 5712
+  },
+  {
+    "id": "catalog.kenney.nature.fence.simplecenter",
+    "sourceFile": "kenney-nature/fence_simpleCenter.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 8660
+  },
+  {
+    "id": "catalog.kenney.nature.fence.simplediagonal",
+    "sourceFile": "kenney-nature/fence_simpleDiagonal.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 6688
+  },
+  {
+    "id": "catalog.kenney.nature.fence.simplediagonalcenter",
+    "sourceFile": "kenney-nature/fence_simpleDiagonalCenter.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 11064
+  },
+  {
+    "id": "catalog.kenney.nature.fence.simplehigh",
+    "sourceFile": "kenney-nature/fence_simpleHigh.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 4300
+  },
+  {
+    "id": "catalog.kenney.nature.fence.simplelow",
+    "sourceFile": "kenney-nature/fence_simpleLow.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 4312
+  },
+  {
+    "id": "catalog.kenney.nature.flower.purplea",
+    "sourceFile": "kenney-nature/flower_purpleA.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 7112
+  },
+  {
+    "id": "catalog.kenney.nature.flower.purpleb",
+    "sourceFile": "kenney-nature/flower_purpleB.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 8084
+  },
+  {
+    "id": "catalog.kenney.nature.flower.purplec",
+    "sourceFile": "kenney-nature/flower_purpleC.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 7600
+  },
+  {
+    "id": "catalog.kenney.nature.flower.reda",
+    "sourceFile": "kenney-nature/flower_redA.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 7104
+  },
+  {
+    "id": "catalog.kenney.nature.flower.redb",
+    "sourceFile": "kenney-nature/flower_redB.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 8080
+  },
+  {
+    "id": "catalog.kenney.nature.flower.redc",
+    "sourceFile": "kenney-nature/flower_redC.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 7600
+  },
+  {
+    "id": "catalog.kenney.nature.flower.yellowa",
+    "sourceFile": "kenney-nature/flower_yellowA.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 7120
+  },
+  {
+    "id": "catalog.kenney.nature.flower.yellowb",
+    "sourceFile": "kenney-nature/flower_yellowB.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 11256
+  },
+  {
+    "id": "catalog.kenney.nature.flower.yellowc",
+    "sourceFile": "kenney-nature/flower_yellowC.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 7616
+  },
+  {
+    "id": "catalog.kenney.nature.grass.large",
+    "sourceFile": "kenney-nature/grass_large.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 18504
+  },
+  {
+    "id": "catalog.kenney.nature.grass.leafs",
+    "sourceFile": "kenney-nature/grass_leafs.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 4608
+  },
+  {
+    "id": "catalog.kenney.nature.grass.leafslarge",
+    "sourceFile": "kenney-nature/grass_leafsLarge.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 13988
+  },
+  {
+    "id": "catalog.kenney.nature.grass",
+    "sourceFile": "kenney-nature/grass.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 11496
+  },
+  {
+    "id": "catalog.kenney.nature.ground.grass",
+    "sourceFile": "kenney-nature/ground_grass.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 1576
+  },
+  {
+    "id": "catalog.kenney.nature.ground.pathbend",
+    "sourceFile": "kenney-nature/ground_pathBend.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 4132
+  },
+  {
+    "id": "catalog.kenney.nature.ground.pathbendbank",
+    "sourceFile": "kenney-nature/ground_pathBendBank.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 4308
+  },
+  {
+    "id": "catalog.kenney.nature.ground.pathcorner",
+    "sourceFile": "kenney-nature/ground_pathCorner.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 3532
+  },
+  {
+    "id": "catalog.kenney.nature.ground.pathcornersmall",
+    "sourceFile": "kenney-nature/ground_pathCornerSmall.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 3632
+  },
+  {
+    "id": "catalog.kenney.nature.ground.pathcross",
+    "sourceFile": "kenney-nature/ground_pathCross.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 6404
+  },
+  {
+    "id": "catalog.kenney.nature.ground.pathend",
+    "sourceFile": "kenney-nature/ground_pathEnd.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 5044
+  },
+  {
+    "id": "catalog.kenney.nature.ground.pathendclosed",
+    "sourceFile": "kenney-nature/ground_pathEndClosed.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 5824
+  },
+  {
+    "id": "catalog.kenney.nature.ground.pathopen",
+    "sourceFile": "kenney-nature/ground_pathOpen.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 1856
+  },
+  {
+    "id": "catalog.kenney.nature.ground.pathrocks",
+    "sourceFile": "kenney-nature/ground_pathRocks.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 8036
+  },
+  {
+    "id": "catalog.kenney.nature.ground.pathside",
+    "sourceFile": "kenney-nature/ground_pathSide.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 4124
+  },
+  {
+    "id": "catalog.kenney.nature.ground.pathsideopen",
+    "sourceFile": "kenney-nature/ground_pathSideOpen.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 4524
+  },
+  {
+    "id": "catalog.kenney.nature.ground.pathsplit",
+    "sourceFile": "kenney-nature/ground_pathSplit.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 6012
+  },
+  {
+    "id": "catalog.kenney.nature.ground.pathstraight",
+    "sourceFile": "kenney-nature/ground_pathStraight.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 5620
+  },
+  {
+    "id": "catalog.kenney.nature.ground.pathtile",
+    "sourceFile": "kenney-nature/ground_pathTile.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 6624
+  },
+  {
+    "id": "catalog.kenney.nature.ground.riverbend",
+    "sourceFile": "kenney-nature/ground_riverBend.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 5684
+  },
+  {
+    "id": "catalog.kenney.nature.ground.riverbendbank",
+    "sourceFile": "kenney-nature/ground_riverBendBank.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 5692
+  },
+  {
+    "id": "catalog.kenney.nature.ground.rivercorner",
+    "sourceFile": "kenney-nature/ground_riverCorner.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 4844
+  },
+  {
+    "id": "catalog.kenney.nature.ground.rivercornersmall",
+    "sourceFile": "kenney-nature/ground_riverCornerSmall.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 4236
+  },
+  {
+    "id": "catalog.kenney.nature.ground.rivercross",
+    "sourceFile": "kenney-nature/ground_riverCross.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 7560
+  },
+  {
+    "id": "catalog.kenney.nature.ground.riverend",
+    "sourceFile": "kenney-nature/ground_riverEnd.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 5464
+  },
+  {
+    "id": "catalog.kenney.nature.ground.riverendclosed",
+    "sourceFile": "kenney-nature/ground_riverEndClosed.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 6920
+  },
+  {
+    "id": "catalog.kenney.nature.ground.riveropen",
+    "sourceFile": "kenney-nature/ground_riverOpen.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 1852
+  },
+  {
+    "id": "catalog.kenney.nature.ground.riverrocks",
+    "sourceFile": "kenney-nature/ground_riverRocks.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 8884
+  },
+  {
+    "id": "catalog.kenney.nature.ground.riverside",
+    "sourceFile": "kenney-nature/ground_riverSide.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 4544
+  },
+  {
+    "id": "catalog.kenney.nature.ground.riversideopen",
+    "sourceFile": "kenney-nature/ground_riverSideOpen.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 5312
+  },
+  {
+    "id": "catalog.kenney.nature.ground.riversplit",
+    "sourceFile": "kenney-nature/ground_riverSplit.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 6804
+  },
+  {
+    "id": "catalog.kenney.nature.ground.riverstraight",
+    "sourceFile": "kenney-nature/ground_riverStraight.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 6044
+  },
+  {
+    "id": "catalog.kenney.nature.ground.rivertile",
+    "sourceFile": "kenney-nature/ground_riverTile.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 9120
+  },
+  {
+    "id": "catalog.kenney.nature.hanging.moss",
+    "sourceFile": "kenney-nature/hanging_moss.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 4776
+  },
+  {
+    "id": "catalog.kenney.nature.lily.large",
+    "sourceFile": "kenney-nature/lily_large.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 8044
+  },
+  {
+    "id": "catalog.kenney.nature.lily.small",
+    "sourceFile": "kenney-nature/lily_small.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 5664
+  },
+  {
+    "id": "catalog.kenney.nature.log.large",
+    "sourceFile": "kenney-nature/log_large.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 7924
+  },
+  {
+    "id": "catalog.kenney.nature.log.stack",
+    "sourceFile": "kenney-nature/log_stack.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 10896
+  },
+  {
+    "id": "catalog.kenney.nature.log.stacklarge",
+    "sourceFile": "kenney-nature/log_stackLarge.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 17604
+  },
+  {
+    "id": "catalog.kenney.nature.log",
+    "sourceFile": "kenney-nature/log.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 14288
+  },
+  {
+    "id": "catalog.kenney.nature.mushroom.red",
+    "sourceFile": "kenney-nature/mushroom_red.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 6364
+  },
+  {
+    "id": "catalog.kenney.nature.mushroom.redgroup",
+    "sourceFile": "kenney-nature/mushroom_redGroup.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 14960
+  },
+  {
+    "id": "catalog.kenney.nature.mushroom.redtall",
+    "sourceFile": "kenney-nature/mushroom_redTall.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 6504
+  },
+  {
+    "id": "catalog.kenney.nature.mushroom.tan",
+    "sourceFile": "kenney-nature/mushroom_tan.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 5804
+  },
+  {
+    "id": "catalog.kenney.nature.mushroom.tangroup",
+    "sourceFile": "kenney-nature/mushroom_tanGroup.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 14956
+  },
+  {
+    "id": "catalog.kenney.nature.mushroom.tantall",
+    "sourceFile": "kenney-nature/mushroom_tanTall.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 6500
+  },
+  {
+    "id": "catalog.kenney.nature.path.stone",
+    "sourceFile": "kenney-nature/path_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 12392
+  },
+  {
+    "id": "catalog.kenney.nature.path.stonecircle",
+    "sourceFile": "kenney-nature/path_stoneCircle.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 13100
+  },
+  {
+    "id": "catalog.kenney.nature.path.stonecorner",
+    "sourceFile": "kenney-nature/path_stoneCorner.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 10772
+  },
+  {
+    "id": "catalog.kenney.nature.path.stoneend",
+    "sourceFile": "kenney-nature/path_stoneEnd.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 8996
+  },
+  {
+    "id": "catalog.kenney.nature.path.wood",
+    "sourceFile": "kenney-nature/path_wood.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 6448
+  },
+  {
+    "id": "catalog.kenney.nature.path.woodcorner",
+    "sourceFile": "kenney-nature/path_woodCorner.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 6444
+  },
+  {
+    "id": "catalog.kenney.nature.path.woodend",
+    "sourceFile": "kenney-nature/path_woodEnd.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 5164
+  },
+  {
+    "id": "catalog.kenney.nature.plant.bush",
+    "sourceFile": "kenney-nature/plant_bush.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 4396
+  },
+  {
+    "id": "catalog.kenney.nature.plant.bushdetailed",
+    "sourceFile": "kenney-nature/plant_bushDetailed.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 10172
+  },
+  {
+    "id": "catalog.kenney.nature.plant.bushlarge",
+    "sourceFile": "kenney-nature/plant_bushLarge.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 6436
+  },
+  {
+    "id": "catalog.kenney.nature.plant.bushlargetriangle",
+    "sourceFile": "kenney-nature/plant_bushLargeTriangle.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 4564
+  },
+  {
+    "id": "catalog.kenney.nature.plant.bushsmall",
+    "sourceFile": "kenney-nature/plant_bushSmall.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 3212
+  },
+  {
+    "id": "catalog.kenney.nature.plant.bushtriangle",
+    "sourceFile": "kenney-nature/plant_bushTriangle.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 3956
+  },
+  {
+    "id": "catalog.kenney.nature.plant.flatshort",
+    "sourceFile": "kenney-nature/plant_flatShort.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 3936
+  },
+  {
+    "id": "catalog.kenney.nature.plant.flattall",
+    "sourceFile": "kenney-nature/plant_flatTall.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 3480
+  },
+  {
+    "id": "catalog.kenney.nature.platform.beach",
+    "sourceFile": "kenney-nature/platform_beach.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 13204
+  },
+  {
+    "id": "catalog.kenney.nature.platform.grass",
+    "sourceFile": "kenney-nature/platform_grass.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 12568
+  },
+  {
+    "id": "catalog.kenney.nature.platform.stone",
+    "sourceFile": "kenney-nature/platform_stone.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 13632
+  },
+  {
+    "id": "catalog.kenney.nature.pot.large",
+    "sourceFile": "kenney-nature/pot_large.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 6168
+  },
+  {
+    "id": "catalog.kenney.nature.pot.small",
+    "sourceFile": "kenney-nature/pot_small.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 7004
+  },
+  {
+    "id": "catalog.kenney.nature.rock.largea",
+    "sourceFile": "kenney-nature/rock_largeA.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 7552
+  },
+  {
+    "id": "catalog.kenney.nature.rock.largeb",
+    "sourceFile": "kenney-nature/rock_largeB.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 8560
+  },
+  {
+    "id": "catalog.kenney.nature.rock.largec",
+    "sourceFile": "kenney-nature/rock_largeC.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 7004
+  },
+  {
+    "id": "catalog.kenney.nature.rock.larged",
+    "sourceFile": "kenney-nature/rock_largeD.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 7992
+  },
+  {
+    "id": "catalog.kenney.nature.rock.largee",
+    "sourceFile": "kenney-nature/rock_largeE.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 6464
+  },
+  {
+    "id": "catalog.kenney.nature.rock.largef",
+    "sourceFile": "kenney-nature/rock_largeF.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 7516
+  },
+  {
+    "id": "catalog.kenney.nature.rock.smalla",
+    "sourceFile": "kenney-nature/rock_smallA.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 3044
+  },
+  {
+    "id": "catalog.kenney.nature.rock.smallb",
+    "sourceFile": "kenney-nature/rock_smallB.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 3528
+  },
+  {
+    "id": "catalog.kenney.nature.rock.smallc",
+    "sourceFile": "kenney-nature/rock_smallC.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 3044
+  },
+  {
+    "id": "catalog.kenney.nature.rock.smalld",
+    "sourceFile": "kenney-nature/rock_smallD.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 4012
+  },
+  {
+    "id": "catalog.kenney.nature.rock.smalle",
+    "sourceFile": "kenney-nature/rock_smallE.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5932
+  },
+  {
+    "id": "catalog.kenney.nature.rock.smallf",
+    "sourceFile": "kenney-nature/rock_smallF.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5700
+  },
+  {
+    "id": "catalog.kenney.nature.rock.smallflata",
+    "sourceFile": "kenney-nature/rock_smallFlatA.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 3300
+  },
+  {
+    "id": "catalog.kenney.nature.rock.smallflatb",
+    "sourceFile": "kenney-nature/rock_smallFlatB.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 3056
+  },
+  {
+    "id": "catalog.kenney.nature.rock.smallflatc",
+    "sourceFile": "kenney-nature/rock_smallFlatC.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 4508
+  },
+  {
+    "id": "catalog.kenney.nature.rock.smallg",
+    "sourceFile": "kenney-nature/rock_smallG.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 4204
+  },
+  {
+    "id": "catalog.kenney.nature.rock.smallh",
+    "sourceFile": "kenney-nature/rock_smallH.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 6200
+  },
+  {
+    "id": "catalog.kenney.nature.rock.smalli",
+    "sourceFile": "kenney-nature/rock_smallI.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5120
+  },
+  {
+    "id": "catalog.kenney.nature.rock.smalltopa",
+    "sourceFile": "kenney-nature/rock_smallTopA.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5220
+  },
+  {
+    "id": "catalog.kenney.nature.rock.smalltopb",
+    "sourceFile": "kenney-nature/rock_smallTopB.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 6660
+  },
+  {
+    "id": "catalog.kenney.nature.rock.talla",
+    "sourceFile": "kenney-nature/rock_tallA.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 12072
+  },
+  {
+    "id": "catalog.kenney.nature.rock.tallb",
+    "sourceFile": "kenney-nature/rock_tallB.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 14060
+  },
+  {
+    "id": "catalog.kenney.nature.rock.tallc",
+    "sourceFile": "kenney-nature/rock_tallC.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5184
+  },
+  {
+    "id": "catalog.kenney.nature.rock.talld",
+    "sourceFile": "kenney-nature/rock_tallD.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5132
+  },
+  {
+    "id": "catalog.kenney.nature.rock.talle",
+    "sourceFile": "kenney-nature/rock_tallE.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5192
+  },
+  {
+    "id": "catalog.kenney.nature.rock.tallf",
+    "sourceFile": "kenney-nature/rock_tallF.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5608
+  },
+  {
+    "id": "catalog.kenney.nature.rock.tallg",
+    "sourceFile": "kenney-nature/rock_tallG.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 6772
+  },
+  {
+    "id": "catalog.kenney.nature.rock.tallh",
+    "sourceFile": "kenney-nature/rock_tallH.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 7792
+  },
+  {
+    "id": "catalog.kenney.nature.rock.talli",
+    "sourceFile": "kenney-nature/rock_tallI.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5584
+  },
+  {
+    "id": "catalog.kenney.nature.rock.tallj",
+    "sourceFile": "kenney-nature/rock_tallJ.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5424
+  },
+  {
+    "id": "catalog.kenney.nature.sign",
+    "sourceFile": "kenney-nature/sign.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 5040
+  },
+  {
+    "id": "catalog.kenney.nature.statue.block",
+    "sourceFile": "kenney-nature/statue_block.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 11252
+  },
+  {
+    "id": "catalog.kenney.nature.statue.column",
+    "sourceFile": "kenney-nature/statue_column.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 10472
+  },
+  {
+    "id": "catalog.kenney.nature.statue.columndamaged",
+    "sourceFile": "kenney-nature/statue_columnDamaged.glb",
+    "pack": "kenney-nature",
+    "category": "character",
+    "format": "glb",
+    "bytes": 8824
+  },
+  {
+    "id": "catalog.kenney.nature.statue.head",
+    "sourceFile": "kenney-nature/statue_head.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 14704
+  },
+  {
+    "id": "catalog.kenney.nature.statue.obelisk",
+    "sourceFile": "kenney-nature/statue_obelisk.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 4416
+  },
+  {
+    "id": "catalog.kenney.nature.statue.ring",
+    "sourceFile": "kenney-nature/statue_ring.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 6568
+  },
+  {
+    "id": "catalog.kenney.nature.stone.largea",
+    "sourceFile": "kenney-nature/stone_largeA.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 7124
+  },
+  {
+    "id": "catalog.kenney.nature.stone.largeb",
+    "sourceFile": "kenney-nature/stone_largeB.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 8132
+  },
+  {
+    "id": "catalog.kenney.nature.stone.largec",
+    "sourceFile": "kenney-nature/stone_largeC.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 6580
+  },
+  {
+    "id": "catalog.kenney.nature.stone.larged",
+    "sourceFile": "kenney-nature/stone_largeD.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 7564
+  },
+  {
+    "id": "catalog.kenney.nature.stone.largee",
+    "sourceFile": "kenney-nature/stone_largeE.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 6036
+  },
+  {
+    "id": "catalog.kenney.nature.stone.largef",
+    "sourceFile": "kenney-nature/stone_largeF.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 7092
+  },
+  {
+    "id": "catalog.kenney.nature.stone.smalla",
+    "sourceFile": "kenney-nature/stone_smallA.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 2620
+  },
+  {
+    "id": "catalog.kenney.nature.stone.smallb",
+    "sourceFile": "kenney-nature/stone_smallB.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 3100
+  },
+  {
+    "id": "catalog.kenney.nature.stone.smallc",
+    "sourceFile": "kenney-nature/stone_smallC.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 2620
+  },
+  {
+    "id": "catalog.kenney.nature.stone.smalld",
+    "sourceFile": "kenney-nature/stone_smallD.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 3584
+  },
+  {
+    "id": "catalog.kenney.nature.stone.smalle",
+    "sourceFile": "kenney-nature/stone_smallE.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5504
+  },
+  {
+    "id": "catalog.kenney.nature.stone.smallf",
+    "sourceFile": "kenney-nature/stone_smallF.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5272
+  },
+  {
+    "id": "catalog.kenney.nature.stone.smallflata",
+    "sourceFile": "kenney-nature/stone_smallFlatA.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 2872
+  },
+  {
+    "id": "catalog.kenney.nature.stone.smallflatb",
+    "sourceFile": "kenney-nature/stone_smallFlatB.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 2632
+  },
+  {
+    "id": "catalog.kenney.nature.stone.smallflatc",
+    "sourceFile": "kenney-nature/stone_smallFlatC.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 4080
+  },
+  {
+    "id": "catalog.kenney.nature.stone.smallg",
+    "sourceFile": "kenney-nature/stone_smallG.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 3776
+  },
+  {
+    "id": "catalog.kenney.nature.stone.smallh",
+    "sourceFile": "kenney-nature/stone_smallH.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5772
+  },
+  {
+    "id": "catalog.kenney.nature.stone.smalli",
+    "sourceFile": "kenney-nature/stone_smallI.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 4692
+  },
+  {
+    "id": "catalog.kenney.nature.stone.smalltopa",
+    "sourceFile": "kenney-nature/stone_smallTopA.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 4792
+  },
+  {
+    "id": "catalog.kenney.nature.stone.smalltopb",
+    "sourceFile": "kenney-nature/stone_smallTopB.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 6232
+  },
+  {
+    "id": "catalog.kenney.nature.stone.talla",
+    "sourceFile": "kenney-nature/stone_tallA.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 11644
+  },
+  {
+    "id": "catalog.kenney.nature.stone.tallb",
+    "sourceFile": "kenney-nature/stone_tallB.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 13596
+  },
+  {
+    "id": "catalog.kenney.nature.stone.tallc",
+    "sourceFile": "kenney-nature/stone_tallC.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 4788
+  },
+  {
+    "id": "catalog.kenney.nature.stone.talld",
+    "sourceFile": "kenney-nature/stone_tallD.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 4704
+  },
+  {
+    "id": "catalog.kenney.nature.stone.talle",
+    "sourceFile": "kenney-nature/stone_tallE.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 4764
+  },
+  {
+    "id": "catalog.kenney.nature.stone.tallf",
+    "sourceFile": "kenney-nature/stone_tallF.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5180
+  },
+  {
+    "id": "catalog.kenney.nature.stone.tallg",
+    "sourceFile": "kenney-nature/stone_tallG.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 6344
+  },
+  {
+    "id": "catalog.kenney.nature.stone.tallh",
+    "sourceFile": "kenney-nature/stone_tallH.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 7364
+  },
+  {
+    "id": "catalog.kenney.nature.stone.talli",
+    "sourceFile": "kenney-nature/stone_tallI.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 5160
+  },
+  {
+    "id": "catalog.kenney.nature.stone.tallj",
+    "sourceFile": "kenney-nature/stone_tallJ.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "format": "glb",
+    "bytes": 4808
+  },
+  {
+    "id": "catalog.kenney.nature.stump.old",
+    "sourceFile": "kenney-nature/stump_old.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 9564
+  },
+  {
+    "id": "catalog.kenney.nature.stump.oldtall",
+    "sourceFile": "kenney-nature/stump_oldTall.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 9564
+  },
+  {
+    "id": "catalog.kenney.nature.stump.round",
+    "sourceFile": "kenney-nature/stump_round.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 5644
+  },
+  {
+    "id": "catalog.kenney.nature.stump.rounddetailed",
+    "sourceFile": "kenney-nature/stump_roundDetailed.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 8188
+  },
+  {
+    "id": "catalog.kenney.nature.stump.square",
+    "sourceFile": "kenney-nature/stump_square.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 4584
+  },
+  {
+    "id": "catalog.kenney.nature.stump.squaredetailed",
+    "sourceFile": "kenney-nature/stump_squareDetailed.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 7544
+  },
+  {
+    "id": "catalog.kenney.nature.stump.squaredetailedwide",
+    "sourceFile": "kenney-nature/stump_squareDetailedWide.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 7536
+  },
+  {
+    "id": "catalog.kenney.nature.tent.detailedclosed",
+    "sourceFile": "kenney-nature/tent_detailedClosed.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 15460
+  },
+  {
+    "id": "catalog.kenney.nature.tent.detailedopen",
+    "sourceFile": "kenney-nature/tent_detailedOpen.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 15324
+  },
+  {
+    "id": "catalog.kenney.nature.tent.smallclosed",
+    "sourceFile": "kenney-nature/tent_smallClosed.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 13200
+  },
+  {
+    "id": "catalog.kenney.nature.tent.smallopen",
+    "sourceFile": "kenney-nature/tent_smallOpen.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "format": "glb",
+    "bytes": 13604
+  },
+  {
+    "id": "catalog.kenney.nature.tree.blocks.dark",
+    "sourceFile": "kenney-nature/tree_blocks_dark.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 10132
+  },
+  {
+    "id": "catalog.kenney.nature.tree.blocks.fall",
+    "sourceFile": "kenney-nature/tree_blocks_fall.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 18368
+  },
+  {
+    "id": "catalog.kenney.nature.tree.blocks",
+    "sourceFile": "kenney-nature/tree_blocks.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 10128
+  },
+  {
+    "id": "catalog.kenney.nature.tree.cone.dark",
+    "sourceFile": "kenney-nature/tree_cone_dark.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 19940
+  },
+  {
+    "id": "catalog.kenney.nature.tree.cone.fall",
+    "sourceFile": "kenney-nature/tree_cone_fall.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 10916
+  },
+  {
+    "id": "catalog.kenney.nature.tree.cone",
+    "sourceFile": "kenney-nature/tree_cone.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 10924
+  },
+  {
+    "id": "catalog.kenney.nature.tree.default.dark",
+    "sourceFile": "kenney-nature/tree_default_dark.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 9436
+  },
+  {
+    "id": "catalog.kenney.nature.tree.default.fall",
+    "sourceFile": "kenney-nature/tree_default_fall.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 16940
+  },
+  {
+    "id": "catalog.kenney.nature.tree.default",
+    "sourceFile": "kenney-nature/tree_default.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 9428
+  },
+  {
+    "id": "catalog.kenney.nature.tree.detailed.dark",
+    "sourceFile": "kenney-nature/tree_detailed_dark.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 31416
+  },
+  {
+    "id": "catalog.kenney.nature.tree.detailed.fall",
+    "sourceFile": "kenney-nature/tree_detailed_fall.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 31404
+  },
+  {
+    "id": "catalog.kenney.nature.tree.detailed",
+    "sourceFile": "kenney-nature/tree_detailed.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 31412
+  },
+  {
+    "id": "catalog.kenney.nature.tree.fat.darkh",
+    "sourceFile": "kenney-nature/tree_fat_darkh.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 5584
+  },
+  {
+    "id": "catalog.kenney.nature.tree.fat.fall",
+    "sourceFile": "kenney-nature/tree_fat_fall.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 5572
+  },
+  {
+    "id": "catalog.kenney.nature.tree.fat",
+    "sourceFile": "kenney-nature/tree_fat.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 5576
+  },
+  {
+    "id": "catalog.kenney.nature.tree.oak.dark",
+    "sourceFile": "kenney-nature/tree_oak_dark.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 14648
+  },
+  {
+    "id": "catalog.kenney.nature.tree.oak.fall",
+    "sourceFile": "kenney-nature/tree_oak_fall.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 14640
+  },
+  {
+    "id": "catalog.kenney.nature.tree.oak",
+    "sourceFile": "kenney-nature/tree_oak.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 14644
+  },
+  {
+    "id": "catalog.kenney.nature.tree.palm",
+    "sourceFile": "kenney-nature/tree_palm.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 13616
+  },
+  {
+    "id": "catalog.kenney.nature.tree.palmbend",
+    "sourceFile": "kenney-nature/tree_palmBend.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 14820
+  },
+  {
+    "id": "catalog.kenney.nature.tree.palmdetailedshort",
+    "sourceFile": "kenney-nature/tree_palmDetailedShort.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 28212
+  },
+  {
+    "id": "catalog.kenney.nature.tree.palmdetailedtall",
+    "sourceFile": "kenney-nature/tree_palmDetailedTall.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 28204
+  },
+  {
+    "id": "catalog.kenney.nature.tree.palmshort",
+    "sourceFile": "kenney-nature/tree_palmShort.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 15596
+  },
+  {
+    "id": "catalog.kenney.nature.tree.palmtall",
+    "sourceFile": "kenney-nature/tree_palmTall.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 15592
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pinedefaulta",
+    "sourceFile": "kenney-nature/tree_pineDefaultA.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 17220
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pinedefaultb",
+    "sourceFile": "kenney-nature/tree_pineDefaultB.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 18180
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pinegrounda",
+    "sourceFile": "kenney-nature/tree_pineGroundA.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 6704
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pinegroundb",
+    "sourceFile": "kenney-nature/tree_pineGroundB.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 6704
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pinerounda",
+    "sourceFile": "kenney-nature/tree_pineRoundA.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 14488
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pineroundb",
+    "sourceFile": "kenney-nature/tree_pineRoundB.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 18464
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pineroundc",
+    "sourceFile": "kenney-nature/tree_pineRoundC.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 15332
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pineroundd",
+    "sourceFile": "kenney-nature/tree_pineRoundD.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 13748
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pinerounde",
+    "sourceFile": "kenney-nature/tree_pineRoundE.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 15308
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pineroundf",
+    "sourceFile": "kenney-nature/tree_pineRoundF.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 16264
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pinesmalla",
+    "sourceFile": "kenney-nature/tree_pineSmallA.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 12820
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pinesmallb",
+    "sourceFile": "kenney-nature/tree_pineSmallB.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 7816
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pinesmallc",
+    "sourceFile": "kenney-nature/tree_pineSmallC.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 5376
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pinesmalld",
+    "sourceFile": "kenney-nature/tree_pineSmallD.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 5368
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pinetalla.detailed",
+    "sourceFile": "kenney-nature/tree_pineTallA_detailed.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 10708
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pinetalla",
+    "sourceFile": "kenney-nature/tree_pineTallA.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 7200
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pinetallb.detailed",
+    "sourceFile": "kenney-nature/tree_pineTallB_detailed.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 12632
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pinetallb",
+    "sourceFile": "kenney-nature/tree_pineTallB.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 7204
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pinetallc.detailed",
+    "sourceFile": "kenney-nature/tree_pineTallC_detailed.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 11588
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pinetallc",
+    "sourceFile": "kenney-nature/tree_pineTallC.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 8080
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pinetalld.detailed",
+    "sourceFile": "kenney-nature/tree_pineTallD_detailed.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 12548
+  },
+  {
+    "id": "catalog.kenney.nature.tree.pinetalld",
+    "sourceFile": "kenney-nature/tree_pineTallD.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 8080
+  },
+  {
+    "id": "catalog.kenney.nature.tree.plateau.dark",
+    "sourceFile": "kenney-nature/tree_plateau_dark.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 16308
+  },
+  {
+    "id": "catalog.kenney.nature.tree.plateau.fall",
+    "sourceFile": "kenney-nature/tree_plateau_fall.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 16296
+  },
+  {
+    "id": "catalog.kenney.nature.tree.plateau",
+    "sourceFile": "kenney-nature/tree_plateau.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 16304
+  },
+  {
+    "id": "catalog.kenney.nature.tree.simple.dark",
+    "sourceFile": "kenney-nature/tree_simple_dark.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 6508
+  },
+  {
+    "id": "catalog.kenney.nature.tree.simple.fall",
+    "sourceFile": "kenney-nature/tree_simple_fall.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 6496
+  },
+  {
+    "id": "catalog.kenney.nature.tree.simple",
+    "sourceFile": "kenney-nature/tree_simple.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 6500
+  },
+  {
+    "id": "catalog.kenney.nature.tree.small.dark",
+    "sourceFile": "kenney-nature/tree_small_dark.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 11092
+  },
+  {
+    "id": "catalog.kenney.nature.tree.small.fall",
+    "sourceFile": "kenney-nature/tree_small_fall.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 6492
+  },
+  {
+    "id": "catalog.kenney.nature.tree.small",
+    "sourceFile": "kenney-nature/tree_small.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 6500
+  },
+  {
+    "id": "catalog.kenney.nature.tree.tall.dark",
+    "sourceFile": "kenney-nature/tree_tall_dark.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 7008
+  },
+  {
+    "id": "catalog.kenney.nature.tree.tall.fall",
+    "sourceFile": "kenney-nature/tree_tall_fall.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 12088
+  },
+  {
+    "id": "catalog.kenney.nature.tree.tall",
+    "sourceFile": "kenney-nature/tree_tall.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 7000
+  },
+  {
+    "id": "catalog.kenney.nature.tree.thin.dark",
+    "sourceFile": "kenney-nature/tree_thin_dark.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 32488
+  },
+  {
+    "id": "catalog.kenney.nature.tree.thin.fall",
+    "sourceFile": "kenney-nature/tree_thin_fall.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 17192
+  },
+  {
+    "id": "catalog.kenney.nature.tree.thin",
+    "sourceFile": "kenney-nature/tree_thin.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "format": "glb",
+    "bytes": 17200
+  }
+]

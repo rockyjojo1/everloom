@@ -1,0 +1,137 @@
+[
+  {
+    "id": "first_thread",
+    "name": "The First Thread",
+    "summary": "Help Meadowrest stir the First Loomstone and reveal the path to the five.",
+    "steps": [
+      {
+        "id": "meet_mara",
+        "kind": "talk",
+        "objective": "Meet Mara beside Meadowrest's dormant Loomstone.",
+        "targetId": "npc_mara",
+        "itemId": null,
+        "count": 1
+      },
+      {
+        "id": "pickup_hatchet",
+        "kind": "pickup",
+        "objective": "Pick up the worn hatchet by the western path.",
+        "targetId": "ground_worn_hatchet",
+        "itemId": "worn_hatchet",
+        "count": 1
+      },
+      {
+        "id": "equip_hatchet",
+        "kind": "equip",
+        "objective": "Open your pack and equip the worn hatchet.",
+        "targetId": null,
+        "itemId": "worn_hatchet",
+        "count": 1
+      },
+      {
+        "id": "gather_logs",
+        "kind": "gather",
+        "objective": "Chop three Meadow Logs in the western grove.",
+        "targetId": null,
+        "itemId": "meadow_log",
+        "count": 3
+      },
+      {
+        "id": "pickup_pickaxe",
+        "kind": "pickup",
+        "objective": "Collect the worn pickaxe at the quarry entrance.",
+        "targetId": "ground_worn_pickaxe",
+        "itemId": "worn_pickaxe",
+        "count": 1
+      },
+      {
+        "id": "equip_pickaxe",
+        "kind": "equip",
+        "objective": "Equip the worn pickaxe.",
+        "targetId": null,
+        "itemId": "worn_pickaxe",
+        "count": 1
+      },
+      {
+        "id": "mine_ore",
+        "kind": "gather",
+        "objective": "Mine three Copper Ore from the northern quarry.",
+        "targetId": null,
+        "itemId": "copper_ore",
+        "count": 3
+      },
+      {
+        "id": "pickup_rod",
+        "kind": "pickup",
+        "objective": "Find the worn fishing rod near the southern bridge.",
+        "targetId": "ground_worn_rod",
+        "itemId": "worn_fishing_rod",
+        "count": 1
+      },
+      {
+        "id": "equip_rod",
+        "kind": "equip",
+        "objective": "Equip the worn fishing rod.",
+        "targetId": null,
+        "itemId": "worn_fishing_rod",
+        "count": 1
+      },
+      {
+        "id": "catch_fish",
+        "kind": "gather",
+        "objective": "Catch two Riverlings from the shoal.",
+        "targetId": null,
+        "itemId": "raw_riverling",
+        "count": 2
+      },
+      {
+        "id": "cook_fish",
+        "kind": "cook",
+        "objective": "Cook a Riverling at the village fire.",
+        "targetId": null,
+        "itemId": "cooked_riverling",
+        "count": 1
+      },
+      {
+        "id": "pickup_sword",
+        "kind": "pickup",
+        "objective": "Take the militia sword beside the eastern gate.",
+        "targetId": "ground_militia_sword",
+        "itemId": "meadowrest_sword",
+        "count": 1
+      },
+      {
+        "id": "equip_sword",
+        "kind": "equip",
+        "objective": "Equip the militia sword.",
+        "targetId": null,
+        "itemId": "meadowrest_sword",
+        "count": 1
+      },
+      {
+        "id": "defeat_skeleton",
+        "kind": "defeat",
+        "objective": "Defeat the restless skeleton at the eastern training ground.",
+        "targetId": "restless_skeleton",
+        "itemId": null,
+        "count": 1
+      },
+      {
+        "id": "return_to_mara",
+        "kind": "talk",
+        "objective": "Return to Mara in Meadowrest.",
+        "targetId": "npc_mara",
+        "itemId": null,
+        "count": 1
+      },
+      {
+        "id": "first_loomstone",
+        "kind": "interact",
+        "objective": "Place your hand on the First Loomstone.",
+        "targetId": "first_loomstone",
+        "itemId": null,
+        "count": 1
+      }
+    ]
+  }
+]

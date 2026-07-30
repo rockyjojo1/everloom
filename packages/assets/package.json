@@ -1,0 +1,19 @@
+{
+  "name": "@everloom/assets",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "catalog": "node scripts/build-catalog.mjs",
+    "validate": "node scripts/validate-assets.mjs",
+    "build": "pnpm run catalog && pnpm run validate && tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "pnpm run validate"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}
