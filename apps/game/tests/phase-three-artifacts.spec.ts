@@ -28,7 +28,7 @@ test("capture Phase Three hand-inspection screenshots", async ({ page }, testInf
 
   const wokeLoomstone = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.activateTarget("verdant_loomstone"));
   expect(wokeLoomstone).toBe(true);
-  await expect(page.locator(".objective")).toContainText(/Meadowrest is steady/i, { timeout: 90_000 });
+  await expect(page.locator(".objective")).toContainText(/Harvest two Heartwood Logs/i, { timeout: 90_000 });
 
   // Give the grove a moment for the awakening glow/particles to settle before capture.
   await page.waitForTimeout(1500);
