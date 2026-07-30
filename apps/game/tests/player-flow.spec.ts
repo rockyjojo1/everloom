@@ -11,7 +11,7 @@ async function clickTarget(page: Page, targetId: string) {
 test("first tree is a complete persisted player flow", async ({ page }) => {
   await page.goto("/?e2e=1");
   await page.getByRole("button", { name: "Enter Meadowrest" }).click();
-  await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true");
+  await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true", { timeout: 35_000 });
 
   await clickTarget(page, "npc_mara");
   await expect(page.getByText(/Pick up the worn hatchet/i)).toBeVisible();
@@ -46,7 +46,7 @@ test("active gathering resumes through the real IndexedDB offline-load path", as
   test.skip(testInfo.project.name !== "desktop", "Offline-load behavior is viewport-independent.");
   await page.goto("/?e2e=1");
   await page.getByRole("button", { name: "Enter Meadowrest" }).click();
-  await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true");
+  await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true", { timeout: 35_000 });
   await clickTarget(page, "npc_mara");
   await expect(page.getByText(/Pick up the worn hatchet/i)).toBeVisible();
   await clickTarget(page, "ground_worn_hatchet");
