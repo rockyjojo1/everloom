@@ -2,15 +2,24 @@ import { describe, expect, it, vi } from "vitest";
 import {
   addItem,
   advanceSimulation,
+  applyQuestEvents,
   calculateOfflineElapsed,
   createNewSave,
   deserializeSave,
   deterministicRollPpm,
   equipItem,
+  forceCompleteQuest,
   itemQuantity,
+  levelFromXp,
+  migrateSave,
   pickupGroundItem,
   serializeSave,
   startActivityForTarget,
+  xpForLevel,
+  type ContentBundle,
+  type GameEvent,
+  type GameSave,
+  type SkillId,
 } from "./index";
 import { TEST_CONTENT } from "./test-fixture";
 
@@ -165,5 +174,197 @@ describe("quest-critical item flow", () => {
     expect(gathered.state.quests.tutorial?.status).toBe("completed");
     expect(itemQuantity(gathered.state.inventory, "log")).toBe(1);
     expect(itemQuantity(gathered.state.inventory, "rare")).toBe(1);
+  });
+});
+
+describe("Verdant attunement gate", () => {
+  const SKILLS: readonly SkillId[] = ["woodcutting", "mining", "fishing", "cooking", "melee"];
+
+  const gateContent: ContentBundle = {
+    ...TEST_CONTENT,
+    quests: {
+      ...TEST_CONTENT.quests,
+      gate: {
+        id: "gate",
+        name: "Gate",
+        summary: "Every skill must reach level five.",
+        steps: [{ id: "attune_all", kind: "attune", objective: "Attune all five skills.", targetId: null, itemId: null, count: 5 }],
+        nextQuestId: "reward",
+        completionFlag: "gate_awakened",
+      },
+      reward: {
+        id: "reward",
+        name: "Reward",
+        summary: "A reward quest chained after the gate.",
+        steps: [{ id: "touch", kind: "interact", objective: "Touch the reward.", targetId: "tree", itemId: null, count: 1 }],
+      },
+    },
+  };
+
+  it("recomputes attunement progress from live skill levels rather than accumulating events", () => {
+    let save: GameSave = {
+      ...createNewSave(0, "gate-seed", { x: 5, z: 5 }),
+      quests: { gate: { status: "active", stepIndex: 0, stepProgress: 0 } },
+    };
+    SKILLS.forEach((skill, index) => {
+      const from = levelFromXp(save.skills[skill].xp);
+      save = { ...save, skills: { ...save.skills, [skill]: { xp: xpForLevel(5) } } };
+      const event: GameEvent = { type: "level_gained", skill, from, to: 5 };
+      const applied = applyQuestEvents(save, [event], gateContent);
+      save = applied.state;
+
+      const expectedProgress = index + 1;
+      if (expectedProgress < 5) {
+        expect(save.quests.gate).toEqual({ status: "active", stepIndex: 0, stepProgress: expectedProgress });
+        expect(save.worldFlags.gate_awakened).toBeUndefined();
+      } else {
+        expect(save.quests.gate?.status).toBe("completed");
+      }
+    });
+
+    expect(save.worldFlags.gate_awakened).toBe(true);
+    expect(save.quests.reward).toEqual({ status: "active", stepIndex: 0, stepProgress: 0 });
+  });
+
+  it("never over-counts: dropping back below the requirement is reflected too", () => {
+    const save: GameSave = {
+      ...createNewSave(0, "gate-drop-seed", { x: 5, z: 5 }),
+      quests: { gate: { status: "active", stepIndex: 0, stepProgress: 4 } },
+      skills: {
+        woodcutting: { xp: xpForLevel(5) },
+        mining: { xp: xpForLevel(5) },
+        fishing: { xp: xpForLevel(5) },
+        cooking: { xp: xpForLevel(5) },
+        melee: { xp: 0 },
+      },
+    };
+    const event: GameEvent = { type: "level_gained", skill: "melee", from: 4, to: 4 };
+    const applied = applyQuestEvents(save, [event], gateContent);
+    expect(applied.state.quests.gate).toEqual({ status: "active", stepIndex: 0, stepProgress: 4 });
+  });
+
+  it("forceCompleteQuest completes and chains identically to natural completion", () => {
+    const save: GameSave = {
+      ...createNewSave(0, "force-seed", { x: 5, z: 5 }),
+      quests: { gate: { status: "active", stepIndex: 0, stepProgress: 3 } },
+    };
+    const forced = forceCompleteQuest(save, "gate", gateContent);
+    expect(forced.quests.gate?.status).toBe("completed");
+    expect(forced.worldFlags.gate_awakened).toBe(true);
+    expect(forced.quests.reward).toEqual({ status: "active", stepIndex: 0, stepProgress: 0 });
+  });
+
+  it("forceCompleteQuest is a no-op once the quest is already completed", () => {
+    const save: GameSave = {
+      ...createNewSave(0, "force-seed-2", { x: 5, z: 5 }),
+      quests: { gate: { status: "completed", stepIndex: 1, stepProgress: 0 } },
+    };
+    expect(forceCompleteQuest(save, "gate", gateContent)).toEqual(save);
+  });
+
+  it("gates a requiredFlag-locked interactable until its flag is set", () => {
+    const lockedContent: ContentBundle = {
+      ...gateContent,
+      zones: {
+        ...gateContent.zones,
+        meadowrest: {
+          ...gateContent.zones.meadowrest!,
+          interactables: [
+            ...gateContent.zones.meadowrest!.interactables,
+            {
+              id: "locked_tree",
+              kind: "resource",
+              displayName: "Locked Tree",
+              assetId: "asset.tree",
+              x: 6,
+              z: 6,
+              resourceId: "test_tree",
+              itemId: null,
+              recipeId: null,
+              enemyId: null,
+              quantity: 0,
+              interactionRadius: 1,
+              blocks: true,
+              requiredFlag: "gate_awakened",
+            },
+          ],
+        },
+      },
+    };
+    const base = { ...createNewSave(0, "locked-seed", { x: 5, z: 5 }), quests: {} };
+    const inventory = addItem(base.inventory, base.inventorySlots, "axe", 1, lockedContent);
+    if (!inventory) throw new Error("fixture inventory failed");
+    const equipped = equipItem({ ...base, inventory }, "axe", lockedContent).state;
+
+    const lockedAttempt = startActivityForTarget(equipped, "locked_tree", lockedContent);
+    expect(lockedAttempt.ok).toBe(false);
+
+    const unlocked = { ...equipped, worldFlags: { ...equipped.worldFlags, gate_awakened: true } };
+    const unlockedAttempt = startActivityForTarget(unlocked, "locked_tree", lockedContent);
+    expect(unlockedAttempt.ok).toBe(true);
+  });
+});
+
+describe("save migration", () => {
+  it("upgrades a v1 save in place without touching an incomplete First Thread", () => {
+    const v1 = { ...createNewSave(0, "migrate-seed-1", { x: 5, z: 5 }), saveVersion: 1 };
+    const migrated = migrateSave(v1);
+    expect(migrated.saveVersion).toBe(2);
+    expect(migrated.quests.first_thread?.status).toBe("active");
+    expect(migrated.quests.verdant_loomstone).toBeUndefined();
+  });
+
+  it("seeds the Verdant Loomstone quest for a completed First Thread, resuming partial attunement", () => {
+    const v1 = {
+      ...createNewSave(0, "migrate-seed-2", { x: 5, z: 5 }),
+      saveVersion: 1,
+      quests: { first_thread: { status: "completed" as const, stepIndex: 16, stepProgress: 0 } },
+      skills: {
+        woodcutting: { xp: xpForLevel(5) },
+        mining: { xp: xpForLevel(5) },
+        fishing: { xp: xpForLevel(3) },
+        cooking: { xp: 0 },
+        melee: { xp: 0 },
+      },
+    };
+    const migrated = migrateSave(v1);
+    expect(migrated.saveVersion).toBe(2);
+    expect(migrated.quests.verdant_loomstone).toEqual({ status: "active", stepIndex: 0, stepProgress: 2 });
+    expect(migrated.quests.first_thread?.status).toBe("completed");
+  });
+
+  it("skips straight past the attune step for a save that was already fully attuned", () => {
+    const v1 = {
+      ...createNewSave(0, "migrate-seed-3", { x: 5, z: 5 }),
+      saveVersion: 1,
+      quests: { first_thread: { status: "completed" as const, stepIndex: 16, stepProgress: 0 } },
+      skills: {
+        woodcutting: { xp: xpForLevel(9) },
+        mining: { xp: xpForLevel(5) },
+        fishing: { xp: xpForLevel(30) },
+        cooking: { xp: xpForLevel(5) },
+        melee: { xp: xpForLevel(12) },
+      },
+    };
+    const migrated = migrateSave(v1);
+    expect(migrated.quests.verdant_loomstone).toEqual({ status: "active", stepIndex: 1, stepProgress: 0 });
+  });
+
+  it("is idempotent and does not re-seed an already-migrated quest", () => {
+    const v1 = {
+      ...createNewSave(0, "migrate-seed-4", { x: 5, z: 5 }),
+      saveVersion: 1,
+      quests: {
+        first_thread: { status: "completed" as const, stepIndex: 16, stepProgress: 0 },
+        verdant_loomstone: { status: "completed" as const, stepIndex: 3, stepProgress: 0 },
+      },
+    };
+    const migrated = migrateSave(v1);
+    expect(migrated.quests.verdant_loomstone).toEqual({ status: "completed", stepIndex: 3, stepProgress: 0 });
+  });
+
+  it("rejects a genuinely unknown save version", () => {
+    const fresh = createNewSave(0, "migrate-seed-5", { x: 5, z: 5 });
+    expect(() => migrateSave({ ...fresh, saveVersion: 99 })).toThrow();
   });
 });

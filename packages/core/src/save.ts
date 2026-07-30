@@ -1,5 +1,5 @@
-import { emptySkills } from "./progression";
-import { SAVE_VERSION, type GameSave, type GridPosition } from "./types";
+import { ATTUNEMENT_REQUIRED_LEVEL, countAttunedSkills, emptySkills } from "./progression";
+import { SAVE_VERSION, type GameSave, type GridPosition, type QuestProgress } from "./types";
 
 export function createNewSave(
   nowMs: number,
@@ -47,10 +47,36 @@ export function calculateOfflineElapsed(nowMs: number, lastActiveAt: number): nu
   return now - last;
 }
 
+/**
+ * Phase Two saves (version 1) predate the Verdant Loomstone quest and know
+ * nothing of it. If a returning player already completed The First Thread we
+ * seed the new quest exactly as it would look had they always had it: the
+ * "attune" step recomputed from their real, already-earned skill levels (so a
+ * player who is already fully attuned is not asked to re-grind anything), and
+ * every later step untouched because those require real, fresh actions
+ * (talking to Mara, touching the new Loomstone) that a legacy save can't have
+ * already performed.
+ */
+function migrateV1ToV2(save: GameSave): GameSave {
+  const first = save.quests.first_thread;
+  if (first?.status !== "completed" || save.quests.verdant_loomstone) {
+    return { ...save, saveVersion: SAVE_VERSION };
+  }
+  const attuned = countAttunedSkills(save.skills, ATTUNEMENT_REQUIRED_LEVEL);
+  const verdantProgress: QuestProgress = attuned >= ATTUNEMENT_REQUIRED_LEVEL
+    ? { status: "active", stepIndex: 1, stepProgress: 0 }
+    : { status: "active", stepIndex: 0, stepProgress: attuned };
+  return {
+    ...save,
+    saveVersion: SAVE_VERSION,
+    quests: { ...save.quests, verdant_loomstone: verdantProgress },
+  };
+}
+
 export function migrateSave(value: unknown): GameSave {
   if (!value || typeof value !== "object") throw new Error("Save is not an object.");
-  const candidate = value as Partial<GameSave> & { saveVersion?: unknown };
-  if (candidate.saveVersion !== SAVE_VERSION) {
+  const candidate = value as Omit<Partial<GameSave>, "saveVersion"> & { saveVersion?: unknown };
+  if (candidate.saveVersion !== SAVE_VERSION && candidate.saveVersion !== 1) {
     throw new Error(`Unsupported save version: ${String(candidate.saveVersion)}`);
   }
   if (!candidate.player || !candidate.position || !candidate.currentZone || !candidate.rngSeed) {
@@ -59,7 +85,8 @@ export function migrateSave(value: unknown): GameSave {
   if (!Array.isArray(candidate.inventory) || !candidate.skills || !candidate.equipment || !candidate.settings) {
     throw new Error("Save is missing required progression fields.");
   }
-  return candidate as GameSave;
+  const normalized = candidate as GameSave;
+  return candidate.saveVersion === 1 ? migrateV1ToV2(normalized) : normalized;
 }
 
 export function serializeSave(state: GameSave): string {
