@@ -39,7 +39,9 @@ async function startAndResolve(page: Page, target: string, elapsedMs: number, ob
 
 test("all Phase One skills and The First Thread work through the browser", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "The mobile suite exercises the touch-sized first-tree gate.");
-  test.setTimeout(150_000);
+  // This is a deliberately complete, real-navigation chapter run. Cold model
+  // decoding on software or contended WebGL can take a little over 2.5 minutes.
+  test.setTimeout(240_000);
   await page.goto("/?e2e=1");
   await page.getByRole("button", { name: "Enter Meadowrest" }).click();
   await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true");
