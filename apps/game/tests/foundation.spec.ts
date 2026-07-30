@@ -49,3 +49,37 @@ test("critical model failures retain a playable fallback world", async ({ page }
       .__EVERLOOM_TEST__.activateTarget("npc_mara"),
   )).toBe(true);
 });
+
+test("overlapping checkpoints persist the newest player state", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "IndexedDB write ordering is viewport-independent.");
+  await page.goto("/?e2e=1");
+  await page.getByRole("button", { name: "Enter Meadowrest" }).click();
+  await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true");
+
+  await page.evaluate((targetId) =>
+    (window as unknown as { __EVERLOOM_TEST__: { activateTarget: (id: string) => boolean } })
+      .__EVERLOOM_TEST__.activateTarget(targetId), "npc_mara");
+  await expect(page.getByText(/Pick up the worn hatchet/i)).toBeVisible();
+  await page.evaluate((targetId) =>
+    (window as unknown as { __EVERLOOM_TEST__: { activateTarget: (id: string) => boolean } })
+      .__EVERLOOM_TEST__.activateTarget(targetId), "ground_worn_hatchet");
+  await expect(page.getByText(/equip the worn hatchet/i)).toBeVisible();
+
+  await page.evaluate(async () => {
+    const api = (window as unknown as { __EVERLOOM_TEST__: {
+      equip: (id: string) => boolean;
+      save: () => Promise<void>;
+    } }).__EVERLOOM_TEST__;
+    const earlierCheckpoint = api.save();
+    if (!api.equip("worn_hatchet")) throw new Error("Could not equip the test hatchet.");
+    const newestCheckpoint = api.save();
+    await Promise.all([earlierCheckpoint, newestCheckpoint]);
+  });
+
+  await page.reload();
+  await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true");
+  expect(await page.evaluate(() =>
+    (window as unknown as { __EVERLOOM_TEST__: { snapshot: () => { equipment: { tool: string | null } } } })
+      .__EVERLOOM_TEST__.snapshot().equipment.tool,
+  )).toBe("worn_hatchet");
+});

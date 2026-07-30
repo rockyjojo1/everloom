@@ -24,6 +24,7 @@ const DATABASE_NAME = "everloom-local";
 const CURRENT_SAVE_KEY = "current";
 const MAX_BACKUPS = 5;
 let databasePromise: Promise<IDBPDatabase<EverloomDatabase>> | null = null;
+let writeQueue: Promise<void> = Promise.resolve();
 
 function database(): Promise<IDBPDatabase<EverloomDatabase>> {
   databasePromise ??= openDB<EverloomDatabase>(DATABASE_NAME, 1, {
@@ -39,11 +40,12 @@ function database(): Promise<IDBPDatabase<EverloomDatabase>> {
 }
 
 export async function loadSave(): Promise<GameSave | null> {
+  await writeQueue.catch(() => undefined);
   const value = await (await database()).get("saves", CURRENT_SAVE_KEY);
   return value ? migrateSave(value) : null;
 }
 
-export async function writeSave(save: GameSave, reason: string, createBackup = false): Promise<void> {
+async function writeSaveNow(save: GameSave, reason: string, createBackup: boolean): Promise<void> {
   const db = await database();
   const previous = await db.get("saves", CURRENT_SAVE_KEY);
   const transaction = db.transaction(["saves", "backups"], "readwrite");
@@ -64,15 +66,28 @@ export async function writeSave(save: GameSave, reason: string, createBackup = f
   for (const backup of backups.slice(MAX_BACKUPS)) await db.delete("backups", backup.id);
 }
 
+function enqueueWrite(operation: () => Promise<void>): Promise<void> {
+  const next = writeQueue.catch(() => undefined).then(operation);
+  writeQueue = next;
+  return next;
+}
+
+export function writeSave(save: GameSave, reason: string, createBackup = false): Promise<void> {
+  return enqueueWrite(() => writeSaveNow(save, reason, createBackup));
+}
+
 export async function listBackups(): Promise<readonly BackupRecord[]> {
+  await writeQueue.catch(() => undefined);
   return (await (await database()).getAllFromIndex("backups", "by-created-at"))
     .sort((left, right) => right.createdAt - left.createdAt);
 }
 
-export async function clearSaves(): Promise<void> {
-  const db = await database();
-  const transaction = db.transaction(["saves", "backups"], "readwrite");
-  await transaction.objectStore("saves").clear();
-  await transaction.objectStore("backups").clear();
-  await transaction.done;
+export function clearSaves(): Promise<void> {
+  return enqueueWrite(async () => {
+    const db = await database();
+    const transaction = db.transaction(["saves", "backups"], "readwrite");
+    await transaction.objectStore("saves").clear();
+    await transaction.objectStore("backups").clear();
+    await transaction.done;
+  });
 }
