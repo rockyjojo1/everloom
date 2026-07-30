@@ -7,6 +7,7 @@ export function AssetBrowser() {
   const [query, setQuery] = useState("");
   const [pack, setPack] = useState("all");
   const [selected, setSelected] = useState(ASSET_CATALOG[0]!);
+  const [details, setDetails] = useState({ dimensions: "Loading…", triangles: 0, animations: "None", rigged: false });
   const host = useRef<HTMLDivElement>(null);
   const packs = useMemo(() => [...new Set(ASSET_CATALOG.map((item) => item.pack))].sort(), []);
   const results = useMemo(() => ASSET_CATALOG.filter((item) =>
@@ -15,6 +16,7 @@ export function AssetBrowser() {
 
   useEffect(() => {
     if (!host.current) return;
+    setDetails({ dimensions: "Loading…", triangles: 0, animations: "None", rigged: false });
     const element = host.current;
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x17231f);
@@ -32,10 +34,24 @@ export function AssetBrowser() {
       const box = new THREE.Box3().setFromObject(model);
       const size = box.getSize(new THREE.Vector3());
       const center = box.getCenter(new THREE.Vector3());
+      let triangles = 0;
+      let rigged = false;
+      model.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          const index = child.geometry.index;
+          triangles += index ? index.count / 3 : child.geometry.attributes.position.count / 3;
+        }
+        if (child instanceof THREE.SkinnedMesh) rigged = true;
+      });
+      setDetails({
+        dimensions: `${size.x.toFixed(2)} × ${size.y.toFixed(2)} × ${size.z.toFixed(2)}`,
+        triangles: Math.round(triangles),
+        animations: gltf.animations.map((clip) => clip.name).join(", ") || "None",
+        rigged,
+      });
       model.position.sub(center);
       model.scale.setScalar(2.5 / Math.max(size.x, size.y, size.z, 0.1));
       scene.add(model);
-      element.dataset.animations = gltf.animations.map((clip) => clip.name).join(", ");
     });
     const resize = () => {
       renderer.setSize(element.clientWidth, element.clientHeight, false);
@@ -70,7 +86,8 @@ export function AssetBrowser() {
     </aside>
     <section className="asset-preview"><div ref={host} /><article><h2>{selected.id}</h2><code>{selected.sourceFile}</code>
       <dl><dt>Pack</dt><dd>{selected.pack}</dd><dt>Format</dt><dd>{selected.format}</dd><dt>Size</dt><dd>{Math.round(selected.bytes / 1024)} KB</dd>
+        <dt>Dimensions</dt><dd>{details.dimensions}</dd><dt>Triangles</dt><dd>{details.triangles.toLocaleString()}</dd>
+        <dt>Rigged</dt><dd>{details.rigged ? "Yes" : "No"}</dd><dt>Animations</dt><dd>{details.animations}</dd>
         <dt>Runtime ID</dt><dd>{registryEntry?.id ?? "Unassigned"}</dd><dt>Licence</dt><dd>{registryEntry?.licence ?? "See pack metadata"}</dd></dl></article></section>
   </main>;
 }
-
