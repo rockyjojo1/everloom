@@ -1,6 +1,13 @@
 import { CONTENT } from "@everloom/content";
-import { ATTUNEMENT_REQUIRED_LEVEL, countAttunedSkills, levelFromXp, masteryRankFromXp } from "@everloom/core";
-import { useRef } from "react";
+import {
+  ATTUNEMENT_REQUIRED_LEVEL,
+  ATTUNEMENT_SKILL_COUNT,
+  ATTUNEMENT_SKILLS,
+  countAttunedSkills,
+  levelFromXp,
+  masteryRankFromXp,
+} from "@everloom/core";
+import { Fragment, useRef } from "react";
 import { inventoryCount, type PanelId, useGameStore } from "../game/store";
 import { Icon } from "./Icons";
 import { Minimap } from "./Minimap";
@@ -16,10 +23,6 @@ export function Hud() {
   const input = useRef<HTMLInputElement>(null);
   const save = store.save;
   if (!save) return null;
-  const firstQuest = save.quests.first_thread;
-  const firstQuestDef = CONTENT.quests.first_thread!;
-  const verdantQuest = save.quests.verdant_loomstone;
-  const verdantQuestDef = CONTENT.quests.verdant_loomstone;
   const attunedSkills = countAttunedSkills(save.skills);
 
   // The banner always follows whichever quest is actually active in persisted
@@ -32,7 +35,7 @@ export function Hud() {
   const activeStep = activeQuestDef && activeProgress ? activeQuestDef.steps[activeProgress.stepIndex] : null;
   const objectiveText = activeStep
     ? activeStep.kind === "attune"
-      ? `${activeStep.objective} ${attunedSkills} of ${ATTUNEMENT_REQUIRED_LEVEL} attuned.`
+      ? `${activeStep.objective} ${attunedSkills} of ${ATTUNEMENT_SKILL_COUNT} attuned.`
       : activeStep.objective
     : "Meadowrest is steady. The Verdant Loomstone hums quietly in the northern grove.";
   const activity = save.currentActivity;
@@ -88,7 +91,7 @@ export function Hud() {
           </div>
         </>}
         {store.panel === "skills" && <div className="rows">
-          <p className="muted">{attunedSkills} of {ATTUNEMENT_REQUIRED_LEVEL} skills attuned to level {ATTUNEMENT_REQUIRED_LEVEL}.</p>
+          <p className="muted">{attunedSkills} of {ATTUNEMENT_SKILL_COUNT} skills attuned to level {ATTUNEMENT_REQUIRED_LEVEL}.</p>
           {Object.entries(save.skills).map(([id, progress]) => {
             const attuned = levelFromXp(progress.xp) >= ATTUNEMENT_REQUIRED_LEVEL;
             return <div key={id} className={attuned ? "attuned" : ""}>
@@ -99,31 +102,31 @@ export function Hud() {
           {Object.entries(save.mastery).map(([id, progress]) => <div key={id}><span>{CONTENT.resources[id]?.name ?? id}</span><b>Rank {masteryRankFromXp(progress.xp)}</b><small>{progress.xp} XP</small></div>)}
         </div>}
         {store.panel === "quest" && <div className="quest-list">
-          <h3>{firstQuestDef.name}</h3><p>{firstQuestDef.summary}</p>
-          {firstQuestDef.steps.map((item, index) => <div key={item.id} className={index < (firstQuest?.stepIndex ?? 0) || firstQuest?.status === "completed" ? "done" : index === (firstQuest?.stepIndex ?? 0) ? "current" : ""}>
-            <i>{index + 1}</i><span>{item.objective}</span></div>)}
-
-          {verdantQuest && verdantQuestDef && <>
-            <h3>{verdantQuestDef.name}</h3><p>{verdantQuestDef.summary}</p>
-            {verdantQuestDef.steps.map((item, index) => {
-              const done = index < verdantQuest.stepIndex || verdantQuest.status === "completed";
-              const current = verdantQuest.status === "active" && index === verdantQuest.stepIndex;
+          {Object.entries(save.quests).map(([questId, questProgress]) => {
+            const quest = CONTENT.quests[questId];
+            if (!quest) return null;
+            return <Fragment key={questId}>
+              <h3>{quest.name}</h3><p>{quest.summary}</p>
+              {quest.steps.map((item, index) => {
+              const done = index < questProgress.stepIndex || questProgress.status === "completed";
+              const current = questProgress.status === "active" && index === questProgress.stepIndex;
               if (item.kind === "attune") {
                 return <div key={item.id} className={`attune-step ${done ? "done" : current ? "current" : ""}`}>
                   <i>{index + 1}</i>
                   <div>
                     <span>{item.objective}</span>
                     <div className="attune-grid">
-                      {Object.entries(save.skills).map(([id, progress]) =>
-                        <b key={id} className={levelFromXp(progress.xp) >= ATTUNEMENT_REQUIRED_LEVEL ? "ready" : ""}>{id}</b>)}
+                      {ATTUNEMENT_SKILLS.map((id) =>
+                        <b key={id} className={levelFromXp(save.skills[id].xp) >= ATTUNEMENT_REQUIRED_LEVEL ? "ready" : ""}>{id}</b>)}
                     </div>
                   </div>
                 </div>;
               }
               return <div key={item.id} className={done ? "done" : current ? "current" : ""}>
                 <i>{index + 1}</i><span>{item.objective}</span></div>;
-            })}
-          </>}
+              })}
+            </Fragment>;
+          })}
 
           <section className="loomstone-network">
             <span className="eyebrow">THE LOOMSTONE NETWORK</span>
@@ -132,15 +135,15 @@ export function Hud() {
                 <i key={name} className={
                   index === 0 ? "restored"
                     : index === 1 && save.worldFlags.verdant_loomstone_awakened ? "restored"
-                    : index === 1 && attunedSkills === ATTUNEMENT_REQUIRED_LEVEL ? "ready"
+                    : index === 1 && attunedSkills === ATTUNEMENT_SKILL_COUNT ? "ready"
                     : ""
                 } title={`${name} Loomstone`} />)}
             </div>
             <strong>{save.worldFlags.verdant_loomstone_awakened ? "2 of 5 restored" : "1 of 5 restored"}</strong>
             <p>{save.worldFlags.verdant_loomstone_awakened
               ? "The Verdant Loomstone answers. Three threads remain quiet."
-              : attunedSkills < ATTUNEMENT_REQUIRED_LEVEL
-                ? `Attune all five skills to level ${ATTUNEMENT_REQUIRED_LEVEL} (${attunedSkills}/${ATTUNEMENT_REQUIRED_LEVEL}).`
+              : attunedSkills < ATTUNEMENT_SKILL_COUNT
+                ? `Attune all five skills to level ${ATTUNEMENT_REQUIRED_LEVEL} (${attunedSkills}/${ATTUNEMENT_SKILL_COUNT}).`
                 : "The path toward the Verdant Loomstone is ready."}</p>
           </section>
         </div>}

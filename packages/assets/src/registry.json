@@ -99,6 +99,17 @@
     "notes": "Material-normalised into the First Loomstone landmark."
   },
   {
+    "id": "landmark.verdant-loomstone",
+    "sourceFile": "kenney-nature/stone_tallA.glb",
+    "pack": "kenney-nature",
+    "category": "landmark",
+    "scale": 2.35,
+    "interactionType": "landmark",
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "A larger semantic variant reserved for the awakened northern grove."
+  },
+  {
     "id": "nature.campfire",
     "sourceFile": "kenney-nature/campfire_stones.glb",
     "pack": "kenney-nature",

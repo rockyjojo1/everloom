@@ -9,6 +9,8 @@ type TestApi = {
   attuneAllSkills: () => void;
   completeQuest: (questId: string) => void;
   giveItem: (itemId: string, quantity: number) => void;
+  damage: () => void;
+  consume: (itemId: string) => boolean;
   snapshot: () => {
     quests: Record<string, { status: string; stepIndex: number; stepProgress: number }>;
     worldFlags: Record<string, boolean>;
@@ -73,11 +75,12 @@ test.describe("The Verdant Loomstone", () => {
     // gets a larger movement budget than the shorter walks above.
     const ok = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.activateTarget("verdant_loomstone"));
     expect(ok).toBe(true);
-    await expect(page.locator(".objective")).toContainText(/Meadowrest is steady/i, { timeout: 90_000 });
+    await expect(page.locator(".objective")).toContainText(/Harvest two Heartwood Logs/i, { timeout: 90_000 });
     await expect(page.getByText("The Verdant Loomstone wakes beneath the grove.")).toBeVisible();
 
     snapshot = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.snapshot());
     expect(snapshot.quests.verdant_loomstone?.status).toBe("completed");
+    expect(snapshot.quests.groves_gift).toEqual({ status: "active", stepIndex: 0, stepProgress: 0 });
     expect(snapshot.worldFlags.verdant_loomstone_awakened).toBe(true);
 
     await page.screenshot({ path: testInfo.outputPath("everloom-verdant-awakened.png"), fullPage: true });
@@ -102,6 +105,8 @@ test.describe("The Verdant Loomstone", () => {
 
     snapshot = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.snapshot());
     expect(snapshot.inventory.some((item) => item.itemId === "heartwood_log" && item.quantity > 0)).toBe(true);
+    expect(snapshot.quests.groves_gift?.stepIndex).toBe(1);
+    await expect(page.locator(".objective")).toContainText(/Brew a Verdant Tonic at the Grove Hearth/i);
 
     // Now brew the reward recipe at the grove hearth and confirm it is a real,
     // observable gameplay improvement (heals more than the tutorial food). The
@@ -118,7 +123,21 @@ test.describe("The Verdant Loomstone", () => {
     await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.dismissReport());
 
     snapshot = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.snapshot());
-    expect(snapshot.inventory.some((item) => item.itemId === "verdant_tonic" && item.quantity > 0)).toBe(true);
+    const tonicBefore = snapshot.inventory.find((item) => item.itemId === "verdant_tonic")?.quantity ?? 0;
+    expect(tonicBefore).toBeGreaterThan(0);
+    expect(snapshot.quests.groves_gift?.status).toBe("completed");
+    expect(snapshot.worldFlags.groves_gift_completed).toBe(true);
+
+    // Prove the reward changes play, rather than merely existing in inventory.
+    await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.damage());
+    snapshot = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.snapshot());
+    expect(snapshot.player.hp).toBe(snapshot.player.maxHp - 5);
+    const consumed = await page.evaluate(() =>
+      (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.consume("verdant_tonic"));
+    expect(consumed).toBe(true);
+    snapshot = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.snapshot());
+    expect(snapshot.player.hp).toBe(snapshot.player.maxHp);
+    expect(snapshot.inventory.find((item) => item.itemId === "verdant_tonic")?.quantity ?? 0).toBe(tonicBefore - 1);
 
     await page.screenshot({ path: testInfo.outputPath("everloom-grove-reward.png"), fullPage: true });
   });

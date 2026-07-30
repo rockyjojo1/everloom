@@ -166,7 +166,32 @@
         "count": 1
       }
     ],
-    "nextQuestId": null,
+    "nextQuestId": "groves_gift",
     "completionFlag": "verdant_loomstone_awakened"
+  },
+  {
+    "id": "groves_gift",
+    "name": "The Grove's Gift",
+    "summary": "The awakened grove offers a living thread. Harvest it carefully and learn what the new hearth can make.",
+    "steps": [
+      {
+        "id": "gather_heartwood",
+        "kind": "gather",
+        "objective": "Harvest two Heartwood Logs from the awakened grove.",
+        "targetId": null,
+        "itemId": "heartwood_log",
+        "count": 2
+      },
+      {
+        "id": "brew_verdant_tonic",
+        "kind": "cook",
+        "objective": "Brew a Verdant Tonic at the Grove Hearth.",
+        "targetId": null,
+        "itemId": "verdant_tonic",
+        "count": 1
+      }
+    ],
+    "nextQuestId": null,
+    "completionFlag": "groves_gift_completed"
   }
 ]

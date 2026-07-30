@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { CONTENT } from "@everloom/content";
 import {
   addItem,
+  ATTUNEMENT_REQUIRED_LEVEL,
+  ATTUNEMENT_SKILLS,
   advanceSimulation,
   applyQuestEvents,
   calculateOfflineElapsed,
@@ -23,7 +25,6 @@ import {
   type GameSave,
   type GridPosition,
   type QualityLevel,
-  type SkillId,
 } from "@everloom/core";
 import { clearSaves, loadSave, writeSave } from "./saveDb";
 
@@ -447,10 +448,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
   debugAttuneSkills: () => {
     const save = get().save;
     if (!save) return;
-    const targetXp = xpForLevel(5);
+    const targetXp = xpForLevel(ATTUNEMENT_REQUIRED_LEVEL);
     let next = save;
     const events: GameEvent[] = [];
-    for (const skill of Object.keys(next.skills) as SkillId[]) {
+    for (const skill of ATTUNEMENT_SKILLS) {
       const previousXp = next.skills[skill].xp;
       if (previousXp >= targetXp) continue;
       const previousLevel = levelFromXp(previousXp);

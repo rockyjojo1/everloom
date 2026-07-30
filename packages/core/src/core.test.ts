@@ -1,9 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   addItem,
+  ATTUNEMENT_SKILL_COUNT,
+  ATTUNEMENT_SKILLS,
   advanceSimulation,
   applyQuestEvents,
   calculateOfflineElapsed,
+  countAttunedSkills,
   createNewSave,
   deserializeSave,
   deterministicRollPpm,
@@ -178,7 +181,20 @@ describe("quest-critical item flow", () => {
 });
 
 describe("Verdant attunement gate", () => {
-  const SKILLS: readonly SkillId[] = ["woodcutting", "mining", "fishing", "cooking", "melee"];
+  const SKILLS: readonly SkillId[] = ATTUNEMENT_SKILLS;
+
+  it("counts only the five authored skills, even if a future save contains more skills", () => {
+    const skills = {
+      ...createNewSave(0, "future-skill-seed", { x: 5, z: 5 }).skills,
+      sailing: { xp: xpForLevel(99) },
+    };
+    expect(ATTUNEMENT_SKILL_COUNT).toBe(5);
+    expect(countAttunedSkills(skills)).toBe(0);
+    expect(countAttunedSkills({
+      ...skills,
+      woodcutting: { xp: xpForLevel(5) },
+    })).toBe(1);
+  });
 
   const gateContent: ContentBundle = {
     ...TEST_CONTENT,

@@ -1,4 +1,9 @@
-import { ATTUNEMENT_REQUIRED_LEVEL, countAttunedSkills, emptySkills } from "./progression";
+import {
+  ATTUNEMENT_REQUIRED_LEVEL,
+  ATTUNEMENT_SKILL_COUNT,
+  countAttunedSkills,
+  emptySkills,
+} from "./progression";
 import { SAVE_VERSION, type GameSave, type GridPosition, type QuestProgress } from "./types";
 
 export function createNewSave(
@@ -63,7 +68,7 @@ function migrateV1ToV2(save: GameSave): GameSave {
     return { ...save, saveVersion: SAVE_VERSION };
   }
   const attuned = countAttunedSkills(save.skills, ATTUNEMENT_REQUIRED_LEVEL);
-  const verdantProgress: QuestProgress = attuned >= ATTUNEMENT_REQUIRED_LEVEL
+  const verdantProgress: QuestProgress = attuned >= ATTUNEMENT_SKILL_COUNT
     ? { status: "active", stepIndex: 1, stepProgress: 0 }
     : { status: "active", stepIndex: 0, stepProgress: attuned };
   return {

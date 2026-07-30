@@ -301,6 +301,10 @@
 }
 
 @media (max-height: 430px) {
+  .log span:nth-last-child(n + 5) {
+    display: none;
+  }
+
   .minimap {
     width: 96px;
     height: 96px;

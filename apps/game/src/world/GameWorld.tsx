@@ -125,6 +125,30 @@ export function GameWorld() {
     const verdantGlow = new THREE.PointLight(0x8fe3a8, 0, 7.5, 2);
     if (verdantLoomstoneTarget) verdantGlow.position.copy(world(verdantLoomstoneTarget)).add(new THREE.Vector3(0, 1.6, 0));
     scene.add(verdantGlow);
+    const verdantAuraMaterial = new THREE.MeshBasicMaterial({
+      color: 0x78e2a3,
+      transparent: true,
+      opacity: 0.18,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    const verdantAura = new THREE.Mesh(new THREE.RingGeometry(0.95, 1.42, 48), verdantAuraMaterial);
+    verdantAura.rotation.x = -Math.PI / 2;
+    const verdantRuneMaterial = new THREE.MeshBasicMaterial({
+      color: 0xc4f6cd,
+      transparent: true,
+      opacity: 0.13,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    const verdantRune = new THREE.Mesh(new THREE.RingGeometry(1.58, 1.67, 6), verdantRuneMaterial);
+    verdantRune.rotation.x = -Math.PI / 2;
+    if (verdantLoomstoneTarget) {
+      const groveFloor = world(verdantLoomstoneTarget);
+      verdantAura.position.copy(groveFloor).add(new THREE.Vector3(0, 0.08, 0));
+      verdantRune.position.copy(groveFloor).add(new THREE.Vector3(0, 0.09, 0));
+    }
+    scene.add(verdantAura, verdantRune);
     const debugGrid = new THREE.GridHelper(zone.width * zone.cellSize, zone.width, 0xe8c979, 0x4b584d);
     debugGrid.position.y = 0.16;
     debugGrid.visible = false;
@@ -310,6 +334,8 @@ export function GameWorld() {
         attuneAllSkills: () => useGameStore.getState().debugAttuneSkills(),
         completeQuest: (questId: string) => useGameStore.getState().debugCompleteQuest(questId),
         giveItem: (itemId: string, quantity: number) => useGameStore.getState().debugAddItem(itemId, quantity),
+        damage: () => useGameStore.getState().debugDamagePlayer(),
+        consume: (itemId: string) => useGameStore.getState().consumeFood(itemId),
         activateTarget(targetId: string) {
           const target = zone.interactables.find((entry) => entry.id === targetId);
           const save = useGameStore.getState().save;
@@ -387,7 +413,13 @@ export function GameWorld() {
       }
       for (const mixer of mixers) mixer.update(dt);
       marker.material.opacity = 0.55 + Math.sin(now / 180) * 0.25;
-      verdantGlow.intensity = save?.worldFlags.verdant_loomstone_awakened ? 2.2 + Math.sin(now / 500) * 0.35 : 0;
+      const verdantAwake = Boolean(save?.worldFlags.verdant_loomstone_awakened);
+      const verdantPulse = Math.sin(now / 520);
+      verdantGlow.intensity = verdantAwake ? 2.55 + verdantPulse * 0.4 : 0.5;
+      verdantAuraMaterial.opacity = verdantAwake ? 0.46 + verdantPulse * 0.08 : 0.18;
+      verdantRuneMaterial.opacity = verdantAwake ? 0.34 + verdantPulse * 0.06 : 0.13;
+      verdantAura.scale.setScalar(verdantAwake ? 1.08 + verdantPulse * 0.035 : 1);
+      verdantRune.rotation.z += dt * (verdantAwake ? 0.2 : 0.07);
       updateEnvironment(environment, dt);
       debugGrid.visible = import.meta.env.DEV && useGameStore.getState().debug.grid;
       const selectedId = useGameStore.getState().selectedTargetId;

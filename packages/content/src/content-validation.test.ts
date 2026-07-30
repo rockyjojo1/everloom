@@ -42,6 +42,8 @@ describe("The Verdant Loomstone chapter", () => {
     expect(first?.nextQuestId).toBe("verdant_loomstone");
     expect(verdant).toBeDefined();
     expect(verdant?.completionFlag).toBe("verdant_loomstone_awakened");
+    expect(verdant?.nextQuestId).toBe("groves_gift");
+    expect(CONTENT.quests.groves_gift?.completionFlag).toBe("groves_gift_completed");
   });
 
   it("gates on all five skills via a real attune step, not just HUD text", () => {
@@ -62,7 +64,7 @@ describe("The Verdant Loomstone chapter", () => {
   it("physically places the Verdant Loomstone landmark in Meadowrest", () => {
     const landmark = CONTENT.zones.meadowrest?.interactables.find((entry) => entry.id === "verdant_loomstone");
     expect(landmark?.kind).toBe("landmark");
-    expect(landmark?.assetId).toBe("nature.stone-tall");
+    expect(landmark?.assetId).toBe("landmark.verdant-loomstone");
   });
 
   it("gates the reward-tier resource and hearth behind the same awakening flag", () => {
@@ -84,5 +86,13 @@ describe("The Verdant Loomstone chapter", () => {
     const tonic = CONTENT.items.verdant_tonic;
     const basicFood = CONTENT.items.cooked_riverling;
     expect(tonic?.healAmount ?? 0).toBeGreaterThan(basicFood?.healAmount ?? 0);
+  });
+
+  it("turns the grove reward into a persisted gather-and-brew quest", () => {
+    const gift = CONTENT.quests.groves_gift;
+    expect(gift?.steps).toEqual([
+      expect.objectContaining({ kind: "gather", itemId: "heartwood_log", count: 2 }),
+      expect.objectContaining({ kind: "cook", itemId: "verdant_tonic", count: 1 }),
+    ]);
   });
 });
