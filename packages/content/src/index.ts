@@ -89,6 +89,9 @@ export function buildValidatedContent(): ContentBundle {
   }
 
   for (const quest of Object.values(quests)) {
+    if (quest.nextQuestId && !quests[quest.nextQuestId]) {
+      errors.push(`Quest ${quest.id} chains to missing quest ${quest.nextQuestId}`);
+    }
     const stepIds = new Set<string>();
     for (const step of quest.steps) {
       if (stepIds.has(step.id)) errors.push(`Quest ${quest.id} has duplicate step ${step.id}`);

@@ -132,6 +132,41 @@
         "itemId": null,
         "count": 1
       }
-    ]
+    ],
+    "nextQuestId": "verdant_loomstone",
+    "completionFlag": null
+  },
+  {
+    "id": "verdant_loomstone",
+    "name": "The Verdant Loomstone",
+    "summary": "Meadowrest's threads are strong again. Prove it, and a second Loomstone will answer.",
+    "steps": [
+      {
+        "id": "attune_skills",
+        "kind": "attune",
+        "objective": "Strengthen every Meadowrest skill to level 5.",
+        "targetId": null,
+        "itemId": null,
+        "count": 5
+      },
+      {
+        "id": "tell_mara",
+        "kind": "talk",
+        "objective": "Tell Mara the five threads are ready.",
+        "targetId": "npc_mara",
+        "itemId": null,
+        "count": 1
+      },
+      {
+        "id": "wake_verdant_loomstone",
+        "kind": "interact",
+        "objective": "Walk north to the grove and wake the Verdant Loomstone.",
+        "targetId": "verdant_loomstone",
+        "itemId": null,
+        "count": 1
+      }
+    ],
+    "nextQuestId": null,
+    "completionFlag": "verdant_loomstone_awakened"
   }
 ]

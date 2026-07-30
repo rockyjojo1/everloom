@@ -77,6 +77,11 @@
       ,{ "id": "east_canopy_1", "assetId": "nature.tree-detailed", "x": 38.2, "z": 8.0, "rotation": 0.2, "scale": 1.15, "elevation": 0, "blocks": false, "tint": "#d29a63" }
       ,{ "id": "east_canopy_2", "assetId": "nature.tree-detailed", "x": 31.2, "z": 21.8, "rotation": 1.8, "scale": 1.1, "elevation": 0, "blocks": false, "tint": "#d8a56d" }
       ,{ "id": "east_bush_1", "assetId": "nature.bush-detailed", "x": 29.7, "z": 9.4, "rotation": 0.7, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "verdant_canopy_1", "assetId": "nature.tree-detailed", "x": 30.5, "z": 4.3, "rotation": 0.6, "scale": 1.1, "elevation": 0, "blocks": false, "tint": "#bfe3c9" }
+      ,{ "id": "verdant_canopy_2", "assetId": "nature.tree-detailed", "x": 36, "z": 4.5, "rotation": 1.9, "scale": 1.05, "elevation": 0, "blocks": false, "tint": "#a9d9bb" }
+      ,{ "id": "verdant_bush_1", "assetId": "nature.bush-detailed", "x": 33.5, "z": 2, "rotation": 0.3, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "verdant_flowers_1", "assetId": "nature.flower-yellow", "x": 31, "z": 5.5, "rotation": 0.9, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "verdant_rock_1", "assetId": "nature.rock-small", "x": 37, "z": 4, "rotation": 0.4, "scale": 0.85, "elevation": 0, "blocks": false, "tint": null }
     ],
     "interactables": [
       { "id": "npc_mara", "kind": "npc", "displayName": "Mara Threadkeeper", "assetId": "player.adventurer", "x": 18, "z": 15, "resourceId": null, "itemId": null, "recipeId": null, "enemyId": null, "quantity": 0, "interactionRadius": 1, "blocks": true },
@@ -97,7 +102,12 @@
 
       { "id": "riverling_south", "kind": "resource", "displayName": "Riverling Shoal", "assetId": "custom.fishing-ripples", "x": 18, "z": 26, "resourceId": "meadowrest_riverling", "itemId": null, "recipeId": null, "enemyId": null, "quantity": 0, "interactionRadius": 2, "blocks": true },
       { "id": "village_cooking_fire", "kind": "facility", "displayName": "Cooking Fire", "assetId": "nature.campfire", "x": 22, "z": 19, "resourceId": null, "itemId": null, "recipeId": "cook_riverling", "enemyId": null, "quantity": 0, "interactionRadius": 1, "blocks": true },
-      { "id": "skeleton_east", "kind": "enemy", "displayName": "Restless Skeleton", "assetId": "enemy.skeleton-warrior", "x": 34, "z": 13, "resourceId": null, "itemId": null, "recipeId": null, "enemyId": "restless_skeleton", "quantity": 0, "interactionRadius": 1, "blocks": true }
+      { "id": "skeleton_east", "kind": "enemy", "displayName": "Restless Skeleton", "assetId": "enemy.skeleton-warrior", "x": 34, "z": 13, "resourceId": null, "itemId": null, "recipeId": null, "enemyId": "restless_skeleton", "quantity": 0, "interactionRadius": 1, "blocks": true },
+
+      { "id": "verdant_loomstone", "kind": "landmark", "displayName": "Verdant Loomstone", "assetId": "nature.stone-tall", "x": 32, "z": 3, "resourceId": null, "itemId": null, "recipeId": null, "enemyId": null, "quantity": 0, "interactionRadius": 1, "blocks": true, "tint": "#8fd9a8" },
+      { "id": "verdant_heartwood_1", "kind": "resource", "displayName": "Heartwood Bough", "assetId": "nature.oak-fall", "x": 29.5, "z": 1.5, "resourceId": "verdant_heartwood", "itemId": null, "recipeId": null, "enemyId": null, "quantity": 0, "interactionRadius": 1, "blocks": true, "requiredFlag": "verdant_loomstone_awakened" },
+      { "id": "verdant_heartwood_2", "kind": "resource", "displayName": "Heartwood Bough", "assetId": "nature.oak-fall", "x": 35, "z": 2, "resourceId": "verdant_heartwood", "itemId": null, "recipeId": null, "enemyId": null, "quantity": 0, "interactionRadius": 1, "blocks": true, "requiredFlag": "verdant_loomstone_awakened" },
+      { "id": "grove_hearth", "kind": "facility", "displayName": "Grove Hearth", "assetId": "nature.campfire", "x": 33, "z": 5.5, "resourceId": null, "itemId": null, "recipeId": "cook_verdant_tonic", "enemyId": null, "quantity": 0, "interactionRadius": 1, "blocks": true, "requiredFlag": "verdant_loomstone_awakened" }
     ]
   }
 ]

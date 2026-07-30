@@ -504,5 +504,27 @@
     "licence": "Project original",
     "sourceUrl": null,
     "notes": "Code-native interface symbol."
+  },
+  {
+    "id": "icon.heartwood",
+    "sourceFile": "component://icon/heartwood",
+    "pack": "everloom-original",
+    "category": "icon",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "Project original",
+    "sourceUrl": null,
+    "notes": "Code-native interface symbol for the Verdant Grove's tier-two timber."
+  },
+  {
+    "id": "icon.tonic",
+    "sourceFile": "component://icon/tonic",
+    "pack": "everloom-original",
+    "category": "icon",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "Project original",
+    "sourceUrl": null,
+    "notes": "Code-native interface symbol for the Verdant Tonic reward food."
   }
 ]

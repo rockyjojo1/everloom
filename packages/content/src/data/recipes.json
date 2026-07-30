@@ -10,5 +10,18 @@
     ],
     "output": { "itemId": "cooked_riverling", "quantity": 1 },
     "facilityKind": "cooking_fire"
+  },
+  {
+    "id": "cook_verdant_tonic",
+    "name": "Brew Verdant Tonic",
+    "skill": "cooking",
+    "actionDurationMs": 3000,
+    "xpPerSuccess": 40,
+    "inputs": [
+      { "itemId": "heartwood_log", "quantity": 2 },
+      { "itemId": "raw_riverling", "quantity": 1 }
+    ],
+    "output": { "itemId": "verdant_tonic", "quantity": 1 },
+    "facilityKind": "cooking_fire"
   }
 ]

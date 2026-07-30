@@ -148,5 +148,50 @@
     "healAmount": 0,
     "value": 80,
     "collection": true
+  },
+  {
+    "id": "heartwood_log",
+    "name": "Heartwood Log",
+    "description": "Dense, faintly warm timber grown only where the Verdant Loomstone stirred the soil.",
+    "category": "resource",
+    "stackable": true,
+    "maxStack": 99,
+    "iconId": "icon.heartwood",
+    "worldAssetId": "nature.oak-fall",
+    "equipmentSlot": null,
+    "toolKind": null,
+    "healAmount": 0,
+    "value": 6,
+    "collection": false
+  },
+  {
+    "id": "verdant_sap",
+    "name": "Verdant Sap",
+    "description": "A rare resin drop that only weeps from an attuned grove.",
+    "category": "rare",
+    "stackable": true,
+    "maxStack": 20,
+    "iconId": "icon.amber",
+    "worldAssetId": "nature.oak-fall",
+    "equipmentSlot": null,
+    "toolKind": null,
+    "healAmount": 0,
+    "value": 90,
+    "collection": true
+  },
+  {
+    "id": "verdant_tonic",
+    "name": "Verdant Tonic",
+    "description": "A grove-brewed remedy, steeped from heartwood and river fish. Restores far more than a simple meal.",
+    "category": "food",
+    "stackable": true,
+    "maxStack": 20,
+    "iconId": "icon.tonic",
+    "worldAssetId": "nature.oak-fall",
+    "equipmentSlot": null,
+    "toolKind": null,
+    "healAmount": 14,
+    "value": 18,
+    "collection": false
   }
 ]

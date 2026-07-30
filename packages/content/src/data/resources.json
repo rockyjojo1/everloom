@@ -65,5 +65,32 @@
     "respawnMs": 1800,
     "masterySpeedPpmPerRank": 1500,
     "masteryRarePpmPerRank": 100
+  },
+  {
+    "id": "verdant_heartwood",
+    "name": "Heartwood Bough",
+    "skill": "woodcutting",
+    "requiredTool": "hatchet",
+    "actionDurationMs": 3400,
+    "successChancePpm": 1000000,
+    "xpPerSuccess": 42,
+    "masteryXpPerAttempt": 6,
+    "yield": {
+      "itemId": "heartwood_log",
+      "minQuantity": 1,
+      "maxQuantity": 1,
+      "chancePpm": 1000000
+    },
+    "rareDrops": [
+      {
+        "itemId": "verdant_sap",
+        "minQuantity": 1,
+        "maxQuantity": 1,
+        "chancePpm": 30000
+      }
+    ],
+    "respawnMs": 6000,
+    "masterySpeedPpmPerRank": 1500,
+    "masteryRarePpmPerRank": 140
   }
 ]
