@@ -199,6 +199,16 @@
   text-transform: uppercase;
 }
 
+.world-error {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: radial-gradient(circle at 50% 35%, #536f5c, #17251f);
+  color: #f3e4bd;
+  font: 700 14px/1.5 ui-rounded, system-ui, sans-serif;
+  text-align: center;
+}
+
 @media (max-height: 430px) {
   .minimap {
     width: 96px;

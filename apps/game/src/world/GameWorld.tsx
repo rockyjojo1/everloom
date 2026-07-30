@@ -18,6 +18,29 @@ const grid = (p: THREE.Vector3): GridPosition => ({
   z: Math.max(0, Math.min(zone.depth - 1, Math.round(p.z / zone.cellSize + zone.depth / 2))),
 });
 
+function fallbackFigure(color: number): THREE.Group {
+  const root = new THREE.Group();
+  const material = new THREE.MeshStandardMaterial({ color, roughness: 0.86 });
+  const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.28, 0.65, 4, 8), material);
+  body.position.y = 0.66;
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.24, 10, 8), material);
+  head.position.y = 1.38;
+  body.castShadow = true;
+  head.castShadow = true;
+  root.add(body, head);
+  return root;
+}
+
+function fallbackTarget(): THREE.Group {
+  const root = new THREE.Group();
+  const material = new THREE.MeshStandardMaterial({ color: 0xb69a62, roughness: 0.9 });
+  const marker = new THREE.Mesh(new THREE.DodecahedronGeometry(0.42, 0), material);
+  marker.position.y = 0.45;
+  marker.castShadow = true;
+  root.add(marker);
+  return root;
+}
+
 function targetAvailable(target: ZoneInteractable, state: ReturnType<typeof useGameStore.getState>["save"]): boolean {
   if (!state) return false;
   if (target.kind === "ground_item") return !state.worldFlags[`picked:${target.id}`];
@@ -37,7 +60,17 @@ export function GameWorld() {
     scene.fog = new THREE.Fog(0x91b9b7, 45, 94);
     const camera = new THREE.PerspectiveCamera(43, 1, 0.1, 160);
     camera.position.set(16, 19, 20);
-    const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+    } catch (error) {
+      console.error("WebGL initialization failed", error);
+      element.dataset.error = "webgl";
+      element.classList.add("world-error");
+      element.setAttribute("role", "alert");
+      element.textContent = "Meadowrest could not open its 3D view. Reload the game or enable hardware acceleration.";
+      return () => element.replaceChildren();
+    }
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.08;
@@ -116,42 +149,66 @@ export function GameWorld() {
       currentClip = name;
     };
 
-    void instantiateAsset("player.adventurer").then(({ object, animations }) => {
-      if (disposed) return;
-      object.userData.animations = animations;
-      playerRoot.userData.animations = animations;
-      playerRoot.add(object);
-      playerMixer = new THREE.AnimationMixer(object);
-      (playerMixer as THREE.AnimationMixer & { _root?: THREE.Object3D })._root = playerRoot;
-      mixers.push(playerMixer);
-      play("Idle");
-    });
-
-    const addAsset = async (id: string, assetId: string, x: number, z: number, rotation: number, scale: number, elevation: number, tint?: string | null) => {
-      try {
-        const { object, animations } = await instantiateAsset(assetId, tint);
+    void instantiateAsset("player.adventurer")
+      .catch((error) => {
+        console.warn("Player model failed; using the safe fallback figure.", error);
+        element.dataset.assetWarning = "player";
+        return { object: fallbackFigure(0x577b68), animations: [] };
+      })
+      .then(({ object, animations }) => {
         if (disposed) return;
-        object.position.copy(world({ x, z }));
-        if (assetId === "custom.fishing-ripples") object.position.y = -0.03;
-        object.position.y += elevation;
-        object.rotation.y = rotation;
-        object.scale.multiplyScalar(scale);
-        object.userData.targetId = id;
-        object.traverse((child) => { child.userData.targetId = id; });
-        scene.add(object);
-        targets.set(id, object);
+        object.userData.animations = animations;
+        playerRoot.userData.animations = animations;
+        playerRoot.add(object);
         if (animations.length) {
-          const mixer = new THREE.AnimationMixer(object);
-          const idle = animations.find((clip) => clip.name === "Idle") ?? animations[0];
-          if (idle) mixer.clipAction(idle).play();
-          mixers.push(mixer);
+          playerMixer = new THREE.AnimationMixer(object);
+          (playerMixer as THREE.AnimationMixer & { _root?: THREE.Object3D })._root = playerRoot;
+          mixers.push(playerMixer);
+          play("Idle");
         }
+      });
+
+    const addAsset = async (
+      id: string,
+      assetId: string,
+      x: number,
+      z: number,
+      rotation: number,
+      scale: number,
+      elevation: number,
+      tint?: string | null,
+      interactive = false,
+    ) => {
+      let object: THREE.Object3D;
+      let animations: THREE.AnimationClip[];
+      try {
+        ({ object, animations } = await instantiateAsset(assetId, tint));
       } catch (error) {
-        console.error(`Asset ${assetId} failed`, error);
+        console.warn(`Asset ${assetId} failed`, error);
+        if (!interactive) return;
+        element.dataset.assetWarning = "targets";
+        object = fallbackTarget();
+        animations = [];
+      }
+      if (disposed) return;
+      object.position.copy(world({ x, z }));
+      if (assetId === "custom.fishing-ripples") object.position.y = -0.03;
+      object.position.y += elevation;
+      object.rotation.y = rotation;
+      object.scale.multiplyScalar(scale);
+      object.userData.targetId = id;
+      object.traverse((child) => { child.userData.targetId = id; });
+      scene.add(object);
+      targets.set(id, object);
+      if (animations.length) {
+        const mixer = new THREE.AnimationMixer(object);
+        const idle = animations.find((clip) => clip.name === "Idle") ?? animations[0];
+        if (idle) mixer.clipAction(idle).play();
+        mixers.push(mixer);
       }
     };
     for (const item of zone.scenery) void addAsset(item.id, item.assetId, item.x, item.z, item.rotation, item.scale, item.elevation, item.tint);
-    for (const item of zone.interactables) void addAsset(item.id, item.assetId, item.x, item.z, 0, 1, item.kind === "ground_item" ? 0.14 : 0);
+    for (const item of zone.interactables) void addAsset(item.id, item.assetId, item.x, item.z, 0, 1, item.kind === "ground_item" ? 0.14 : 0, null, true);
 
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
