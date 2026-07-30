@@ -11,6 +11,8 @@ const paths: Record<string, ReactNode> = {
   "icon.food": <><path d="M5 9c2-5 12-5 14 0v8H5V9Z" /><path d="M4 17h16M8 9c0-3 2-5 4-6" /></>,
   "icon.bone": <path d="M6 9c-3 0-3-5 1-5 2 0 2 2 3 3l4 4c1 1 3 1 3 3 0 4-5 4-5 1l-4-4C7 10 7 9 6 9Z" />,
   "icon.amber": <><path d="m12 2 7 6-3 11-8 2-4-10 8-9Z" /><path d="m12 6 3 4-2 6-4-4 3-6Z" /></>,
+  "icon.heartwood": <><path d="M5 7h13v10H5z" /><path d="M11.5 7v10M18 12c-2 1-2 3 0 4" /><circle cx="8" cy="12" r="1.4" /></>,
+  "icon.tonic": <><path d="M9 2h6M10 2v5l-4 8a3 3 0 0 0 3 5h6a3 3 0 0 0 3-5l-4-8V2" /><path d="M7.5 15h9" /></>,
 };
 
 export function ItemIcon({ iconId }: { iconId: string }) {

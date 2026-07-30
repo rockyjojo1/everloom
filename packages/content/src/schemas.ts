@@ -79,12 +79,17 @@ export const questSchema = z.object({
   summary: z.string().min(1),
   steps: z.array(z.object({
     id: identifier,
-    kind: z.enum(["talk", "pickup", "equip", "gather", "cook", "defeat", "interact"]),
+    kind: z.enum(["talk", "pickup", "equip", "gather", "cook", "defeat", "interact", "attune"]),
     objective: z.string().min(1),
     targetId: identifier.nullable(),
     itemId: identifier.nullable(),
     count: positiveInteger,
-  })).min(1),
+  }).refine(
+    (step) => step.kind !== "attune" || (step.targetId === null && step.itemId === null && step.count === 5),
+    "attune steps must have no target/item and require exactly 5 attuned skills",
+  )).min(1),
+  nextQuestId: identifier.nullable().optional(),
+  completionFlag: identifier.nullable().optional(),
 });
 
 const terrainRegion = z.object({
@@ -128,5 +133,7 @@ export const zoneSchema = z.object({
     quantity: z.number().int().min(0),
     interactionRadius: z.number().int().min(0).max(3),
     blocks: z.boolean(),
+    tint: z.string().nullable().optional(),
+    requiredFlag: identifier.nullable().optional(),
   })),
 });

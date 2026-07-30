@@ -9,17 +9,21 @@ import {
   createNewSave,
   deserializeSave,
   equipItem,
+  forceCompleteQuest,
   itemQuantity,
+  levelFromXp,
   pickupGroundItem,
   recordWorldInteraction,
   serializeSave,
   startActivityForTarget,
   useFood,
+  xpForLevel,
   type ActivityReport,
   type GameEvent,
   type GameSave,
   type GridPosition,
   type QualityLevel,
+  type SkillId,
 } from "@everloom/core";
 import { clearSaves, loadSave, writeSave } from "./saveDb";
 
@@ -75,6 +79,8 @@ interface GameStore {
   debugFillInventory: () => void;
   debugDamagePlayer: () => void;
   debugSimulateOffline: (elapsedMs: number) => void;
+  debugAttuneSkills: () => void;
+  debugCompleteQuest: (questId: string) => void;
 }
 
 let logSequence = 1;
@@ -101,9 +107,15 @@ function eventLog(event: GameEvent): LogEntry | null {
     case "rare_drop":
       return { id: logSequence++, text: `Rare find: ${CONTENT.items[event.itemId]?.name ?? event.itemId}`, tone: "rare" };
     case "quest_advanced":
-      return { id: logSequence++, text: "The First Thread advances.", tone: "rare" };
+      if (event.questId === "verdant_loomstone" && event.stepIndex === 1) {
+        return { id: logSequence++, text: "All five threads hold steady. Mara will want to know.", tone: "rare" };
+      }
+      return { id: logSequence++, text: `${CONTENT.quests[event.questId]?.name ?? "The thread"} advances.`, tone: "rare" };
     case "quest_completed":
-      return { id: logSequence++, text: "The First Thread is complete.", tone: "rare" };
+      if (event.questId === "verdant_loomstone") {
+        return { id: logSequence++, text: "The Verdant Loomstone wakes beneath the grove.", tone: "rare" };
+      }
+      return { id: logSequence++, text: `${CONTENT.quests[event.questId]?.name ?? "The thread"} is complete.`, tone: "rare" };
     case "activity_stopped":
       if (event.reason === "none" || event.reason === "cancelled" || event.reason === "target_defeated") return null;
       return { id: logSequence++, text: `Activity stopped: ${event.reason.replaceAll("_", " ")}`, tone: "warning" };
@@ -426,6 +438,43 @@ export const useGameStore = create<GameStore>((set, get) => ({
       logs: appendLogs(get().logs, result.events),
     });
     scheduleSave("debug-offline", 0, true);
+  },
+
+  // Runs skills through the exact same xp_gained/level_gained event pipeline as
+  // real gameplay (just without waiting), so the attunement gate advances for
+  // real instead of being faked. Dev/test-only; gated behind the debug flag and
+  // the __EVERLOOM_TEST__ hook, same as the other debug* helpers above.
+  debugAttuneSkills: () => {
+    const save = get().save;
+    if (!save) return;
+    const targetXp = xpForLevel(5);
+    let next = save;
+    const events: GameEvent[] = [];
+    for (const skill of Object.keys(next.skills) as SkillId[]) {
+      const previousXp = next.skills[skill].xp;
+      if (previousXp >= targetXp) continue;
+      const previousLevel = levelFromXp(previousXp);
+      next = { ...next, skills: { ...next.skills, [skill]: { xp: targetXp } } };
+      events.push({ type: "xp_gained", skill, amount: targetXp - previousXp });
+      const nextLevel = levelFromXp(targetXp);
+      if (nextLevel > previousLevel) events.push({ type: "level_gained", skill, from: previousLevel, to: nextLevel });
+    }
+    const applied = applyQuestEvents(next, events, CONTENT);
+    set({ save: applied.state, logs: appendLogs(get().logs, [...events, ...applied.questEvents]) });
+    scheduleSave("debug-attune", 0, true);
+  },
+
+  debugCompleteQuest: (questId) => {
+    const save = get().save;
+    if (!save) return;
+    try {
+      const nextState = forceCompleteQuest(save, questId, CONTENT);
+      if (nextState === save) return;
+      set({ save: nextState, logs: appendLogs(get().logs, [{ type: "quest_completed", questId }]) });
+      scheduleSave("debug-complete-quest", 0, true);
+    } catch (error) {
+      if (import.meta.env.DEV) console.error("debugCompleteQuest failed:", error);
+    }
   },
 }));
 

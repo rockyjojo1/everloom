@@ -22,4 +22,15 @@ describe("A* movement", () => {
     expect(Math.hypot(end.x - target.x, end.z - target.z)).toBeLessThanOrEqual(target.interactionRadius);
     expect(end).not.toEqual({ x: target.x, z: target.z });
   });
+
+  it("reaches every Verdant Grove target from the village spawn", () => {
+    for (const id of ["verdant_loomstone", "verdant_heartwood_1", "verdant_heartwood_2", "grove_hearth"]) {
+      const target = zone.interactables.find((entry) => entry.id === id)!;
+      expect(target, `missing interactable ${id}`).toBeDefined();
+      const path = pathToTarget(zone, zone.spawn, target);
+      expect(path.length, `no path found to ${id}`).toBeGreaterThan(0);
+      const end = path.at(-1)!;
+      expect(Math.hypot(end.x - target.x, end.z - target.z)).toBeLessThanOrEqual(Math.max(1, target.interactionRadius));
+    }
+  });
 });

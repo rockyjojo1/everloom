@@ -168,6 +168,46 @@
   box-shadow: 0 0 9px #8ac86c;
 }
 
+.rows > div.attuned {
+  color: #d9f3c6;
+}
+
+.attuned-mark {
+  margin-left: 6px;
+  color: #9ccf83;
+  font-style: normal;
+  font-size: 10px;
+}
+
+.attune-step {
+  align-items: flex-start !important;
+  padding-bottom: 9px;
+}
+
+.attune-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.attune-grid b {
+  padding: 3px 7px;
+  border: 1px solid #55604f;
+  border-radius: 8px;
+  background: #ffffff08;
+  color: #b7c2b3;
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.attune-grid b.ready {
+  border-color: #9ccf8380;
+  background: #6ea25b2e;
+  color: #cdeeb8;
+}
+
 .world-metrics {
   position: absolute;
   z-index: 12;

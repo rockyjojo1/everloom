@@ -43,3 +43,17 @@ export function emptySkills(): Readonly<Record<SkillId, { readonly xp: number }>
     melee: { xp: 0 },
   };
 }
+
+/**
+ * Meadowrest's post-tutorial gate: every skill must reach this level before the
+ * Verdant Loomstone can be approached. A single source of truth so the quest
+ * engine, save migration and HUD can never disagree about what "attuned" means.
+ */
+export const ATTUNEMENT_REQUIRED_LEVEL = 5;
+
+export function countAttunedSkills(
+  skills: Readonly<Record<string, { readonly xp: number }>>,
+  requiredLevel: number = ATTUNEMENT_REQUIRED_LEVEL,
+): number {
+  return Object.values(skills).filter((progress) => levelFromXp(progress.xp) >= requiredLevel).length;
+}

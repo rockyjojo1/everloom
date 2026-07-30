@@ -1,4 +1,4 @@
-export const SAVE_VERSION = 1 as const;
+export const SAVE_VERSION = 2 as const;
 export const PROBABILITY_SCALE = 1_000_000 as const;
 
 export type SkillId = "woodcutting" | "mining" | "fishing" | "cooking" | "melee";
@@ -103,7 +103,8 @@ export type QuestStepKind =
   | "gather"
   | "cook"
   | "defeat"
-  | "interact";
+  | "interact"
+  | "attune";
 
 export interface QuestStepDefinition {
   readonly id: string;
@@ -119,6 +120,10 @@ export interface QuestDefinition {
   readonly name: string;
   readonly summary: string;
   readonly steps: readonly QuestStepDefinition[];
+  /** Quest ID automatically activated the moment this quest completes, if not already present. */
+  readonly nextQuestId?: string | null;
+  /** World flag set to true the moment this quest completes (e.g. awakening a Loomstone). */
+  readonly completionFlag?: string | null;
 }
 
 export interface TerrainRegion {
@@ -154,6 +159,10 @@ export interface ZoneInteractable extends GridPosition {
   readonly quantity: number;
   readonly interactionRadius: number;
   readonly blocks: boolean;
+  /** Optional runtime material tint, mirroring SceneryPlacement.tint. */
+  readonly tint?: string | null;
+  /** Optional world flag that must be true for this target to be visible/usable. */
+  readonly requiredFlag?: string | null;
 }
 
 export interface ZoneDefinition {

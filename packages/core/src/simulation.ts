@@ -194,13 +194,17 @@ function findInteractable(content: ContentBundle, state: GameSave, targetId: str
   return content.zones[state.currentZone]?.interactables.find((entry) => entry.id === targetId);
 }
 
+function isLocked(state: GameSave, target: ZoneInteractable): boolean {
+  return Boolean(target.requiredFlag) && !state.worldFlags[target.requiredFlag as string];
+}
+
 export function pickupGroundItem(
   state: GameSave,
   targetId: string,
   content: ContentBundle,
 ): ActionResult {
   const target = findInteractable(content, state, targetId);
-  if (!target || target.kind !== "ground_item" || !target.itemId || state.worldFlags[`picked:${targetId}`]) {
+  if (!target || target.kind !== "ground_item" || !target.itemId || state.worldFlags[`picked:${targetId}`] || isLocked(state, target)) {
     return { state, events: [], ok: false, reason: "activity_invalid" };
   }
   const inventory = addItem(state.inventory, state.inventorySlots, target.itemId, target.quantity, content);
@@ -220,7 +224,7 @@ export function recordWorldInteraction(
   content: ContentBundle,
 ): ActionResult {
   const target = findInteractable(content, state, targetId);
-  if (!target) return { state, events: [], ok: false, reason: "activity_invalid" };
+  if (!target || isLocked(state, target)) return { state, events: [], ok: false, reason: "activity_invalid" };
   const applied = withEventsApplied(state, [{ type: "world_interacted", targetId }], content);
   return { state: applied.state, events: applied.events, ok: true, reason: "none" };
 }
@@ -231,7 +235,7 @@ export function startActivityForTarget(
   content: ContentBundle,
 ): ActionResult {
   const target = findInteractable(content, state, targetId);
-  if (!target) return { state, events: [], ok: false, reason: "activity_invalid" };
+  if (!target || isLocked(state, target)) return { state, events: [], ok: false, reason: "activity_invalid" };
 
   let activity: Activity | null = null;
   if (target.kind === "resource" && target.resourceId) {
