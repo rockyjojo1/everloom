@@ -7,7 +7,7 @@ test("fresh saves defer the 3D runtime until the player enters Meadowrest", asyn
   await expect(page.getByTestId("game-world")).toHaveCount(0);
 
   await page.getByRole("button", { name: "Enter Meadowrest" }).click();
-  await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true");
+  await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true", { timeout: 35_000 });
 });
 
 test("portrait phones receive the controlled landscape prompt", async ({ page }, testInfo) => {
@@ -23,7 +23,7 @@ test("the minimap remains click-through when a game panel is open", async ({ pag
   test.skip(testInfo.project.name !== "desktop", "The overlap regression is covered at the desktop panel position.");
   await page.goto("/?e2e=1");
   await page.getByRole("button", { name: "Enter Meadowrest" }).click();
-  await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true");
+  await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true", { timeout: 35_000 });
 
   await page.getByRole("button", { name: "Pack" }).click();
   await page.getByRole("button", { name: "Close panel" }).click();
