@@ -96,7 +96,6 @@ export function GameWorld() {
       event.preventDefault();
       element.dataset.error = "context-lost";
       contextNotice.hidden = false;
-      useGameStore.getState().cancelCurrentActivity();
       void useGameStore.getState().saveNow("webgl-context-lost", true);
     };
     const onContextRestored = () => location.reload();
