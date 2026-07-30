@@ -11,7 +11,10 @@ export function DebugPanel() {
     <button onClick={store.debugFillInventory}>Fill pack</button>
     <button onClick={store.debugDamagePlayer}>Damage</button>
     <button onClick={() => store.debugSimulateOffline(3_600_000)}>+1h offline</button>
-    <pre>{JSON.stringify({ activity: store.save?.currentActivity, flags: store.save?.worldFlags, resources: store.save?.worldResources }, null, 2)}</pre>
+    <button onClick={store.debugAttuneSkills}>Attune all 5 skills</button>
+    <button onClick={() => store.debugCompleteQuest("first_thread")}>Force-complete First Thread</button>
+    <button onClick={() => store.debugCompleteQuest("verdant_loomstone")}>Force-complete Verdant Loomstone</button>
+    <pre>{JSON.stringify({ activity: store.save?.currentActivity, quests: store.save?.quests, flags: store.save?.worldFlags, resources: store.save?.worldResources }, null, 2)}</pre>
     <small>{Object.keys(CONTENT.items).length} items / deterministic core</small>
   </details>;
 }

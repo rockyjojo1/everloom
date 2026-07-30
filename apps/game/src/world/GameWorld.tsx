@@ -20,6 +20,7 @@ const grid = (p: THREE.Vector3): GridPosition => ({
 
 function targetAvailable(target: ZoneInteractable, state: ReturnType<typeof useGameStore.getState>["save"]): boolean {
   if (!state) return false;
+  if (target.requiredFlag && !state.worldFlags[target.requiredFlag]) return false;
   if (target.kind === "ground_item") return !state.worldFlags[`picked:${target.id}`];
   if (target.kind === "resource") return (state.worldResources[target.id]?.depletedUntilMs ?? 0) <= state.simulationTimeMs;
   if (target.kind === "enemy") return (state.worldEnemies[target.id]?.defeatedUntilMs ?? 0) <= state.simulationTimeMs;
@@ -62,6 +63,11 @@ export function GameWorld() {
     const fireLight = new THREE.PointLight(0xff9a45, 2.2, 8, 2);
     fireLight.position.copy(world({ x: 22, z: 19 })).add(new THREE.Vector3(0, 1.1, 0));
     scene.add(fireLight);
+
+    const verdantLoomstoneTarget = zone.interactables.find((entry) => entry.id === "verdant_loomstone");
+    const verdantGlow = new THREE.PointLight(0x8fe3a8, 0, 7.5, 2);
+    if (verdantLoomstoneTarget) verdantGlow.position.copy(world(verdantLoomstoneTarget)).add(new THREE.Vector3(0, 1.6, 0));
+    scene.add(verdantGlow);
     const debugGrid = new THREE.GridHelper(zone.width * zone.cellSize, zone.width, 0xe8c979, 0x4b584d);
     debugGrid.position.y = 0.16;
     debugGrid.visible = false;
@@ -151,7 +157,7 @@ export function GameWorld() {
       }
     };
     for (const item of zone.scenery) void addAsset(item.id, item.assetId, item.x, item.z, item.rotation, item.scale, item.elevation, item.tint);
-    for (const item of zone.interactables) void addAsset(item.id, item.assetId, item.x, item.z, 0, 1, item.kind === "ground_item" ? 0.14 : 0);
+    for (const item of zone.interactables) void addAsset(item.id, item.assetId, item.x, item.z, 0, 1, item.kind === "ground_item" ? 0.14 : 0, item.tint ?? null);
 
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
@@ -217,6 +223,9 @@ export function GameWorld() {
         stop: () => useGameStore.getState().cancelCurrentActivity(),
         dismissReport: () => useGameStore.getState().dismissOfflineReport(),
         save: () => useGameStore.getState().saveNow("e2e-checkpoint", true),
+        attuneAllSkills: () => useGameStore.getState().debugAttuneSkills(),
+        completeQuest: (questId: string) => useGameStore.getState().debugCompleteQuest(questId),
+        giveItem: (itemId: string, quantity: number) => useGameStore.getState().debugAddItem(itemId, quantity),
         activateTarget(targetId: string) {
           const target = zone.interactables.find((entry) => entry.id === targetId);
           const save = useGameStore.getState().save;
@@ -294,6 +303,7 @@ export function GameWorld() {
       }
       for (const mixer of mixers) mixer.update(dt);
       marker.material.opacity = 0.55 + Math.sin(now / 180) * 0.25;
+      verdantGlow.intensity = save?.worldFlags.verdant_loomstone_awakened ? 2.2 + Math.sin(now / 500) * 0.35 : 0;
       updateEnvironment(environment, dt);
       debugGrid.visible = import.meta.env.DEV && useGameStore.getState().debug.grid;
       const selectedId = useGameStore.getState().selectedTargetId;
