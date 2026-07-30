@@ -41,3 +41,46 @@ test("developer asset browser exposes the full indexed library", async ({ page }
   await page.getByPlaceholder("Filter assets…").fill("skeleton");
   await expect(page.locator(".asset-list button").first()).toBeVisible();
 });
+
+test("active gathering resumes through the real IndexedDB offline-load path", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop", "Offline-load behavior is viewport-independent.");
+  await page.goto("/?e2e=1");
+  await page.getByRole("button", { name: "Enter Meadowrest" }).click();
+  await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true");
+  await clickTarget(page, "npc_mara");
+  await expect(page.getByText(/Pick up the worn hatchet/i)).toBeVisible();
+  await clickTarget(page, "ground_worn_hatchet");
+  await expect(page.getByText(/equip the worn hatchet/i)).toBeVisible();
+  await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: { equip: (id: string) => boolean } }).__EVERLOOM_TEST__.equip("worn_hatchet"));
+  await clickTarget(page, "oak_west_1");
+  await expect(page.getByRole("button", { name: "Stop" })).toBeVisible();
+  await page.evaluate(async () => {
+    await (window as unknown as { __EVERLOOM_TEST__: { save: () => Promise<void> } }).__EVERLOOM_TEST__.save();
+    const request = indexedDB.open("everloom-local", 1);
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    const transaction = db.transaction("saves", "readwrite");
+    const store = transaction.objectStore("saves");
+    const save = await new Promise<Record<string, unknown>>((resolve, reject) => {
+      const get = store.get("current");
+      get.onsuccess = () => resolve(get.result as Record<string, unknown>);
+      get.onerror = () => reject(get.error);
+    });
+    save.lastActiveAt = Date.now() - 25_000;
+    store.put(save, "current");
+    await new Promise<void>((resolve, reject) => {
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error);
+    });
+    db.close();
+  });
+  await page.reload();
+  await expect(page.getByText("WHILE YOU WERE AWAY")).toBeVisible();
+  await expect(page.getByText(/productive minutes/i)).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("everloom-offline-report.png"), fullPage: true });
+  await page.getByRole("button", { name: "Return to Meadowrest" }).click();
+  await page.getByRole("button", { name: "Pack" }).click();
+  await expect(page.getByText("Meadow Log", { exact: true }).first()).toBeVisible();
+});

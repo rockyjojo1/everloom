@@ -191,6 +191,11 @@ export function GameWorld() {
         },
         snapshot: () => useGameStore.getState().save,
         navigation: () => ({ route: [...route], visual: grid(playerRoot.position), hidden: document.hidden }),
+        equip: (itemId: string) => useGameStore.getState().equip(itemId),
+        simulate: (elapsedMs: number) => useGameStore.getState().debugSimulateOffline(elapsedMs),
+        stop: () => useGameStore.getState().cancelCurrentActivity(),
+        dismissReport: () => useGameStore.getState().dismissOfflineReport(),
+        save: () => useGameStore.getState().saveNow("e2e-checkpoint", true),
         activateTarget(targetId: string) {
           const target = zone.interactables.find((entry) => entry.id === targetId);
           const save = useGameStore.getState().save;
