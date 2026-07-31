@@ -75,6 +75,42 @@ describe("time-partition invariance", () => {
     const uninterrupted = advanceSimulation(initial, 30_000, TEST_CONTENT).state;
     expect(resumed).toEqual(uninterrupted);
   });
+
+  it("keeps opposed combat identical across foreground ticks, offline time, and a mid-fight reload", () => {
+    const sparringContent: ContentBundle = {
+      ...TEST_CONTENT,
+      enemies: {
+        ...TEST_CONTENT.enemies,
+        lethal_enemy: {
+          ...TEST_CONTENT.enemies.lethal_enemy!,
+          combatLevel: 1,
+          maxHp: 10_000,
+          accuracy: 1,
+          evasion: 12,
+          armor: 1,
+          minDamage: 0,
+          maxDamage: 0,
+        },
+      },
+    };
+    const base = { ...createNewSave(0, "combat-partition-seed", { x: 5, z: 5 }), quests: {} };
+    const inventory = addItem(base.inventory, base.inventorySlots, "training_blade", 1, sparringContent);
+    if (!inventory) throw new Error("fixture combat inventory failed");
+    const equipped = equipItem({ ...base, inventory }, "training_blade", sparringContent).state;
+    const initial = startActivityForTarget(equipped, "enemy", sparringContent).state;
+
+    let foreground = initial;
+    for (let second = 0; second < 11; second += 1) {
+      foreground = advanceSimulation(foreground, 1_000, sparringContent).state;
+    }
+    const offline = advanceSimulation(initial, 11_000, sparringContent).state;
+    expect(foreground).toEqual(offline);
+
+    const partial = advanceSimulation(initial, 4_321, sparringContent).state;
+    const reloaded = deserializeSave(serializeSave(partial));
+    const resumed = advanceSimulation(reloaded, 6_679, sparringContent).state;
+    expect(resumed).toEqual(offline);
+  });
 });
 
 describe("offline stop conditions", () => {
