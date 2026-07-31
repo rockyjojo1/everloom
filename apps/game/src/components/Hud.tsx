@@ -43,7 +43,7 @@ export function Hud() {
   const activity = save.currentActivity;
   const activityDuration = activity?.type === "gathering"
     ? CONTENT.resources[activity.resourceId]?.actionDurationMs
-    : activity?.type === "cooking"
+    : activity?.type === "production"
       ? CONTENT.recipes[activity.recipeId]?.actionDurationMs
       : activity?.type === "combat"
         ? CONTENT.enemies[activity.enemyId]?.attackIntervalMs
@@ -62,7 +62,7 @@ export function Hud() {
     </section>
     <Minimap />
     {activity && <section className="activity glass">
-      <span>{activity.type === "gathering" ? CONTENT.resources[activity.resourceId]?.name : activity.type === "cooking" ? CONTENT.recipes[activity.recipeId]?.name : CONTENT.enemies[activity.enemyId]?.name}
+      <span>{activity.type === "gathering" ? CONTENT.resources[activity.resourceId]?.name : activity.type === "production" ? CONTENT.recipes[activity.recipeId]?.name : CONTENT.enemies[activity.enemyId]?.name}
         {activity.type === "combat" && <small>Lv {CONTENT.enemies[activity.enemyId]?.combatLevel} · {activity.enemyHp}/{CONTENT.enemies[activity.enemyId]?.maxHp} HP</small>}
       </span>
       <i className="activity-progress"><b style={{ width: `${activityProgress}%` }} /></i>
@@ -103,7 +103,8 @@ export function Hud() {
         {store.panel === "skills" && <div className="rows">
           <p className="muted">{attunedSkills} of {ATTUNEMENT_SKILL_COUNT} skills attuned to level {ATTUNEMENT_REQUIRED_LEVEL}.</p>
           {Object.entries(save.skills).map(([id, progress]) => {
-            const attuned = levelFromXp(progress.xp) >= ATTUNEMENT_REQUIRED_LEVEL;
+            const attuned = (ATTUNEMENT_SKILLS as readonly string[]).includes(id)
+              && levelFromXp(progress.xp) >= ATTUNEMENT_REQUIRED_LEVEL;
             return <div key={id} className={attuned ? "attuned" : ""}>
               <span>{id}</span><b>Level {levelFromXp(progress.xp)}{attuned && <i className="attuned-mark" title="Attuned">✓</i>}</b><small>{progress.xp} XP</small>
             </div>;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { PROBABILITY_SCALE } from "@everloom/core";
-import { CONTENT, buildValidatedContent, resourceSchema } from "./index";
+import { CONTENT, buildValidatedContent, questSchema, recipeSchema, resourceSchema } from "./index";
 
 describe("Everloom authored content", () => {
   it("validates all schemas and cross-references at build time", () => {
@@ -32,6 +32,34 @@ describe("Everloom authored content", () => {
     expect(rod?.equipmentSlot).toBe("tool");
     expect(rod?.toolKind).toBe("fishing_rod");
     expect(source?.kind).toBe("ground_item");
+  });
+
+  it("accepts Smithing at metalworking facilities and rejects mismatched production data", () => {
+    const cooking = CONTENT.recipes.cook_riverling!;
+    expect(recipeSchema.parse({
+      ...cooking,
+      id: "smith_test_bar",
+      skill: "smithing",
+      facilityKind: "furnace",
+    })).toMatchObject({ skill: "smithing", facilityKind: "furnace" });
+    expect(() => recipeSchema.parse({ ...cooking, skill: "smithing", facilityKind: "cooking_fire" })).toThrow();
+    expect(() => recipeSchema.parse({ ...cooking, skill: "cooking", facilityKind: "anvil" })).toThrow();
+  });
+
+  it("accepts a source-specific production quest step", () => {
+    expect(questSchema.parse({
+      id: "smithing_lesson",
+      name: "Smithing Lesson",
+      summary: "Learn the forge.",
+      steps: [{
+        id: "forge_bar",
+        kind: "produce",
+        objective: "Forge a bar at the village furnace.",
+        targetId: "village_furnace",
+        itemId: "test_bar",
+        count: 1,
+      }],
+    }).steps[0]?.kind).toBe("produce");
   });
 });
 

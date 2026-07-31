@@ -1,8 +1,10 @@
-export const SAVE_VERSION = 2 as const;
+export const SAVE_VERSION = 3 as const;
 export const PROBABILITY_SCALE = 1_000_000 as const;
 
-export type SkillId = "woodcutting" | "mining" | "fishing" | "cooking" | "melee";
+export type SkillId = "woodcutting" | "mining" | "fishing" | "cooking" | "smithing" | "melee";
 export type GatherSkillId = "woodcutting" | "mining" | "fishing";
+export type ProductionSkillId = "cooking" | "smithing";
+export type FacilityKind = "cooking_fire" | "furnace" | "anvil";
 export type ToolKind = "hatchet" | "pickaxe" | "fishing_rod";
 export type EquipmentSlot = "tool" | "weapon" | "body";
 export type QualityLevel = "low" | "standard" | "high";
@@ -87,12 +89,12 @@ export interface ResourceDefinition {
 export interface RecipeDefinition {
   readonly id: string;
   readonly name: string;
-  readonly skill: "cooking";
+  readonly skill: ProductionSkillId;
   readonly actionDurationMs: number;
   readonly xpPerSuccess: number;
   readonly inputs: readonly InventoryStack[];
   readonly output: InventoryStack;
-  readonly facilityKind: "cooking_fire";
+  readonly facilityKind: FacilityKind;
 }
 
 export interface EnemyDefinition {
@@ -118,6 +120,7 @@ export type QuestStepKind =
   | "equip"
   | "gather"
   | "cook"
+  | "produce"
   | "defeat"
   | "interact"
   | "attune";
@@ -232,8 +235,8 @@ export interface GatheringActivity {
   readonly progressMs: number;
 }
 
-export interface CookingActivity {
-  readonly type: "cooking";
+export interface ProductionActivity {
+  readonly type: "production";
   readonly targetId: string;
   readonly recipeId: string;
   readonly progressMs: number;
@@ -247,7 +250,7 @@ export interface CombatActivity {
   readonly enemyHp: number;
 }
 
-export type Activity = GatheringActivity | CookingActivity | CombatActivity;
+export type Activity = GatheringActivity | ProductionActivity | CombatActivity;
 
 export interface GameSettings {
   readonly quality: QualityLevel;

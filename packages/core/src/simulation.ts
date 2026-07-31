@@ -270,7 +270,7 @@ export function startActivityForTarget(
     activity = { type: "gathering", targetId, resourceId: target.resourceId, progressMs: 0 };
   } else if (target.kind === "facility" && target.recipeId) {
     if (!content.recipes[target.recipeId]) return { state, events: [], ok: false, reason: "activity_invalid" };
-    activity = { type: "cooking", targetId, recipeId: target.recipeId, progressMs: 0 };
+    activity = { type: "production", targetId, recipeId: target.recipeId, progressMs: 0 };
   } else if (target.kind === "enemy" && target.enemyId) {
     const enemy = content.enemies[target.enemyId];
     if (!enemy || (state.worldEnemies[targetId]?.defeatedUntilMs ?? 0) > state.simulationTimeMs) {
@@ -437,7 +437,7 @@ export function advanceSimulation(
           ],
         };
       }
-    } else if (activity.type === "cooking") {
+    } else if (activity.type === "production") {
       const recipe = content.recipes[activity.recipeId];
       if (!recipe) {
         const stopped = stopActivity(state, "activity_invalid", report, events);

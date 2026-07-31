@@ -54,13 +54,18 @@ export const resourceSchema = z.object({
 export const recipeSchema = z.object({
   id: identifier,
   name: z.string().min(1),
-  skill: z.literal("cooking"),
+  skill: z.enum(["cooking", "smithing"]),
   actionDurationMs: z.number().int().min(500),
   xpPerSuccess: positiveInteger,
   inputs: z.array(stack).min(1),
   output: stack,
-  facilityKind: z.literal("cooking_fire"),
-});
+  facilityKind: z.enum(["cooking_fire", "furnace", "anvil"]),
+}).refine(
+  (recipe) => recipe.skill === "cooking"
+    ? recipe.facilityKind === "cooking_fire"
+    : recipe.facilityKind === "furnace" || recipe.facilityKind === "anvil",
+  "recipe skill and facility kind are incompatible",
+);
 
 export const enemySchema = z.object({
   id: identifier,
@@ -85,7 +90,7 @@ export const questSchema = z.object({
   summary: z.string().min(1),
   steps: z.array(z.object({
     id: identifier,
-    kind: z.enum(["talk", "pickup", "equip", "gather", "cook", "defeat", "interact", "attune"]),
+    kind: z.enum(["talk", "pickup", "equip", "gather", "cook", "produce", "defeat", "interact", "attune"]),
     objective: z.string().min(1),
     targetId: identifier.nullable(),
     itemId: identifier.nullable(),

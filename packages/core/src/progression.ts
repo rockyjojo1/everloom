@@ -40,6 +40,7 @@ export function emptySkills(): Readonly<Record<SkillId, { readonly xp: number }>
     mining: { xp: 0 },
     fishing: { xp: 0 },
     cooking: { xp: 0 },
+    smithing: { xp: 0 },
     melee: { xp: 0 },
   };
 }

@@ -62,10 +62,10 @@ export function calculateOfflineElapsed(nowMs: number, lastActiveAt: number): nu
  * (talking to Mara, touching the new Loomstone) that a legacy save can't have
  * already performed.
  */
-function migrateV1ToV2(save: GameSave): GameSave {
+function seedVerdantQuestForV1(save: GameSave): GameSave {
   const first = save.quests.first_thread;
   if (first?.status !== "completed" || save.quests.verdant_loomstone) {
-    return { ...save, saveVersion: SAVE_VERSION };
+    return save;
   }
   const attuned = countAttunedSkills(save.skills, ATTUNEMENT_REQUIRED_LEVEL);
   const verdantProgress: QuestProgress = attuned >= ATTUNEMENT_SKILL_COUNT
@@ -73,15 +73,41 @@ function migrateV1ToV2(save: GameSave): GameSave {
     : { status: "active", stepIndex: 0, stepProgress: attuned };
   return {
     ...save,
-    saveVersion: SAVE_VERSION,
     quests: { ...save.quests, verdant_loomstone: verdantProgress },
+  };
+}
+
+/**
+ * Version 3 introduces Smithing and renames the cooking-only activity shape to
+ * production. Preserve every earned value while supplying the new zero-XP
+ * skill and converting an action in progress without resetting its timer.
+ */
+function migrateLegacyToV3(save: GameSave, sourceVersion: 1 | 2): GameSave {
+  const questSeeded = sourceVersion === 1 ? seedVerdantQuestForV1(save) : save;
+  const legacyActivity = questSeeded.currentActivity as GameSave["currentActivity"] | {
+    readonly type: "cooking";
+    readonly targetId: string;
+    readonly recipeId: string;
+    readonly progressMs: number;
+  };
+  const currentActivity = legacyActivity?.type === "cooking"
+    ? { ...legacyActivity, type: "production" as const }
+    : legacyActivity;
+  return {
+    ...questSeeded,
+    saveVersion: SAVE_VERSION,
+    skills: {
+      ...questSeeded.skills,
+      smithing: questSeeded.skills.smithing ?? { xp: 0 },
+    },
+    currentActivity,
   };
 }
 
 export function migrateSave(value: unknown): GameSave {
   if (!value || typeof value !== "object") throw new Error("Save is not an object.");
   const candidate = value as Omit<Partial<GameSave>, "saveVersion"> & { saveVersion?: unknown };
-  if (candidate.saveVersion !== SAVE_VERSION && candidate.saveVersion !== 1) {
+  if (candidate.saveVersion !== SAVE_VERSION && candidate.saveVersion !== 2 && candidate.saveVersion !== 1) {
     throw new Error(`Unsupported save version: ${String(candidate.saveVersion)}`);
   }
   if (!candidate.player || !candidate.position || !candidate.currentZone || !candidate.rngSeed) {
@@ -91,7 +117,9 @@ export function migrateSave(value: unknown): GameSave {
     throw new Error("Save is missing required progression fields.");
   }
   const normalized = candidate as GameSave;
-  return candidate.saveVersion === 1 ? migrateV1ToV2(normalized) : normalized;
+  return candidate.saveVersion === SAVE_VERSION
+    ? normalized
+    : migrateLegacyToV3(normalized, candidate.saveVersion);
 }
 
 export function serializeSave(state: GameSave): string {

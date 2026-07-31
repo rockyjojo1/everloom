@@ -161,6 +161,47 @@ describe("offline stop conditions", () => {
     expect(itemQuantity(result.state.inventory, "cooked")).toBe(2);
   });
 
+  it("resolves Smithing identically in foreground, offline, and across reload", () => {
+    const smithingContent: ContentBundle = {
+      ...TEST_CONTENT,
+      recipes: {
+        forge_raw: {
+          ...TEST_CONTENT.recipes.cook_raw!,
+          id: "forge_raw",
+          name: "Forge Raw",
+          skill: "smithing",
+          facilityKind: "anvil",
+        },
+      },
+      zones: {
+        ...TEST_CONTENT.zones,
+        meadowrest: {
+          ...TEST_CONTENT.zones.meadowrest!,
+          interactables: TEST_CONTENT.zones.meadowrest!.interactables.map((target) =>
+            target.id === "fire" ? { ...target, recipeId: "forge_raw" } : target,
+          ),
+        },
+      },
+    };
+    const base = createNewSave(0, "smithing-equivalence-seed", { x: 5, z: 5 });
+    const inventory = addItem(base.inventory, base.inventorySlots, "raw", 3, smithingContent);
+    if (!inventory) throw new Error("fixture inventory failed");
+    const initial = startActivityForTarget({ ...base, inventory, quests: {} }, "fire", smithingContent).state;
+
+    let foreground = initial;
+    for (let second = 0; second < 12; second += 1) {
+      foreground = advanceSimulation(foreground, 1_000, smithingContent).state;
+    }
+    const offline = advanceSimulation(initial, 12_000, smithingContent).state;
+    const partial = advanceSimulation(initial, 4_375, smithingContent).state;
+    const resumed = advanceSimulation(deserializeSave(serializeSave(partial)), 7_625, smithingContent).state;
+
+    expect(foreground).toEqual(offline);
+    expect(resumed).toEqual(offline);
+    expect(offline.skills.smithing.xp).toBeGreaterThan(0);
+    expect(itemQuantity(offline.inventory, "cooked")).toBe(3);
+  });
+
   it("stops deterministic combat on death", () => {
     const initial = startActivityForTarget(
       { ...createNewSave(0, "death-seed", { x: 5, z: 5 }), quests: {} },
@@ -343,6 +384,7 @@ describe("Verdant attunement gate", () => {
         mining: { xp: xpForLevel(5) },
         fishing: { xp: xpForLevel(5) },
         cooking: { xp: xpForLevel(5) },
+        smithing: { xp: 0 },
         melee: { xp: 0 },
       },
     };
@@ -417,7 +459,7 @@ describe("save migration", () => {
   it("upgrades a v1 save in place without touching an incomplete First Thread", () => {
     const v1 = { ...createNewSave(0, "migrate-seed-1", { x: 5, z: 5 }), saveVersion: 1 };
     const migrated = migrateSave(v1);
-    expect(migrated.saveVersion).toBe(2);
+    expect(migrated.saveVersion).toBe(3);
     expect(migrated.quests.first_thread?.status).toBe("active");
     expect(migrated.quests.verdant_loomstone).toBeUndefined();
   });
@@ -436,7 +478,7 @@ describe("save migration", () => {
       },
     };
     const migrated = migrateSave(v1);
-    expect(migrated.saveVersion).toBe(2);
+    expect(migrated.saveVersion).toBe(3);
     expect(migrated.quests.verdant_loomstone).toEqual({ status: "active", stepIndex: 0, stepProgress: 2 });
     expect(migrated.quests.first_thread?.status).toBe("completed");
   });
@@ -469,6 +511,25 @@ describe("save migration", () => {
     };
     const migrated = migrateSave(v1);
     expect(migrated.quests.verdant_loomstone).toEqual({ status: "completed", stepIndex: 3, stepProgress: 0 });
+  });
+
+  it("adds Smithing and preserves an in-progress production timer when upgrading v2", () => {
+    const v2 = {
+      ...createNewSave(0, "migrate-seed-production", { x: 5, z: 5 }),
+      saveVersion: 2,
+      skills: {
+        woodcutting: { xp: 11 }, mining: { xp: 12 }, fishing: { xp: 13 },
+        cooking: { xp: 14 }, melee: { xp: 15 },
+      },
+      currentActivity: { type: "cooking" as const, targetId: "fire", recipeId: "cook_raw", progressMs: 375 },
+    };
+    const migrated = migrateSave(v2);
+    expect(migrated.saveVersion).toBe(3);
+    expect(migrated.skills.smithing).toEqual({ xp: 0 });
+    expect(migrated.skills.cooking).toEqual({ xp: 14 });
+    expect(migrated.currentActivity).toEqual({
+      type: "production", targetId: "fire", recipeId: "cook_raw", progressMs: 375,
+    });
   });
 
   it("rejects a genuinely unknown save version", () => {

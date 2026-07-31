@@ -14,6 +14,10 @@ function eventMatchesStep(event: GameEvent, step: QuestStepDefinition): boolean 
       return event.type === "item_gained" && event.itemId === step.itemId;
     case "cook":
       return event.type === "item_gained" && event.itemId === step.itemId;
+    case "produce":
+      return event.type === "item_gained"
+        && event.itemId === step.itemId
+        && (step.targetId === null || event.sourceId === step.targetId);
     case "defeat":
       return event.type === "enemy_defeated" && event.enemyId === step.targetId;
     case "attune":

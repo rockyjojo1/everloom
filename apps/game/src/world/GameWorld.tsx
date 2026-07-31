@@ -461,7 +461,10 @@ export function GameWorld() {
         const gatheringSkill = activity.type === "gathering"
           ? CONTENT.resources[activity.resourceId]?.skill
           : undefined;
-        effectMaterial.color.set(activity.type === "combat" ? 0xef795f : activity.type === "cooking" ? 0xffa34e : gatheringSkill === "fishing" ? 0x7fdce5 : 0xe9bd72);
+        const productionSkill = activity.type === "production"
+          ? CONTENT.recipes[activity.recipeId]?.skill
+          : undefined;
+        effectMaterial.color.set(activity.type === "combat" ? 0xef795f : productionSkill === "cooking" ? 0xffa34e : productionSkill === "smithing" ? 0xf3c66e : gatheringSkill === "fishing" ? 0x7fdce5 : 0xe9bd72);
         activityEffect.visible = true;
       } else {
         activityEffect.visible = false;
