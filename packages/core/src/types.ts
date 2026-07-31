@@ -45,6 +45,20 @@ export interface ItemDefinition {
   readonly healAmount: number;
   readonly value: number;
   readonly collection: boolean;
+  readonly combatBonuses: CombatBonuses | null;
+}
+
+export interface CombatBonuses {
+  readonly accuracy: number;
+  readonly strength: number;
+  readonly defence: number;
+}
+
+export interface PlayerCombatStats {
+  readonly level: number;
+  readonly accuracy: number;
+  readonly maxHit: number;
+  readonly defence: number;
 }
 
 export interface DropDefinition {
@@ -84,12 +98,14 @@ export interface RecipeDefinition {
 export interface EnemyDefinition {
   readonly id: string;
   readonly name: string;
+  readonly combatLevel: number;
   readonly maxHp: number;
   readonly attackIntervalMs: number;
+  readonly accuracy: number;
+  readonly evasion: number;
+  readonly armor: number;
   readonly minDamage: number;
   readonly maxDamage: number;
-  readonly minPlayerDamage: number;
-  readonly maxPlayerDamage: number;
   readonly xpReward: number;
   readonly loot: readonly DropDefinition[];
   readonly respawnMs: number;

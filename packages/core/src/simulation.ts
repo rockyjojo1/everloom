@@ -2,6 +2,7 @@ import { addItem, canAddItem, hasItems, itemQuantity, removeItem } from "./inven
 import { applyQuestEvents } from "./quests";
 import { deterministicRange, deterministicRollPpm } from "./rng";
 import { levelFromXp, masteryRankFromXp } from "./progression";
+import { combatHitChancePpm, playerCombatStats } from "./combat";
 import {
   PROBABILITY_SCALE,
   type Activity,
@@ -146,6 +147,28 @@ function canFitDrops(state: GameSave, drops: readonly InventoryStack[], content:
     inventory = added;
   }
   return true;
+}
+
+function fittingDrops(
+  state: GameSave,
+  drops: readonly InventoryStack[],
+  content: ContentBundle,
+): readonly InventoryStack[] {
+  let inventory = state.inventory;
+  const accepted: InventoryStack[] = [];
+  for (const drop of drops) {
+    const added = addItem(inventory, state.inventorySlots, drop.itemId, drop.quantity, content);
+    if (!added) continue;
+    inventory = added;
+    accepted.push(drop);
+  }
+  return accepted;
+}
+
+function ownsUniqueItem(state: GameSave, itemId: string, content: ContentBundle): boolean {
+  const item = content.items[itemId];
+  if (!item || item.stackable) return false;
+  return itemQuantity(state.inventory, itemId) > 0 || Object.values(state.equipment).includes(itemId);
 }
 
 function grantDrops(
@@ -499,15 +522,18 @@ export function advanceSimulation(
       if (spent < needed) continue;
 
       const sequence = state.activitySequence;
-      const weaponBonus = state.equipment.weapon ? 2 : 0;
-      const playerDamage = deterministicRange(
+      const playerStats = playerCombatStats(state, content);
+      const playerHit = deterministicRollPpm(
         state.rngSeed,
         sequence,
-        "combat:player-damage",
+        "combat:player-hit",
         activity.targetId,
-        enemy.minPlayerDamage + weaponBonus,
-        enemy.maxPlayerDamage + weaponBonus,
+        combatHitChancePpm(playerStats.accuracy, enemy.evasion),
       );
+      const rawPlayerDamage = playerHit
+        ? deterministicRange(state.rngSeed, sequence, "combat:player-damage", activity.targetId, 1, playerStats.maxHit)
+        : 0;
+      const playerDamage = Math.max(0, rawPlayerDamage - enemy.armor);
       const enemyHp = Math.max(0, activity.enemyHp - playerDamage);
       events.push({ type: "damage", target: "enemy", amount: playerDamage });
       state = {
@@ -520,6 +546,7 @@ export function advanceSimulation(
         const drops: InventoryStack[] = [];
         const rareIds = new Set<string>();
         for (const drop of enemy.loot) {
+          if (ownsUniqueItem(state, drop.itemId, content)) continue;
           const rolled = rolledDrop(
             state,
             sequence,
@@ -532,9 +559,8 @@ export function advanceSimulation(
             if (content.items[drop.itemId]?.category === "rare") rareIds.add(drop.itemId);
           }
         }
-        const fittingDrops = drops.filter((drop) =>
-          canAddItem(state.inventory, state.inventorySlots, drop.itemId, drop.quantity, content));
-        const granted = grantDrops(state, fittingDrops, activity.targetId, rareIds, content);
+        const acceptedDrops = fittingDrops(state, drops, content);
+        const granted = grantDrops(state, acceptedDrops, activity.targetId, rareIds, content);
         state = granted.state;
         const xp = addXp(state, "melee", enemy.xpReward);
         state = {
@@ -552,11 +578,11 @@ export function advanceSimulation(
           stopReason: "target_defeated",
           stopAtMs: state.simulationTimeMs,
           xpGained: { ...report.xpGained, melee: (report.xpGained.melee ?? 0) + enemy.xpReward },
-          itemsGained: fittingDrops.reduce(
+          itemsGained: acceptedDrops.reduce(
             (list, drop) => mergeStack(list, drop.itemId, drop.quantity),
             report.itemsGained,
           ),
-          rareDrops: fittingDrops.filter((drop) => rareIds.has(drop.itemId)).reduce(
+          rareDrops: acceptedDrops.filter((drop) => rareIds.has(drop.itemId)).reduce(
             (list, drop) => mergeStack(list, drop.itemId, drop.quantity),
             report.rareDrops,
           ),
@@ -564,14 +590,16 @@ export function advanceSimulation(
         continue;
       }
 
-      const enemyDamage = deterministicRange(
+      const enemyHit = deterministicRollPpm(
         state.rngSeed,
         sequence,
-        "combat:enemy-damage",
+        "combat:enemy-hit",
         activity.targetId,
-        enemy.minDamage,
-        enemy.maxDamage,
+        combatHitChancePpm(enemy.accuracy, playerStats.defence),
       );
+      const enemyDamage = enemyHit
+        ? deterministicRange(state.rngSeed, sequence, "combat:enemy-damage", activity.targetId, enemy.minDamage, enemy.maxDamage)
+        : 0;
       const hp = Math.max(0, state.player.hp - enemyDamage);
       events.push({ type: "damage", target: "player", amount: enemyDamage });
       state = { ...state, player: { ...state.player, hp } };

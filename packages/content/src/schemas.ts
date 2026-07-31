@@ -28,6 +28,11 @@ export const itemSchema = z.object({
   healAmount: z.number().int().min(0),
   value: z.number().int().min(0),
   collection: z.boolean(),
+  combatBonuses: z.object({
+    accuracy: z.number().int().min(0),
+    strength: z.number().int().min(0),
+    defence: z.number().int().min(0),
+  }).nullable(),
 });
 
 export const resourceSchema = z.object({
@@ -60,18 +65,19 @@ export const recipeSchema = z.object({
 export const enemySchema = z.object({
   id: identifier,
   name: z.string().min(1),
+  combatLevel: positiveInteger,
   maxHp: positiveInteger,
   attackIntervalMs: z.number().int().min(500),
+  accuracy: positiveInteger,
+  evasion: z.number().int().min(0),
+  armor: z.number().int().min(0),
   minDamage: z.number().int().min(0),
   maxDamage: z.number().int().min(0),
-  minPlayerDamage: positiveInteger,
-  maxPlayerDamage: positiveInteger,
   xpReward: positiveInteger,
   loot: z.array(drop),
   respawnMs: z.number().int().min(0),
   assetId: assetIdentifier,
-}).refine((value) => value.maxDamage >= value.minDamage, "enemy maxDamage must be >= minDamage")
-  .refine((value) => value.maxPlayerDamage >= value.minPlayerDamage, "player damage range is invalid");
+}).refine((value) => value.maxDamage >= value.minDamage, "enemy maxDamage must be >= minDamage");
 
 export const questSchema = z.object({
   id: identifier,

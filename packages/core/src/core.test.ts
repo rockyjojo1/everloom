@@ -6,6 +6,7 @@ import {
   advanceSimulation,
   applyQuestEvents,
   calculateOfflineElapsed,
+  combatHitChancePpm,
   countAttunedSkills,
   createNewSave,
   deserializeSave,
@@ -16,6 +17,7 @@ import {
   levelFromXp,
   migrateSave,
   pickupGroundItem,
+  playerCombatStats,
   serializeSave,
   startActivityForTarget,
   xpForLevel,
@@ -135,19 +137,73 @@ describe("offline stop conditions", () => {
     expect(result.state.currentActivity).toBeNull();
   });
 
-  it("makes an equipped weapon meaningfully increase melee damage", () => {
-    const unarmed = startActivityForTarget(
-      { ...createNewSave(0, "weapon-seed", { x: 5, z: 5 }), quests: {} },
-      "enemy",
+  it("derives combat stats only from real equipped item definitions", () => {
+    const base = { ...createNewSave(0, "weapon-seed", { x: 5, z: 5 }), quests: {} };
+    const unarmed = playerCombatStats(base, TEST_CONTENT);
+    const nonexistent = playerCombatStats(
+      { ...base, equipment: { ...base.equipment, weapon: "missing_weapon" } },
       TEST_CONTENT,
+    );
+    expect(nonexistent).toEqual(unarmed);
+
+    const inventory = addItem(base.inventory, base.inventorySlots, "training_blade", 1, TEST_CONTENT);
+    if (!inventory) throw new Error("fixture weapon inventory failed");
+    const armed = equipItem({ ...base, inventory }, "training_blade", TEST_CONTENT).state;
+    const armedStats = playerCombatStats(armed, TEST_CONTENT);
+    expect(armedStats.accuracy).toBe(unarmed.accuracy + 12);
+    expect(armedStats.maxHit).toBe(unarmed.maxHit + 5);
+  });
+
+  it("makes defensive equipment reduce an enemy's deterministic hit chance", () => {
+    const base = { ...createNewSave(0, "armor-seed", { x: 5, z: 5 }), quests: {} };
+    const inventory = addItem(base.inventory, base.inventorySlots, "training_vest", 1, TEST_CONTENT);
+    if (!inventory) throw new Error("fixture armor inventory failed");
+    const armored = equipItem({ ...base, inventory }, "training_vest", TEST_CONTENT).state;
+    const ordinaryEnemyAccuracy = 18;
+    const unarmoredChance = combatHitChancePpm(ordinaryEnemyAccuracy, playerCombatStats(base, TEST_CONTENT).defence);
+    const armoredChance = combatHitChancePpm(ordinaryEnemyAccuracy, playerCombatStats(armored, TEST_CONTENT).defence);
+    expect(armoredChance).toBeLessThan(unarmoredChance);
+  });
+
+  it("awards non-stackable combat equipment once instead of filling the pack with duplicates", () => {
+    const rewardContent: ContentBundle = {
+      ...TEST_CONTENT,
+      items: {
+        ...TEST_CONTENT.items,
+        training_vest: { ...TEST_CONTENT.items.training_vest!, collection: true },
+      },
+      enemies: {
+        ...TEST_CONTENT.enemies,
+        lethal_enemy: {
+          ...TEST_CONTENT.enemies.lethal_enemy!,
+          combatLevel: 1,
+          maxHp: 1,
+          accuracy: 1,
+          evasion: 0,
+          armor: 0,
+          minDamage: 0,
+          maxDamage: 0,
+          loot: [{ itemId: "training_vest", minQuantity: 1, maxQuantity: 1, chancePpm: 1_000_000 }],
+        },
+      },
+    };
+    const initial = startActivityForTarget(
+      { ...createNewSave(0, "unique-reward-seed", { x: 5, z: 5 }), quests: {} },
+      "enemy",
+      rewardContent,
     ).state;
-    const armed = { ...unarmed, equipment: { ...unarmed.equipment, weapon: "training_blade" } };
-    const unarmedHit = advanceSimulation(unarmed, 1_000, TEST_CONTENT).events
-      .find((event) => event.type === "damage" && event.target === "enemy");
-    const armedHit = advanceSimulation(armed, 1_000, TEST_CONTENT).events
-      .find((event) => event.type === "damage" && event.target === "enemy");
-    expect(unarmedHit?.type === "damage" ? unarmedHit.amount : 0).toBeGreaterThan(0);
-    expect(armedHit?.type === "damage" ? armedHit.amount : 0).toBe((unarmedHit?.type === "damage" ? unarmedHit.amount : 0) + 2);
+    const first = advanceSimulation(initial, 60_000, rewardContent).state;
+    expect(itemQuantity(first.inventory, "training_vest")).toBe(1);
+    expect(first.collections).toContain("training_vest");
+
+    const readyAgain = {
+      ...first,
+      simulationTimeMs: first.worldEnemies.enemy?.defeatedUntilMs ?? first.simulationTimeMs,
+      worldEnemies: {},
+    };
+    const secondStarted = startActivityForTarget(readyAgain, "enemy", rewardContent).state;
+    const second = advanceSimulation(secondStarted, 60_000, rewardContent).state;
+    expect(itemQuantity(second.inventory, "training_vest")).toBe(1);
   });
 
   it("handles hours and several days without negative or corrupt elapsed time", () => {

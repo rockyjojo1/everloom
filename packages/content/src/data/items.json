@@ -12,7 +12,8 @@
     "toolKind": "hatchet",
     "healAmount": 0,
     "value": 4,
-    "collection": false
+    "collection": false,
+    "combatBonuses": null
   },
   {
     "id": "worn_pickaxe",
@@ -27,7 +28,8 @@
     "toolKind": "pickaxe",
     "healAmount": 0,
     "value": 4,
-    "collection": false
+    "collection": false,
+    "combatBonuses": null
   },
   {
     "id": "worn_fishing_rod",
@@ -42,7 +44,8 @@
     "toolKind": "fishing_rod",
     "healAmount": 0,
     "value": 4,
-    "collection": false
+    "collection": false,
+    "combatBonuses": null
   },
   {
     "id": "meadowrest_sword",
@@ -57,7 +60,8 @@
     "toolKind": null,
     "healAmount": 0,
     "value": 12,
-    "collection": false
+    "collection": false,
+    "combatBonuses": { "accuracy": 8, "strength": 4, "defence": 0 }
   },
   {
     "id": "meadow_log",
@@ -72,7 +76,8 @@
     "toolKind": null,
     "healAmount": 0,
     "value": 2,
-    "collection": false
+    "collection": false,
+    "combatBonuses": null
   },
   {
     "id": "copper_ore",
@@ -87,7 +92,8 @@
     "toolKind": null,
     "healAmount": 0,
     "value": 3,
-    "collection": false
+    "collection": false,
+    "combatBonuses": null
   },
   {
     "id": "raw_riverling",
@@ -102,7 +108,8 @@
     "toolKind": null,
     "healAmount": 0,
     "value": 3,
-    "collection": false
+    "collection": false,
+    "combatBonuses": null
   },
   {
     "id": "cooked_riverling",
@@ -117,7 +124,8 @@
     "toolKind": null,
     "healAmount": 6,
     "value": 7,
-    "collection": false
+    "collection": false,
+    "combatBonuses": null
   },
   {
     "id": "bone_fragment",
@@ -132,7 +140,8 @@
     "toolKind": null,
     "healAmount": 0,
     "value": 5,
-    "collection": true
+    "collection": true,
+    "combatBonuses": null
   },
   {
     "id": "amber_sap",
@@ -147,7 +156,8 @@
     "toolKind": null,
     "healAmount": 0,
     "value": 80,
-    "collection": true
+    "collection": true,
+    "combatBonuses": null
   },
   {
     "id": "heartwood_log",
@@ -162,7 +172,8 @@
     "toolKind": null,
     "healAmount": 0,
     "value": 6,
-    "collection": false
+    "collection": false,
+    "combatBonuses": null
   },
   {
     "id": "verdant_sap",
@@ -177,7 +188,8 @@
     "toolKind": null,
     "healAmount": 0,
     "value": 90,
-    "collection": true
+    "collection": true,
+    "combatBonuses": null
   },
   {
     "id": "verdant_tonic",
@@ -192,6 +204,23 @@
     "toolKind": null,
     "healAmount": 14,
     "value": 18,
-    "collection": false
+    "collection": false,
+    "combatBonuses": null
+  },
+  {
+    "id": "boneguard_vest",
+    "name": "Boneguard Vest",
+    "description": "A surprisingly sturdy guard vest recovered from Meadowrest's restless sentinel.",
+    "category": "rare",
+    "stackable": false,
+    "maxStack": 1,
+    "iconId": "icon.bone",
+    "worldAssetId": "enemy.skeleton-warrior",
+    "equipmentSlot": "body",
+    "toolKind": null,
+    "healAmount": 0,
+    "value": 55,
+    "collection": true,
+    "combatBonuses": { "accuracy": 0, "strength": 0, "defence": 10 }
   }
 ]

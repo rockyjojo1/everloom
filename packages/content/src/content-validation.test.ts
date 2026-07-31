@@ -96,3 +96,27 @@ describe("The Verdant Loomstone chapter", () => {
     ]);
   });
 });
+
+describe("combat progression content", () => {
+  it("gives every weapon and body item explicit derived-stat bonuses", () => {
+    const combatEquipment = Object.values(CONTENT.items)
+      .filter((item) => item.equipmentSlot === "weapon" || item.equipmentSlot === "body");
+    expect(combatEquipment.length).toBeGreaterThanOrEqual(2);
+    for (const item of combatEquipment) expect(item.combatBonuses).not.toBeNull();
+  });
+
+  it("defines enemies using their own level, accuracy, evasion and armor", () => {
+    const skeleton = CONTENT.enemies.restless_skeleton;
+    expect(skeleton).toMatchObject({ combatLevel: 4, accuracy: 18, evasion: 12, armor: 1 });
+    expect(skeleton).not.toHaveProperty("minPlayerDamage");
+  });
+
+  it("makes the first enemy award a persistent defensive equipment upgrade", () => {
+    const vest = CONTENT.items.boneguard_vest;
+    expect(vest).toMatchObject({ equipmentSlot: "body", collection: true });
+    expect(vest?.combatBonuses?.defence).toBeGreaterThan(0);
+    expect(CONTENT.enemies.restless_skeleton?.loot).toContainEqual(
+      expect.objectContaining({ itemId: "boneguard_vest", chancePpm: 1_000_000 }),
+    );
+  });
+});

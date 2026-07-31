@@ -2,18 +2,26 @@
   {
     "id": "restless_skeleton",
     "name": "Restless Skeleton",
+    "combatLevel": 4,
     "maxHp": 18,
     "attackIntervalMs": 2200,
+    "accuracy": 18,
+    "evasion": 12,
+    "armor": 1,
     "minDamage": 2,
     "maxDamage": 3,
-    "minPlayerDamage": 5,
-    "maxPlayerDamage": 7,
     "xpReward": 45,
     "loot": [
       {
         "itemId": "bone_fragment",
         "minQuantity": 1,
         "maxQuantity": 2,
+        "chancePpm": 1000000
+      },
+      {
+        "itemId": "boneguard_vest",
+        "minQuantity": 1,
+        "maxQuantity": 1,
         "chancePpm": 1000000
       }
     ],

@@ -45,6 +45,10 @@ export function buildValidatedContent(): ContentBundle {
     if (!ASSET_REGISTRY[item.iconId]) errors.push(`Item ${item.id} has missing icon asset ${item.iconId}`);
     if (!ASSET_REGISTRY[item.worldAssetId]) errors.push(`Item ${item.id} has missing world asset ${item.worldAssetId}`);
     if (item.equipmentSlot === "tool" && !item.toolKind) errors.push(`Tool ${item.id} has no toolKind`);
+    if ((item.equipmentSlot === "weapon" || item.equipmentSlot === "body") && !item.combatBonuses) {
+      errors.push(`Combat equipment ${item.id} has no combatBonuses`);
+    }
+    if (!item.equipmentSlot && item.combatBonuses) errors.push(`Unequippable item ${item.id} has combatBonuses`);
     if (!item.stackable && item.maxStack !== 1) errors.push(`Non-stackable item ${item.id} must have maxStack 1`);
   }
 
