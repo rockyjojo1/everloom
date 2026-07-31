@@ -23,11 +23,18 @@ test("the installed production game reopens offline with its world and save", as
   await expect(page.getByText(/Meet Mara beside Meadowrest/i)).toBeVisible();
 });
 
-test("a failed production world chunk leaves the save-safe recovery screen", async ({ page }) => {
-  await page.route(/\/assets\/GameWorld-[^/]+\.js$/, (route) => route.abort("failed"));
-  await page.goto("/");
-  await page.getByRole("button", { name: "Enter Meadowrest" }).click();
+test.describe("production world-chunk recovery", () => {
+  // A generated service worker may precache the chunk before page.route sees
+  // it, making this failure injection timing-dependent. Blocking workers in
+  // this one context guarantees the request reaches Playwright's route.
+  test.use({ serviceWorkers: "block" });
 
-  await expect(page.getByRole("heading", { name: "Meadowrest could not open." })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Reload Everloom" })).toBeVisible();
+  test("a failed production world chunk leaves the save-safe recovery screen", async ({ page }) => {
+    await page.route(/\/assets\/GameWorld-[^/]+\.js$/, (route) => route.abort("failed"));
+    await page.goto("/");
+    await page.getByRole("button", { name: "Enter Meadowrest" }).click();
+
+    await expect(page.getByRole("heading", { name: "Meadowrest could not open." })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Reload Everloom" })).toBeVisible();
+  });
 });
