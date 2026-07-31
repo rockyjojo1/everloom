@@ -3,13 +3,22 @@ import type { QualityLevel, ZoneDefinition } from "@everloom/core";
 import { surfaceAt } from "../game/pathfinding";
 
 const PALETTE: Record<string, THREE.Color> = {
-  grass: new THREE.Color(0x5f934f),
+  // A deeper, cooler emerald than the meadow default — reserved for the
+  // Verdant Grove so its floor reads as a distinct, consistent palette
+  // rather than a copy of the rest of Meadowrest.
+  grass: new THREE.Color(0x3f8a58),
   meadow: new THREE.Color(0x70a95a),
   path: new THREE.Color(0xb18b58),
-  stone: new THREE.Color(0x77756b),
+  stone: new THREE.Color(0x7d7566),
   water: new THREE.Color(0x496c68),
   soil: new THREE.Color(0x8b6341),
 };
+
+// The colour the ground fades toward at the edge of the authored terrain —
+// kept in lockstep with GameWorld's scene background/fog colour so the
+// boundary skirt below dissolves into the horizon instead of showing a hard
+// edge of empty sky.
+const HORIZON_COLOR = new THREE.Color(0x91b9b7);
 
 function hash(x: number, z: number, salt = 0): number {
   const value = Math.sin(x * 127.1 + z * 311.7 + salt * 74.7) * 43758.5453;
@@ -173,6 +182,123 @@ function buildMeadowDetails(zone: ZoneDefinition, quality: QualityLevel): THREE.
   return root;
 }
 
+// World-boundary treatment: a cheap low-poly "skirt" that extends the ground
+// well past the authored terrain and fades its colour toward the sky/fog
+// colour, plus a sparse ring of instanced silhouette props scattered across
+// it. Both live entirely outside the zone's own width/depth grid, so neither
+// enters the pathfinding grid, blockedCells, or scenery/interactable data —
+// they are purely a horizon dressing for the world-edge problem described in
+// the brief (the ground plane otherwise stops abruptly against empty sky).
+const SKIRT_MARGIN = 30;
+
+function buildSkirt(zone: ZoneDefinition): THREE.Mesh {
+  const halfWidth = zone.width * zone.cellSize / 2;
+  const halfDepth = zone.depth * zone.cellSize / 2;
+  const outerWidth = halfWidth + SKIRT_MARGIN;
+  const outerDepth = halfDepth + SKIRT_MARGIN;
+  const shape = new THREE.Shape();
+  shape.moveTo(-outerWidth, -outerDepth);
+  shape.lineTo(outerWidth, -outerDepth);
+  shape.lineTo(outerWidth, outerDepth);
+  shape.lineTo(-outerWidth, outerDepth);
+  shape.lineTo(-outerWidth, -outerDepth);
+  const hole = new THREE.Path();
+  hole.moveTo(-halfWidth, -halfDepth);
+  hole.lineTo(halfWidth, -halfDepth);
+  hole.lineTo(halfWidth, halfDepth);
+  hole.lineTo(-halfWidth, halfDepth);
+  hole.lineTo(-halfWidth, -halfDepth);
+  shape.holes.push(hole);
+  const geometry = new THREE.ShapeGeometry(shape, 6);
+  geometry.rotateX(-Math.PI / 2);
+  const position = geometry.getAttribute("position") as THREE.BufferAttribute;
+  const colors: number[] = [];
+  const innerColor = PALETTE.meadow!.clone().multiplyScalar(0.82);
+  const color = new THREE.Color();
+  for (let index = 0; index < position.count; index += 1) {
+    const wx = position.getX(index);
+    const wz = position.getZ(index);
+    const beyondX = Math.max(0, Math.abs(wx) - halfWidth);
+    const beyondZ = Math.max(0, Math.abs(wz) - halfDepth);
+    const t = Math.min(1, Math.max(beyondX, beyondZ) / SKIRT_MARGIN);
+    color.copy(innerColor).lerp(HORIZON_COLOR, t);
+    // A gentle downward slope sells the land "falling away" toward the
+    // horizon instead of reading as an infinite flat plate.
+    position.setY(index, -t * t * 2.4);
+    colors.push(color.r, color.g, color.b);
+  }
+  geometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+  geometry.computeVertexNormals();
+  const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({
+    vertexColors: true,
+    roughness: 1,
+    metalness: 0,
+    fog: true,
+  }));
+  mesh.position.y = -0.05;
+  mesh.receiveShadow = false;
+  return mesh;
+}
+
+function boundaryConeGeometry(): THREE.BufferGeometry {
+  const geometry = new THREE.ConeGeometry(0.85, 3.1, 6);
+  geometry.translate(0, 1.55, 0);
+  return geometry;
+}
+
+function buildBoundaryProps(zone: ZoneDefinition, quality: QualityLevel): THREE.Group {
+  const root = new THREE.Group();
+  const halfWidth = zone.width * zone.cellSize / 2;
+  const halfDepth = zone.depth * zone.cellSize / 2;
+  const outerWidth = halfWidth + SKIRT_MARGIN - 4;
+  const outerDepth = halfDepth + SKIRT_MARGIN - 4;
+  const count = quality === "low" ? 46 : quality === "high" ? 130 : 84;
+  const rockCount = Math.round(count * 0.4);
+  const treeMaterial = new THREE.MeshStandardMaterial({ color: 0x2f4a3c, roughness: 1 });
+  const rockMaterial = new THREE.MeshStandardMaterial({ color: 0x5b6660, roughness: 0.95 });
+  const trees = new THREE.InstancedMesh(boundaryConeGeometry(), treeMaterial, count);
+  const rocks = new THREE.InstancedMesh(new THREE.DodecahedronGeometry(1.05, 0), rockMaterial, rockCount);
+  const matrix = new THREE.Matrix4();
+  const rotation = new THREE.Quaternion();
+  const scale = new THREE.Vector3();
+  const position = new THREE.Vector3();
+  const up = new THREE.Vector3(0, 1, 0);
+  let placedTrees = 0;
+  let placedRocks = 0;
+  for (let attempt = 0; placedTrees < count && attempt < count * 6; attempt += 1) {
+    const gx = (hash(attempt, 51, 3) * 2 - 1) * outerWidth;
+    const gz = (hash(attempt, 57, 6) * 2 - 1) * outerDepth;
+    if (Math.abs(gx) < halfWidth + 2 && Math.abs(gz) < halfDepth + 2) continue;
+    const t = Math.min(1, Math.max(Math.abs(gx) - halfWidth, Math.abs(gz) - halfDepth) / SKIRT_MARGIN);
+    position.set(gx, -t * t * 2.4, gz);
+    rotation.setFromAxisAngle(up, hash(attempt, 61, 9) * Math.PI * 2);
+    const size = 0.8 + hash(attempt, 67, 12) * 1.7;
+    scale.set(size, size * (0.85 + hash(attempt, 71, 15) * 0.4), size);
+    matrix.compose(position, rotation, scale);
+    trees.setMatrixAt(placedTrees, matrix);
+    placedTrees += 1;
+    if (placedRocks < rockCount && hash(attempt, 77, 18) > 0.55) {
+      position.y -= 0.6;
+      rotation.setFromEuler(new THREE.Euler(hash(attempt, 2) * 0.3, hash(attempt, 4) * Math.PI, hash(attempt, 6) * 0.3));
+      const rockSize = 0.5 + hash(attempt, 81, 21) * 0.9;
+      scale.set(rockSize, rockSize * 0.8, rockSize);
+      matrix.compose(position, rotation, scale);
+      rocks.setMatrixAt(placedRocks, matrix);
+      placedRocks += 1;
+    }
+  }
+  trees.count = placedTrees;
+  trees.instanceMatrix.needsUpdate = true;
+  rocks.count = placedRocks;
+  rocks.instanceMatrix.needsUpdate = true;
+  trees.castShadow = false;
+  trees.receiveShadow = false;
+  rocks.castShadow = false;
+  rocks.receiveShadow = false;
+  root.add(trees, rocks);
+  return root;
+}
+
 export interface Environment {
   readonly root: THREE.Group;
   readonly water: THREE.Mesh<THREE.ShapeGeometry, THREE.ShaderMaterial>;
@@ -182,7 +308,8 @@ export function buildEnvironment(zone: ZoneDefinition, quality: QualityLevel): E
   const root = new THREE.Group();
   const ground = buildGround(zone);
   const water = buildWater(zone);
-  root.add(ground, water, buildMeadowDetails(zone, quality));
+  const skirt = buildSkirt(zone);
+  root.add(skirt, ground, water, buildMeadowDetails(zone, quality), buildBoundaryProps(zone, quality));
   return { root, water };
 }
 

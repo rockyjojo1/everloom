@@ -60,7 +60,19 @@ function procedural(id: string): THREE.Object3D {
   return proceduralTool(id);
 }
 
-async function buildCottage(): Promise<THREE.Group> {
+function applyTint(object: THREE.Object3D, tint: string): void {
+  const tintColor = new THREE.Color(tint);
+  object.traverse((child) => {
+    if (!(child instanceof THREE.Mesh)) return;
+    const material = child.material as THREE.MeshStandardMaterial;
+    if (!material || !("color" in material)) return;
+    const next = material.clone();
+    next.color.multiply(tintColor);
+    child.material = next;
+  });
+}
+
+async function buildCottage(tint?: string | null): Promise<THREE.Group> {
   const root = new THREE.Group();
   const add = async (
     assetId: string,
@@ -97,6 +109,14 @@ async function buildCottage(): Promise<THREE.Group> {
   porch.receiveShadow = true;
   root.add(porch);
   root.scale.setScalar(1.55);
+  // Fix: the composite cottage assembles each wall/roof/door module through
+  // instantiateAsset(assetId) with no tint argument, and this function never
+  // forwarded its own `tint` parameter to (or applied it after) that
+  // assembly. That silently dropped the warm tint variants zones.json
+  // authors for cottage_east and cottage_south (they rendered identically to
+  // cottage_west). Apply it here, after assembly, the same way the plain
+  // GLTF branch below applies a runtime tint.
+  if (tint) applyTint(root, tint);
   return root;
 }
 
@@ -110,7 +130,7 @@ export async function instantiateAsset(assetId: string, tint?: string | null): P
   }
   if (record.sourceFile.startsWith("composite://")) {
     if (assetId !== "town.cottage") throw new Error(`Unknown composite asset: ${assetId}`);
-    return { object: await buildCottage(), animations: [] };
+    return { object: await buildCottage(tint), animations: [] };
   }
   let promise = cache.get(assetId);
   if (!promise) {
