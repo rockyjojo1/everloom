@@ -356,7 +356,12 @@ export function GameWorld() {
       if (disposed) return;
       requestAnimationFrame(animate);
       const elapsedMs = Math.max(0, now - last);
-      const dt = Math.min(0.05, elapsedMs / 1000);
+      const animationDt = Math.min(0.05, elapsedMs / 1000);
+      // Movement must follow wall-clock time even when rendering is slow.
+      // Keep a separate, larger safety cap so a stalled/backgrounded frame
+      // cannot teleport the player, while 4-20 FPS devices do not experience
+      // severe time dilation from the conservative animation delta.
+      const movementDt = Math.min(0.25, elapsedMs / 1000);
       last = now;
       if (!document.hidden) useGameStore.getState().tick(elapsedMs);
       const save = useGameStore.getState().save;
@@ -384,7 +389,7 @@ export function GameWorld() {
               callback?.();
             }
           } else {
-            playerRoot.position.add(delta.normalize().multiplyScalar(Math.min(5.2 * dt, remaining)));
+            playerRoot.position.add(delta.normalize().multiplyScalar(Math.min(5.2 * movementDt, remaining)));
             playerRoot.rotation.y = Math.atan2(delta.x, delta.z);
             play("Walking_A");
           }
@@ -411,7 +416,7 @@ export function GameWorld() {
         camera.position.lerp(focus.clone().add(new THREE.Vector3(17, 21, 22)), 0.035);
         camera.lookAt(focus);
       }
-      for (const mixer of mixers) mixer.update(dt);
+      for (const mixer of mixers) mixer.update(animationDt);
       marker.material.opacity = 0.55 + Math.sin(now / 180) * 0.25;
       const verdantAwake = Boolean(save?.worldFlags.verdant_loomstone_awakened);
       const verdantPulse = Math.sin(now / 520);
@@ -419,8 +424,8 @@ export function GameWorld() {
       verdantAuraMaterial.opacity = verdantAwake ? 0.46 + verdantPulse * 0.08 : 0.18;
       verdantRuneMaterial.opacity = verdantAwake ? 0.34 + verdantPulse * 0.06 : 0.13;
       verdantAura.scale.setScalar(verdantAwake ? 1.08 + verdantPulse * 0.035 : 1);
-      verdantRune.rotation.z += dt * (verdantAwake ? 0.2 : 0.07);
-      updateEnvironment(environment, dt);
+      verdantRune.rotation.z += animationDt * (verdantAwake ? 0.2 : 0.07);
+      updateEnvironment(environment, animationDt);
       debugGrid.visible = import.meta.env.DEV && useGameStore.getState().debug.grid;
       const selectedId = useGameStore.getState().selectedTargetId;
       const selected = selectedId ? zone.interactables.find((target) => target.id === selectedId) : undefined;
