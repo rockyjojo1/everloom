@@ -63,6 +63,13 @@ async function readWorldMetrics(page: Page): Promise<string | null> {
   return metrics.textContent();
 }
 
+function expectMobileDrawBudget(metrics: string | null, location: string): void {
+  expect(metrics, `${location} should expose debug world metrics`).not.toBeNull();
+  const draws = Number(metrics?.match(/(\d+) draws/)?.[1]);
+  expect(Number.isFinite(draws), `${location} should report a numeric draw count: ${metrics}`).toBe(true);
+  expect(draws, `${location} should stay below the mobile world draw-call budget`).toBeLessThanOrEqual(350);
+}
+
 test.describe("Phase Four — Meadowrest visual composition", () => {
   test("captures the composed world across every authored location", async ({ page }, testInfo) => {
     // See the walkTo() comment: this sandbox has no GPU (SwiftShader), and
@@ -93,6 +100,7 @@ test.describe("Phase Four — Meadowrest visual composition", () => {
     });
     const villageMetrics = await readWorldMetrics(page);
     testInfo.annotations.push({ type: "world-metrics-village", description: villageMetrics ?? "unavailable" });
+    expectMobileDrawBudget(villageMetrics, "Meadowrest village");
 
     if (isDesktop) {
       // 2. Western Grove — walk to a real woodcutting node.
@@ -154,6 +162,7 @@ test.describe("Phase Four — Meadowrest visual composition", () => {
     });
     const verdantMetrics = await readWorldMetrics(page);
     testInfo.annotations.push({ type: "world-metrics-verdant", description: verdantMetrics ?? "unavailable" });
+    expectMobileDrawBudget(verdantMetrics, "Verdant Grove");
 
     expect(pageErrors, `page errors: ${pageErrors.map((error) => error.message).join("; ")}`).toHaveLength(0);
     expect(failedModelRequests, `failed model requests: ${failedModelRequests.join(", ")}`).toHaveLength(0);

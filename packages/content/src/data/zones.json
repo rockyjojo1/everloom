@@ -108,8 +108,8 @@
       ,{ "id": "grove_moss_1", "assetId": "nature.hanging-moss", "x": 1.6, "z": 6.9, "rotation": 0, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
       ,{ "id": "grove_flower_purple", "assetId": "nature.flower-purple", "x": 6.0, "z": 12.0, "rotation": 0.3, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
 
-      ,{ "id": "quarry_cliff_west", "assetId": "nature.cliff-block", "x": 14.3, "z": 1.2, "rotation": 0.2, "scale": 1.2, "elevation": 0, "blocks": true, "tint": null }
-      ,{ "id": "quarry_cliff_east", "assetId": "nature.cliff-large", "x": 25.5, "z": 1.0, "rotation": -0.3, "scale": 1.1, "elevation": 0, "blocks": true, "tint": null }
+      ,{ "id": "quarry_cliff_west", "assetId": "nature.cliff-block", "x": 14.3, "z": 1.2, "rotation": 0.2, "scale": 1.2, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "quarry_cliff_east", "assetId": "nature.cliff-large", "x": 25.5, "z": 1.0, "rotation": -0.3, "scale": 1.1, "elevation": 0, "blocks": false, "tint": null }
       ,{ "id": "quarry_rock_tall_1", "assetId": "nature.rock-tall", "x": 16.5, "z": 4.5, "rotation": 0.5, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
       ,{ "id": "quarry_rock_tall_2", "assetId": "nature.rock-tall-b", "x": 26.0, "z": 4.0, "rotation": 1.0, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
       ,{ "id": "quarry_rock_small_3", "assetId": "nature.rock-small", "x": 19.5, "z": 1.2, "rotation": 0.7, "scale": 0.85, "elevation": 0, "blocks": false, "tint": null }

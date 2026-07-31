@@ -240,9 +240,15 @@ function buildSkirt(zone: ZoneDefinition): THREE.Mesh {
   return mesh;
 }
 
-function boundaryConeGeometry(): THREE.BufferGeometry {
-  const geometry = new THREE.ConeGeometry(0.85, 3.1, 6);
-  geometry.translate(0, 1.55, 0);
+function boundaryCanopyGeometry(): THREE.BufferGeometry {
+  const geometry = new THREE.ConeGeometry(0.72, 1.9, 7);
+  geometry.translate(0, 2, 0);
+  return geometry;
+}
+
+function boundaryTrunkGeometry(): THREE.BufferGeometry {
+  const geometry = new THREE.CylinderGeometry(0.15, 0.22, 1.15, 6);
+  geometry.translate(0, 0.575, 0);
   return geometry;
 }
 
@@ -252,11 +258,13 @@ function buildBoundaryProps(zone: ZoneDefinition, quality: QualityLevel): THREE.
   const halfDepth = zone.depth * zone.cellSize / 2;
   const outerWidth = halfWidth + SKIRT_MARGIN - 4;
   const outerDepth = halfDepth + SKIRT_MARGIN - 4;
-  const count = quality === "low" ? 46 : quality === "high" ? 130 : 84;
-  const rockCount = Math.round(count * 0.4);
-  const treeMaterial = new THREE.MeshStandardMaterial({ color: 0x2f4a3c, roughness: 1 });
+  const count = quality === "low" ? 38 : quality === "high" ? 104 : 68;
+  const rockCount = Math.round(count * 0.35);
+  const canopyMaterial = new THREE.MeshStandardMaterial({ color: 0x315944, roughness: 1 });
+  const trunkMaterial = new THREE.MeshStandardMaterial({ color: 0x594534, roughness: 1 });
   const rockMaterial = new THREE.MeshStandardMaterial({ color: 0x5b6660, roughness: 0.95 });
-  const trees = new THREE.InstancedMesh(boundaryConeGeometry(), treeMaterial, count);
+  const canopies = new THREE.InstancedMesh(boundaryCanopyGeometry(), canopyMaterial, count);
+  const trunks = new THREE.InstancedMesh(boundaryTrunkGeometry(), trunkMaterial, count);
   const rocks = new THREE.InstancedMesh(new THREE.DodecahedronGeometry(1.05, 0), rockMaterial, rockCount);
   const matrix = new THREE.Matrix4();
   const rotation = new THREE.Quaternion();
@@ -272,10 +280,11 @@ function buildBoundaryProps(zone: ZoneDefinition, quality: QualityLevel): THREE.
     const t = Math.min(1, Math.max(Math.abs(gx) - halfWidth, Math.abs(gz) - halfDepth) / SKIRT_MARGIN);
     position.set(gx, -t * t * 2.4, gz);
     rotation.setFromAxisAngle(up, hash(attempt, 61, 9) * Math.PI * 2);
-    const size = 0.8 + hash(attempt, 67, 12) * 1.7;
-    scale.set(size, size * (0.85 + hash(attempt, 71, 15) * 0.4), size);
+    const size = 0.65 + hash(attempt, 67, 12) * 0.75;
+    scale.set(size, size * (0.92 + hash(attempt, 71, 15) * 0.2), size);
     matrix.compose(position, rotation, scale);
-    trees.setMatrixAt(placedTrees, matrix);
+    canopies.setMatrixAt(placedTrees, matrix);
+    trunks.setMatrixAt(placedTrees, matrix);
     placedTrees += 1;
     if (placedRocks < rockCount && hash(attempt, 77, 18) > 0.55) {
       position.y -= 0.6;
@@ -287,15 +296,19 @@ function buildBoundaryProps(zone: ZoneDefinition, quality: QualityLevel): THREE.
       placedRocks += 1;
     }
   }
-  trees.count = placedTrees;
-  trees.instanceMatrix.needsUpdate = true;
+  canopies.count = placedTrees;
+  canopies.instanceMatrix.needsUpdate = true;
+  trunks.count = placedTrees;
+  trunks.instanceMatrix.needsUpdate = true;
   rocks.count = placedRocks;
   rocks.instanceMatrix.needsUpdate = true;
-  trees.castShadow = false;
-  trees.receiveShadow = false;
+  canopies.castShadow = false;
+  canopies.receiveShadow = false;
+  trunks.castShadow = false;
+  trunks.receiveShadow = false;
   rocks.castShadow = false;
   rocks.receiveShadow = false;
-  root.add(trees, rocks);
+  root.add(trunks, canopies, rocks);
   return root;
 }
 
