@@ -22,7 +22,8 @@ fd1e32f Improve Meadowrest terrain and environmental composition
 6e545c7 Refine materials and world-edge presentation
 30c4678 Add visual regression coverage and inspected desktop artifacts
 a5114e5 Fix a reproducible cold-start performance regression
-<final> Add Phase Four visual handoff (this file)
+68a03de Refresh landscape-mobile artifacts after the performance trim
+29340cd Add Phase Four visual handoff (this file)
 ```
 
 ## Files changed
