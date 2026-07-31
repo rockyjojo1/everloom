@@ -186,7 +186,8 @@ export function GameWorld() {
     let route: GridPosition[] = [];
     let afterArrival: (() => void) | null = null;
     let disposed = false;
-    const assetJobs: Promise<unknown>[] = [];
+    const criticalAssetJobs: Promise<unknown>[] = [];
+    const sceneryAssetJobs: Promise<unknown>[] = [];
 
     const play = (name: string, once = false) => {
       if (!playerMixer || name === currentClip) return;
@@ -204,7 +205,7 @@ export function GameWorld() {
       currentClip = name;
     };
 
-    assetJobs.push(instantiateAsset("player.adventurer")
+    criticalAssetJobs.push(instantiateAsset("player.adventurer")
       .catch((error) => {
         console.warn("Player model failed; using the safe fallback figure.", error);
         element.dataset.assetWarning = "player";
@@ -262,12 +263,15 @@ export function GameWorld() {
         mixers.push(mixer);
       }
     };
-    for (const item of zone.scenery) assetJobs.push(addAsset(item.id, item.assetId, item.x, item.z, item.rotation, item.scale, item.elevation, item.tint));
+    for (const item of zone.scenery) sceneryAssetJobs.push(addAsset(item.id, item.assetId, item.x, item.z, item.rotation, item.scale, item.elevation, item.tint));
     for (const item of zone.interactables) {
-      assetJobs.push(addAsset(item.id, item.assetId, item.x, item.z, 0, 1, item.kind === "ground_item" ? 0.14 : 0, item.tint ?? null, true));
+      criticalAssetJobs.push(addAsset(item.id, item.assetId, item.x, item.z, 0, 1, item.kind === "ground_item" ? 0.14 : 0, item.tint ?? null, true));
     }
-    void Promise.allSettled(assetJobs).then(() => {
+    void Promise.allSettled(criticalAssetJobs).then(() => {
       if (!disposed) element.dataset.ready = "true";
+    });
+    void Promise.allSettled([...criticalAssetJobs, ...sceneryAssetJobs]).then(() => {
+      if (!disposed) element.dataset.assetsSettled = "true";
     });
 
     const raycaster = new THREE.Raycaster();

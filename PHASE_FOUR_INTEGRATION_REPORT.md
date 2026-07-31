@@ -64,7 +64,7 @@ Claude's later `a5114e5` trim was reviewed but deliberately not merged. The fina
 3. Added an explicit `≤350` draw-call assertion at fresh Meadowrest and awakened Verdant Grove.
 4. Preserved the visually richer authored placement set because it passes the explicit budget and real journeys; rejected Claude's deletion-based late trim.
 5. Split movement time from conservative animation time. Animation/water remain capped at 50 ms; traversal accepts up to 250 ms of real frame time, preventing severe low-FPS walking slowdown without allowing background-frame teleportation.
-6. Replaced the arbitrary 30-rendered-frame ready flag with `Promise.allSettled` over the player, every scenery model, and every interactable. “Ready” now means assets loaded or resolved to defined fallbacks.
+6. Replaced the arbitrary 30-rendered-frame ready flag with two truthful signals: gameplay-ready after the player and every interactable load or resolve to fallbacks, and assets-settled after decorative scenery also completes. Production PWA warm-up waits for the latter before going offline.
 7. Added fresh, inspected desktop and iPhone-landscape world captures.
 8. Isolated the production failed-chunk browser test from service-worker precaching so failure injection is deterministic.
 
@@ -81,7 +81,7 @@ The browser environment uses SwiftShader, so its 3–4 FPS is not representative
 
 All measured views pass the enforced 350-draw ceiling.
 
-Production player entry: **297.2 KiB raw / 85.20 KiB gzip**, below the enforced **400 KiB** budget. The PWA precache contains 11 entries / **999.66 KiB**.
+Production player entry: **297.2 KiB raw / 85.20 KiB gzip**, below the enforced **400 KiB** budget. The PWA precache contains 11 entries / **999.82 KiB**.
 
 ## Verification
 

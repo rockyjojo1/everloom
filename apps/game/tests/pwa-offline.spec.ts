@@ -15,6 +15,7 @@ test("the installed production game reopens offline with its world and save", as
   await page.reload();
   await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true");
   await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
+  await expect(page.getByTestId("game-world")).toHaveAttribute("data-assets-settled", "true", { timeout: 60_000 });
 
   await context.setOffline(true);
   await page.reload({ waitUntil: "domcontentloaded" });
