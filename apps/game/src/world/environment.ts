@@ -252,7 +252,7 @@ function buildBoundaryProps(zone: ZoneDefinition, quality: QualityLevel): THREE.
   const halfDepth = zone.depth * zone.cellSize / 2;
   const outerWidth = halfWidth + SKIRT_MARGIN - 4;
   const outerDepth = halfDepth + SKIRT_MARGIN - 4;
-  const count = quality === "low" ? 46 : quality === "high" ? 130 : 84;
+  const count = quality === "low" ? 26 : quality === "high" ? 76 : 48;
   const rockCount = Math.round(count * 0.4);
   const treeMaterial = new THREE.MeshStandardMaterial({ color: 0x2f4a3c, roughness: 1 });
   const rockMaterial = new THREE.MeshStandardMaterial({ color: 0x5b6660, roughness: 0.95 });
