@@ -66,7 +66,9 @@ test("all Phase One skills and The First Thread work through the browser", async
   await activate(page, "ground_militia_sword", /Equip the militia sword/i);
   await equip(page, "meadowrest_sword", /Defeat the restless skeleton/i);
 
-  await startAndResolve(page, "skeleton_east", 10_000, /Return to Mara/i, testInfo.outputPath("everloom-combat.png"));
+  // Accuracy/evasion combat is intentionally variable; this budget is long
+  // enough for a properly equipped fresh player without assuming every swing hits.
+  await startAndResolve(page, "skeleton_east", 30_000, /Return to Mara/i, testInfo.outputPath("everloom-combat.png"));
   await activate(page, "npc_mara", /First Loomstone/i);
   await activate(page, "first_loomstone", /Strengthen every Meadowrest skill to level 5/i);
 

@@ -8,8 +8,8 @@
     "accuracy": 18,
     "evasion": 12,
     "armor": 1,
-    "minDamage": 2,
-    "maxDamage": 3,
+    "minDamage": 1,
+    "maxDamage": 2,
     "xpReward": 45,
     "loot": [
       {
