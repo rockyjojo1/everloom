@@ -10,7 +10,9 @@
       { "surface": "meadow", "shape": "rect", "x": 0, "z": 0, "width": 40, "depth": 30, "endX": null, "endZ": null },
       { "surface": "soil", "shape": "rect", "x": 1, "z": 5, "width": 12, "depth": 17, "endX": null, "endZ": null },
       { "surface": "stone", "shape": "rect", "x": 14, "z": 0, "width": 12, "depth": 7, "endX": null, "endZ": null },
+      { "surface": "grass", "shape": "rect", "x": 27, "z": 0, "width": 13, "depth": 7, "endX": null, "endZ": null },
       { "surface": "water", "shape": "rect", "x": 0, "z": 25, "width": 40, "depth": 5, "endX": null, "endZ": null },
+      { "surface": "soil", "shape": "rect", "x": 0, "z": 22, "width": 40, "depth": 3, "endX": null, "endZ": null },
       { "surface": "path", "shape": "circle", "x": 19, "z": 15, "width": 7, "depth": 7, "endX": null, "endZ": null },
       { "surface": "path", "shape": "path", "x": 19, "z": 15, "width": 2.2, "depth": 0, "endX": 7, "endZ": 14 },
       { "surface": "path", "shape": "path", "x": 19, "z": 15, "width": 2.2, "depth": 0, "endX": 20, "endZ": 4 },
@@ -82,6 +84,67 @@
       ,{ "id": "verdant_bush_1", "assetId": "nature.bush-detailed", "x": 33.5, "z": 2, "rotation": 0.3, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
       ,{ "id": "verdant_flowers_1", "assetId": "nature.flower-yellow", "x": 31, "z": 5.5, "rotation": 0.9, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
       ,{ "id": "verdant_rock_1", "assetId": "nature.rock-small", "x": 37, "z": 4, "rotation": 0.4, "scale": 0.85, "elevation": 0, "blocks": false, "tint": null }
+
+      ,{ "id": "village_lantern_1", "assetId": "town.lantern", "x": 16.0, "z": 16.3, "rotation": 0, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "village_lantern_2", "assetId": "town.lantern", "x": 23.0, "z": 16.2, "rotation": 0, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "village_lantern_3", "assetId": "town.lantern", "x": 20.6, "z": 20.2, "rotation": 0, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "village_fence_5", "assetId": "town.fence", "x": 16.3, "z": 21.3, "rotation": 0, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "village_fence_6", "assetId": "town.fence", "x": 17.7, "z": 21.3, "rotation": 0, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "market_hedge_1", "assetId": "town.hedge", "x": 24.0, "z": 20.2, "rotation": 0, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "market_hedge_2", "assetId": "town.hedge", "x": 27.0, "z": 17.0, "rotation": 1.5708, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "mill_crates", "assetId": "dungeon.crates", "x": 9.6, "z": 24.3, "rotation": 0.5, "scale": 0.8, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "village_north_tree", "assetId": "nature.tree-detailed", "x": 14.0, "z": 9.0, "rotation": 0.3, "scale": 1.0, "elevation": 0, "blocks": false, "tint": "#cfe0a0" }
+      ,{ "id": "village_east_tree", "assetId": "nature.tree-detailed", "x": 27.5, "z": 19.5, "rotation": 1.2, "scale": 1.0, "elevation": 0, "blocks": false, "tint": null }
+
+      ,{ "id": "grove_stump_1", "assetId": "nature.stump-round", "x": 9.2, "z": 12.5, "rotation": 0.6, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "grove_stump_2", "assetId": "nature.stump-old", "x": 6.5, "z": 16.5, "rotation": 1.1, "scale": 0.9, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "grove_log_1", "assetId": "nature.log", "x": 10.5, "z": 10.2, "rotation": 1.8, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "grove_mushroom_1", "assetId": "nature.mushroom-red", "x": 4.8, "z": 7.5, "rotation": 0, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "grove_mushroom_2", "assetId": "nature.mushroom-tan", "x": 9.8, "z": 20.5, "rotation": 0, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "grove_edge_bush_1", "assetId": "nature.bush-detailed", "x": 12.2, "z": 9.8, "rotation": 0.9, "scale": 0.95, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "grove_edge_bush_2", "assetId": "nature.bush", "x": 12.5, "z": 19.5, "rotation": 1.6, "scale": 0.85, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "grove_canopy_5", "assetId": "nature.tree-detailed", "x": 2.5, "z": 14.5, "rotation": 1.0, "scale": 1.1, "elevation": 0, "blocks": false, "tint": "#d9ad70" }
+      ,{ "id": "grove_round_3", "assetId": "nature.tree-round", "x": 5.5, "z": 5.0, "rotation": 2.0, "scale": 0.95, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "grove_moss_1", "assetId": "nature.hanging-moss", "x": 1.6, "z": 6.9, "rotation": 0, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "grove_flower_purple", "assetId": "nature.flower-purple", "x": 6.0, "z": 12.0, "rotation": 0.3, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+
+      ,{ "id": "quarry_cliff_west", "assetId": "nature.cliff-block", "x": 14.3, "z": 1.2, "rotation": 0.2, "scale": 1.2, "elevation": 0, "blocks": true, "tint": null }
+      ,{ "id": "quarry_cliff_east", "assetId": "nature.cliff-large", "x": 25.5, "z": 1.0, "rotation": -0.3, "scale": 1.1, "elevation": 0, "blocks": true, "tint": null }
+      ,{ "id": "quarry_rock_tall_1", "assetId": "nature.rock-tall", "x": 16.5, "z": 4.5, "rotation": 0.5, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "quarry_rock_tall_2", "assetId": "nature.rock-tall-b", "x": 26.0, "z": 4.0, "rotation": 1.0, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "quarry_rock_small_3", "assetId": "nature.rock-small", "x": 19.5, "z": 1.2, "rotation": 0.7, "scale": 0.85, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "quarry_rock_small_4", "assetId": "nature.rock-small", "x": 22.0, "z": 1.5, "rotation": 1.4, "scale": 0.8, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "loomstone_ring", "assetId": "nature.stone-ring", "x": 20, "z": 8.3, "rotation": 0, "scale": 1.3, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "loomstone_flank_1", "assetId": "nature.rock-small", "x": 18.4, "z": 10.4, "rotation": 0.4, "scale": 0.7, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "loomstone_flank_2", "assetId": "nature.rock-small", "x": 21.6, "z": 10.3, "rotation": 1.1, "scale": 0.75, "elevation": 0, "blocks": false, "tint": null }
+
+      ,{ "id": "river_lily_1", "assetId": "nature.lily-pad", "x": 14.5, "z": 24.6, "rotation": 0, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "river_lily_2", "assetId": "nature.lily-pad", "x": 23.5, "z": 24.7, "rotation": 0.5, "scale": 0.9, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "river_lily_3", "assetId": "nature.lily-pad", "x": 10.0, "z": 24.5, "rotation": 1.2, "scale": 0.8, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "river_rockflat_1", "assetId": "nature.rock-flat", "x": 15.5, "z": 24.2, "rotation": 0.3, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "river_rockflat_2", "assetId": "nature.rock-flat", "x": 20.5, "z": 24.1, "rotation": 1.0, "scale": 0.95, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "river_reed_1", "assetId": "nature.bush", "x": 13.0, "z": 23.6, "rotation": 0.4, "scale": 0.7, "elevation": 0, "blocks": false, "tint": "#7fae7a" }
+      ,{ "id": "river_reed_2", "assetId": "nature.bush", "x": 25.0, "z": 23.4, "rotation": 1.7, "scale": 0.75, "elevation": 0, "blocks": false, "tint": "#7fae7a" }
+      ,{ "id": "river_bank_tree_1", "assetId": "nature.tree-round", "x": 11.5, "z": 22.8, "rotation": 0.9, "scale": 1.05, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "river_bank_tree_2", "assetId": "nature.tree-round", "x": 27.5, "z": 23.0, "rotation": 1.5, "scale": 1.0, "elevation": 0, "blocks": false, "tint": null }
+
+      ,{ "id": "training_fence_1", "assetId": "town.fence", "x": 30.5, "z": 10.5, "rotation": 1.5708, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "training_fence_2", "assetId": "town.fence", "x": 30.5, "z": 16.0, "rotation": 1.5708, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "training_fence_3", "assetId": "town.fence", "x": 37.5, "z": 10.0, "rotation": 1.5708, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "training_fence_4", "assetId": "town.fence", "x": 37.5, "z": 16.0, "rotation": 1.5708, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "training_banner_1", "assetId": "town.banner", "x": 30.8, "z": 9.0, "rotation": 0, "scale": 1.1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "training_banner_2", "assetId": "town.banner", "x": 37.2, "z": 9.0, "rotation": 0, "scale": 1.1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "training_rock_3", "assetId": "nature.rock-tall", "x": 33.0, "z": 17.5, "rotation": 0.6, "scale": 0.9, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "training_rock_4", "assetId": "nature.rock-small", "x": 36.0, "z": 9.5, "rotation": 1.3, "scale": 0.75, "elevation": 0, "blocks": false, "tint": null }
+
+      ,{ "id": "verdant_ring", "assetId": "nature.stone-ring", "x": 32, "z": 4.4, "rotation": 0, "scale": 1.6, "elevation": 0, "blocks": false, "tint": "#bfe3c9" }
+      ,{ "id": "verdant_flank_1", "assetId": "nature.rock-small", "x": 30.3, "z": 3.2, "rotation": 0.3, "scale": 0.7, "elevation": 0, "blocks": false, "tint": "#a9d9bb" }
+      ,{ "id": "verdant_flank_2", "assetId": "nature.rock-small", "x": 33.7, "z": 3.1, "rotation": 1.0, "scale": 0.75, "elevation": 0, "blocks": false, "tint": "#a9d9bb" }
+      ,{ "id": "verdant_canopy_3", "assetId": "nature.tree-detailed", "x": 28.3, "z": 3.0, "rotation": 0.5, "scale": 1.1, "elevation": 0, "blocks": false, "tint": "#cdeecf" }
+      ,{ "id": "verdant_canopy_4", "assetId": "nature.tree-detailed", "x": 38.5, "z": 3.5, "rotation": 1.7, "scale": 1.05, "elevation": 0, "blocks": false, "tint": "#b8e0c0" }
+      ,{ "id": "verdant_flowers_2", "assetId": "nature.flower-purple", "x": 34.5, "z": 5.0, "rotation": 0.6, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "verdant_mushroom", "assetId": "nature.mushroom-tan", "x": 29.0, "z": 5.8, "rotation": 0, "scale": 1, "elevation": 0, "blocks": false, "tint": null }
+      ,{ "id": "verdant_moss", "assetId": "nature.hanging-moss", "x": 36.2, "z": 4.6, "rotation": 0, "scale": 1.1, "elevation": 0, "blocks": false, "tint": null }
     ],
     "interactables": [
       { "id": "npc_mara", "kind": "npc", "displayName": "Mara Threadkeeper", "assetId": "player.adventurer", "x": 18, "z": 15, "resourceId": null, "itemId": null, "recipeId": null, "enemyId": null, "quantity": 0, "interactionRadius": 1, "blocks": true },

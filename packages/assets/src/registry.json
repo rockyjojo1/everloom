@@ -537,5 +537,181 @@
     "licence": "Project original",
     "sourceUrl": null,
     "notes": "Code-native interface symbol for the Verdant Tonic reward food."
+  },
+  {
+    "id": "nature.stump-round",
+    "sourceFile": "kenney-nature/stump_round.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "Woodcutting-flavour stump marking a recently felled tree; grove ground detail."
+  },
+  {
+    "id": "nature.stump-old",
+    "sourceFile": "kenney-nature/stump_old.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "Weathered stump variant, grove ground detail."
+  },
+  {
+    "id": "nature.log",
+    "sourceFile": "kenney-nature/log.glb",
+    "pack": "kenney-nature",
+    "category": "prop",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "Fallen log ground clutter for the grove floor."
+  },
+  {
+    "id": "nature.mushroom-red",
+    "sourceFile": "kenney-nature/mushroom_redGroup.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "Grove-floor mushroom cluster."
+  },
+  {
+    "id": "nature.mushroom-tan",
+    "sourceFile": "kenney-nature/mushroom_tanGroup.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "Grove-floor mushroom cluster, warm variant."
+  },
+  {
+    "id": "nature.lily-pad",
+    "sourceFile": "kenney-nature/lily_large.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "Shoreline lily pad for the riverbank composition."
+  },
+  {
+    "id": "nature.rock-flat",
+    "sourceFile": "kenney-nature/rock_smallFlatA.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "Flat shoreline stepping stone."
+  },
+  {
+    "id": "nature.rock-tall",
+    "sourceFile": "kenney-nature/rock_tallC.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "Tall rock formation framing the quarry and training ground."
+  },
+  {
+    "id": "nature.rock-tall-b",
+    "sourceFile": "kenney-nature/rock_tallF.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "Tall rock formation, second silhouette for variety."
+  },
+  {
+    "id": "nature.stone-ring",
+    "sourceFile": "kenney-nature/statue_ring.glb",
+    "pack": "kenney-nature",
+    "category": "landmark",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "Ancient stone ring used to frame the First and Verdant Loomstones."
+  },
+  {
+    "id": "nature.flower-purple",
+    "sourceFile": "kenney-nature/flower_purpleB.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "Colour-accent wildflower."
+  },
+  {
+    "id": "nature.hanging-moss",
+    "sourceFile": "kenney-nature/hanging_moss.glb",
+    "pack": "kenney-nature",
+    "category": "foliage",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "Draped moss accent for dense grove canopy."
+  },
+  {
+    "id": "nature.cliff-block",
+    "sourceFile": "kenney-nature/cliff_block_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "Blocky cliff face used to frame the quarry back wall and world edge."
+  },
+  {
+    "id": "nature.cliff-large",
+    "sourceFile": "kenney-nature/cliff_large_rock.glb",
+    "pack": "kenney-nature",
+    "category": "rock",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "notes": "Large cliff face, second silhouette for the quarry frame."
+  },
+  {
+    "id": "town.hedge",
+    "sourceFile": "kenney-fantasy/hedge.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "scale": 1.2,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+    "notes": "Plot boundary greenery, softer than the wooden fence."
+  },
+  {
+    "id": "town.banner",
+    "sourceFile": "kenney-fantasy/banner-green.glb",
+    "pack": "kenney-fantasy",
+    "category": "prop",
+    "scale": 1.2,
+    "interactionType": null,
+    "licence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+    "notes": "Restrained martial marker for the training ground perimeter."
   }
 ]
