@@ -208,6 +208,56 @@
   color: #cdeeb8;
 }
 
+.activity > span small {
+  display: block;
+  margin-top: 1px;
+  color: #aebcaf;
+  font-size: 8px;
+}
+
+.inventory article small.combat-bonuses {
+  margin-top: 3px;
+  color: #d7b96f;
+  font-weight: 700;
+}
+
+.combat-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  margin: 12px 0;
+  padding: 10px;
+  border: 1px solid #d7b96f38;
+  border-radius: 10px;
+  background: #ffffff08;
+}
+
+.combat-summary > .eyebrow,
+.combat-summary > strong,
+.combat-summary > small {
+  grid-column: 1 / -1;
+}
+
+.combat-summary > div {
+  display: grid;
+  gap: 2px;
+  padding: 6px;
+  border-radius: 7px;
+  background: #111b17a3;
+  color: #aebcaf;
+  font-size: 9px;
+}
+
+.combat-summary > div b {
+  color: #f3e4bd;
+  font-size: 13px;
+}
+
+.combat-summary > small {
+  color: #aebcaf;
+  font-size: 9px;
+}
+
 .world-metrics {
   position: absolute;
   z-index: 12;

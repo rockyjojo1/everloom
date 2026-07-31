@@ -6,6 +6,7 @@ import {
   countAttunedSkills,
   levelFromXp,
   masteryRankFromXp,
+  playerCombatStats,
 } from "@everloom/core";
 import { Fragment, useRef } from "react";
 import { inventoryCount, type PanelId, useGameStore } from "../game/store";
@@ -24,6 +25,7 @@ export function Hud() {
   const save = store.save;
   if (!save) return null;
   const attunedSkills = countAttunedSkills(save.skills);
+  const combatStats = playerCombatStats(save, CONTENT);
 
   // The banner always follows whichever quest is actually active in persisted
   // state (never a HUD-only guess), so its objective text can never drift from
@@ -60,7 +62,9 @@ export function Hud() {
     </section>
     <Minimap />
     {activity && <section className="activity glass">
-      <span>{activity.type === "gathering" ? CONTENT.resources[activity.resourceId]?.name : activity.type === "cooking" ? CONTENT.recipes[activity.recipeId]?.name : CONTENT.enemies[activity.enemyId]?.name}</span>
+      <span>{activity.type === "gathering" ? CONTENT.resources[activity.resourceId]?.name : activity.type === "cooking" ? CONTENT.recipes[activity.recipeId]?.name : CONTENT.enemies[activity.enemyId]?.name}
+        {activity.type === "combat" && <small>Lv {CONTENT.enemies[activity.enemyId]?.combatLevel} · {activity.enemyHp}/{CONTENT.enemies[activity.enemyId]?.maxHp} HP</small>}
+      </span>
       <i className="activity-progress"><b style={{ width: `${activityProgress}%` }} /></i>
       <button onClick={store.cancelCurrentActivity}>Stop</button>
     </section>}
@@ -82,7 +86,13 @@ export function Hud() {
               const item = CONTENT.items[stack.itemId]!;
               const equipped = Object.values(save.equipment).includes(item.id);
               return <article key={item.id}><div className={`item-glyph ${item.category}`}><ItemIcon iconId={item.iconId} /></div>
-                <div><strong>{item.name}</strong><small>{item.description}</small></div><b>×{stack.quantity}</b>
+                <div><strong>{item.name}</strong><small>{item.description}</small>
+                  {item.combatBonuses && <small className="combat-bonuses">
+                    {item.combatBonuses.accuracy > 0 && `Accuracy +${item.combatBonuses.accuracy} `}
+                    {item.combatBonuses.strength > 0 && `Strength +${item.combatBonuses.strength} `}
+                    {item.combatBonuses.defence > 0 && `Defence +${item.combatBonuses.defence}`}
+                  </small>}
+                </div><b>×{stack.quantity}</b>
                 {(item.equipmentSlot || item.healAmount > 0) && <button onClick={() => item.healAmount ? store.consumeFood(item.id) : store.equip(item.id)}>
                   {item.healAmount ? "Eat" : equipped ? "Equipped" : "Equip"}</button>}
               </article>;
@@ -98,6 +108,15 @@ export function Hud() {
               <span>{id}</span><b>Level {levelFromXp(progress.xp)}{attuned && <i className="attuned-mark" title="Attuned">✓</i>}</b><small>{progress.xp} XP</small>
             </div>;
           })}
+          <section className="combat-summary">
+            <span className="eyebrow">COMBAT PROFILE</span>
+            <strong>Level {combatStats.level}</strong>
+            <div><span>Accuracy</span><b>{combatStats.accuracy}</b></div>
+            <div><span>Max hit</span><b>{combatStats.maxHit}</b></div>
+            <div><span>Defence</span><b>{combatStats.defence}</b></div>
+            <small>Weapon: {save.equipment.weapon ? CONTENT.items[save.equipment.weapon]?.name : "Unarmed"}</small>
+            <small>Body: {save.equipment.body ? CONTENT.items[save.equipment.body]?.name : "Unarmoured"}</small>
+          </section>
           <h3>Mastery</h3>
           {Object.entries(save.mastery).map(([id, progress]) => <div key={id}><span>{CONTENT.resources[id]?.name ?? id}</span><b>Rank {masteryRankFromXp(progress.xp)}</b><small>{progress.xp} XP</small></div>)}
         </div>}
