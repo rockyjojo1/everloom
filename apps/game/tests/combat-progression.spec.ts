@@ -61,6 +61,7 @@ test("combat equipment changes derived stats and the skeleton awards a persisten
   await page.getByRole("button", { name: "Skills" }).click();
   await expect(page.locator(".combat-summary")).toContainText("Defence30");
   await expect(page.locator(".combat-summary")).toContainText("Body: Boneguard Vest");
+  await page.locator(".combat-summary").scrollIntoViewIfNeeded();
   await page.screenshot({ path: testInfo.outputPath("combat-profile.png"), fullPage: true });
   await page.getByRole("button", { name: "Close panel" }).click();
 
