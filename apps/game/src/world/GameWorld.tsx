@@ -186,6 +186,7 @@ export function GameWorld() {
     let route: GridPosition[] = [];
     let afterArrival: (() => void) | null = null;
     let disposed = false;
+    const assetJobs: Promise<unknown>[] = [];
 
     const play = (name: string, once = false) => {
       if (!playerMixer || name === currentClip) return;
@@ -203,7 +204,7 @@ export function GameWorld() {
       currentClip = name;
     };
 
-    void instantiateAsset("player.adventurer")
+    assetJobs.push(instantiateAsset("player.adventurer")
       .catch((error) => {
         console.warn("Player model failed; using the safe fallback figure.", error);
         element.dataset.assetWarning = "player";
@@ -220,7 +221,7 @@ export function GameWorld() {
           mixers.push(playerMixer);
           play("Idle");
         }
-      });
+      }));
 
     const addAsset = async (
       id: string,
@@ -261,10 +262,13 @@ export function GameWorld() {
         mixers.push(mixer);
       }
     };
-    for (const item of zone.scenery) void addAsset(item.id, item.assetId, item.x, item.z, item.rotation, item.scale, item.elevation, item.tint);
+    for (const item of zone.scenery) assetJobs.push(addAsset(item.id, item.assetId, item.x, item.z, item.rotation, item.scale, item.elevation, item.tint));
     for (const item of zone.interactables) {
-      void addAsset(item.id, item.assetId, item.x, item.z, 0, 1, item.kind === "ground_item" ? 0.14 : 0, item.tint ?? null, true);
+      assetJobs.push(addAsset(item.id, item.assetId, item.x, item.z, 0, 1, item.kind === "ground_item" ? 0.14 : 0, item.tint ?? null, true));
     }
+    void Promise.allSettled(assetJobs).then(() => {
+      if (!disposed) element.dataset.ready = "true";
+    });
 
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
@@ -348,7 +352,6 @@ export function GameWorld() {
     }
 
     let last = performance.now();
-    let frame = 0;
     let metricFrame = 0;
     let metricStart = last;
     let activeQuality = useGameStore.getState().save?.settings.quality ?? "standard";
@@ -460,7 +463,6 @@ export function GameWorld() {
         activityEffect.visible = false;
       }
       renderer.render(scene, camera);
-      frame += 1;
       metricFrame += 1;
       if (metrics.isConnected && now - metricStart >= 1000) {
         const position = save?.position;
@@ -468,7 +470,6 @@ export function GameWorld() {
         metricFrame = 0;
         metricStart = now;
       }
-      if (frame % 30 === 0) element.dataset.ready = "true";
     };
     requestAnimationFrame(animate);
 
