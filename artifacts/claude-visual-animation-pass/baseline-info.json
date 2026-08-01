@@ -1,0 +1,73 @@
+{
+  "hasHook": true,
+  "snapshot": {
+    "saveVersion": 5,
+    "player": {
+      "id": "local-player",
+      "name": "Auditor",
+      "appearanceId": "ember",
+      "hp": 24,
+      "maxHp": 24
+    },
+    "position": {
+      "x": 19,
+      "z": 16,
+      "facingX": 0,
+      "facingZ": 1
+    },
+    "currentZone": "meadowrest",
+    "inventory": [],
+    "inventorySlots": 18,
+    "equipment": {
+      "tool": null,
+      "weapon": null,
+      "body": null
+    },
+    "skills": {
+      "woodcutting": {
+        "xp": 0
+      },
+      "mining": {
+        "xp": 0
+      },
+      "fishing": {
+        "xp": 0
+      },
+      "cooking": {
+        "xp": 0
+      },
+      "smithing": {
+        "xp": 0
+      },
+      "melee": {
+        "xp": 0
+      }
+    },
+    "mastery": {},
+    "quests": {
+      "first_thread": {
+        "status": "active",
+        "stepIndex": 0,
+        "stepProgress": 0
+      }
+    },
+    "worldFlags": {
+      "intro_seen": true
+    },
+    "worldResources": {},
+    "worldEnemies": {},
+    "collections": [],
+    "currentActivity": null,
+    "activitySequence": 0,
+    "rngSeed": "61392d33b5538080d309c69834738801",
+    "simulationTimeMs": 11461,
+    "lastSavedAt": 1785575887701,
+    "lastActiveAt": 1785575900808,
+    "settings": {
+      "quality": "standard",
+      "musicVolume": 0.55,
+      "effectsVolume": 0.7,
+      "reducedMotion": false
+    }
+  }
+}

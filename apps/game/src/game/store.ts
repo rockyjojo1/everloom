@@ -43,6 +43,43 @@ interface DebugFlags {
   readonly interactions: boolean;
 }
 
+// RuneLite-style client-side clarity/QoL toggles. Deliberately kept out of
+// GameSave/the versioned migration chain (packages/core/src/save.ts) since
+// these are presentation-only preferences with no simulation effect — they
+// live in localStorage per browser profile instead of the save file.
+export interface WorldAssistanceSettings {
+  readonly objectiveHighlighting: boolean;
+  readonly pathTrailVisible: boolean;
+  readonly uiScale: "compact" | "standard" | "large";
+  readonly highContrast: boolean;
+}
+
+const WORLD_ASSISTANCE_STORAGE_KEY = "everloom.worldAssistance.v1";
+const DEFAULT_WORLD_ASSISTANCE: WorldAssistanceSettings = {
+  objectiveHighlighting: true,
+  pathTrailVisible: true,
+  uiScale: "standard",
+  highContrast: false,
+};
+
+function loadWorldAssistance(): WorldAssistanceSettings {
+  try {
+    const raw = localStorage.getItem(WORLD_ASSISTANCE_STORAGE_KEY);
+    if (!raw) return DEFAULT_WORLD_ASSISTANCE;
+    return { ...DEFAULT_WORLD_ASSISTANCE, ...(JSON.parse(raw) as Partial<WorldAssistanceSettings>) };
+  } catch {
+    return DEFAULT_WORLD_ASSISTANCE;
+  }
+}
+
+function persistWorldAssistance(next: WorldAssistanceSettings): void {
+  try {
+    localStorage.setItem(WORLD_ASSISTANCE_STORAGE_KEY, JSON.stringify(next));
+  } catch {
+    // Best-effort only; a private-browsing quota error should not break settings.
+  }
+}
+
 interface GameStore {
   readonly status: "booting" | "ready" | "error";
   readonly save: GameSave | null;
@@ -55,6 +92,8 @@ interface GameStore {
   readonly selectedTargetId: string | null;
   readonly logs: readonly LogEntry[];
   readonly debug: DebugFlags;
+  readonly worldAssistance: WorldAssistanceSettings;
+  setWorldAssistance: <K extends keyof WorldAssistanceSettings>(key: K, value: WorldAssistanceSettings[K]) => void;
   initialize: () => Promise<void>;
   beginIntro: (name?: string, appearanceId?: PlayerAppearanceId) => void;
   dismissEscapeIntro: () => void;
@@ -158,6 +197,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   selectedTargetId: null,
   logs: [],
   debug: { grid: false, blocked: false, interactions: false },
+  worldAssistance: loadWorldAssistance(),
 
   initialize: async () => {
     if (initializing) return initializing;
@@ -435,6 +475,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   setDebugFlag: (flag, value) => set((state) => ({ debug: { ...state.debug, [flag]: value } })),
+
+  setWorldAssistance: (key, value) => set((state) => {
+    const next = { ...state.worldAssistance, [key]: value };
+    persistWorldAssistance(next);
+    return { worldAssistance: next };
+  }),
 
   debugAddItem: (itemId, quantity) => {
     const save = get().save;

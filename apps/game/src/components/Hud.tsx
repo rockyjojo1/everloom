@@ -68,7 +68,9 @@ export function Hud() {
   const activeMasteryXp = activeResource ? save.mastery[activeResource.id]?.xp ?? 0 : 0;
   const activeMasteryRank = masteryRankFromXp(activeMasteryXp);
 
-  return <div className="hud">
+  const hudClass = ["hud", `ui-scale-${store.worldAssistance.uiScale}`, store.worldAssistance.highContrast ? "high-contrast" : ""]
+    .filter(Boolean).join(" ");
+  return <div className={hudClass}>
     <section className="objective glass">
       <span className="eyebrow">{(activeQuestDef?.name ?? "MEADOWREST").toUpperCase()}</span>
       <strong>{objectiveText}</strong>
@@ -157,8 +159,15 @@ export function Hud() {
                 const floor = rank * rank * 25;
                 const ceiling = (rank + 1) * (rank + 1) * 25;
                 const progress = Math.max(0, Math.min(100, (xp - floor) / Math.max(1, ceiling - floor) * 100));
+                // Presentation-only rank tier for the badge colour; purely
+                // cosmetic bucketing of the same rank number already shown
+                // as text, no effect on the underlying mastery calculation.
+                const tier = rank >= 20 ? "diamond" : rank >= 10 ? "gold" : rank >= 5 ? "silver" : "bronze";
                 return <article key={id} className={activeResource?.id === id ? "active" : ""}>
-                  <div><strong>{resource.name}</strong><b>Rank {rank}</b></div>
+                  <div>
+                    <strong>{resource.name}</strong>
+                    <b className={`mastery-rank-badge tier-${tier}`}>Rank {rank}</b>
+                  </div>
                   <i className="mastery-progress"><b style={{ width: `${progress}%` }} /></i>
                   <small>{xp} / {ceiling} XP · next rank: {(resource.masterySpeedPpmPerRank / 10_000).toFixed(1)}% faster</small>
                 </article>;
@@ -222,6 +231,29 @@ export function Hud() {
         {store.panel === "settings" && <div className="settings">
           <label>Visual quality<select value={save.settings.quality} onChange={(event) => store.setQuality(event.target.value as "low" | "standard" | "high")}>
             <option value="low">Low</option><option value="standard">Standard</option><option value="high">High</option></select></label>
+          <section className="world-assistance">
+            <h3>World Assistance</h3>
+            <p className="muted">Clarity and quality-of-life toggles. Nothing here affects skills, mastery, or quest progress.</p>
+            <label className="toggle-row">
+              <input type="checkbox" checked={store.worldAssistance.objectiveHighlighting}
+                onChange={(event) => store.setWorldAssistance("objectiveHighlighting", event.target.checked)} />
+              <span>Highlight current objective in the world</span>
+            </label>
+            <label className="toggle-row">
+              <input type="checkbox" checked={store.worldAssistance.pathTrailVisible}
+                onChange={(event) => store.setWorldAssistance("pathTrailVisible", event.target.checked)} />
+              <span>Show path trail to objective</span>
+            </label>
+            <label className="toggle-row">
+              <input type="checkbox" checked={store.worldAssistance.highContrast}
+                onChange={(event) => store.setWorldAssistance("highContrast", event.target.checked)} />
+              <span>High-contrast HUD text</span>
+            </label>
+            <label>UI scale<select value={store.worldAssistance.uiScale}
+              onChange={(event) => store.setWorldAssistance("uiScale", event.target.value as "compact" | "standard" | "large")}>
+              <option value="compact">Compact</option><option value="standard">Standard</option><option value="large">Large</option>
+            </select></label>
+          </section>
           <div className="button-row"><button onClick={store.exportSave}>Export save</button><button onClick={() => input.current?.click()}>Import save</button></div>
           <input ref={input} type="file" accept=".json,application/json" hidden onChange={(event) => {
             const file = event.target.files?.[0];

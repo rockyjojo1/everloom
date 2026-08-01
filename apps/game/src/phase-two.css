@@ -488,6 +488,41 @@
 .mastery-grid article.active {
   border-color: #d7b96f8a;
   background: #4c3f245c;
+  box-shadow: 0 0 0 1px #d7b96f2e, 0 4px 14px #d7b96f22;
+  transition: box-shadow 0.4s ease, background 0.4s ease;
+}
+
+.mastery-rank-badge {
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 9px;
+  letter-spacing: 0.03em;
+  border: 1px solid transparent;
+}
+
+.mastery-rank-badge.tier-bronze {
+  color: #d9a97a;
+  background: #3a2a1c80;
+  border-color: #c9884d55;
+}
+
+.mastery-rank-badge.tier-silver {
+  color: #d7dee0;
+  background: #33393c80;
+  border-color: #aab7bb55;
+}
+
+.mastery-rank-badge.tier-gold {
+  color: #f4d98a;
+  background: #4a3a1a80;
+  border-color: #ecc65f66;
+}
+
+.mastery-rank-badge.tier-diamond {
+  color: #bdeeff;
+  background: #1c3a4280;
+  border-color: #6fd6ec66;
+  box-shadow: 0 0 8px #6fd6ec33;
 }
 
 .mastery-grid article > div {
@@ -707,4 +742,74 @@
   .appearance > i { width: 28px; height: 33px; }
   .appearance > i::before { left: 7px; width: 14px; height: 14px; }
   .intro-notes { margin: 8px 0; }
+}
+
+/* World Assistance: RuneLite-style clarity/QoL toggles (settings panel). */
+.world-assistance {
+  display: grid;
+  gap: 8px;
+  padding: 11px;
+  border: 1px solid #ffffff16;
+  border-radius: 12px;
+  background: #11201aa8;
+}
+
+.world-assistance h3 {
+  margin: 0;
+  font: 15px Georgia, serif;
+  color: #f3e4bd;
+}
+
+.world-assistance > p.muted {
+  margin: -2px 0 2px;
+}
+
+.toggle-row {
+  display: flex !important;
+  grid-template-columns: none !important;
+  align-items: center;
+  gap: 9px;
+  font-size: 11px;
+  color: #dbe4dc;
+}
+
+.toggle-row input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: #d7b96f;
+}
+
+/* UI scale + high-contrast are applied as classes on the .hud root by Hud.tsx,
+   driven by the World Assistance settings above. */
+.ui-scale-compact .glass,
+.ui-scale-compact .dock,
+.ui-scale-compact .panel {
+  font-size: 92%;
+}
+
+.ui-scale-large .glass,
+.ui-scale-large .dock,
+.ui-scale-large .panel {
+  font-size: 114%;
+}
+
+.high-contrast .objective,
+.high-contrast .vitals,
+.high-contrast .activity,
+.high-contrast .panel,
+.high-contrast .log span {
+  background: #000000e6;
+  border-color: #ffffff55;
+}
+
+.high-contrast .objective strong,
+.high-contrast .panel h2,
+.high-contrast .mastery-overview h3,
+.high-contrast .world-assistance h3 {
+  color: #ffffff;
+}
+
+.high-contrast .muted,
+.high-contrast .empty {
+  color: #d8dfd8;
 }

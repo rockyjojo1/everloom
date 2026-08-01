@@ -822,8 +822,13 @@ export function GameWorld() {
       // a representative guidanceTargetId solely for navigation. This also
       // bridges semantic enemy IDs (used by quest events) to their physical
       // world interactable IDs without changing quest-completion logic.
+      // World Assistance settings (RuneLite-style clarity toggles, see
+      // Hud.tsx's settings panel) let players turn the always-on objective
+      // beacon and route trail off if they find them intrusive; both default
+      // to on.
+      const worldAssistance = useGameStore.getState().worldAssistance;
       const objectiveTarget = objectiveGuidanceTarget(save);
-      if (objectiveTarget && save && targetVisible(objectiveTarget, save)) {
+      if (worldAssistance.objectiveHighlighting && objectiveTarget && save && targetVisible(objectiveTarget, save)) {
         objectiveBeaconGroup.position.copy(world(objectiveTarget));
         objectiveBeaconGroup.position.y += Math.sin(now / 420) * 0.12;
         objectiveBeaconRing.scale.setScalar(1 + Math.sin(now / 280) * 0.12);
@@ -833,13 +838,13 @@ export function GameWorld() {
       } else {
         objectiveBeaconGroup.visible = false;
       }
-      if (objectiveTarget && save && targetVisible(objectiveTarget, save) && lastAutomaticObjectiveId !== objectiveTarget.id) {
+      if (worldAssistance.pathTrailVisible && objectiveTarget && save && targetVisible(objectiveTarget, save) && lastAutomaticObjectiveId !== objectiveTarget.id) {
         renderObjectiveRoute(objectiveTarget, save);
         lastAutomaticObjectiveId = objectiveTarget.id;
       } else if (!objectiveTarget) {
         lastAutomaticObjectiveId = null;
       }
-      if (objectiveRouteTrail.visible && objectiveRouteTargetId !== objectiveTarget?.id) {
+      if (objectiveRouteTrail.visible && (!worldAssistance.pathTrailVisible || objectiveRouteTargetId !== objectiveTarget?.id)) {
         objectiveRouteTrail.visible = false;
         objectiveRouteTargetId = null;
       }
