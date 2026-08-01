@@ -1,7 +1,12 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { CONTENT } from "@everloom/content";
-import { currentObjectiveStep, type GridPosition, type ZoneInteractable } from "@everloom/core";
+import { type GridPosition, type ZoneInteractable } from "@everloom/core";
+import {
+  OBJECTIVE_ROUTE_EVENT,
+  objectiveGuidanceTarget,
+  type ObjectiveRouteDetail,
+} from "../game/objectiveGuidance";
 import { blockedSet, findPath, pathToTarget } from "../game/pathfinding";
 import { useGameStore } from "../game/store";
 import { instantiateAsset } from "./assets";
@@ -223,6 +228,18 @@ export function GameWorld() {
     objectiveBeaconGroup.add(objectiveBeaconBeam, objectiveBeaconRing, objectiveBeaconLight, objectiveBeaconMarker);
     objectiveBeaconGroup.visible = false;
     scene.add(objectiveBeaconGroup);
+    const objectiveRouteMaterial = new THREE.PointsMaterial({
+      color: 0xffdf79,
+      size: 0.28,
+      transparent: true,
+      opacity: 0.9,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    const objectiveRouteTrail = new THREE.Points(new THREE.BufferGeometry(), objectiveRouteMaterial);
+    objectiveRouteTrail.visible = false;
+    scene.add(objectiveRouteTrail);
+    let objectiveRouteTargetId: string | null = null;
     const effectPositions = new Float32Array(36);
     const activityEffect = new THREE.Points(
       new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(effectPositions, 3)),
@@ -377,6 +394,28 @@ export function GameWorld() {
       }
     };
     renderer.domElement.addEventListener("pointerup", onPointer);
+    const showObjectiveRoute = (event: Event) => {
+      const requestedId = (event as CustomEvent<ObjectiveRouteDetail>).detail?.targetId;
+      const save = useGameStore.getState().save;
+      const target = objectiveGuidanceTarget(save);
+      if (!save || !requestedId || target?.id !== requestedId || !targetAvailable(target, save)) return;
+
+      const routePoints = pathToTarget(zone, save.position, target);
+      const positions = routePoints.map((position) => {
+        const point = world(position);
+        point.y += 0.14;
+        return point;
+      });
+      const targetPoint = world(target);
+      targetPoint.y += 0.14;
+      positions.push(targetPoint);
+      objectiveRouteTrail.geometry.dispose();
+      objectiveRouteTrail.geometry = new THREE.BufferGeometry().setFromPoints(positions);
+      const hasRoute = positions.length > 1;
+      objectiveRouteTargetId = hasRoute ? target.id : null;
+      objectiveRouteTrail.visible = hasRoute;
+    };
+    window.addEventListener(OBJECTIVE_ROUTE_EVENT, showObjectiveRoute);
     if (import.meta.env.DEV) {
       (window as Window & { __EVERLOOM_TEST__?: unknown }).__EVERLOOM_TEST__ = {
         targetPosition(targetId: string) {
@@ -390,13 +429,17 @@ export function GameWorld() {
         navigation: () => ({ route: [...route], visual: grid(playerRoot.position), hidden: document.hidden }),
         objectiveBeacon: () => {
           const save = useGameStore.getState().save;
-          const step = save ? currentObjectiveStep(save, CONTENT) : null;
-          const targetId = step?.guidanceTargetId ?? step?.targetId ?? null;
+          const targetId = objectiveGuidanceTarget(save)?.id ?? null;
           return {
             visible: objectiveBeaconGroup.visible,
             targetId,
           };
         },
+        objectiveRoute: () => ({
+          visible: objectiveRouteTrail.visible,
+          targetId: objectiveRouteTargetId,
+          points: objectiveRouteTrail.geometry.getAttribute("position")?.count ?? 0,
+        }),
         equip: (itemId: string) => useGameStore.getState().equip(itemId),
         simulate: (elapsedMs: number) => useGameStore.getState().debugSimulateOffline(elapsedMs),
         stop: () => useGameStore.getState().cancelCurrentActivity(),
@@ -532,11 +575,7 @@ export function GameWorld() {
       // a representative guidanceTargetId solely for navigation. This also
       // bridges semantic enemy IDs (used by quest events) to their physical
       // world interactable IDs without changing quest-completion logic.
-      const objectiveStep = save ? currentObjectiveStep(save, CONTENT) : null;
-      const objectiveTargetId = objectiveStep?.guidanceTargetId ?? objectiveStep?.targetId;
-      const objectiveTarget = objectiveTargetId
-        ? zone.interactables.find((target) => target.id === objectiveTargetId)
-        : undefined;
+      const objectiveTarget = objectiveGuidanceTarget(save);
       if (objectiveTarget && save && targetAvailable(objectiveTarget, save)) {
         objectiveBeaconGroup.position.copy(world(objectiveTarget));
         objectiveBeaconGroup.position.y += Math.sin(now / 420) * 0.12;
@@ -547,6 +586,11 @@ export function GameWorld() {
       } else {
         objectiveBeaconGroup.visible = false;
       }
+      if (objectiveRouteTrail.visible && objectiveRouteTargetId !== objectiveTarget?.id) {
+        objectiveRouteTrail.visible = false;
+        objectiveRouteTargetId = null;
+      }
+      objectiveRouteMaterial.opacity = 0.72 + Math.sin(now / 230) * 0.2;
       const activity = save?.currentActivity;
       const activityTarget = activity
         ? zone.interactables.find((target) => target.id === activity.targetId)
@@ -599,9 +643,12 @@ export function GameWorld() {
       disposed = true;
       observer.disconnect();
       renderer.domElement.removeEventListener("pointerup", onPointer);
+      window.removeEventListener(OBJECTIVE_ROUTE_EVENT, showObjectiveRoute);
       renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
       renderer.domElement.removeEventListener("webglcontextrestored", onContextRestored);
       contextReload.removeEventListener("click", onContextReload);
+      objectiveRouteTrail.geometry.dispose();
+      objectiveRouteMaterial.dispose();
       renderer.dispose();
       delete (window as Window & { __EVERLOOM_TEST__?: unknown }).__EVERLOOM_TEST__;
       element.replaceChildren();

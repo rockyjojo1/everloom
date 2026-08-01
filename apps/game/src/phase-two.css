@@ -374,6 +374,17 @@
   min-height: 38px;
 }
 
+.objective-map-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: objective-map-pulse 1.25s ease-out infinite;
+}
+
+@keyframes objective-map-pulse {
+  from { opacity: 1; transform: scale(.72); }
+  to { opacity: .15; transform: scale(1.35); }
+}
+
 @media (max-height: 430px) {
   .log span:nth-last-child(n + 5) {
     display: none;

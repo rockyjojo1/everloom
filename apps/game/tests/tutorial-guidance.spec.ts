@@ -23,6 +23,7 @@ type TestApi = {
     inventory: { itemId: string; quantity: number }[];
   };
   objectiveBeacon: () => { visible: boolean; targetId: string | null };
+  objectiveRoute: () => { visible: boolean; targetId: string | null; points: number };
 };
 
 async function activate(page: Page, target: string, objective: RegExp) {
@@ -66,6 +67,12 @@ test.describe("Tutorial guidance — starter tool discoverability", () => {
     // guiding the player to Mara before they have clicked anything.
     let mark = await beacon(page);
     expect(mark).toEqual({ visible: true, targetId: "npc_mara" });
+    await expect(page.locator(".objective-map-marker")).toHaveAttribute("data-target-id", "npc_mara");
+
+    await page.getByRole("button", { name: "Show route" }).click();
+    await expect.poll(async () => page.evaluate(() => (
+      window as unknown as { __EVERLOOM_TEST__: TestApi }
+    ).__EVERLOOM_TEST__.objectiveRoute())).toMatchObject({ visible: true, targetId: "npc_mara" });
 
     await activate(page, "npc_mara", /Pick up the worn hatchet/i);
 
@@ -74,6 +81,16 @@ test.describe("Tutorial guidance — starter tool discoverability", () => {
     // in real time, not just at load.
     mark = await beacon(page);
     expect(mark).toEqual({ visible: true, targetId: "ground_worn_hatchet" });
+    await expect(page.locator(".objective-map-marker")).toHaveAttribute("data-target-id", "ground_worn_hatchet");
+    await expect.poll(async () => page.evaluate(() => (
+      window as unknown as { __EVERLOOM_TEST__: TestApi }
+    ).__EVERLOOM_TEST__.objectiveRoute())).toMatchObject({ visible: false, targetId: null });
+    await page.getByRole("button", { name: "Show route" }).click();
+    await expect.poll(async () => page.evaluate(() => (
+      window as unknown as { __EVERLOOM_TEST__: TestApi }
+    ).__EVERLOOM_TEST__.objectiveRoute())).toMatchObject({ visible: true, targetId: "ground_worn_hatchet" });
+    await page.waitForTimeout(350);
+    await page.screenshot({ path: artifactPath(`objective-route-${viewSuffix}.png`), fullPage: true });
 
     await activate(page, "ground_worn_hatchet", /Open your pack and equip the worn hatchet/i);
 

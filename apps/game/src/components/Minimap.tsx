@@ -1,5 +1,6 @@
 import { CONTENT } from "@everloom/content";
 import type { ZoneInteractable } from "@everloom/core";
+import { objectiveGuidanceTarget } from "../game/objectiveGuidance";
 import { useGameStore } from "../game/store";
 
 const zone = CONTENT.zones.meadowrest!;
@@ -16,6 +17,7 @@ function markerColour(target: ZoneInteractable): string {
 export function Minimap() {
   const save = useGameStore((state) => state.save);
   if (!save) return null;
+  const guidanceTarget = objectiveGuidanceTarget(save);
   return <section className="minimap glass" aria-label="Meadowrest minimap">
     <svg viewBox={`0 0 ${zone.width} ${zone.depth}`} role="img">
       <defs><clipPath id="map-circle"><circle cx={zone.width / 2} cy={zone.depth / 2} r={14.7} /></clipPath></defs>
@@ -30,6 +32,11 @@ export function Minimap() {
           <rect key={item.id} x={item.x - .65} y={item.z - .45} width="1.3" height=".9" rx=".15" fill="#5a3e2c" />)}
         {zone.interactables.map((target) => <circle key={target.id} cx={target.x} cy={target.z} r={target.kind === "landmark" ? .55 : .33}
           fill={markerColour(target)} stroke="#17211d" strokeWidth=".16" />)}
+        {guidanceTarget && <g className="objective-map-marker" data-target-id={guidanceTarget.id}
+          transform={`translate(${guidanceTarget.x} ${guidanceTarget.z})`}>
+          <circle className="objective-map-pulse" r="1.25" fill="none" stroke="#fff0a8" strokeWidth=".3" />
+          <path d="M0,-.85 L.68,0 L0,.85 L-.68,0 Z" fill="#ffe08a" stroke="#2a2418" strokeWidth=".2" />
+        </g>}
         <g transform={`translate(${save.position.x} ${save.position.z}) rotate(${Math.atan2(save.position.facingZ, save.position.facingX) * 180 / Math.PI + 90})`}>
           <path d="M0,-1 L.65,.65 L0,.4 L-.65,.65 Z" fill="#fff3c5" stroke="#18231f" strokeWidth=".2" />
         </g>

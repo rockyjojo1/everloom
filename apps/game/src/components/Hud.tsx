@@ -9,6 +9,7 @@ import {
   playerCombatStats,
 } from "@everloom/core";
 import { Fragment, useRef } from "react";
+import { objectiveGuidanceTarget, requestObjectiveRoute } from "../game/objectiveGuidance";
 import { inventoryCount, type PanelId, useGameStore } from "../game/store";
 import { Icon } from "./Icons";
 import { Minimap } from "./Minimap";
@@ -35,9 +36,8 @@ export function Hud() {
   const activeProgress = activeEntry?.[1] ?? null;
   const activeQuestDef = activeQuestId ? CONTENT.quests[activeQuestId] : null;
   const activeStep = activeQuestDef && activeProgress ? activeQuestDef.steps[activeProgress.stepIndex] : null;
-  const guidanceTargetId = activeStep?.guidanceTargetId ?? activeStep?.targetId ?? null;
-  const hasWorldGuidance = guidanceTargetId !== null && Object.values(CONTENT.zones)
-    .some((zone) => zone.interactables.some((target) => target.id === guidanceTargetId));
+  const guidanceTarget = objectiveGuidanceTarget(save);
+  const hasWorldGuidance = guidanceTarget !== null;
   const guidanceText = activeStep?.guidanceText
     ?? (hasWorldGuidance ? "Follow the gold marker in the world." : null);
   const guidancePanel = activeStep?.kind === "equip"
@@ -69,6 +69,9 @@ export function Hud() {
       {guidanceText && <small className="guide-hint">{guidanceText}</small>}
       {guidancePanel && <button className="objective-action" onClick={() => store.setPanel(guidancePanel.id)}>
         {guidancePanel.label}
+      </button>}
+      {guidanceTarget && <button className="objective-action" onClick={() => requestObjectiveRoute(guidanceTarget.id)}>
+        Show route
       </button>}
     </section>
     <section className="vitals glass">
