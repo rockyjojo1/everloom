@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { CONTENT } from "@everloom/content";
-import type { GridPosition, ZoneInteractable } from "@everloom/core";
+import { currentObjectiveStep, type GridPosition, type ZoneInteractable } from "@everloom/core";
 import { blockedSet, findPath, pathToTarget } from "../game/pathfinding";
 import { useGameStore } from "../game/store";
 import { instantiateAsset } from "./assets";
@@ -168,6 +168,61 @@ export function GameWorld() {
     targetHalo.rotation.x = -Math.PI / 2;
     targetHalo.visible = false;
     scene.add(targetHalo);
+
+    // The objective beacon is a persistent, always-visible marker over
+    // whatever the player's CURRENT quest step's physical target is — unlike
+    // targetHalo above (which only appears once the player has already
+    // clicked something), this needs no prior interaction. It exists so a
+    // new player can never lose track of a required tool or destination
+    // (e.g. the starter pickaxe) purely because it blends into scenery.
+    // Additive blending + a real point light (the same technique the
+    // smelter's ember glow already uses) so this reads clearly even against
+    // the bright daylight meadow/quarry palette, not just in shadow.
+    const objectiveBeaconGroup = new THREE.Group();
+    const objectiveBeaconBeam = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.045, 0.2, 2.4, 12, 1, true),
+      new THREE.MeshBasicMaterial({
+        color: 0xfff0a8,
+        transparent: true,
+        opacity: 0.85,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    );
+    objectiveBeaconBeam.position.y = 1.2;
+    const objectiveBeaconRing = new THREE.Mesh(
+      new THREE.RingGeometry(0.36, 0.5, 28),
+      new THREE.MeshBasicMaterial({
+        color: 0xfff6cf,
+        transparent: true,
+        opacity: 1,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    );
+    objectiveBeaconRing.rotation.x = -Math.PI / 2;
+    objectiveBeaconRing.position.y = 0.06;
+    const objectiveBeaconLight = new THREE.PointLight(0xffd76a, 2.4, 5, 2);
+    objectiveBeaconLight.position.y = 1.1;
+    // Floating diamond marker well above head height: the ground ring/beam
+    // can end up fully behind the player's own model once they've walked
+    // right up to a ground-item objective (interactionRadius 0 means the
+    // route ends exactly on that tile) — this stays visible above the
+    // character regardless of standing distance, matching the common
+    // above-target marker convention from other RPGs/MMOs.
+    // Sized to read clearly at this game's fairly distant isometric follow
+    // camera (a small marker disappears among trees/rocks at that zoom) —
+    // tuned by actually viewing captured screenshots, not guessed.
+    const objectiveBeaconMarker = new THREE.Mesh(
+      new THREE.OctahedronGeometry(0.4, 0),
+      new THREE.MeshBasicMaterial({ color: 0xfff6cf, transparent: true, opacity: 0.98, blending: THREE.AdditiveBlending, depthWrite: false }),
+    );
+    objectiveBeaconMarker.position.y = 2.6;
+    objectiveBeaconGroup.add(objectiveBeaconBeam, objectiveBeaconRing, objectiveBeaconLight, objectiveBeaconMarker);
+    objectiveBeaconGroup.visible = false;
+    scene.add(objectiveBeaconGroup);
     const effectPositions = new Float32Array(36);
     const activityEffect = new THREE.Points(
       new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(effectPositions, 3)),
@@ -333,6 +388,14 @@ export function GameWorld() {
         },
         snapshot: () => useGameStore.getState().save,
         navigation: () => ({ route: [...route], visual: grid(playerRoot.position), hidden: document.hidden }),
+        objectiveBeacon: () => {
+          const save = useGameStore.getState().save;
+          const step = save ? currentObjectiveStep(save, CONTENT) : null;
+          return {
+            visible: objectiveBeaconGroup.visible,
+            targetId: step?.targetId ?? null,
+          };
+        },
         equip: (itemId: string) => useGameStore.getState().equip(itemId),
         simulate: (elapsedMs: number) => useGameStore.getState().debugSimulateOffline(elapsedMs),
         stop: () => useGameStore.getState().cancelCurrentActivity(),
@@ -461,6 +524,24 @@ export function GameWorld() {
         targetHalo.visible = true;
       } else {
         targetHalo.visible = false;
+      }
+      // Always-on guidance: highlight the CURRENT quest step's physical
+      // target, independent of anything the player has clicked. Steps
+      // without a single specific target (targetId: null, e.g. "gather 3
+      // logs from any tree") have nothing to beacon and are left alone.
+      const objectiveStep = save ? currentObjectiveStep(save, CONTENT) : null;
+      const objectiveTarget = objectiveStep?.targetId
+        ? zone.interactables.find((target) => target.id === objectiveStep.targetId)
+        : undefined;
+      if (objectiveTarget && save && targetAvailable(objectiveTarget, save)) {
+        objectiveBeaconGroup.position.copy(world(objectiveTarget));
+        objectiveBeaconGroup.position.y += Math.sin(now / 420) * 0.12;
+        objectiveBeaconRing.scale.setScalar(1 + Math.sin(now / 280) * 0.12);
+        objectiveBeaconMarker.rotation.y += animationDt * 1.6;
+        objectiveBeaconMarker.rotation.x += animationDt * 0.9;
+        objectiveBeaconGroup.visible = true;
+      } else {
+        objectiveBeaconGroup.visible = false;
       }
       const activity = save?.currentActivity;
       const activityTarget = activity

@@ -9,6 +9,7 @@ import {
   combatHitChancePpm,
   countAttunedSkills,
   createNewSave,
+  currentObjectiveStep,
   deserializeSave,
   deterministicRollPpm,
   equipItem,
@@ -784,5 +785,38 @@ describe("produce quest step source binding", () => {
     const event: GameEvent = { type: "item_gained", itemId: "cooked", quantity: 1, sourceId: "anywhere-at-all" };
     const applied = applyQuestEvents(save, [event], openContent);
     expect(applied.state.quests.source_open?.status).toBe("completed");
+  });
+});
+
+describe("currentObjectiveStep", () => {
+  it("resolves the full step (including targetId) for the active quest's current step, not just its text", () => {
+    const save = createNewSave(0, "objective-step-seed", { x: 5, z: 5 });
+    // A fresh save's default "first_thread" quest has no matching definition
+    // in TEST_CONTENT (only "tutorial" is defined there), so this returns null.
+    expect(currentObjectiveStep(save, TEST_CONTENT)).toBeNull();
+
+    const withQuest: GameSave = {
+      ...save,
+      quests: { tutorial: { status: "active", stepIndex: 0, stepProgress: 0 } },
+    };
+    const activeStep = currentObjectiveStep(withQuest, TEST_CONTENT);
+    expect(activeStep).toMatchObject({ id: "pickup_axe", kind: "pickup", targetId: "ground_axe" });
+  });
+
+  it("returns null once every quest is completed or none is active", () => {
+    const save: GameSave = {
+      ...createNewSave(0, "objective-step-seed-2", { x: 5, z: 5 }),
+      quests: { tutorial: { status: "completed", stepIndex: 3, stepProgress: 0 } },
+    };
+    expect(currentObjectiveStep(save, TEST_CONTENT)).toBeNull();
+  });
+
+  it("a step with no single physical target (targetId: null) resolves with targetId null, not a crash", () => {
+    const save: GameSave = {
+      ...createNewSave(0, "objective-step-seed-3", { x: 5, z: 5 }),
+      quests: { tutorial: { status: "active", stepIndex: 2, stepProgress: 0 } },
+    };
+    const step = currentObjectiveStep(save, TEST_CONTENT);
+    expect(step).toMatchObject({ id: "gather_log", targetId: null });
   });
 });

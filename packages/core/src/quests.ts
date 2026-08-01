@@ -119,9 +119,21 @@ export function forceCompleteQuest(state: GameSave, questId: string, content: Co
 }
 
 export function currentObjective(state: GameSave, content: ContentBundle): string | null {
+  return currentObjectiveStep(state, content)?.objective ?? null;
+}
+
+/**
+ * Returns the full step definition for whichever quest is currently active,
+ * not just its objective text. UI and world code both need this: the HUD
+ * renders `.objective`/`.targetId`-independent text, while the 3D world
+ * needs `targetId` to know which real interactable (if any) to highlight as
+ * the player's current physical destination — e.g. so a lost new player can
+ * see exactly where the starter pickaxe is without any debug help.
+ */
+export function currentObjectiveStep(state: GameSave, content: ContentBundle): QuestStepDefinition | null {
   for (const [questId, progress] of Object.entries(state.quests)) {
     if (progress.status !== "active") continue;
-    return content.quests[questId]?.steps[progress.stepIndex]?.objective ?? null;
+    return content.quests[questId]?.steps[progress.stepIndex] ?? null;
   }
   return null;
 }
