@@ -104,6 +104,9 @@ export function buildValidatedContent(): ContentBundle {
       if (step.targetId && !allInteractables.has(step.targetId) && !enemies[step.targetId]) {
         errors.push(`Quest ${quest.id}/${step.id} references missing target ${step.targetId}`);
       }
+      if (step.guidanceTargetId && !allInteractables.has(step.guidanceTargetId)) {
+        errors.push(`Quest ${quest.id}/${step.id} references missing guidance target ${step.guidanceTargetId}`);
+      }
       if (step.kind === "pickup") {
         const target = step.targetId ? allInteractables.get(step.targetId) : undefined;
         if (!target || target.kind !== "ground_item" || target.itemId !== step.itemId) {

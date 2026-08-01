@@ -25,6 +25,7 @@
         "kind": "equip",
         "objective": "Open your pack and equip the worn hatchet.",
         "targetId": null,
+        "guidanceText": "Open Pack below, then choose Equip beside the Worn Hatchet.",
         "itemId": "worn_hatchet",
         "count": 1
       },
@@ -33,6 +34,8 @@
         "kind": "gather",
         "objective": "Chop three Meadow Logs in the western grove.",
         "targetId": null,
+        "guidanceTargetId": "oak_west_1",
+        "guidanceText": "Follow the gold marker to the western oaks. One tree can supply all three logs as it regrows.",
         "itemId": "meadow_log",
         "count": 3
       },
@@ -49,6 +52,7 @@
         "kind": "equip",
         "objective": "Equip the worn pickaxe.",
         "targetId": null,
+        "guidanceText": "Open Pack below, then choose Equip beside the Worn Pickaxe.",
         "itemId": "worn_pickaxe",
         "count": 1
       },
@@ -57,6 +61,8 @@
         "kind": "gather",
         "objective": "Mine three Copper Ore from the northern quarry.",
         "targetId": null,
+        "guidanceTargetId": "copper_north_1",
+        "guidanceText": "Follow the gold marker into the northern quarry and work any copper outcrop.",
         "itemId": "copper_ore",
         "count": 3
       },
@@ -73,6 +79,7 @@
         "kind": "equip",
         "objective": "Equip the worn fishing rod.",
         "targetId": null,
+        "guidanceText": "Open Pack below, then choose Equip beside the Worn Fishing Rod.",
         "itemId": "worn_fishing_rod",
         "count": 1
       },
@@ -81,6 +88,8 @@
         "kind": "gather",
         "objective": "Catch two Riverlings from the shoal.",
         "targetId": null,
+        "guidanceTargetId": "riverling_south",
+        "guidanceText": "Follow the gold marker south to the rippling shoal beside the bridge.",
         "itemId": "raw_riverling",
         "count": 2
       },
@@ -89,6 +98,8 @@
         "kind": "cook",
         "objective": "Cook a Riverling at the village fire.",
         "targetId": null,
+        "guidanceTargetId": "village_cooking_fire",
+        "guidanceText": "The gold marker shows the village cooking fire. Bring at least one raw Riverling.",
         "itemId": "cooked_riverling",
         "count": 1
       },
@@ -105,6 +116,7 @@
         "kind": "equip",
         "objective": "Equip the militia sword.",
         "targetId": null,
+        "guidanceText": "Open Pack below, then choose Equip beside the Militia Sword.",
         "itemId": "meadowrest_sword",
         "count": 1
       },
@@ -113,6 +125,8 @@
         "kind": "defeat",
         "objective": "Defeat the restless skeleton at the eastern training ground.",
         "targetId": "restless_skeleton",
+        "guidanceTargetId": "skeleton_east",
+        "guidanceText": "Follow the gold marker east. Make sure the Militia Sword is equipped before engaging.",
         "itemId": null,
         "count": 1
       },
@@ -146,6 +160,8 @@
         "kind": "gather",
         "objective": "Mine four Copper Ore from the northern quarry.",
         "targetId": null,
+        "guidanceTargetId": "copper_north_1",
+        "guidanceText": "Return to the gold-marked copper outcrop. Any quarry outcrop counts.",
         "itemId": "copper_ore",
         "count": 4
       },
@@ -170,6 +186,7 @@
         "kind": "equip",
         "objective": "Equip the Copper Battleaxe.",
         "targetId": null,
+        "guidanceText": "Open Pack below and equip your newly forged Copper Battleaxe.",
         "itemId": "copper_battleaxe",
         "count": 1
       }
@@ -187,6 +204,7 @@
         "kind": "attune",
         "objective": "Strengthen every Meadowrest skill to level 5.",
         "targetId": null,
+        "guidanceText": "Open Skills below to track Woodcutting, Mining, Fishing, Cooking, and Smithing. Train each to level 5.",
         "itemId": null,
         "count": 5
       },
@@ -220,6 +238,8 @@
         "kind": "gather",
         "objective": "Harvest two Heartwood Logs from the awakened grove.",
         "targetId": null,
+        "guidanceTargetId": "verdant_heartwood_1",
+        "guidanceText": "Follow the gold marker into the awakened northern grove and harvest a Heartwood Bough.",
         "itemId": "heartwood_log",
         "count": 2
       },
@@ -228,6 +248,8 @@
         "kind": "cook",
         "objective": "Brew a Verdant Tonic at the Grove Hearth.",
         "targetId": null,
+        "guidanceTargetId": "grove_hearth",
+        "guidanceText": "The gold marker shows the Grove Hearth. You also need one raw Riverling.",
         "itemId": "verdant_tonic",
         "count": 1
       }

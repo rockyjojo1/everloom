@@ -130,6 +130,10 @@ export interface QuestStepDefinition {
   readonly kind: QuestStepKind;
   readonly objective: string;
   readonly targetId: string | null;
+  /** Optional physical world target used only for player guidance. */
+  readonly guidanceTargetId?: string | null;
+  /** Optional contextual help shown beneath the objective. */
+  readonly guidanceText?: string;
   readonly itemId: string | null;
   readonly count: number;
 }

@@ -391,9 +391,10 @@ export function GameWorld() {
         objectiveBeacon: () => {
           const save = useGameStore.getState().save;
           const step = save ? currentObjectiveStep(save, CONTENT) : null;
+          const targetId = step?.guidanceTargetId ?? step?.targetId ?? null;
           return {
             visible: objectiveBeaconGroup.visible,
-            targetId: step?.targetId ?? null,
+            targetId,
           };
         },
         equip: (itemId: string) => useGameStore.getState().equip(itemId),
@@ -526,12 +527,15 @@ export function GameWorld() {
         targetHalo.visible = false;
       }
       // Always-on guidance: highlight the CURRENT quest step's physical
-      // target, independent of anything the player has clicked. Steps
-      // without a single specific target (targetId: null, e.g. "gather 3
-      // logs from any tree") have nothing to beacon and are left alone.
+      // target, independent of anything the player has clicked. A quest may
+      // keep targetId null when any matching resource counts while supplying
+      // a representative guidanceTargetId solely for navigation. This also
+      // bridges semantic enemy IDs (used by quest events) to their physical
+      // world interactable IDs without changing quest-completion logic.
       const objectiveStep = save ? currentObjectiveStep(save, CONTENT) : null;
-      const objectiveTarget = objectiveStep?.targetId
-        ? zone.interactables.find((target) => target.id === objectiveStep.targetId)
+      const objectiveTargetId = objectiveStep?.guidanceTargetId ?? objectiveStep?.targetId;
+      const objectiveTarget = objectiveTargetId
+        ? zone.interactables.find((target) => target.id === objectiveTargetId)
         : undefined;
       if (objectiveTarget && save && targetAvailable(objectiveTarget, save)) {
         objectiveBeaconGroup.position.copy(world(objectiveTarget));

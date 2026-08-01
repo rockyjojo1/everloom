@@ -57,7 +57,7 @@ test.describe("Tutorial guidance — starter tool discoverability", () => {
     const isDesktop = testInfo.project.name === "desktop";
     const viewSuffix = isDesktop ? "desktop" : "landscape";
 
-    await page.goto("/?e2e=1&debug=1");
+    await page.goto("/?e2e=1");
     await page.getByRole("button", { name: "Enter Meadowrest" }).click();
     await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true", { timeout: 35_000 });
     await page.waitForTimeout(400);
@@ -77,20 +77,22 @@ test.describe("Tutorial guidance — starter tool discoverability", () => {
 
     await activate(page, "ground_worn_hatchet", /Open your pack and equip the worn hatchet/i);
 
-    // Step 3 (equip_hatchet, targetId: null — no single physical target).
-    // The beacon must correctly show nothing here rather than a stale or
-    // incorrect marker.
+    // Step 3 is a UI action rather than a world target. The beacon clears,
+    // while the objective itself provides a direct, working Pack action.
     mark = await beacon(page);
     expect(mark).toEqual({ visible: false, targetId: null });
+    await expect(page.locator(".objective")).toContainText(/Open Pack below/i);
 
-    await page.getByRole("button", { name: "Pack" }).click();
+    await page.getByRole("button", { name: "Open Pack" }).click();
     await page.locator("article").filter({ hasText: "Worn Hatchet" }).getByRole("button", { name: "Equip" }).click();
     await expect(page.getByText(/Chop three Meadow Logs/i)).toBeVisible();
     await page.getByRole("button", { name: "Close panel" }).click();
 
-    // Step 4 (gather_logs, targetId: null — any of three oak nodes qualify).
+    // Step 4 accepts any oak, but guidanceTargetId deliberately chooses one
+    // representative nearby oak so the player is never left without a lead.
     mark = await beacon(page);
-    expect(mark).toEqual({ visible: false, targetId: null });
+    expect(mark).toEqual({ visible: true, targetId: "oak_west_1" });
+    await expect(page.locator(".objective")).toContainText(/gold marker to the western oaks/i);
 
     await activate(page, "oak_west_1", /Chop three Meadow Logs|Collect the worn pickaxe/i);
     // meadowrest_oak always succeeds at actionDurationMs 2800 with a 5500ms
@@ -126,5 +128,6 @@ test.describe("Tutorial guidance — starter tool discoverability", () => {
     // Step 6 (equip_pickaxe, targetId: null again) — beacon correctly clears.
     mark = await beacon(page);
     expect(mark).toEqual({ visible: false, targetId: null });
+    await expect(page.getByRole("button", { name: "Open Pack" })).toBeVisible();
   });
 });

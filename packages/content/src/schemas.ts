@@ -93,6 +93,8 @@ export const questSchema = z.object({
     kind: z.enum(["talk", "pickup", "equip", "gather", "cook", "produce", "defeat", "interact", "attune"]),
     objective: z.string().min(1),
     targetId: identifier.nullable(),
+    guidanceTargetId: identifier.nullable().optional(),
+    guidanceText: z.string().min(1).optional(),
     itemId: identifier.nullable(),
     count: positiveInteger,
   }).refine(

@@ -61,6 +61,31 @@ describe("Everloom authored content", () => {
       }],
     }).steps[0]?.kind).toBe("produce");
   });
+
+  it("maps every authored guidance target to a real world interactable", () => {
+    const interactableIds = new Set(Object.values(CONTENT.zones)
+      .flatMap((zone) => zone.interactables.map((target) => target.id)));
+    const guidedSteps = Object.values(CONTENT.quests)
+      .flatMap((quest) => quest.steps)
+      .filter((step) => step.guidanceTargetId);
+
+    expect(guidedSteps.length).toBeGreaterThanOrEqual(8);
+    for (const step of guidedSteps) expect(interactableIds.has(step.guidanceTargetId!)).toBe(true);
+  });
+
+  it("gives every physical First Thread action an honest beacon target", () => {
+    const steps = CONTENT.quests.first_thread!.steps;
+    const targetFor = (stepId: string) => {
+      const step = steps.find((candidate) => candidate.id === stepId);
+      return step?.guidanceTargetId ?? step?.targetId ?? null;
+    };
+
+    expect(targetFor("gather_logs")).toBe("oak_west_1");
+    expect(targetFor("mine_ore")).toBe("copper_north_1");
+    expect(targetFor("catch_fish")).toBe("riverling_south");
+    expect(targetFor("cook_fish")).toBe("village_cooking_fire");
+    expect(targetFor("defeat_skeleton")).toBe("skeleton_east");
+  });
 });
 
 describe("The Verdant Loomstone chapter", () => {

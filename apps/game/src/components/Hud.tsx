@@ -35,6 +35,16 @@ export function Hud() {
   const activeProgress = activeEntry?.[1] ?? null;
   const activeQuestDef = activeQuestId ? CONTENT.quests[activeQuestId] : null;
   const activeStep = activeQuestDef && activeProgress ? activeQuestDef.steps[activeProgress.stepIndex] : null;
+  const guidanceTargetId = activeStep?.guidanceTargetId ?? activeStep?.targetId ?? null;
+  const hasWorldGuidance = guidanceTargetId !== null && Object.values(CONTENT.zones)
+    .some((zone) => zone.interactables.some((target) => target.id === guidanceTargetId));
+  const guidanceText = activeStep?.guidanceText
+    ?? (hasWorldGuidance ? "Follow the gold marker in the world." : null);
+  const guidancePanel = activeStep?.kind === "equip"
+    ? { id: "inventory" as const, label: "Open Pack" }
+    : activeStep?.kind === "attune"
+      ? { id: "skills" as const, label: "Open Skills" }
+      : null;
   const objectiveText = activeStep
     ? activeStep.kind === "attune"
       ? `${activeStep.objective} ${attunedSkills} of ${ATTUNEMENT_SKILL_COUNT} attuned.`
@@ -56,6 +66,10 @@ export function Hud() {
       <strong>{objectiveText}</strong>
       {activeStep && activeStep.kind !== "attune" && activeStep.count > 1 &&
         <small>{activeProgress?.stepProgress ?? 0} / {activeStep.count}</small>}
+      {guidanceText && <small className="guide-hint">{guidanceText}</small>}
+      {guidancePanel && <button className="objective-action" onClick={() => store.setPanel(guidancePanel.id)}>
+        {guidancePanel.label}
+      </button>}
     </section>
     <section className="vitals glass">
       <span>HP</span><div><i style={{ width: `${save.player.hp / save.player.maxHp * 100}%` }} /></div><b>{save.player.hp}/{save.player.maxHp}</b>
