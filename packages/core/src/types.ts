@@ -320,7 +320,8 @@ export type GameEvent =
 export interface ActivityReport {
   readonly elapsedMs: number;
   readonly productiveMs: number;
-  readonly stopAtMs: number | null;
+  /** Elapsed time within this simulation window when the activity stopped. */
+  readonly stoppedAfterMs: number | null;
   readonly stopReason: StopReason;
   readonly xpGained: Readonly<Partial<Record<SkillId, number>>>;
   readonly itemsGained: readonly InventoryStack[];

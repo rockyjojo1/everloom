@@ -16,7 +16,7 @@ export function OfflineReport() {
       {report.rareDrops.map((item) => <div key={`rare-${item.itemId}`}><b>Rare ×{item.quantity}</b><span>{CONTENT.items[item.itemId]?.name}</span></div>)}
       {report.deaths > 0 && <div><b>{report.deaths}</b><span>death{report.deaths === 1 ? "" : "s"}</span></div>}
     </div>
-    {report.stopReason !== "none" && <p className="warning">Stopped naturally{report.stopAtMs !== null ? ` after ${Math.round(report.stopAtMs / 60000)} minutes` : ""}: {report.stopReason.replaceAll("_", " ")}</p>}
+    {report.stopReason !== "none" && <p className="warning">Stopped naturally{report.stoppedAfterMs !== null ? ` after ${Math.round(report.stoppedAfterMs / 60000)} minutes` : ""}: {report.stopReason.replaceAll("_", " ")}</p>}
     <button className="primary" onClick={dismiss}>Return to Meadowrest</button>
   </section></div>;
 }

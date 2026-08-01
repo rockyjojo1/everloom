@@ -13,6 +13,8 @@ import {
   type GameEvent,
   type GameSave,
   type InventoryStack,
+  type ProductionActivity,
+  type RecipeDefinition,
   type ResourceDefinition,
   type SimulationResult,
   type SkillId,
@@ -43,7 +45,7 @@ function emptyReport(elapsedMs: number): ActivityReport {
   return {
     elapsedMs,
     productiveMs: 0,
-    stopAtMs: null,
+    stoppedAfterMs: null,
     stopReason: "none",
     xpGained: {},
     itemsGained: [],
@@ -205,11 +207,16 @@ function stopActivity(
   reason: StopReason,
   report: ActivityReport,
   events: GameEvent[],
+  simulationStartedAtMs: number,
 ): { readonly state: GameSave; readonly report: ActivityReport } {
   events.push({ type: "activity_stopped", reason });
   return {
     state: { ...state, currentActivity: null },
-    report: { ...report, stopReason: reason, stopAtMs: state.simulationTimeMs },
+    report: {
+      ...report,
+      stopReason: reason,
+      stoppedAfterMs: state.simulationTimeMs - simulationStartedAtMs,
+    },
   };
 }
 
@@ -289,6 +296,51 @@ export function cancelActivity(state: GameSave): ActionResult {
   return { state: { ...state, currentActivity: null }, events: [event], ok: true, reason: "cancelled" };
 }
 
+/**
+ * Finds a conservative, exactly equivalent production batch. We only batch
+ * when every output can already fit before any input is consumed, inputs are
+ * unambiguous, and the output cannot advance an active quest step. Cases that
+ * need per-action ordering keep using the ordinary simulation path.
+ */
+function safeProductionBatchSize(
+  state: GameSave,
+  activity: ProductionActivity,
+  recipe: RecipeDefinition,
+  remainingMs: number,
+  content: ContentBundle,
+): number {
+  if (activity.progressMs !== 0 || recipe.actionDurationMs <= 0) return 0;
+  if (recipe.inputs.some((input) => input.itemId === recipe.output.itemId)) return 0;
+  if (new Set(recipe.inputs.map((input) => input.itemId)).size !== recipe.inputs.length) return 0;
+
+  const outputIsActiveObjective = Object.entries(state.quests).some(([questId, progress]) => {
+    if (progress.status !== "active") return false;
+    return content.quests[questId]?.steps[progress.stepIndex]?.itemId === recipe.output.itemId;
+  });
+  if (outputIsActiveObjective) return 0;
+
+  let actions = Math.floor(remainingMs / recipe.actionDurationMs);
+  for (const input of recipe.inputs) {
+    actions = Math.min(actions, Math.floor(itemQuantity(state.inventory, input.itemId) / input.quantity));
+  }
+  if (actions < 2) return 0;
+
+  const outputQuantity = actions * recipe.output.quantity;
+  const spent = actions * recipe.actionDurationMs;
+  const sequence = state.activitySequence + actions;
+  const inputsAreSafe = recipe.inputs.every((input) => Number.isSafeInteger(input.quantity * actions));
+  if (!Number.isSafeInteger(outputQuantity) || !Number.isSafeInteger(spent) || !Number.isSafeInteger(sequence) || !inputsAreSafe) {
+    return 0;
+  }
+  return canAddItem(
+    state.inventory,
+    state.inventorySlots,
+    recipe.output.itemId,
+    outputQuantity,
+    content,
+  ) ? actions : 0;
+}
+
 export function advanceSimulation(
   inputState: GameSave,
   requestedElapsedMs: number,
@@ -301,6 +353,7 @@ export function advanceSimulation(
   let report = emptyReport(elapsedMs);
   const events: GameEvent[] = [];
   let remainingMs = elapsedMs;
+  const simulationStartedAtMs = state.simulationTimeMs;
 
   while (remainingMs > 0) {
     const activity = state.currentActivity;
@@ -313,7 +366,7 @@ export function advanceSimulation(
     if (activity.type === "gathering") {
       const resource = content.resources[activity.resourceId];
       if (!resource || !requiredToolEquipped(state, resource, content)) {
-        const stopped = stopActivity(state, resource ? "missing_tool" : "activity_invalid", report, events);
+        const stopped = stopActivity(state, resource ? "missing_tool" : "activity_invalid", report, events, simulationStartedAtMs);
         state = stopped.state;
         report = stopped.report;
         continue;
@@ -380,6 +433,7 @@ export function advanceSimulation(
           "inventory_full",
           report,
           events,
+          simulationStartedAtMs,
         );
         state = stopped.state;
         report = stopped.report;
@@ -440,21 +494,80 @@ export function advanceSimulation(
     } else if (activity.type === "production") {
       const recipe = content.recipes[activity.recipeId];
       if (!recipe) {
-        const stopped = stopActivity(state, "activity_invalid", report, events);
+        const stopped = stopActivity(state, "activity_invalid", report, events, simulationStartedAtMs);
         state = stopped.state;
         report = stopped.report;
         continue;
       }
       if (!hasItems(state.inventory, recipe.inputs)) {
-        const stopped = stopActivity(state, "inputs_exhausted", report, events);
+        const stopped = stopActivity(state, "inputs_exhausted", report, events, simulationStartedAtMs);
         state = stopped.state;
         report = stopped.report;
         continue;
       }
       if (!canAddItem(state.inventory, state.inventorySlots, recipe.output.itemId, recipe.output.quantity, content)) {
-        const stopped = stopActivity(state, "output_blocked", report, events);
+        const stopped = stopActivity(state, "output_blocked", report, events, simulationStartedAtMs);
         state = stopped.state;
         report = stopped.report;
+        continue;
+      }
+
+      const batchSize = safeProductionBatchSize(state, activity, recipe, remainingMs, content);
+      if (batchSize > 0) {
+        let inventory = state.inventory;
+        const consumedEvents: GameEvent[] = [];
+        for (const input of recipe.inputs) {
+          const quantity = input.quantity * batchSize;
+          const removed = removeItem(inventory, input.itemId, quantity);
+          if (!removed) throw new Error(`Recipe batch preflight failed for ${input.itemId}`);
+          inventory = removed;
+          consumedEvents.push({ type: "item_consumed", itemId: input.itemId, quantity });
+        }
+
+        const outputQuantity = recipe.output.quantity * batchSize;
+        const outputInventory = addItem(
+          inventory,
+          state.inventorySlots,
+          recipe.output.itemId,
+          outputQuantity,
+          content,
+        );
+        if (!outputInventory) throw new Error(`Recipe batch output preflight failed for ${recipe.output.itemId}`);
+
+        const spent = recipe.actionDurationMs * batchSize;
+        state = {
+          ...state,
+          inventory: outputInventory,
+          simulationTimeMs: state.simulationTimeMs + spent,
+          activitySequence: state.activitySequence + batchSize,
+          currentActivity: { ...activity, progressMs: 0 },
+        };
+        remainingMs -= spent;
+        const itemEvent: GameEvent = {
+          type: "item_gained",
+          itemId: recipe.output.itemId,
+          quantity: outputQuantity,
+          sourceId: activity.targetId,
+        };
+        const xpAmount = recipe.xpPerSuccess * batchSize;
+        const xp = addXp(state, recipe.skill, xpAmount);
+        state = xp.state;
+        events.push(...consumedEvents, itemEvent, ...xp.events);
+        report = {
+          ...report,
+          productiveMs: report.productiveMs + spent,
+          xpGained: {
+            ...report.xpGained,
+            [recipe.skill]: (report.xpGained[recipe.skill] ?? 0) + xpAmount,
+          },
+          itemsGained: mergeStack(report.itemsGained, recipe.output.itemId, outputQuantity),
+          levelGains: [
+            ...report.levelGains,
+            ...xp.events
+              .filter((event): event is Extract<GameEvent, { type: "level_gained" }> => event.type === "level_gained")
+              .map((event) => ({ skill: event.skill, from: event.from, to: event.to })),
+          ],
+        };
         continue;
       }
 
@@ -501,11 +614,17 @@ export function advanceSimulation(
           [recipe.skill]: (report.xpGained[recipe.skill] ?? 0) + recipe.xpPerSuccess,
         },
         itemsGained: mergeStack(report.itemsGained, recipe.output.itemId, recipe.output.quantity),
+        levelGains: [
+          ...report.levelGains,
+          ...xp.events
+            .filter((event): event is Extract<GameEvent, { type: "level_gained" }> => event.type === "level_gained")
+            .map((event) => ({ skill: event.skill, from: event.from, to: event.to })),
+        ],
       };
     } else {
       const enemy = content.enemies[activity.enemyId];
       if (!enemy) {
-        const stopped = stopActivity(state, "activity_invalid", report, events);
+        const stopped = stopActivity(state, "activity_invalid", report, events, simulationStartedAtMs);
         state = stopped.state;
         report = stopped.report;
         continue;
@@ -576,7 +695,7 @@ export function advanceSimulation(
         report = {
           ...report,
           stopReason: "target_defeated",
-          stopAtMs: state.simulationTimeMs,
+          stoppedAfterMs: state.simulationTimeMs - simulationStartedAtMs,
           xpGained: { ...report.xpGained, melee: (report.xpGained.melee ?? 0) + enemy.xpReward },
           itemsGained: acceptedDrops.reduce(
             (list, drop) => mergeStack(list, drop.itemId, drop.quantity),
@@ -612,7 +731,7 @@ export function advanceSimulation(
         report = {
           ...report,
           stopReason: "player_died",
-          stopAtMs: state.simulationTimeMs,
+          stoppedAfterMs: state.simulationTimeMs - simulationStartedAtMs,
           deaths: report.deaths + 1,
         };
       }

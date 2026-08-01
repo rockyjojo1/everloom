@@ -140,15 +140,18 @@ describe("offline stop conditions", () => {
         test_tree: { ...TEST_CONTENT.resources.test_tree!, rareDrops: [] },
       },
     };
+    const initialSimulationTimeMs = 7 * 24 * 60 * 60 * 1000;
     const initial = startActivityForTarget(
-      { ...equippedSave("full-seed"), inventorySlots: 1 },
+      { ...equippedSave("full-seed"), inventorySlots: 1, simulationTimeMs: initialSimulationTimeMs },
       "tree",
       cappedContent,
     ).state;
     const result = advanceSimulation(initial, 1_000_000, cappedContent);
     expect(result.report.stopReason).toBe("inventory_full");
     expect(result.state.currentActivity).toBeNull();
-    expect(result.report.stopAtMs).toBeLessThan(result.report.elapsedMs);
+    expect(result.report.stoppedAfterMs).toBeGreaterThan(0);
+    expect(result.report.stoppedAfterMs).toBeLessThan(result.report.elapsedMs);
+    expect(result.state.simulationTimeMs).toBe(initialSimulationTimeMs + result.report.elapsedMs);
     expect(itemQuantity(result.state.inventory, "log")).toBe(2);
   });
 
@@ -160,6 +163,46 @@ describe("offline stop conditions", () => {
     const result = advanceSimulation(started, 60_000, TEST_CONTENT);
     expect(result.report.stopReason).toBe("inputs_exhausted");
     expect(itemQuantity(result.state.inventory, "cooked")).toBe(2);
+  });
+
+  it("batches long deterministic production without changing its exact outcome", () => {
+    const actionCount = 100_000;
+    const bulkContent: ContentBundle = {
+      ...TEST_CONTENT,
+      items: {
+        ...TEST_CONTENT.items,
+        raw: { ...TEST_CONTENT.items.raw!, maxStack: actionCount },
+        cooked: { ...TEST_CONTENT.items.cooked!, maxStack: actionCount },
+      },
+    };
+    const base = createNewSave(0, "bulk-production-seed", { x: 5, z: 5 });
+    const inventory = addItem(base.inventory, 2, "raw", actionCount, bulkContent);
+    if (!inventory) throw new Error("fixture bulk inventory failed");
+    const initial = startActivityForTarget(
+      { ...base, inventory, inventorySlots: 2, quests: {} },
+      "fire",
+      bulkContent,
+    ).state;
+
+    const elapsedMs = actionCount * bulkContent.recipes.cook_raw!.actionDurationMs;
+    const result = advanceSimulation(initial, elapsedMs, bulkContent);
+    const producedEvents = result.events.filter(
+      (event): event is Extract<GameEvent, { type: "item_gained" }> => event.type === "item_gained",
+    );
+
+    expect(itemQuantity(result.state.inventory, "raw")).toBe(0);
+    expect(itemQuantity(result.state.inventory, "cooked")).toBe(actionCount);
+    expect(result.state.activitySequence).toBe(actionCount);
+    expect(result.state.skills.cooking.xp).toBe(actionCount * bulkContent.recipes.cook_raw!.xpPerSuccess);
+    expect(result.report.productiveMs).toBe(elapsedMs);
+    expect(result.report.itemsGained).toEqual([{ itemId: "cooked", quantity: actionCount }]);
+    expect(result.report.levelGains.length).toBeGreaterThan(0);
+    expect(producedEvents).toEqual([{
+      type: "item_gained",
+      itemId: "cooked",
+      quantity: actionCount,
+      sourceId: "fire",
+    }]);
   });
 
   it("resolves Smithing identically in foreground, offline, and across reload", () => {
