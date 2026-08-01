@@ -304,6 +304,9 @@ export function GameWorld() {
     let equippedBodyObject: THREE.Object3D | null = null;
     let equippedBodyItemId: string | null = null;
     let bodyLoadSequence = 0;
+    let lastHp: number | null = null;
+    let lastCheerLogId: number | null = null;
+    let restStartMs: number | null = null;
     const criticalAssetJobs: Promise<unknown>[] = [];
     const sceneryAssetJobs: Promise<unknown>[] = [];
 
@@ -321,6 +324,17 @@ export function GameWorld() {
       }
       action.play();
       currentClip = name;
+    };
+    // If the player is currently resting on the floor (see the idle/rest
+    // cycle below), any new movement or activity should stand them up
+    // first rather than snapping straight into the next pose. Returns true
+    // when it just triggered the stand-up one-shot, so the caller should
+    // wait a frame before requesting anything else.
+    const standUpIfSitting = (): boolean => {
+      if (!currentClip.startsWith("Sit_Floor") || performance.now() < oneShotUntil) return false;
+      play(currentClip === "Sit_Floor_Idle" ? "Sit_Floor_StandUp" : "Idle", true);
+      restStartMs = null;
+      return true;
     };
 
     const appearanceId = useGameStore.getState().save?.player.appearanceId ?? "meadow";
@@ -714,20 +728,62 @@ export function GameWorld() {
           } else {
             playerRoot.position.add(delta.normalize().multiplyScalar(Math.min(5.2 * movementDt, remaining)));
             playerRoot.rotation.y = Math.atan2(delta.x, delta.z);
-            play("Walking_A");
+            if (!standUpIfSitting()) play("Walking_A");
           }
         } else {
           playerRoot.position.lerp(desired, 0.25);
+
+          // Hurt reaction: a brief flinch whenever HP drops between frames,
+          // layered in ahead of the main state selection below.
+          if (lastHp !== null && save.player.hp < lastHp && save.player.hp > 0 && now >= oneShotUntil) {
+            play("Hit_A", true);
+          }
+          lastHp = save.player.hp;
+
+          // Cheer reaction: celebrate on quest completions and level-ups.
+          // The store's log feed already tags those with tone "rare", so we
+          // watch for new entries rather than re-deriving quest state here.
+          const logs = useGameStore.getState().logs;
+          const latestLog = logs[logs.length - 1];
+          if (latestLog && latestLog.id !== lastCheerLogId) {
+            const isNewCelebration = lastCheerLogId !== null && latestLog.tone === "rare";
+            lastCheerLogId = latestLog.id;
+            if (isNewCelebration && save.player.hp > 0 && now >= oneShotUntil) play("Cheer", true);
+          }
+
           if (now >= oneShotUntil) {
             if (save.player.hp <= 0) {
+              restStartMs = null;
               play("Death_A");
             } else if (save.currentActivity?.type === "combat") {
-              play("1H_Melee_Attack_Chop");
+              restStartMs = null;
+              if (!standUpIfSitting()) play("1H_Melee_Attack_Chop");
             } else if (save.currentActivity?.type === "gathering") {
+              restStartMs = null;
               const skill = CONTENT.resources[save.currentActivity.resourceId]?.skill;
-              play(skill === "fishing" ? "1H_Ranged_Aiming" : "1H_Melee_Attack_Chop");
+              const gatherClip = skill === "fishing"
+                ? "1H_Ranged_Aiming"
+                : skill === "mining"
+                  ? "1H_Melee_Attack_Stab"
+                  : "1H_Melee_Attack_Chop";
+              if (!standUpIfSitting()) play(gatherClip);
+            } else if (save.currentActivity?.type === "production") {
+              restStartMs = null;
+              if (!standUpIfSitting()) play("Use_Item");
+            } else if (save.currentActivity) {
+              restStartMs = null;
+              if (!standUpIfSitting()) play("Interact");
             } else {
-              play(save.currentActivity ? "Interact" : "Idle");
+              // No activity and not moving: after a stretch of true
+              // inactivity, settle into a floor-rest pose so the world
+              // doesn't feel frozen mid-adventure; any new activity or
+              // movement stands the character back up via standUpIfSitting().
+              if (restStartMs === null) restStartMs = now;
+              if (now - restStartMs > 9000) {
+                play(currentClip === "Sit_Floor_Down" ? "Sit_Floor_Idle" : "Sit_Floor_Down", currentClip !== "Sit_Floor_Down" && currentClip !== "Sit_Floor_Idle");
+              } else {
+                play("Idle");
+              }
             }
           }
         }
