@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { buildTerrain } from './world/buildTerrain';
+import { buildProps } from './world/buildProps';
 import { SPAWN } from './world/worlddata';
 import './App.css';
 
@@ -75,6 +76,9 @@ const App: React.FC = () => {
     const { mesh: terrainMesh, water: waterMesh } = buildTerrain();
     scene.add(terrainMesh);
     scene.add(waterMesh);
+
+    // Build props and interactables
+    buildProps(scene).catch(err => console.error('Failed to build props:', err));
 
     // Lighting
     // Hemisphere light for ambient

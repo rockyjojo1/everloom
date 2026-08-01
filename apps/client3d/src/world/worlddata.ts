@@ -10,12 +10,12 @@ export const WORLD_MAX = 60;
 export type Surface = 'grass' | 'darkgrass' | 'dirt' | 'cobble' | 'stone' | 'water';
 
 export const SURFACE_COLOR: Record<Surface, number> = {
-  grass: 0x7ec850,
-  darkgrass: 0x5a8a3a,
-  dirt: 0x8b7355,
-  cobble: 0xa0a0a0,
-  stone: 0x7a7a7a,
-  water: 0x4a90e2,
+  grass: 0x7ab648,
+  darkgrass: 0x5c9438,
+  dirt: 0x9c7a4a,
+  cobble: 0x9a958a,
+  stone: 0x8a8680,
+  water: 0x1d6b82,
 };
 
 export const WALKABLE: Record<Surface, boolean> = {

@@ -53,6 +53,33 @@ PROJECT_REBOOT_3D.md or PLAYBOOK.md, **this file wins**.
 
 ---
 
+## UI layout — confirmed against real OSRS mobile (second reference)
+
+The owner also sent an actual OSRS mobile screenshot (not Idle Journey — the
+original inspiration itself). It confirms and sharpens the panel styling:
+
+- **Inventory panel**: a bounded, wood/tan-bordered rectangular panel anchored
+  to the right edge, NOT full-width, NOT full-height — the game world stays
+  visible to its left. 4-column grid of item icons; stackable items show a
+  white quantity number in the corner. Icons are simple, flat, high-contrast
+  silhouettes (tool heads, bars, logs) — not painterly. This is exactly what
+  our bottom-sheet-that-only-covers-its-own-area plan should produce when
+  opened; keep the wood-bordered framing, not a plain modal.
+- **Chat/log**: top-left in real OSRS, with channel TABS (`All / Game / Public /
+  Private / Friends / Clan / Trade / Report`). Idle Journey put an equivalent
+  log bottom-left. Either corner is authentic to the genre — we already chose
+  bottom-left (pairs better with a bottom-anchored tab bar on a phone; top-left
+  would collide with the HUD action card). Keep bottom-left, keep the tab
+  concept simple (`All` is enough for v1, no multiplayer channels needed).
+- **Minimap**: top-right circular, small icon buttons clustered just below/around
+  it (compass, waypoint). Confirms the Idle Journey placement.
+- **Bottom action row**: a compact strip of icon buttons (run toggle, settings,
+  etc.) — confirms our bottom tab bar approach, just keep icons flat and small.
+
+Net effect: no changes to the panel MECHANIC already planned (bounded sheet,
+world stays visible/clickable), only to the VISUAL STYLING — wood/parchment
+bordered panels with flat icon-grid contents, exactly like both references.
+
 ## UI layout (copy this structure — it is well solved)
 
 Everything hugs the **edges**; the world owns the centre. Nothing full-screen.
