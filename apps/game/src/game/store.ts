@@ -56,6 +56,7 @@ interface GameStore {
   readonly debug: DebugFlags;
   initialize: () => Promise<void>;
   beginIntro: () => void;
+  dismissEscapeIntro: () => void;
   setPosition: (position: GridPosition, facing?: GridPosition) => void;
   setSelectedTarget: (targetId: string | null) => void;
   pickup: (targetId: string) => boolean;
@@ -191,6 +192,26 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (!save) return;
     set({ save: { ...save, worldFlags: { ...save.worldFlags, intro_seen: true } } });
     scheduleSave("intro", 0, true);
+  },
+
+  // Dismisses the brief locked opening conversation with Mara (the
+  // escape-story premise). Also runs the real npc_mara world interaction
+  // through the standard event pipeline, so this narrative beat IS meeting
+  // Mara for quest purposes rather than a separate, disconnected step —
+  // dismissing the conversation naturally advances "meet_mara" exactly like
+  // walking up and talking to her would.
+  dismissEscapeIntro: () => {
+    const save = get().save;
+    const firstThread = save?.quests.first_thread;
+    const isUntouchedFirstThread = firstThread?.status === "active"
+      && firstThread.stepIndex === 0
+      && firstThread.stepProgress === 0;
+    if (!save || save.worldFlags.escape_intro_seen || !isUntouchedFirstThread) return;
+    if (!get().interact("npc_mara")) return;
+    const next = get().save;
+    if (!next) return;
+    set({ save: { ...next, worldFlags: { ...next.worldFlags, escape_intro_seen: true } } });
+    scheduleSave("escape-intro", 0, true);
   },
 
   setPosition: (position, facing) => {

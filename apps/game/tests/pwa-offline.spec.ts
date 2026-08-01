@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("the installed production game reopens offline with its world and save", async ({ page, context }) => {
-  await page.goto("/");
+  await page.goto("/?e2e=1");
   await page.getByRole("button", { name: "Enter Meadowrest" }).click();
   await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true");
 
@@ -32,7 +32,7 @@ test.describe("production world-chunk recovery", () => {
 
   test("a failed production world chunk leaves the save-safe recovery screen", async ({ page }) => {
     await page.route(/\/assets\/GameWorld-[^/]+\.js$/, (route) => route.abort("failed"));
-    await page.goto("/");
+    await page.goto("/?e2e=1");
     await page.getByRole("button", { name: "Enter Meadowrest" }).click();
 
     await expect(page.getByRole("heading", { name: "Meadowrest could not open." })).toBeVisible();

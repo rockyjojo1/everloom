@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect } from "react";
 import { DebugPanel } from "./components/DebugPanel";
+import { EscapeIntro } from "./components/EscapeIntro";
 import { Hud } from "./components/Hud";
 import { OfflineReport } from "./components/OfflineReport";
 import { WorldBoundary } from "./components/WorldBoundary";
@@ -55,11 +56,12 @@ export default function App() {
       </Suspense>
     </WorldBoundary>}
     <Hud />
+    {!intro && <EscapeIntro />}
     <OfflineReport />
     <DebugPanel />
     {intro && <div className="modal-backdrop"><section className="intro glass">
       <span className="eyebrow">A LOCAL-FIRST ADVENTURE</span><h1>Meadowrest remembers.</h1>
-      <p>The First Loomstone has gone quiet. Mara waits in the village circle, and every path begins with a tool left close at hand.</p>
+      <p>Step into Meadowrest, where every journey begins with a tool close at hand and every choice is saved on this device.</p>
       <div className="intro-notes"><span>Tap the ground to move</span><span>Tap people and resources to act</span><span>Your progress stays on this device</span></div>
       <button className="primary" onPointerDown={() => void loadGameWorld()} onClick={beginIntro}>Enter Meadowrest</button>
     </section></div>}

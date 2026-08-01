@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("capture polished world", async ({ page }, testInfo) => {
-  await page.goto("/");
+  await page.goto("/?e2e=1");
   await page.getByRole("button", { name: "Enter Meadowrest" }).click();
   await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true");
   await page.waitForTimeout(2500);
