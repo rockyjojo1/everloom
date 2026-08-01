@@ -30,7 +30,32 @@ export function terrainHeight(zone: ZoneDefinition, gridX: number, gridZ: number
   if (surface === "water") return -0.38;
   const broad = Math.sin(gridX * 0.23) * 0.08 + Math.cos(gridZ * 0.29) * 0.06;
   const detail = (hash(gridX, gridZ, 3) - 0.5) * 0.055;
-  return surface === "path" || surface === "stone" ? broad * 0.28 : broad + detail;
+  if (surface === "path") return broad * 0.28;
+  // The Quarry (stone) reads as a flat, featureless slab next to everything
+  // else in the zone. Give it a coarser, rockier bump profile than the rest
+  // of the terrain so it visually reads as broken ground worth mining,
+  // rather than paved plaza — purely a rendering change, the pathfinding
+  // grid and blockedCells this sits on are untouched.
+  if (surface === "stone") {
+    const rubble = (hash(gridX, gridZ, 11) - 0.5) * 0.16;
+    return broad * 0.45 + rubble;
+  }
+  return broad + detail;
+}
+
+// Both the western Verdant Grove and the eastern training grounds are
+// authored as plain "soil" terrain in zones.json, which makes two very
+// different intended moods (a hushed foraging grove vs. an open combat
+// yard) read as the identical dirt patch. Nudge the soil tint warmer/richer
+// on the grove side and cooler/sandier on the training side using only the
+// world-space position already available while colouring the ground mesh —
+// no terrain/content data changes, purely a rendering-time palette split.
+const GROVE_SOIL = new THREE.Color(0x6f4a2c);
+const TRAINING_SOIL = new THREE.Color(0x9c8259);
+
+function regionalSoilTint(gx: number, zoneWidth: number): THREE.Color {
+  const t = Math.min(1, Math.max(0, gx / zoneWidth));
+  return GROVE_SOIL.clone().lerp(TRAINING_SOIL, t);
 }
 
 function buildGround(zone: ZoneDefinition): THREE.Mesh {
@@ -48,7 +73,7 @@ function buildGround(zone: ZoneDefinition): THREE.Mesh {
     const gz = wz / zone.cellSize + zone.depth / 2;
     const surface = surfaceAt(zone, gx, gz);
     position.setY(index, terrainHeight(zone, gx, gz));
-    color.copy(PALETTE[surface] ?? PALETTE.grass!);
+    color.copy(surface === "soil" ? regionalSoilTint(gx, zone.width) : (PALETTE[surface] ?? PALETTE.grass!));
     const variation = 0.88 + hash(gx, gz, 8) * 0.18;
     color.multiplyScalar(variation);
     if (surface === "path") color.lerp(new THREE.Color(0xd1ac72), 0.15);

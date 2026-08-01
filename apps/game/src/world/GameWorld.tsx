@@ -158,6 +158,14 @@ export function GameWorld() {
     fireLight.position.copy(world({ x: 22, z: 19 })).add(new THREE.Vector3(0, 1.1, 0));
     scene.add(fireLight);
 
+    // The Quarry (smelter + anvil, around 15,5) is the zone's one clearly
+    // "industrial" pocket but previously read under the same flat daylight
+    // as the meadow around it. A small warm point light sells forge heat
+    // without touching facility placement or recipe data.
+    const forgeLight = new THREE.PointLight(0xff7a3d, 1.7, 6.5, 2);
+    forgeLight.position.copy(world({ x: 15.5, z: 5.5 })).add(new THREE.Vector3(0, 0.9, 0));
+    scene.add(forgeLight);
+
     const verdantLoomstoneTarget = zone.interactables.find((entry) => entry.id === "verdant_loomstone");
     const verdantGlow = new THREE.PointLight(0x8fe3a8, 0, 7.5, 2);
     if (verdantLoomstoneTarget) verdantGlow.position.copy(world(verdantLoomstoneTarget)).add(new THREE.Vector3(0, 1.6, 0));
