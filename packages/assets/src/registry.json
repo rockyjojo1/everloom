@@ -429,6 +429,17 @@
     "notes": "Original low-poly geometry; the installed packs contain no anvil model. Worked iron block with a tapered horn on a timber stump base."
   },
   {
+    "id": "custom.armor-boneguard-vest",
+    "sourceFile": "procedural://armor/boneguard-vest",
+    "pack": "everloom-original",
+    "category": "armor",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "Project original",
+    "sourceUrl": null,
+    "notes": "Original low-poly geometry; no bone-plated body armour exists in the installed CC0 packs. A layered chest/shoulder plate silhouette in bleached bone tones, attached to the character's chest bone. Fixes a bug where the body equipment slot previously pointed at enemy.skeleton-warrior (a full enemy character model) and rendered nothing when equipped."
+  },
+  {
     "id": "custom.fishing-ripples",
     "sourceFile": "procedural://world/fishing-ripples",
     "pack": "everloom-original",

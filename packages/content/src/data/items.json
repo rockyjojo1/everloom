@@ -247,7 +247,7 @@
     "stackable": false,
     "maxStack": 1,
     "iconId": "icon.bone",
-    "worldAssetId": "enemy.skeleton-warrior",
+    "worldAssetId": "custom.armor-boneguard-vest",
     "equipmentSlot": "body",
     "toolKind": null,
     "healAmount": 0,

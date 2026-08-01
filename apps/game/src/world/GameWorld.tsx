@@ -286,9 +286,13 @@ export function GameWorld() {
     let disposed = false;
     let playerModel: THREE.Object3D | null = null;
     let handSlot: THREE.Object3D | null = null;
+    let chestSlot: THREE.Object3D | null = null;
     let equippedWorldObject: THREE.Object3D | null = null;
     let equippedWorldItemId: string | null = null;
     let equipmentLoadSequence = 0;
+    let equippedBodyObject: THREE.Object3D | null = null;
+    let equippedBodyItemId: string | null = null;
+    let bodyLoadSequence = 0;
     const criticalAssetJobs: Promise<unknown>[] = [];
     const sceneryAssetJobs: Promise<unknown>[] = [];
 
@@ -332,6 +336,9 @@ export function GameWorld() {
           ?? object.getObjectByName("handslot.r")
           ?? object.getObjectByName("hand.r")
           ?? null;
+        chestSlot = object.getObjectByName("chest")
+          ?? object.getObjectByName("spine")
+          ?? null;
         object.userData.animations = animations;
         playerRoot.userData.animations = animations;
         playerRoot.add(object);
@@ -365,6 +372,33 @@ export function GameWorld() {
         handSlot.add(object);
         equippedWorldObject = object;
       }).catch((error) => console.warn(`Equipped asset ${assetId} failed`, error));
+    };
+
+    // Body-slot armour (chest/torso pieces) is worn independently of the
+    // hand-held tool/weapon above, so it needs its own attachment socket and
+    // its own load-sequence bookkeeping to avoid races on rapid re-equips.
+    const refreshBodyEquipmentVisual = (itemId: string | null) => {
+      if (itemId === equippedBodyItemId || !playerModel) return;
+      equippedBodyItemId = itemId;
+      bodyLoadSequence += 1;
+      const sequence = bodyLoadSequence;
+      equippedBodyObject?.removeFromParent();
+      equippedBodyObject = null;
+      if (!itemId || !chestSlot) return;
+      const assetId = CONTENT.items[itemId]?.worldAssetId;
+      if (!assetId) return;
+      void instantiateAsset(assetId).then(({ object }) => {
+        if (disposed || sequence !== bodyLoadSequence || !chestSlot) return;
+        object.position.set(0, 0, 0.02);
+        object.rotation.set(0, 0, 0);
+        object.scale.multiplyScalar(1.05);
+        object.traverse((child) => {
+          child.userData.playerEquipment = itemId;
+          if (child instanceof THREE.Mesh) child.castShadow = true;
+        });
+        chestSlot.add(object);
+        equippedBodyObject = object;
+      }).catch((error) => console.warn(`Equipped body asset ${assetId} failed`, error));
     };
 
     const addAsset = async (
@@ -549,7 +583,12 @@ export function GameWorld() {
           targetId: objectiveRouteTargetId,
           points: objectiveRouteTrail.geometry.getAttribute("position")?.count ?? 0,
         }),
-        equipmentVisual: () => ({ itemId: equippedWorldItemId, attached: Boolean(equippedWorldObject?.parent) }),
+        equipmentVisual: () => ({
+          itemId: equippedWorldItemId,
+          attached: Boolean(equippedWorldObject?.parent),
+          bodyItemId: equippedBodyItemId,
+          bodyAttached: Boolean(equippedBodyObject?.parent),
+        }),
         visibleTarget: (targetId: string) => targets.get(targetId)?.visible ?? false,
         visibleLabel: (targetId: string) => {
           const label = targetLabels.get(targetId);
@@ -627,6 +666,7 @@ export function GameWorld() {
             ? save.equipment.weapon
             : save.equipment.weapon ?? save.equipment.tool;
         refreshEquipmentVisual(equippedItemId);
+        refreshBodyEquipmentVisual(save.equipment.body ?? null);
         const desired = world(save.position);
         if (route.length && !document.hidden) {
           const next = world(route[0]!);

@@ -110,6 +110,35 @@ function proceduralAnvil(): THREE.Group {
   return root;
 }
 
+function proceduralBoneguardVest(): THREE.Group {
+  // Original layered chest/shoulder armour, distinct from the enemy skeleton
+  // model previously (incorrectly) referenced by this item's worldAssetId.
+  // Sits on the character's chest bone via GameWorld's body-slot attachment,
+  // so its own local origin is centred on the torso.
+  const root = new THREE.Group();
+  const bone = material(0xd9d0bd, 0.75);
+  const strap = material(0x4a3527, 0.85);
+  const chest = new THREE.Mesh(new THREE.BoxGeometry(0.46, 0.34, 0.24), bone);
+  chest.position.set(0, 0, 0.02);
+  const collar = new THREE.Mesh(new THREE.TorusGeometry(0.15, 0.035, 6, 12), bone);
+  collar.rotation.x = Math.PI / 2;
+  collar.position.set(0, 0.19, 0);
+  for (const side of [-1, 1]) {
+    const pauldron = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.16, 6), bone);
+    pauldron.rotation.z = side * 0.55;
+    pauldron.position.set(side * 0.27, 0.14, 0);
+    root.add(pauldron);
+  }
+  const strapMesh = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.4, 0.26), strap);
+  strapMesh.rotation.z = 0.5;
+  strapMesh.position.set(0.02, 0, 0);
+  root.add(chest, collar, strapMesh);
+  root.traverse((child) => {
+    if (child instanceof THREE.Mesh) child.castShadow = true;
+  });
+  return root;
+}
+
 function proceduralRipples(): THREE.Group {
   const root = new THREE.Group();
   for (const [radius, opacity] of [[0.5, 0.75], [0.9, 0.5], [1.3, 0.3]] as const) {
@@ -127,6 +156,7 @@ function procedural(id: string): THREE.Object3D {
   if (id.includes("fishing-ripples")) return proceduralRipples();
   if (id.includes("facility-smelter")) return proceduralSmelter();
   if (id.includes("facility-anvil")) return proceduralAnvil();
+  if (id.includes("armor-boneguard")) return proceduralBoneguardVest();
   return proceduralTool(id);
 }
 
