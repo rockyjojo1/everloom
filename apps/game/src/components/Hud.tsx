@@ -80,9 +80,16 @@ export function Hud() {
       {guidancePanel && <button className="objective-action" onClick={() => store.setPanel(guidancePanel.id)}>
         {guidancePanel.label}
       </button>}
-      {guidanceTarget && <button className="objective-action" onClick={() => requestObjectiveRoute(guidanceTarget.id)}>
-        Refresh route
-      </button>}
+      {guidanceTarget && <div className="objective-controls">
+        <button className="objective-action" onClick={() => {
+          const visible = !store.worldAssistance.pathTrailVisible;
+          store.setWorldAssistance("pathTrailVisible", visible);
+          if (visible) requestObjectiveRoute(guidanceTarget.id);
+        }}>
+          {store.worldAssistance.pathTrailVisible ? "Hide route" : "Show route"}
+        </button>
+        <button className="objective-action" onClick={store.highlightObjective}>Highlight target</button>
+      </div>}
     </section>
     <section className="vitals glass">
       <span>HP</span><div><i style={{ width: `${save.player.hp / save.player.maxHp * 100}%` }} /></div><b>{save.player.hp}/{save.player.maxHp}</b>

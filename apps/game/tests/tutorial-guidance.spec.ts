@@ -22,9 +22,9 @@ type TestApi = {
     quests: Record<string, { status: string; stepIndex: number; stepProgress: number }>;
     inventory: { itemId: string; quantity: number }[];
   };
-  objectiveBeacon: () => { visible: boolean; targetId: string | null };
+  objectiveBeacon: () => { visible: boolean; targetId: string | null; emphasized: boolean };
   objectiveRoute: () => { visible: boolean; targetId: string | null; points: number };
-  equipmentVisual: () => { itemId: string | null; attached: boolean };
+  equipmentVisual: () => { itemId: string | null; attached: boolean; bodyItemId: string | null; bodyAttached: boolean };
   visibleTarget: (targetId: string) => boolean;
   visibleLabel: (targetId: string) => boolean;
 };
@@ -69,11 +69,21 @@ test.describe("Tutorial guidance — starter tool discoverability", () => {
     // Step 1 (meet_mara, targetId npc_mara): the beacon should already be
     // guiding the player to Mara before they have clicked anything.
     let mark = await beacon(page);
-    expect(mark).toEqual({ visible: true, targetId: "npc_mara" });
+    expect(mark).toEqual({ visible: true, targetId: "npc_mara", emphasized: false });
+    await page.getByRole("button", { name: "Highlight target" }).click();
+    await expect.poll(() => beacon(page)).toMatchObject({ visible: true, targetId: "npc_mara", emphasized: true });
     await expect(page.locator(".objective-map-marker")).toHaveAttribute("data-target-id", "npc_mara");
 
     // The trail is present by default. The button remains available only to
     // refresh it from the player's new position.
+    await expect.poll(async () => page.evaluate(() => (
+      window as unknown as { __EVERLOOM_TEST__: TestApi }
+    ).__EVERLOOM_TEST__.objectiveRoute())).toMatchObject({ visible: true, targetId: "npc_mara" });
+    await page.getByRole("button", { name: "Hide route" }).click();
+    await expect.poll(async () => page.evaluate(() => (
+      window as unknown as { __EVERLOOM_TEST__: TestApi }
+    ).__EVERLOOM_TEST__.objectiveRoute())).toMatchObject({ visible: false });
+    await page.getByRole("button", { name: "Show route" }).click();
     await expect.poll(async () => page.evaluate(() => (
       window as unknown as { __EVERLOOM_TEST__: TestApi }
     ).__EVERLOOM_TEST__.objectiveRoute())).toMatchObject({ visible: true, targetId: "npc_mara" });
@@ -87,7 +97,7 @@ test.describe("Tutorial guidance — starter tool discoverability", () => {
     // now point at the hatchet, proving the guidance follows quest progress
     // in real time, not just at load.
     mark = await beacon(page);
-    expect(mark).toEqual({ visible: true, targetId: "ground_worn_hatchet" });
+    expect(mark).toMatchObject({ visible: true, targetId: "ground_worn_hatchet" });
     await expect(page.locator(".objective-map-marker")).toHaveAttribute("data-target-id", "ground_worn_hatchet");
     await expect.poll(async () => page.evaluate(() => (
       window as unknown as { __EVERLOOM_TEST__: TestApi }
@@ -103,21 +113,21 @@ test.describe("Tutorial guidance — starter tool discoverability", () => {
     // Step 3 is a UI action rather than a world target. The beacon clears,
     // while the objective itself provides a direct, working Pack action.
     mark = await beacon(page);
-    expect(mark).toEqual({ visible: false, targetId: null });
+    expect(mark).toMatchObject({ visible: false, targetId: null });
     await expect(page.locator(".objective")).toContainText(/Open Pack below/i);
 
     await page.getByRole("button", { name: "Open Pack" }).click();
     await page.locator("article").filter({ hasText: "Worn Hatchet" }).getByRole("button", { name: "Equip" }).click();
     await expect.poll(async () => page.evaluate(() => (
       window as unknown as { __EVERLOOM_TEST__: TestApi }
-    ).__EVERLOOM_TEST__.equipmentVisual())).toEqual({ itemId: "worn_hatchet", attached: true });
+    ).__EVERLOOM_TEST__.equipmentVisual())).toMatchObject({ itemId: "worn_hatchet", attached: true });
     await expect(page.getByText(/Chop three Meadow Logs/i)).toBeVisible();
     await page.getByRole("button", { name: "Close panel" }).click();
 
     // Step 4 accepts any oak, but guidanceTargetId deliberately chooses one
     // representative nearby oak so the player is never left without a lead.
     mark = await beacon(page);
-    expect(mark).toEqual({ visible: true, targetId: "oak_west_1" });
+    expect(mark).toMatchObject({ visible: true, targetId: "oak_west_1" });
     await expect(page.locator(".objective")).toContainText(/gold marker to the western oaks/i);
 
     await activate(page, "oak_west_1", /Chop three Meadow Logs|Collect the worn pickaxe/i);
@@ -137,7 +147,7 @@ test.describe("Tutorial guidance — starter tool discoverability", () => {
     // exact defect under test. The beacon must now clearly mark the
     // pickaxe's real world location.
     mark = await beacon(page);
-    expect(mark).toEqual({ visible: true, targetId: "ground_worn_pickaxe" });
+    expect(mark).toMatchObject({ visible: true, targetId: "ground_worn_pickaxe" });
 
     // Walk close enough that the beacon is actually inside the camera frame
     // before capturing — the follow camera tracks the player, not the
@@ -156,7 +166,7 @@ test.describe("Tutorial guidance — starter tool discoverability", () => {
 
     // Step 6 (equip_pickaxe, targetId: null again) — beacon correctly clears.
     mark = await beacon(page);
-    expect(mark).toEqual({ visible: false, targetId: null });
+    expect(mark).toMatchObject({ visible: false, targetId: null });
     await expect(page.getByRole("button", { name: "Open Pack" })).toBeVisible();
   });
 });

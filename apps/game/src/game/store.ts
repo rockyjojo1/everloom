@@ -93,7 +93,9 @@ interface GameStore {
   readonly logs: readonly LogEntry[];
   readonly debug: DebugFlags;
   readonly worldAssistance: WorldAssistanceSettings;
+  readonly highlightPulseUntil: number;
   setWorldAssistance: <K extends keyof WorldAssistanceSettings>(key: K, value: WorldAssistanceSettings[K]) => void;
+  highlightObjective: () => void;
   initialize: () => Promise<void>;
   beginIntro: (name?: string, appearanceId?: PlayerAppearanceId) => void;
   dismissEscapeIntro: () => void;
@@ -198,6 +200,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   logs: [],
   debug: { grid: false, blocked: false, interactions: false },
   worldAssistance: loadWorldAssistance(),
+  highlightPulseUntil: 0,
 
   initialize: async () => {
     if (initializing) return initializing;
@@ -481,6 +484,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
     persistWorldAssistance(next);
     return { worldAssistance: next };
   }),
+
+  highlightObjective: () => set({ highlightPulseUntil: Date.now() + 2_500 }),
 
   debugAddItem: (itemId, quantity) => {
     const save = get().save;

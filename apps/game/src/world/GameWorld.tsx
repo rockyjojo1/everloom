@@ -627,6 +627,7 @@ export function GameWorld() {
           return {
             visible: objectiveBeaconGroup.visible,
             targetId,
+            emphasized: Boolean(objectiveBeaconGroup.userData.emphasized),
           };
         },
         objectiveRoute: () => ({
@@ -836,15 +837,21 @@ export function GameWorld() {
       // to on.
       const worldAssistance = useGameStore.getState().worldAssistance;
       const objectiveTarget = objectiveGuidanceTarget(save);
-      if (worldAssistance.objectiveHighlighting && objectiveTarget && save && targetVisible(objectiveTarget, save)) {
+      const emphasized = Date.now() < useGameStore.getState().highlightPulseUntil;
+      if ((worldAssistance.objectiveHighlighting || emphasized) && objectiveTarget && save && targetVisible(objectiveTarget, save)) {
         objectiveBeaconGroup.position.copy(world(objectiveTarget));
         objectiveBeaconGroup.position.y += Math.sin(now / 420) * 0.12;
-        objectiveBeaconRing.scale.setScalar(1 + Math.sin(now / 280) * 0.12);
-        objectiveBeaconMarker.rotation.y += animationDt * 1.6;
+        const emphasisScale = emphasized ? 1.9 : 1;
+        objectiveBeaconRing.scale.setScalar((1 + Math.sin(now / 280) * 0.12) * emphasisScale);
+        objectiveBeaconLight.intensity = emphasized ? 2.4 + Math.sin(now / 90) * 1.1 : 2.4;
+        objectiveBeaconMarker.scale.setScalar(emphasized ? 1.4 : 1);
+        objectiveBeaconMarker.rotation.y += animationDt * (emphasized ? 4.2 : 1.6);
         objectiveBeaconMarker.rotation.x += animationDt * 0.9;
         objectiveBeaconGroup.visible = true;
+        objectiveBeaconGroup.userData.emphasized = emphasized;
       } else {
         objectiveBeaconGroup.visible = false;
+        objectiveBeaconGroup.userData.emphasized = false;
       }
       if (worldAssistance.pathTrailVisible && objectiveTarget && save && targetVisible(objectiveTarget, save) && lastAutomaticObjectiveId !== objectiveTarget.id) {
         renderObjectiveRoute(objectiveTarget, save);
