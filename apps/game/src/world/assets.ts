@@ -139,6 +139,32 @@ function proceduralBoneguardVest(): THREE.Group {
   return root;
 }
 
+function proceduralMaraShawl(): THREE.Group {
+  // Original hooded shawl silhouette that marks Mara Threadkeeper as a
+  // distinct, recognisable named NPC rather than a recolour of the shared
+  // adventurer rig used for the player and every generic villager. Attached
+  // to the chest bone by GameWorld; local origin sits at the shoulders.
+  const root = new THREE.Group();
+  const cloth = material(0x6f4a2c, 0.9);
+  const trim = material(0xdcb877, 0.7);
+  const cape = new THREE.Mesh(new THREE.ConeGeometry(0.34, 0.62, 8, 1, true), cloth);
+  cape.position.set(0, -0.18, -0.04);
+  const hood = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 6, 0, Math.PI * 2, 0, Math.PI * 0.65), cloth);
+  hood.position.set(0, 0.34, -0.05);
+  hood.rotation.x = Math.PI;
+  const collarTrim = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.025, 5, 14), trim);
+  collarTrim.rotation.x = Math.PI / 2;
+  collarTrim.position.set(0, 0.18, 0);
+  root.add(cape, hood, collarTrim);
+  root.traverse((child) => {
+    if (child instanceof THREE.Mesh) {
+      child.castShadow = true;
+      (child.material as THREE.MeshStandardMaterial).side = THREE.DoubleSide;
+    }
+  });
+  return root;
+}
+
 function proceduralRipples(): THREE.Group {
   const root = new THREE.Group();
   for (const [radius, opacity] of [[0.5, 0.75], [0.9, 0.5], [1.3, 0.3]] as const) {
@@ -157,6 +183,7 @@ function procedural(id: string): THREE.Object3D {
   if (id.includes("facility-smelter")) return proceduralSmelter();
   if (id.includes("facility-anvil")) return proceduralAnvil();
   if (id.includes("armor-boneguard")) return proceduralBoneguardVest();
+  if (id.includes("npc-mara-shawl")) return proceduralMaraShawl();
   return proceduralTool(id);
 }
 

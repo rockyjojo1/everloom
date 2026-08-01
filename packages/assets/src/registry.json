@@ -440,6 +440,17 @@
     "notes": "Original low-poly geometry; no bone-plated body armour exists in the installed CC0 packs. A layered chest/shoulder plate silhouette in bleached bone tones, attached to the character's chest bone. Fixes a bug where the body equipment slot previously pointed at enemy.skeleton-warrior (a full enemy character model) and rendered nothing when equipped."
   },
   {
+    "id": "custom.npc-mara-shawl",
+    "sourceFile": "procedural://npc/mara-shawl",
+    "pack": "everloom-original",
+    "category": "npc-accessory",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "Project original",
+    "sourceUrl": null,
+    "notes": "Original low-poly hood/shawl silhouette (cape cone, hood dome, trim torus) attached to Mara Threadkeeper's chest bone so the tutorial guide NPC reads as visually distinct from the shared player/villager adventurer rig rather than a plain recolour of it."
+  },
+  {
     "id": "custom.fishing-ripples",
     "sourceFile": "procedural://world/fishing-ripples",
     "pack": "everloom-original",

@@ -13,11 +13,22 @@ import { instantiateAsset } from "./assets";
 import { buildEnvironment, terrainHeight, updateEnvironment } from "./environment";
 
 const zone = CONTENT.zones.meadowrest!;
+// Multiplied against the shared adventurer model's own material colours, so
+// these need to be noticeably saturated to read as distinct outfits rather
+// than washing out to near-white. Chosen to stay ~120 degrees apart in hue
+// so all four are distinguishable at a glance and against Mara's own tint
+// (see npcTints below).
 const appearanceTints = {
-  meadow: "#c9efc7",
-  ember: "#ffd0b5",
-  tide: "#b8e6ff",
-  dusk: "#e0c5ff",
+  meadow: "#5fbf5a",
+  ember: "#e8763a",
+  tide: "#3f9fd6",
+  dusk: "#a463d6",
+} as const;
+
+// Distinguishing tints for named NPCs so they don't read as recolours of the
+// player. Mara's warm brown/rust sits outside the four player hues above.
+const npcTints = {
+  npc_mara: "#8a5a34",
 } as const;
 const world = (p: GridPosition) => new THREE.Vector3(
   (p.x - zone.width / 2) * zone.cellSize,
@@ -429,6 +440,23 @@ export function GameWorld() {
           const prop = object.getObjectByName(name);
           if (prop) prop.visible = false;
         }
+        if (id === "npc_mara") {
+          // Mara shares the same base rig as every generic villager/player,
+          // so a tint alone is not enough to make her read as a named,
+          // recognisable tutorial guide. Give her a distinct hood/shawl
+          // silhouette attached to the chest bone.
+          const chest = object.getObjectByName("chest") ?? object.getObjectByName("spine");
+          if (chest) {
+            void instantiateAsset("custom.npc-mara-shawl").then(({ object: shawl }) => {
+              if (disposed) return;
+              shawl.position.set(0, 0.05, -0.01);
+              shawl.traverse((child) => {
+                if (child instanceof THREE.Mesh) child.castShadow = true;
+              });
+              chest.add(shawl);
+            }).catch((error) => console.warn("Mara shawl accessory failed", error));
+          }
+        }
       }
       object.position.copy(world({ x, z }));
       if (assetId === "custom.fishing-ripples") object.position.y = -0.03;
@@ -466,7 +494,8 @@ export function GameWorld() {
     };
     for (const item of zone.scenery) sceneryAssetJobs.push(addAsset(item.id, item.assetId, item.x, item.z, item.rotation, item.scale, item.elevation, item.tint));
     for (const item of zone.interactables) {
-      criticalAssetJobs.push(addAsset(item.id, item.assetId, item.x, item.z, 0, 1, item.kind === "ground_item" ? 0.14 : 0, item.tint ?? null, true));
+      const resolvedTint = (npcTints as Record<string, string>)[item.id] ?? item.tint ?? null;
+      criticalAssetJobs.push(addAsset(item.id, item.assetId, item.x, item.z, 0, 1, item.kind === "ground_item" ? 0.14 : 0, resolvedTint, true));
       const isFishingSpot = item.kind === "resource" && item.assetId === "custom.fishing-ripples";
       if (item.kind === "ground_item" || item.kind === "npc" || isFishingSpot) {
         const label = document.createElement("span");
