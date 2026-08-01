@@ -23,5 +23,30 @@
     ],
     "output": { "itemId": "verdant_tonic", "quantity": 1 },
     "facilityKind": "cooking_fire"
+  },
+  {
+    "id": "smelt_copper_ore",
+    "name": "Smelt Copper Ore",
+    "skill": "smithing",
+    "actionDurationMs": 2600,
+    "xpPerSuccess": 30,
+    "inputs": [
+      { "itemId": "copper_ore", "quantity": 2 }
+    ],
+    "output": { "itemId": "copper_ingot", "quantity": 1 },
+    "facilityKind": "furnace"
+  },
+  {
+    "id": "smith_copper_battleaxe",
+    "name": "Smith Copper Battleaxe",
+    "skill": "smithing",
+    "actionDurationMs": 3600,
+    "xpPerSuccess": 60,
+    "inputs": [
+      { "itemId": "copper_ingot", "quantity": 2 },
+      { "itemId": "meadow_log", "quantity": 2 }
+    ],
+    "output": { "itemId": "copper_battleaxe", "quantity": 1 },
+    "facilityKind": "anvil"
   }
 ]

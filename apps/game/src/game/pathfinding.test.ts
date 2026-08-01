@@ -33,4 +33,31 @@ describe("A* movement", () => {
       expect(Math.hypot(end.x - target.x, end.z - target.z)).toBeLessThanOrEqual(Math.max(1, target.interactionRadius));
     }
   });
+
+  it("reaches the Smithing facilities and every quarry copper node from the village spawn", () => {
+    for (const id of ["meadowrest_smelter", "meadowrest_anvil", "copper_north_1", "copper_north_2", "copper_north_3"]) {
+      const target = zone.interactables.find((entry) => entry.id === id)!;
+      expect(target, `missing interactable ${id}`).toBeDefined();
+      const path = pathToTarget(zone, zone.spawn, target);
+      expect(path.length, `no path found to ${id}`).toBeGreaterThan(0);
+      const end = path.at(-1)!;
+      expect(Math.hypot(end.x - target.x, end.z - target.z)).toBeLessThanOrEqual(Math.max(1, target.interactionRadius));
+    }
+  });
+
+  it("walks the smelter and anvil as a short, adjacent quarry loop", () => {
+    const smelter = zone.interactables.find((entry) => entry.id === "meadowrest_smelter")!;
+    const anvil = zone.interactables.find((entry) => entry.id === "meadowrest_anvil")!;
+    const path = pathToTarget(zone, { x: smelter.x, z: smelter.z }, anvil);
+    expect(path.length, "the smelter and anvil should be a short physical walk apart").toBeGreaterThan(0);
+    expect(path.length).toBeLessThanOrEqual(3);
+  });
+
+  it("does not let the new Smithing facilities block any existing authored route", () => {
+    for (const id of ["oak_west_1", "verdant_loomstone", "verdant_heartwood_1", "verdant_heartwood_2", "grove_hearth", "first_loomstone", "npc_mara"]) {
+      const target = zone.interactables.find((entry) => entry.id === id)!;
+      const path = pathToTarget(zone, zone.spawn, target);
+      expect(path.length, `regression: no path found to ${id}`).toBeGreaterThan(0);
+    }
+  });
 });

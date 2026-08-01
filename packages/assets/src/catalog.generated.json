@@ -333,7 +333,7 @@
     "pack": "kaykit-skeletons",
     "category": "character",
     "format": "gltf",
-    "bytes": 3069
+    "bytes": 3205
   },
   {
     "id": "catalog.kaykit.skeletons.props.skeleton.arrow.broken",
@@ -341,7 +341,7 @@
     "pack": "kaykit-skeletons",
     "category": "character",
     "format": "gltf",
-    "bytes": 3061
+    "bytes": 3197
   },
   {
     "id": "catalog.kaykit.skeletons.props.skeleton.arrow.half",
@@ -349,7 +349,7 @@
     "pack": "kaykit-skeletons",
     "category": "character",
     "format": "gltf",
-    "bytes": 3051
+    "bytes": 3187
   },
   {
     "id": "catalog.kaykit.skeletons.props.skeleton.arrow",
@@ -357,7 +357,7 @@
     "pack": "kaykit-skeletons",
     "category": "character",
     "format": "gltf",
-    "bytes": 3043
+    "bytes": 3179
   },
   {
     "id": "catalog.kaykit.skeletons.props.skeleton.axe",
@@ -365,7 +365,7 @@
     "pack": "kaykit-skeletons",
     "category": "character",
     "format": "gltf",
-    "bytes": 3045
+    "bytes": 3181
   },
   {
     "id": "catalog.kaykit.skeletons.props.skeleton.blade",
@@ -373,7 +373,7 @@
     "pack": "kaykit-skeletons",
     "category": "character",
     "format": "gltf",
-    "bytes": 3047
+    "bytes": 3183
   },
   {
     "id": "catalog.kaykit.skeletons.props.skeleton.crossbow",
@@ -381,7 +381,7 @@
     "pack": "kaykit-skeletons",
     "category": "character",
     "format": "gltf",
-    "bytes": 3052
+    "bytes": 3188
   },
   {
     "id": "catalog.kaykit.skeletons.props.skeleton.quiver",
@@ -389,7 +389,7 @@
     "pack": "kaykit-skeletons",
     "category": "character",
     "format": "gltf",
-    "bytes": 3051
+    "bytes": 3187
   },
   {
     "id": "catalog.kaykit.skeletons.props.skeleton.shield.large.a",
@@ -397,7 +397,7 @@
     "pack": "kaykit-skeletons",
     "category": "character",
     "format": "gltf",
-    "bytes": 3071
+    "bytes": 3207
   },
   {
     "id": "catalog.kaykit.skeletons.props.skeleton.shield.large.b",
@@ -405,7 +405,7 @@
     "pack": "kaykit-skeletons",
     "category": "character",
     "format": "gltf",
-    "bytes": 3068
+    "bytes": 3204
   },
   {
     "id": "catalog.kaykit.skeletons.props.skeleton.shield.small.a",
@@ -413,7 +413,7 @@
     "pack": "kaykit-skeletons",
     "category": "character",
     "format": "gltf",
-    "bytes": 3069
+    "bytes": 3205
   },
   {
     "id": "catalog.kaykit.skeletons.props.skeleton.shield.small.b",
@@ -421,7 +421,7 @@
     "pack": "kaykit-skeletons",
     "category": "character",
     "format": "gltf",
-    "bytes": 3069
+    "bytes": 3205
   },
   {
     "id": "catalog.kaykit.skeletons.props.skeleton.staff",
@@ -429,7 +429,7 @@
     "pack": "kaykit-skeletons",
     "category": "character",
     "format": "gltf",
-    "bytes": 3057
+    "bytes": 3193
   },
   {
     "id": "catalog.kaykit.skeletons.skeleton.mage",

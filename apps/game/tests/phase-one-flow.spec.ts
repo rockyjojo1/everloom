@@ -70,7 +70,10 @@ test("all Phase One skills and The First Thread work through the browser", async
   // enough for a properly equipped fresh player without assuming every swing hits.
   await startAndResolve(page, "skeleton_east", 30_000, /Return to Mara/i, testInfo.outputPath("everloom-combat.png"));
   await activate(page, "npc_mara", /First Loomstone/i);
-  await activate(page, "first_loomstone", /Strengthen every Meadowrest skill to level 5/i);
+  // Completing First Thread now chains into The Forge's Trade (the Smithing
+  // tutorial), not directly into the Verdant attunement gate — that chain is
+  // exercised end-to-end by forge-trade.spec.ts and verdant-loomstone.spec.ts.
+  await activate(page, "first_loomstone", /Mine four Copper Ore from the northern quarry/i);
 
   const snapshot = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.snapshot());
   expect(snapshot.quests.first_thread.status).toBe("completed");

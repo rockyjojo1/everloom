@@ -13,6 +13,8 @@ const paths: Record<string, ReactNode> = {
   "icon.amber": <><path d="m12 2 7 6-3 11-8 2-4-10 8-9Z" /><path d="m12 6 3 4-2 6-4-4 3-6Z" /></>,
   "icon.heartwood": <><path d="M5 7h13v10H5z" /><path d="M11.5 7v10M18 12c-2 1-2 3 0 4" /><circle cx="8" cy="12" r="1.4" /></>,
   "icon.tonic": <><path d="M9 2h6M10 2v5l-4 8a3 3 0 0 0 3 5h6a3 3 0 0 0 3-5l-4-8V2" /><path d="M7.5 15h9" /></>,
+  "icon.ingot": <><path d="M5 16 6.5 8h11L19 16l-2 4H7l-2-4Z" /><path d="M6.5 8 9 5h6l2.5 3M7.5 16h9" /></>,
+  "icon.battleaxe": <><path d="M12 3v18" /><path d="M12 6c-2.5-3-7-3.2-8.5-.6C4.8 8.4 8.8 9.6 12 7Z" /><path d="M12 6c2.5-3 7-3.2 8.5-.6C19.2 8.4 15.2 9.6 12 7Z" /><path d="m9 21 3-2 3 2" /></>,
 };
 
 export function ItemIcon({ iconId }: { iconId: string }) {

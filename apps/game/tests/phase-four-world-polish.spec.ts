@@ -143,7 +143,11 @@ test.describe("Phase Four — Meadowrest visual composition", () => {
     // FPS that tick can lag a page.evaluate() round trip, and racing past it
     // previously left the player walking toward the Loomstone while the
     // objective text still read the pre-talk line.
+    // First Thread now chains into The Forge's Trade (the Smithing tutorial,
+    // covered end-to-end by forge-trade.spec.ts) before Verdant Loomstone, so
+    // it is force-completed here too to reach this chapter's starting point.
     await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.completeQuest("first_thread"));
+    await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.completeQuest("forge_trade"));
     await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.attuneAllSkills());
     await expect(page.locator(".objective")).toContainText(/Tell Mara the five threads are ready/i, { timeout: 60_000 });
 

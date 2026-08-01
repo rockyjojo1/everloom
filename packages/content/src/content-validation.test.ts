@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PROBABILITY_SCALE } from "@everloom/core";
+import { addItem, ATTUNEMENT_SKILL_COUNT, ATTUNEMENT_SKILLS, createNewSave, equipItem, PROBABILITY_SCALE, playerCombatStats } from "@everloom/core";
 import { CONTENT, buildValidatedContent, questSchema, recipeSchema, resourceSchema } from "./index";
 
 describe("Everloom authored content", () => {
@@ -64,10 +64,16 @@ describe("Everloom authored content", () => {
 });
 
 describe("The Verdant Loomstone chapter", () => {
-  it("chains naturally from The First Thread and awakens on completion", () => {
+  it("chains from The Forge's Trade (not directly from The First Thread) and awakens on completion", () => {
     const first = CONTENT.quests.first_thread;
+    const forge = CONTENT.quests.forge_trade;
     const verdant = CONTENT.quests.verdant_loomstone;
-    expect(first?.nextQuestId).toBe("verdant_loomstone");
+    // Smithing is tutorial content, so it must sit between First Thread and
+    // the Verdant attunement gate, not after groves_gift (which would make it
+    // post-tutorial).
+    expect(first?.nextQuestId).toBe("forge_trade");
+    expect(forge).toBeDefined();
+    expect(forge?.nextQuestId).toBe("verdant_loomstone");
     expect(verdant).toBeDefined();
     expect(verdant?.completionFlag).toBe("verdant_loomstone_awakened");
     expect(verdant?.nextQuestId).toBe("groves_gift");
@@ -125,6 +131,75 @@ describe("The Verdant Loomstone chapter", () => {
   });
 });
 
+describe("The Forge's Trade chapter", () => {
+  it("has exactly the four authored steps: mine, smelt, smith, equip", () => {
+    const forge = CONTENT.quests.forge_trade!;
+    expect(forge.steps).toEqual([
+      expect.objectContaining({ kind: "gather", itemId: "copper_ore", count: 4, targetId: null }),
+      expect.objectContaining({ kind: "produce", itemId: "copper_ingot", count: 2, targetId: "meadowrest_smelter" }),
+      expect.objectContaining({ kind: "produce", itemId: "copper_battleaxe", count: 1, targetId: "meadowrest_anvil" }),
+      expect.objectContaining({ kind: "equip", itemId: "copper_battleaxe", count: 1, targetId: null }),
+    ]);
+  });
+
+  it("constrains both production steps to their own facility via targetId, not the legacy cook kind", () => {
+    const forge = CONTENT.quests.forge_trade!;
+    const produceSteps = forge.steps.filter((step) => step.kind === "produce");
+    expect(produceSteps).toHaveLength(2);
+    for (const step of produceSteps) expect(step.targetId).not.toBeNull();
+    expect(forge.steps.some((step) => step.kind === "cook")).toBe(false);
+  });
+
+  it("physically places the smelter and anvil in the quarry at the specified coordinates, one step apart", () => {
+    const smelter = CONTENT.zones.meadowrest?.interactables.find((entry) => entry.id === "meadowrest_smelter");
+    const anvil = CONTENT.zones.meadowrest?.interactables.find((entry) => entry.id === "meadowrest_anvil");
+    expect(smelter).toMatchObject({ kind: "facility", x: 15, z: 5, recipeId: "smelt_copper_ore", assetId: "custom.facility-smelter" });
+    expect(anvil).toMatchObject({ kind: "facility", x: 16, z: 6, recipeId: "smith_copper_battleaxe", assetId: "custom.facility-anvil" });
+  });
+
+  it("smelts 2 copper ore into 1 ingot at a furnace, and smiths 2 ingots + 2 logs into a battleaxe at an anvil", () => {
+    const smelt = CONTENT.recipes.smelt_copper_ore!;
+    const smith = CONTENT.recipes.smith_copper_battleaxe!;
+    expect(smelt).toMatchObject({
+      skill: "smithing",
+      facilityKind: "furnace",
+      xpPerSuccess: 30,
+      actionDurationMs: 2600,
+      inputs: [{ itemId: "copper_ore", quantity: 2 }],
+      output: { itemId: "copper_ingot", quantity: 1 },
+    });
+    expect(smith).toMatchObject({
+      skill: "smithing",
+      facilityKind: "anvil",
+      xpPerSuccess: 60,
+      actionDurationMs: 3600,
+      output: { itemId: "copper_battleaxe", quantity: 1 },
+    });
+    expect(smith.inputs).toEqual(expect.arrayContaining([
+      { itemId: "copper_ingot", quantity: 2 },
+      { itemId: "meadow_log", quantity: 2 },
+    ]));
+  });
+
+  it("makes the Copper Battleaxe a genuine, visually distinct upgrade over the Militia Sword", () => {
+    const axe = CONTENT.items.copper_battleaxe!;
+    const sword = CONTENT.items.meadowrest_sword!;
+    expect(axe.equipmentSlot).toBe("weapon");
+    expect(axe.combatBonuses).toEqual({ accuracy: 13, strength: 8, defence: 0 });
+    expect(axe.combatBonuses!.accuracy).toBeGreaterThan(sword.combatBonuses!.accuracy);
+    expect(axe.combatBonuses!.strength).toBeGreaterThan(sword.combatBonuses!.strength);
+    // Its own semantic asset, never a reuse of the sword's procedural mesh.
+    expect(axe.worldAssetId).not.toBe(sword.worldAssetId);
+    expect(axe.worldAssetId).toBe("custom.weapon-battleaxe");
+    expect(axe.iconId).not.toBe(sword.iconId);
+  });
+
+  it("does not add Smithing to the five-skill Verdant attunement gate", () => {
+    expect(ATTUNEMENT_SKILLS).not.toContain("smithing");
+    expect(ATTUNEMENT_SKILL_COUNT).toBe(5);
+  });
+});
+
 describe("combat progression content", () => {
   it("gives every weapon and body item explicit derived-stat bonuses", () => {
     const combatEquipment = Object.values(CONTENT.items)
@@ -137,6 +212,27 @@ describe("combat progression content", () => {
     const skeleton = CONTENT.enemies.restless_skeleton;
     expect(skeleton).toMatchObject({ combatLevel: 4, accuracy: 18, evasion: 12, armor: 1 });
     expect(skeleton).not.toHaveProperty("minPlayerDamage");
+  });
+
+  it("equipping the real Copper Battleaxe raises derived accuracy and max hit over the real Militia Sword", () => {
+    const base = { ...createNewSave(0, "battleaxe-stat-seed", { x: 5, z: 5 }), quests: {} };
+    const withSword = addItem(base.inventory, base.inventorySlots, "meadowrest_sword", 1, CONTENT);
+    if (!withSword) throw new Error("fixture inventory failed");
+    const swordEquipped = equipItem({ ...base, inventory: withSword }, "meadowrest_sword", CONTENT).state;
+    const swordStats = playerCombatStats(swordEquipped, CONTENT);
+    expect(swordEquipped.equipment.weapon).toBe("meadowrest_sword");
+
+    const withAxe = addItem(swordEquipped.inventory, swordEquipped.inventorySlots, "copper_battleaxe", 1, CONTENT);
+    if (!withAxe) throw new Error("fixture inventory failed");
+    const axeEquipped = equipItem({ ...swordEquipped, inventory: withAxe }, "copper_battleaxe", CONTENT).state;
+    const axeStats = playerCombatStats(axeEquipped, CONTENT);
+
+    expect(axeEquipped.equipment.weapon).toBe("copper_battleaxe");
+    // Swapping the sword back into the pack, not discarding it, proves this is
+    // a real optional choice rather than a forced one-way upgrade.
+    expect(axeEquipped.inventory.some((stack) => stack.itemId === "meadowrest_sword")).toBe(true);
+    expect(axeStats.accuracy).toBeGreaterThan(swordStats.accuracy);
+    expect(axeStats.maxHit).toBeGreaterThan(swordStats.maxHit);
   });
 
   it("makes the first enemy award a persistent defensive equipment upgrade", () => {

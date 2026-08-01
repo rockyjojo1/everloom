@@ -36,13 +36,20 @@ test.describe("The Verdant Loomstone", () => {
     // defeating the skeleton) is already exercised end-to-end by
     // phase-one-flow.spec.ts. This test starts from "First Thread complete" via
     // the same dev-only debug hook exposed to the DebugPanel, so it can focus
-    // its time budget on what Phase Three actually adds.
+    // its time budget on what Phase Three actually adds. Completing First
+    // Thread now chains into The Forge's Trade (Smithing tutorial, covered in
+    // full by forge-trade.spec.ts) before Verdant Loomstone, so it is also
+    // force-completed here to reach this chapter's starting point.
     await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.completeQuest("first_thread"));
-
     let snapshot = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.snapshot());
     expect(snapshot.quests.first_thread?.status).toBe("completed");
-    // Completing First Thread must chain straight into the new quest — this is
-    // persisted quest state, not HUD-only text.
+    expect(snapshot.quests.forge_trade).toEqual({ status: "active", stepIndex: 0, stepProgress: 0 });
+
+    await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.completeQuest("forge_trade"));
+    snapshot = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.snapshot());
+    expect(snapshot.quests.forge_trade?.status).toBe("completed");
+    // Completing The Forge's Trade must chain straight into the Verdant gate —
+    // this is persisted quest state, not HUD-only text.
     expect(snapshot.quests.verdant_loomstone).toEqual({ status: "active", stepIndex: 0, stepProgress: 0 });
 
     await expect(page.locator(".objective")).toContainText(/Strengthen every Meadowrest skill to level 5\. 0 of 5 attuned\./i);

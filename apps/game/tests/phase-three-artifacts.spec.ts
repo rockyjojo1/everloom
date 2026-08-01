@@ -18,7 +18,10 @@ test("capture Phase Three hand-inspection screenshots", async ({ page }, testInf
   await page.getByRole("button", { name: "Enter Meadowrest" }).click();
   await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true");
 
+  // First Thread now chains into The Forge's Trade (Smithing tutorial, covered
+  // end-to-end by forge-trade.spec.ts) before Verdant Loomstone.
   await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.completeQuest("first_thread"));
+  await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.completeQuest("forge_trade"));
   await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.attuneAllSkills());
   await expect(page.locator(".objective")).toContainText(/Tell Mara/i);
 

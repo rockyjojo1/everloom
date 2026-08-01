@@ -1,4 +1,4 @@
-export const SAVE_VERSION = 3 as const;
+export const SAVE_VERSION = 4 as const;
 export const PROBABILITY_SCALE = 1_000_000 as const;
 
 export type SkillId = "woodcutting" | "mining" | "fishing" | "cooking" | "smithing" | "melee";

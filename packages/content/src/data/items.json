@@ -208,6 +208,38 @@
     "combatBonuses": null
   },
   {
+    "id": "copper_ingot",
+    "name": "Copper Ingot",
+    "description": "A cooled bar of smelted quarry copper, ready for the anvil.",
+    "category": "resource",
+    "stackable": true,
+    "maxStack": 99,
+    "iconId": "icon.ingot",
+    "worldAssetId": "nature.rock-large",
+    "equipmentSlot": null,
+    "toolKind": null,
+    "healAmount": 0,
+    "value": 9,
+    "collection": false,
+    "combatBonuses": null
+  },
+  {
+    "id": "copper_battleaxe",
+    "name": "Copper Battleaxe",
+    "description": "A forge-fresh battleaxe, heavier and truer than a village blade.",
+    "category": "weapon",
+    "stackable": false,
+    "maxStack": 1,
+    "iconId": "icon.battleaxe",
+    "worldAssetId": "custom.weapon-battleaxe",
+    "equipmentSlot": "weapon",
+    "toolKind": null,
+    "healAmount": 0,
+    "value": 20,
+    "collection": false,
+    "combatBonuses": { "accuracy": 13, "strength": 8, "defence": 0 }
+  },
+  {
     "id": "boneguard_vest",
     "name": "Boneguard Vest",
     "description": "A surprisingly sturdy guard vest recovered from Meadowrest's restless sentinel.",

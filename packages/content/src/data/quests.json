@@ -133,8 +133,49 @@
         "count": 1
       }
     ],
-    "nextQuestId": "verdant_loomstone",
+    "nextQuestId": "forge_trade",
     "completionFlag": null
+  },
+  {
+    "id": "forge_trade",
+    "name": "The Forge's Trade",
+    "summary": "Village iron is thin work, but the quarry has copper enough to start. Learn what Meadowrest's forge can make.",
+    "steps": [
+      {
+        "id": "mine_forge_copper",
+        "kind": "gather",
+        "objective": "Mine four Copper Ore from the northern quarry.",
+        "targetId": null,
+        "itemId": "copper_ore",
+        "count": 4
+      },
+      {
+        "id": "smelt_ingots",
+        "kind": "produce",
+        "objective": "Smelt two Copper Ingots at the Meadowrest Smelter.",
+        "targetId": "meadowrest_smelter",
+        "itemId": "copper_ingot",
+        "count": 2
+      },
+      {
+        "id": "smith_battleaxe",
+        "kind": "produce",
+        "objective": "Forge a Copper Battleaxe at the Anvil.",
+        "targetId": "meadowrest_anvil",
+        "itemId": "copper_battleaxe",
+        "count": 1
+      },
+      {
+        "id": "equip_battleaxe",
+        "kind": "equip",
+        "objective": "Equip the Copper Battleaxe.",
+        "targetId": null,
+        "itemId": "copper_battleaxe",
+        "count": 1
+      }
+    ],
+    "nextQuestId": "verdant_loomstone",
+    "completionFlag": "forge_trade_completed"
   },
   {
     "id": "verdant_loomstone",

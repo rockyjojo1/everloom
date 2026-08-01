@@ -27,6 +27,26 @@ function proceduralTool(id: string): THREE.Group {
     head.rotation.z = Math.PI / 2;
     head.position.y = 1.18;
     root.add(head);
+  } else if (id.includes("battleaxe")) {
+    // Deliberately a different silhouette from the sword above: a short,
+    // thick haft topped by a broad double-bladed copper head, rather than a
+    // tall thin blade. This is the Copper Battleaxe's own procedural mesh —
+    // it must never be mistaken for the Militia Sword at a glance.
+    handle.scale.set(0.85, 0.62, 0.85);
+    const copper = material(0xc77d43, 0.5);
+    const socket = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, 0.3, 8), copper);
+    socket.rotation.z = Math.PI / 2;
+    socket.position.y = 1.22;
+    const bladeLeft = new THREE.Mesh(new THREE.ConeGeometry(0.34, 0.14, 4), copper);
+    bladeLeft.rotation.z = Math.PI / 2;
+    bladeLeft.rotation.y = Math.PI / 4;
+    bladeLeft.position.set(-0.24, 1.22, 0);
+    const bladeRight = bladeLeft.clone();
+    bladeRight.rotation.z = -Math.PI / 2;
+    bladeRight.position.set(0.24, 1.22, 0);
+    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.22, 6), metal);
+    spike.position.y = 1.5;
+    root.add(socket, bladeLeft, bladeRight, spike);
   } else if (id.includes("sword")) {
     handle.scale.set(0.72, 0.48, 0.72);
     const blade = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.15, 0.045), metal);
@@ -39,6 +59,54 @@ function proceduralTool(id: string): THREE.Group {
     line.position.set(0.16, 0.35, 0);
     root.add(line);
   }
+  return root;
+}
+
+function proceduralSmelter(): THREE.Group {
+  // Compact quarry-stone industrial structure: a squat dark stone block with
+  // a short chimney and a restrained warm emissive mouth, reading as
+  // industrial stone rather than a wood campfire (nature.campfire).
+  const root = new THREE.Group();
+  const stone = material(0x5c554c, 0.92);
+  const darkStone = material(0x433f38, 0.94);
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.95, 0.62, 0.85), stone);
+  body.position.y = 0.31;
+  const base = new THREE.Mesh(new THREE.BoxGeometry(1.05, 0.12, 0.95), darkStone);
+  base.position.y = 0.06;
+  const chimney = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.19, 0.55, 8), stone);
+  chimney.position.set(0.26, 0.85, -0.18);
+  const chimneyCap = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.08, 8), darkStone);
+  chimneyCap.position.set(0.26, 1.14, -0.18);
+  const mouthFrame = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.05, 6, 12), darkStone);
+  mouthFrame.position.set(0, 0.3, 0.44);
+  const glow = new THREE.Mesh(
+    new THREE.CircleGeometry(0.13, 12),
+    new THREE.MeshBasicMaterial({ color: 0xff6a2b }),
+  );
+  glow.position.set(0, 0.3, 0.45);
+  const emberLight = new THREE.PointLight(0xff7a35, 1.1, 2.4, 2);
+  emberLight.position.set(0, 0.3, 0.5);
+  root.add(base, body, chimney, chimneyCap, mouthFrame, glow, emberLight);
+  return root;
+}
+
+function proceduralAnvil(): THREE.Group {
+  // Worked iron on a timber stump: distinct "worked metal" material (higher
+  // metalness/lower roughness) sitting on the same warm wood tone used for
+  // tool handles, so it reads as craft furniture rather than raw quarry rock.
+  const root = new THREE.Group();
+  const wood = material(0x70452c, 0.88);
+  const iron = new THREE.MeshStandardMaterial({ color: 0x3d3f42, roughness: 0.4, metalness: 0.6 });
+  const stump = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.29, 0.42, 10), wood);
+  stump.position.y = 0.21;
+  const base = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.1, 0.22), iron);
+  base.position.y = 0.47;
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.14, 0.26), iron);
+  body.position.y = 0.56;
+  const horn = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.34, 8), iron);
+  horn.rotation.z = Math.PI / 2;
+  horn.position.set(0.38, 0.56, 0);
+  root.add(stump, base, body, horn);
   return root;
 }
 
@@ -57,6 +125,8 @@ function proceduralRipples(): THREE.Group {
 
 function procedural(id: string): THREE.Object3D {
   if (id.includes("fishing-ripples")) return proceduralRipples();
+  if (id.includes("facility-smelter")) return proceduralSmelter();
+  if (id.includes("facility-anvil")) return proceduralAnvil();
   return proceduralTool(id);
 }
 

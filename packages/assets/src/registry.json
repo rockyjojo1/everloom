@@ -396,6 +396,39 @@
     "notes": "Original low-poly starter sword geometry."
   },
   {
+    "id": "custom.weapon-battleaxe",
+    "sourceFile": "procedural://weapon/battleaxe",
+    "pack": "everloom-original",
+    "category": "ground-item",
+    "scale": 1,
+    "interactionType": "ground_item",
+    "licence": "Project original",
+    "sourceUrl": null,
+    "notes": "Original low-poly Copper Battleaxe geometry; a broad double-bladed head, deliberately a different silhouette from the starter sword rather than a reskin of it."
+  },
+  {
+    "id": "custom.facility-smelter",
+    "sourceFile": "procedural://facility/smelter",
+    "pack": "everloom-original",
+    "category": "facility",
+    "scale": 1,
+    "interactionType": "facility",
+    "licence": "Project original",
+    "sourceUrl": null,
+    "notes": "Original low-poly geometry; the installed packs contain no forge/smelter/kiln model. Compact quarry-stone industrial block with a restrained warm emissive interior."
+  },
+  {
+    "id": "custom.facility-anvil",
+    "sourceFile": "procedural://facility/anvil",
+    "pack": "everloom-original",
+    "category": "facility",
+    "scale": 1,
+    "interactionType": "facility",
+    "licence": "Project original",
+    "sourceUrl": null,
+    "notes": "Original low-poly geometry; the installed packs contain no anvil model. Worked iron block with a tapered horn on a timber stump base."
+  },
+  {
     "id": "custom.fishing-ripples",
     "sourceFile": "procedural://world/fishing-ripples",
     "pack": "everloom-original",
@@ -537,6 +570,28 @@
     "licence": "Project original",
     "sourceUrl": null,
     "notes": "Code-native interface symbol for the Verdant Tonic reward food."
+  },
+  {
+    "id": "icon.ingot",
+    "sourceFile": "component://icon/ingot",
+    "pack": "everloom-original",
+    "category": "icon",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "Project original",
+    "sourceUrl": null,
+    "notes": "Code-native interface symbol for the Copper Ingot."
+  },
+  {
+    "id": "icon.battleaxe",
+    "sourceFile": "component://icon/battleaxe",
+    "pack": "everloom-original",
+    "category": "icon",
+    "scale": 1,
+    "interactionType": null,
+    "licence": "Project original",
+    "sourceUrl": null,
+    "notes": "Code-native interface symbol for the Copper Battleaxe."
   },
   {
     "id": "nature.stump-round",
