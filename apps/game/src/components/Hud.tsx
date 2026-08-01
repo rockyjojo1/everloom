@@ -8,7 +8,7 @@ import {
   masteryRankFromXp,
   playerCombatStats,
 } from "@everloom/core";
-import { Fragment, useRef } from "react";
+import { Fragment, lazy, Suspense, useRef } from "react";
 import { objectiveGuidanceTarget, requestObjectiveRoute } from "../game/objectiveGuidance";
 import { inventoryCount, type PanelId, useGameStore } from "../game/store";
 import { Icon } from "./Icons";
@@ -19,6 +19,11 @@ const tabs: { id: PanelId; label: string }[] = [
   { id: "inventory", label: "Pack" }, { id: "skills", label: "Skills" }, { id: "quest", label: "Thread" },
   { id: "collection", label: "Finds" }, { id: "settings", label: "Options" },
 ];
+
+const CloudAccount = lazy(async () => {
+  const module = await import("./CloudAccount");
+  return { default: module.CloudAccount };
+});
 
 export function Hud() {
   const store = useGameStore();
@@ -59,6 +64,9 @@ export function Hud() {
         ? CONTENT.enemies[activity.enemyId]?.attackIntervalMs
         : undefined;
   const activityProgress = activity && activityDuration ? Math.min(100, activity.progressMs / activityDuration * 100) : 0;
+  const activeResource = activity?.type === "gathering" ? CONTENT.resources[activity.resourceId] : null;
+  const activeMasteryXp = activeResource ? save.mastery[activeResource.id]?.xp ?? 0 : 0;
+  const activeMasteryRank = masteryRankFromXp(activeMasteryXp);
 
   return <div className="hud">
     <section className="objective glass">
@@ -71,7 +79,7 @@ export function Hud() {
         {guidancePanel.label}
       </button>}
       {guidanceTarget && <button className="objective-action" onClick={() => requestObjectiveRoute(guidanceTarget.id)}>
-        Show route
+        Refresh route
       </button>}
     </section>
     <section className="vitals glass">
@@ -81,6 +89,7 @@ export function Hud() {
     {activity && <section className="activity glass">
       <span>{activity.type === "gathering" ? CONTENT.resources[activity.resourceId]?.name : activity.type === "production" ? CONTENT.recipes[activity.recipeId]?.name : CONTENT.enemies[activity.enemyId]?.name}
         {activity.type === "combat" && <small>Lv {CONTENT.enemies[activity.enemyId]?.combatLevel} · {activity.enemyHp}/{CONTENT.enemies[activity.enemyId]?.maxHp} HP</small>}
+        {activeResource && <small className="activity-mastery">Mastery rank {activeMasteryRank} · {activeMasteryXp} XP</small>}
       </span>
       <i className="activity-progress"><b style={{ width: `${activityProgress}%` }} /></i>
       <button onClick={store.cancelCurrentActivity}>Stop</button>
@@ -135,8 +144,27 @@ export function Hud() {
             <small>Weapon: {save.equipment.weapon ? CONTENT.items[save.equipment.weapon]?.name : "Unarmed"}</small>
             <small>Body: {save.equipment.body ? CONTENT.items[save.equipment.body]?.name : "Unarmoured"}</small>
           </section>
-          <h3>Mastery</h3>
-          {Object.entries(save.mastery).map(([id, progress]) => <div key={id}><span>{CONTENT.resources[id]?.name ?? id}</span><b>Rank {masteryRankFromXp(progress.xp)}</b><small>{progress.xp} XP</small></div>)}
+          <section className="mastery-overview">
+            <header>
+              <div><span className="eyebrow">ACTION MASTERY</span><h3>Practice changes the grind</h3></div>
+              <small>Each resource has its own rank.</small>
+            </header>
+            <p>Higher mastery shortens that action and improves its rare-find chance. Mastery advances online and offline.</p>
+            <div className="mastery-grid">
+              {Object.entries(CONTENT.resources).map(([id, resource]) => {
+                const xp = save.mastery[id]?.xp ?? 0;
+                const rank = masteryRankFromXp(xp);
+                const floor = rank * rank * 25;
+                const ceiling = (rank + 1) * (rank + 1) * 25;
+                const progress = Math.max(0, Math.min(100, (xp - floor) / Math.max(1, ceiling - floor) * 100));
+                return <article key={id} className={activeResource?.id === id ? "active" : ""}>
+                  <div><strong>{resource.name}</strong><b>Rank {rank}</b></div>
+                  <i className="mastery-progress"><b style={{ width: `${progress}%` }} /></i>
+                  <small>{xp} / {ceiling} XP · next rank: {(resource.masterySpeedPpmPerRank / 10_000).toFixed(1)}% faster</small>
+                </article>;
+              })}
+            </div>
+          </section>
         </div>}
         {store.panel === "quest" && <div className="quest-list">
           {Object.entries(save.quests).map(([questId, questProgress]) => {
@@ -200,7 +228,8 @@ export function Hud() {
             if (file) void file.text().then(store.importSaveText);
           }} />
           <button className="danger" onClick={() => { if (confirm("Erase this local save and begin again?")) void store.resetSave(); }}>Reset local save</button>
-          <p className="muted">Save: {store.saveStatus}{store.saveError ? ` — ${store.saveError}` : ""}. This world is stored only on this device.</p>
+          <p className="muted">Local save: {store.saveStatus}{store.saveError ? ` — ${store.saveError}` : ""}.</p>
+          <Suspense fallback={<p className="muted">Opening account options…</p>}><CloudAccount /></Suspense>
         </div>}
       </div>
     </aside>}

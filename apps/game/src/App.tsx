@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
+import type { PlayerAppearanceId } from "@everloom/core";
 import { DebugPanel } from "./components/DebugPanel";
 import { EscapeIntro } from "./components/EscapeIntro";
 import { Hud } from "./components/Hud";
@@ -20,7 +21,14 @@ const AssetBrowser = lazy(async () => {
   return { default: module.AssetBrowser };
 });
 
+const CloudAccount = lazy(async () => {
+  const module = await import("./components/CloudAccount");
+  return { default: module.CloudAccount };
+});
+
 export default function App() {
+  const [characterName, setCharacterName] = useState("Wanderer");
+  const [appearanceId, setAppearanceId] = useState<PlayerAppearanceId>("meadow");
   const status = useGameStore((state) => state.status);
   const save = useGameStore((state) => state.save);
   const error = useGameStore((state) => state.loadError);
@@ -59,11 +67,27 @@ export default function App() {
     {!intro && <EscapeIntro />}
     <OfflineReport />
     <DebugPanel />
-    {intro && <div className="modal-backdrop"><section className="intro glass">
-      <span className="eyebrow">A LOCAL-FIRST ADVENTURE</span><h1>Meadowrest remembers.</h1>
-      <p>Step into Meadowrest, where every journey begins with a tool close at hand and every choice is saved on this device.</p>
-      <div className="intro-notes"><span>Tap the ground to move</span><span>Tap people and resources to act</span><span>Your progress stays on this device</span></div>
-      <button className="primary" onPointerDown={() => void loadGameWorld()} onClick={beginIntro}>Enter Meadowrest</button>
+    {intro && <div className="modal-backdrop character-backdrop"><section className="intro character-creator glass">
+      <span className="eyebrow">CREATE YOUR WANDERER</span><h1>Who washed ashore?</h1>
+      <p>Choose the first look for your adventurer. You can change it later; your name is how Meadowrest will remember you.</p>
+      <label className="character-name">Name
+        <input aria-label="Character name" maxLength={18} value={characterName} onChange={(event) => setCharacterName(event.target.value)} />
+      </label>
+      <fieldset className="appearance-options">
+        <legend>Travel colours</legend>
+        {(["meadow", "ember", "tide", "dusk"] as const).map((id) =>
+          <button key={id} type="button" className={appearanceId === id ? `appearance ${id} selected` : `appearance ${id}`}
+            aria-pressed={appearanceId === id} onClick={() => setAppearanceId(id)}>
+            <i><b /></i><span>{id}</span>
+          </button>)}
+      </fieldset>
+      <details className="cloud-details">
+        <summary>Online account and cross-device saving</summary>
+        <Suspense fallback={<small>Opening account options…</small>}><CloudAccount /></Suspense>
+      </details>
+      <div className="intro-notes"><span>Follow the gold trail</span><span>Equip tools from your Pack</span><span>Progress continues offline</span></div>
+      <button className="primary" onPointerDown={() => void loadGameWorld()} onClick={() => beginIntro(characterName, appearanceId)}>Enter Meadowrest</button>
+      <small className="character-save-note">Starts safely on this device. Account sync can be connected without replacing your local save.</small>
     </section></div>}
     <div className="rotate"><div className="loom-mark" /><h1>Turn to landscape</h1><p>Everloom is shaped for a wider view.</p></div>
   </main>;

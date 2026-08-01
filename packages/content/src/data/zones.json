@@ -147,7 +147,7 @@
       ,{ "id": "verdant_moss", "assetId": "nature.hanging-moss", "x": 36.2, "z": 4.6, "rotation": 0, "scale": 1.1, "elevation": 0, "blocks": false, "tint": null }
     ],
     "interactables": [
-      { "id": "npc_mara", "kind": "npc", "displayName": "Mara Threadkeeper", "assetId": "player.adventurer", "x": 18, "z": 15, "resourceId": null, "itemId": null, "recipeId": null, "enemyId": null, "quantity": 0, "interactionRadius": 1, "blocks": true },
+      { "id": "npc_mara", "kind": "npc", "displayName": "Mara Threadkeeper", "assetId": "player.adventurer", "x": 18, "z": 15, "resourceId": null, "itemId": null, "recipeId": null, "enemyId": null, "quantity": 0, "interactionRadius": 1, "blocks": true, "tint": "#c99773" },
       { "id": "first_loomstone", "kind": "landmark", "displayName": "First Loomstone", "assetId": "nature.stone-tall", "x": 20, "z": 10, "resourceId": null, "itemId": null, "recipeId": null, "enemyId": null, "quantity": 0, "interactionRadius": 1, "blocks": true },
 
       { "id": "ground_worn_hatchet", "kind": "ground_item", "displayName": "Worn Hatchet", "assetId": "custom.tool-hatchet", "x": 13, "z": 16, "resourceId": null, "itemId": "worn_hatchet", "recipeId": null, "enemyId": null, "quantity": 1, "interactionRadius": 0, "blocks": false },

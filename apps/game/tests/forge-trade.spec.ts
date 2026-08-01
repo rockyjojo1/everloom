@@ -200,12 +200,12 @@ test.describe("The Forge's Trade — Smithing tutorial loop", () => {
     // measured against the Militia Sword rather than assumed.
     await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.giveItem("meadowrest_sword", 1));
     expect(await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.equip("meadowrest_sword"))).toBe(true);
-    await page.getByRole("button", { name: "Skills" }).click();
+    await page.getByRole("button", { name: "Skills", exact: true }).click();
     const swordAccuracyText = await page.locator(".combat-summary div", { hasText: "Accuracy" }).innerText();
     await expect(page.locator(".combat-summary")).toContainText("Militia Sword");
     await page.getByRole("button", { name: "Close panel" }).click();
 
-    await page.getByRole("button", { name: "Pack" }).click();
+    await page.getByRole("button", { name: "Pack", exact: true }).click();
     const axeRow = page.locator(".inventory article").filter({ hasText: "Copper Battleaxe" });
     await expect(axeRow).toContainText("Accuracy +13");
     await expect(axeRow).toContainText("Strength +8");
@@ -213,7 +213,7 @@ test.describe("The Forge's Trade — Smithing tutorial loop", () => {
     await axeRow.getByRole("button", { name: "Equip" }).click();
     await page.getByRole("button", { name: "Close panel" }).click();
 
-    await page.getByRole("button", { name: "Skills" }).click();
+    await page.getByRole("button", { name: "Skills", exact: true }).click();
     await expect(page.locator(".combat-summary")).toContainText("Weapon: Copper Battleaxe");
     const axeAccuracyText = await page.locator(".combat-summary div", { hasText: "Accuracy" }).innerText();
     await page.screenshot({ path: artifactPath(`battleaxe-equipped-${viewSuffix}.png`), fullPage: true });
@@ -272,7 +272,7 @@ test.describe("The Forge's Trade — Smithing tutorial loop", () => {
       expect(snapshot.skills[skill]?.xp ?? 0, `${skill} should have real XP by tutorial completion`).toBeGreaterThan(0);
     }
 
-    await page.getByRole("button", { name: "Skills" }).click();
+    await page.getByRole("button", { name: "Skills", exact: true }).click();
     await expect(page.locator(".rows")).toContainText("smithing");
     await page.waitForTimeout(500);
     await page.screenshot({ path: artifactPath(`six-skill-tutorial-completion-${viewSuffix}.png`), fullPage: true });

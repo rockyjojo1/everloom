@@ -18,7 +18,7 @@ test("first tree is a complete persisted player flow", async ({ page }) => {
 
   await clickTarget(page, "ground_worn_hatchet");
   await expect(page.getByText(/Open your pack and equip/i)).toBeVisible();
-  await page.getByRole("button", { name: "Pack" }).click();
+  await page.getByRole("button", { name: "Pack", exact: true }).click();
   await page.getByText("Worn Hatchet", { exact: true }).first().click();
   await page.locator("article").filter({ hasText: "Worn Hatchet" }).getByRole("button", { name: "Equip" }).click();
   await expect(page.getByText(/Chop three Meadow Logs/i)).toBeVisible();
@@ -30,7 +30,7 @@ test("first tree is a complete persisted player flow", async ({ page }) => {
   await expect(page.getByText(/1 \/ 3/)).toBeVisible();
   await page.reload();
   await expect(page.getByText(/Chop three Meadow Logs/i)).toBeVisible();
-  await page.getByRole("button", { name: "Pack" }).click();
+  await page.getByRole("button", { name: "Pack", exact: true }).click();
   await expect(page.getByText("Meadow Log", { exact: true }).first()).toBeVisible();
 });
 
@@ -66,6 +66,6 @@ test("active gathering resumes through the real IndexedDB offline-load path", as
   await expect(page.getByText(/productive minutes/i)).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("everloom-offline-report.png"), fullPage: true });
   await page.getByRole("button", { name: "Return to Meadowrest" }).click();
-  await page.getByRole("button", { name: "Pack" }).click();
+  await page.getByRole("button", { name: "Pack", exact: true }).click();
   await expect(page.getByText("Meadow Log", { exact: true }).first()).toBeVisible();
 });

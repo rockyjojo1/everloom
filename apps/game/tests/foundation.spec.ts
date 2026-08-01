@@ -25,7 +25,7 @@ test("the minimap remains click-through when a game panel is open", async ({ pag
   await page.getByRole("button", { name: "Enter Meadowrest" }).click();
   await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true", { timeout: 35_000 });
 
-  await page.getByRole("button", { name: "Pack" }).click();
+  await page.getByRole("button", { name: "Pack", exact: true }).click();
   await page.getByRole("button", { name: "Close panel" }).click();
   await expect(page.getByRole("button", { name: "Close panel" })).toHaveCount(0);
 });
@@ -129,6 +129,6 @@ test("returning to an open backgrounded game applies offline progression", async
   await expect(page.getByText("WHILE YOU WERE AWAY")).toBeVisible();
   await expect(page.getByText(/productive minutes/i)).toBeVisible();
   await page.getByRole("button", { name: "Return to Meadowrest" }).click();
-  await page.getByRole("button", { name: "Pack" }).click();
+  await page.getByRole("button", { name: "Pack", exact: true }).click();
   await expect(page.getByText("Meadow Log", { exact: true }).first()).toBeVisible();
 });

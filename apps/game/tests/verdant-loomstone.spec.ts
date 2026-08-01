@@ -53,7 +53,7 @@ test.describe("The Verdant Loomstone", () => {
     expect(snapshot.quests.verdant_loomstone).toEqual({ status: "active", stepIndex: 0, stepProgress: 0 });
 
     await expect(page.locator(".objective")).toContainText(/Strengthen every Meadowrest skill to level 5\. 0 of 5 attuned\./i);
-    await page.getByRole("button", { name: "Thread" }).click();
+    await page.getByRole("button", { name: "Thread", exact: true }).click();
     await expect(page.getByText("The Verdant Loomstone", { exact: true })).toBeVisible();
     await page.getByRole("button", { name: "Close panel" }).click();
 

@@ -22,9 +22,12 @@ create table if not exists el_players (
 );
 
 alter table el_players enable row level security;
-create policy "players_select_own" on el_players for select using (auth.uid() = id);
-create policy "players_insert_own" on el_players for insert with check (auth.uid() = id);
-create policy "players_update_own" on el_players for update using (auth.uid() = id);
+grant select, insert, update on table el_players to authenticated;
+create policy "players_select_own" on el_players for select to authenticated using ((select auth.uid()) = id);
+create policy "players_insert_own" on el_players for insert to authenticated with check ((select auth.uid()) = id);
+create policy "players_update_own" on el_players for update to authenticated
+  using ((select auth.uid()) = id)
+  with check ((select auth.uid()) = id);
 
 -- ── Player state ─────────────────────────────────────────────
 -- THE critical table. Client has NO write permission.
@@ -66,7 +69,8 @@ create table if not exists el_player_state (
 
 alter table el_player_state enable row level security;
 -- Read own state only.
-create policy "state_select_own" on el_player_state for select using (auth.uid() = player_id);
+grant select on table el_player_state to authenticated;
+create policy "state_select_own" on el_player_state for select to authenticated using ((select auth.uid()) = player_id);
 -- NO insert/update/delete client policies. Service role only.
 
 -- ── Item ledger (append-only audit log) ──────────────────────
@@ -80,7 +84,8 @@ create table if not exists el_item_ledger (
 );
 
 alter table el_item_ledger enable row level security;
-create policy "ledger_select_own" on el_item_ledger for select using (auth.uid() = player_id);
+grant select on table el_item_ledger to authenticated;
+create policy "ledger_select_own" on el_item_ledger for select to authenticated using ((select auth.uid()) = player_id);
 
 -- ── Ledger progress ───────────────────────────────────────────
 create table if not exists el_ledger_progress (
@@ -92,7 +97,8 @@ create table if not exists el_ledger_progress (
 );
 
 alter table el_ledger_progress enable row level security;
-create policy "ledger_progress_select_own" on el_ledger_progress for select using (auth.uid() = player_id);
+grant select on table el_ledger_progress to authenticated;
+create policy "ledger_progress_select_own" on el_ledger_progress for select to authenticated using ((select auth.uid()) = player_id);
 
 -- ── Exchange offers ───────────────────────────────────────────
 create table if not exists el_exchange_offers (
@@ -108,7 +114,8 @@ create table if not exists el_exchange_offers (
 );
 
 alter table el_exchange_offers enable row level security;
-create policy "offers_select_own" on el_exchange_offers for select using (auth.uid() = player_id);
+grant select on table el_exchange_offers to authenticated;
+create policy "offers_select_own" on el_exchange_offers for select to authenticated using ((select auth.uid()) = player_id);
 
 -- ── Collection log ────────────────────────────────────────────
 create table if not exists el_collection_log (
@@ -120,7 +127,8 @@ create table if not exists el_collection_log (
 );
 
 alter table el_collection_log enable row level security;
-create policy "collection_select_own" on el_collection_log for select using (auth.uid() = player_id);
+grant select on table el_collection_log to authenticated;
+create policy "collection_select_own" on el_collection_log for select to authenticated using ((select auth.uid()) = player_id);
 
 -- ── Cheat events ─────────────────────────────────────────────
 create table if not exists el_cheat_events (

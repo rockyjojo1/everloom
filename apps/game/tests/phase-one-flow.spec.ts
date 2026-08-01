@@ -49,7 +49,7 @@ test("all Phase One skills and The First Thread work through the browser", async
   await activate(page, "npc_mara", /Pick up the worn hatchet/i);
   await activate(page, "ground_worn_hatchet", /equip the worn hatchet/i);
   await equip(page, "worn_hatchet", /Chop three Meadow Logs/i);
-  await page.getByRole("button", { name: "Pack" }).click();
+  await page.getByRole("button", { name: "Pack", exact: true }).click();
   await page.screenshot({ path: testInfo.outputPath("everloom-inventory.png"), fullPage: true });
   await page.getByRole("button", { name: "Close panel" }).click();
   await startAndResolve(page, "oak_west_1", 21_000, /Collect the worn pickaxe/i, testInfo.outputPath("everloom-woodcutting.png"));

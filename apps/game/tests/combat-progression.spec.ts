@@ -30,7 +30,7 @@ test("combat equipment changes derived stats and the skeleton awards a persisten
   await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.giveItem("meadowrest_sword", 1));
   expect(await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.equip("meadowrest_sword"))).toBe(true);
 
-  await page.getByRole("button", { name: "Skills" }).click();
+  await page.getByRole("button", { name: "Skills", exact: true }).click();
   const profile = page.locator(".combat-summary");
   await expect(profile).toContainText("Level 5");
   await expect(profile).toContainText("Accuracy35");
@@ -51,14 +51,14 @@ test("combat equipment changes derived stats and the skeleton awards a persisten
   expect(snapshot.inventory.some((item) => item.itemId === "boneguard_vest")).toBe(true);
   expect(snapshot.collections).toContain("boneguard_vest");
 
-  await page.getByRole("button", { name: "Pack" }).click();
+  await page.getByRole("button", { name: "Pack", exact: true }).click();
   const vest = page.locator(".inventory article").filter({ hasText: "Boneguard Vest" });
   await expect(vest).toContainText("Defence +10");
   await page.screenshot({ path: testInfo.outputPath("combat-reward.png"), fullPage: true });
   await page.getByRole("button", { name: "Close panel" }).click();
 
   expect(await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.equip("boneguard_vest"))).toBe(true);
-  await page.getByRole("button", { name: "Skills" }).click();
+  await page.getByRole("button", { name: "Skills", exact: true }).click();
   await expect(page.locator(".combat-summary")).toContainText("Defence30");
   await expect(page.locator(".combat-summary")).toContainText("Body: Boneguard Vest");
   await page.locator(".combat-summary").scrollIntoViewIfNeeded();
@@ -70,7 +70,7 @@ test("combat equipment changes derived stats and the skeleton awards a persisten
   await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true", { timeout: 35_000 });
   snapshot = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.snapshot());
   expect(snapshot.equipment).toMatchObject({ weapon: "meadowrest_sword", body: "boneguard_vest" });
-  await page.getByRole("button", { name: "Skills" }).click();
+  await page.getByRole("button", { name: "Skills", exact: true }).click();
   await expect(page.locator(".combat-summary")).toContainText("Defence30");
   expect(pageErrors).toEqual([]);
 });

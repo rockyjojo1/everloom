@@ -24,6 +24,7 @@ import {
   type GameEvent,
   type GameSave,
   type GridPosition,
+  type PlayerAppearanceId,
   type QualityLevel,
 } from "@everloom/core";
 import { clearSaves, loadSave, writeSave } from "./saveDb";
@@ -55,7 +56,7 @@ interface GameStore {
   readonly logs: readonly LogEntry[];
   readonly debug: DebugFlags;
   initialize: () => Promise<void>;
-  beginIntro: () => void;
+  beginIntro: (name?: string, appearanceId?: PlayerAppearanceId) => void;
   dismissEscapeIntro: () => void;
   setPosition: (position: GridPosition, facing?: GridPosition) => void;
   setSelectedTarget: (targetId: string | null) => void;
@@ -187,10 +188,17 @@ export const useGameStore = create<GameStore>((set, get) => ({
     return initializing;
   },
 
-  beginIntro: () => {
+  beginIntro: (name = "Wanderer", appearanceId = "meadow") => {
     const save = get().save;
     if (!save) return;
-    set({ save: { ...save, worldFlags: { ...save.worldFlags, intro_seen: true } } });
+    const safeName = name.trim().replace(/\s+/g, " ").slice(0, 18) || "Wanderer";
+    set({
+      save: {
+        ...save,
+        player: { ...save.player, name: safeName, appearanceId },
+        worldFlags: { ...save.worldFlags, intro_seen: true },
+      },
+    });
     scheduleSave("intro", 0, true);
   },
 
@@ -363,6 +371,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
         saveStatus: "saved",
         saveError: null,
       }));
+      if (localStorage.getItem("everloom:cloud-autosave") === "true") {
+        void import("../cloud/cloud").then(({ uploadCloudSave }) => uploadCloudSave(next)).catch((error) => {
+          if (import.meta.env.DEV) console.warn("Everloom cloud autosave failed; local save is safe.", error);
+        });
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       set({ saveStatus: "error", saveError: message });

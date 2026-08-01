@@ -1,4 +1,4 @@
-export const SAVE_VERSION = 4 as const;
+export const SAVE_VERSION = 5 as const;
 export const PROBABILITY_SCALE = 1_000_000 as const;
 
 export type SkillId = "woodcutting" | "mining" | "fishing" | "cooking" | "smithing" | "melee";
@@ -8,6 +8,7 @@ export type FacilityKind = "cooking_fire" | "furnace" | "anvil";
 export type ToolKind = "hatchet" | "pickaxe" | "fishing_rod";
 export type EquipmentSlot = "tool" | "weapon" | "body";
 export type QualityLevel = "low" | "standard" | "high";
+export type PlayerAppearanceId = "meadow" | "ember" | "tide" | "dusk";
 export type InteractableKind =
   | "resource"
   | "ground_item"
@@ -268,6 +269,7 @@ export interface GameSave {
   readonly player: {
     readonly id: string;
     readonly name: string;
+    readonly appearanceId: PlayerAppearanceId;
     readonly hp: number;
     readonly maxHp: number;
   };

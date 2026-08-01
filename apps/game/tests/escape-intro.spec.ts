@@ -42,7 +42,7 @@ test.describe("Escape intro — locked opening conversation", () => {
     // not reach it (Playwright's normal .click() performs an actionability
     // check — an obscured element fails/times out rather than clicking
     // through) — proven functionally: no panel opens despite the attempt.
-    await page.getByRole("button", { name: "Pack" }).click({ timeout: 1_500 }).catch(() => {});
+    await page.getByRole("button", { name: "Pack", exact: true }).click({ timeout: 1_500 }).catch(() => {});
     await expect(page.getByRole("button", { name: "Close panel" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: /Continue — find the hatchet/i })).toBeVisible();
 
@@ -58,7 +58,7 @@ test.describe("Escape intro — locked opening conversation", () => {
     await expect(page.locator(".objective")).toContainText(/Pick up the worn hatchet/i);
 
     // Control is genuinely restored: real HUD interaction now works.
-    await page.getByRole("button", { name: "Pack" }).click();
+    await page.getByRole("button", { name: "Pack", exact: true }).click();
     await expect(page.getByRole("button", { name: "Close panel" })).toBeVisible();
     await page.getByRole("button", { name: "Close panel" }).click();
 

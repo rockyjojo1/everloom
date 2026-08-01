@@ -14,7 +14,7 @@ export function createNewSave(
   const safeNow = Number.isFinite(nowMs) && nowMs >= 0 ? Math.floor(nowMs) : 0;
   return {
     saveVersion: SAVE_VERSION,
-    player: { id: "local-player", name: "Wanderer", hp: 24, maxHp: 24 },
+    player: { id: "local-player", name: "Wanderer", appearanceId: "meadow", hp: 24, maxHp: 24 },
     position: { ...spawn, facingX: 0, facingZ: 1 },
     currentZone: "meadowrest",
     inventory: [],
@@ -125,11 +125,16 @@ const FORGE_TRADE_STEP_COUNT = 4;
  * since first_thread.nextQuestId now resolves to forge_trade naturally the
  * moment they complete it through the ordinary quest-completion path.
  */
-function migrateV3ToV4(save: Omit<GameSave, "saveVersion"> & { saveVersion: 3 | 4 }): GameSave {
+type V4Save = Omit<GameSave, "saveVersion" | "player"> & {
+  readonly saveVersion: 4;
+  readonly player: Omit<GameSave["player"], "appearanceId">;
+};
+
+function migrateV3ToV4(save: Omit<GameSave, "saveVersion"> & { saveVersion: 3 | 4 }): V4Save {
   if (save.quests.forge_trade) {
     // Already migrated (defensive no-op for idempotent re-application, and
     // for a save that reached v4 through some other path already holding it).
-    return { ...save, saveVersion: SAVE_VERSION };
+    return { ...save, saveVersion: 4 } as V4Save;
   }
   const verdant = save.quests.verdant_loomstone;
   if (verdant) {
@@ -138,7 +143,7 @@ function migrateV3ToV4(save: Omit<GameSave, "saveVersion"> & { saveVersion: 3 | 
     // treated as already done rather than inserted retroactively.
     return {
       ...save,
-      saveVersion: SAVE_VERSION,
+      saveVersion: 4,
       quests: {
         ...save.quests,
         forge_trade: { status: "completed", stepIndex: FORGE_TRADE_STEP_COUNT, stepProgress: 0 },
@@ -152,21 +157,29 @@ function migrateV3ToV4(save: Omit<GameSave, "saveVersion"> & { saveVersion: 3 | 
     // step exactly where it now belongs in the chain, freshly active.
     return {
       ...save,
-      saveVersion: SAVE_VERSION,
+      saveVersion: 4,
       quests: { ...save.quests, forge_trade: { status: "active", stepIndex: 0, stepProgress: 0 } },
     };
   }
   // Still mid-First-Thread (or some other pre-completion state): nothing to
   // change here. The new quest link takes effect naturally, with no
   // step-index remapping, the moment they complete First Thread for real.
-  return { ...save, saveVersion: SAVE_VERSION };
+  return { ...save, saveVersion: 4 } as V4Save;
+}
+
+function migrateV4ToV5(save: V4Save): GameSave {
+  return {
+    ...save,
+    saveVersion: SAVE_VERSION,
+    player: { ...save.player, appearanceId: "meadow" },
+  };
 }
 
 export function migrateSave(value: unknown): GameSave {
   if (!value || typeof value !== "object") throw new Error("Save is not an object.");
   const candidate = value as Omit<Partial<GameSave>, "saveVersion"> & { saveVersion?: unknown };
   const version = candidate.saveVersion;
-  if (version !== SAVE_VERSION && version !== 3 && version !== 2 && version !== 1) {
+  if (version !== SAVE_VERSION && version !== 4 && version !== 3 && version !== 2 && version !== 1) {
     throw new Error(`Unsupported save version: ${String(version)}`);
   }
   if (!candidate.player || !candidate.position || !candidate.currentZone || !candidate.rngSeed) {
@@ -176,10 +189,11 @@ export function migrateSave(value: unknown): GameSave {
     throw new Error("Save is missing required progression fields.");
   }
   if (version === SAVE_VERSION) return candidate as GameSave;
+  if (version === 4) return migrateV4ToV5(candidate as unknown as V4Save);
   const atV3 = version === 3
     ? (candidate as Omit<GameSave, "saveVersion"> & { saveVersion: 3 })
     : migrateLegacyToV3(candidate as GameSave, version);
-  return migrateV3ToV4(atV3);
+  return migrateV4ToV5(migrateV3ToV4(atV3));
 }
 
 export function serializeSave(state: GameSave): string {

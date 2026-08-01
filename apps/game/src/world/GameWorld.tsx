@@ -13,6 +13,12 @@ import { instantiateAsset } from "./assets";
 import { buildEnvironment, terrainHeight, updateEnvironment } from "./environment";
 
 const zone = CONTENT.zones.meadowrest!;
+const appearanceTints = {
+  meadow: "#c9efc7",
+  ember: "#ffd0b5",
+  tide: "#b8e6ff",
+  dusk: "#e0c5ff",
+} as const;
 const world = (p: GridPosition) => new THREE.Vector3(
   (p.x - zone.width / 2) * zone.cellSize,
   terrainHeight(zone, p.x, p.z),
@@ -55,6 +61,17 @@ function targetAvailable(target: ZoneInteractable, state: ReturnType<typeof useG
   return true;
 }
 
+function targetVisible(target: ZoneInteractable, state: ReturnType<typeof useGameStore.getState>["save"]): boolean {
+  if (!state) return false;
+  if (target.requiredFlag && !state.worldFlags[target.requiredFlag]) return false;
+  if (target.kind === "ground_item") return !state.worldFlags[`picked:${target.id}`];
+  // Gathering nodes remain part of the world while resting. Cooldowns govern
+  // whether an action may begin, never whether a tree, rock, or shoal exists.
+  if (target.kind === "resource") return true;
+  if (target.kind === "enemy") return (state.worldEnemies[target.id]?.defeatedUntilMs ?? 0) <= state.simulationTimeMs;
+  return true;
+}
+
 export function GameWorld() {
   const host = useRef<HTMLDivElement>(null);
 
@@ -83,6 +100,10 @@ export function GameWorld() {
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     element.appendChild(renderer.domElement);
+    const labelLayer = document.createElement("div");
+    labelLayer.className = "world-label-layer";
+    labelLayer.setAttribute("aria-hidden", "true");
+    element.appendChild(labelLayer);
     const contextNotice = document.createElement("section");
     contextNotice.className = "world-context-error glass";
     contextNotice.hidden = true;
@@ -249,6 +270,11 @@ export function GameWorld() {
     scene.add(activityEffect);
 
     const targets = new Map<string, THREE.Object3D>();
+    const targetLabels = new Map<string, HTMLSpanElement>();
+    const playerLabel = document.createElement("span");
+    playerLabel.className = "world-label player-label";
+    playerLabel.textContent = useGameStore.getState().save?.player.name ?? "Wanderer";
+    labelLayer.appendChild(playerLabel);
     const mixers: THREE.AnimationMixer[] = [];
     const playerRoot = new THREE.Group();
     scene.add(playerRoot);
@@ -258,6 +284,11 @@ export function GameWorld() {
     let route: GridPosition[] = [];
     let afterArrival: (() => void) | null = null;
     let disposed = false;
+    let playerModel: THREE.Object3D | null = null;
+    let handSlot: THREE.Object3D | null = null;
+    let equippedWorldObject: THREE.Object3D | null = null;
+    let equippedWorldItemId: string | null = null;
+    let equipmentLoadSequence = 0;
     const criticalAssetJobs: Promise<unknown>[] = [];
     const sceneryAssetJobs: Promise<unknown>[] = [];
 
@@ -277,7 +308,8 @@ export function GameWorld() {
       currentClip = name;
     };
 
-    criticalAssetJobs.push(instantiateAsset("player.adventurer")
+    const appearanceId = useGameStore.getState().save?.player.appearanceId ?? "meadow";
+    criticalAssetJobs.push(instantiateAsset("player.adventurer", appearanceTints[appearanceId])
       .catch((error) => {
         console.warn("Player model failed; using the safe fallback figure.", error);
         element.dataset.assetWarning = "player";
@@ -285,6 +317,21 @@ export function GameWorld() {
       })
       .then(({ object, animations }) => {
         if (disposed) return;
+        playerModel = object;
+        // The source character is a showcase model containing every weapon
+        // variant. Hide those baked-in props; equipment below is driven by
+        // the player's real save state.
+        for (const name of ["1H_Sword", "1H_Sword_Offhand", "2H_Sword", "Badge_Shield", "Rectangle_Shield", "Round_Shield", "Spike_Shield"]) {
+          const prop = object.getObjectByName(name);
+          if (prop) prop.visible = false;
+        }
+        // GLTFLoader strips dots because they are reserved by Three's
+        // animation binding syntax (`handslot.r` becomes `handslotr`).
+        handSlot = object.getObjectByName("handslotr")
+          ?? object.getObjectByName("handr")
+          ?? object.getObjectByName("handslot.r")
+          ?? object.getObjectByName("hand.r")
+          ?? null;
         object.userData.animations = animations;
         playerRoot.userData.animations = animations;
         playerRoot.add(object);
@@ -295,6 +342,30 @@ export function GameWorld() {
           play("Idle");
         }
       }));
+
+    const refreshEquipmentVisual = (itemId: string | null) => {
+      if (itemId === equippedWorldItemId || !playerModel) return;
+      equippedWorldItemId = itemId;
+      equipmentLoadSequence += 1;
+      const sequence = equipmentLoadSequence;
+      equippedWorldObject?.removeFromParent();
+      equippedWorldObject = null;
+      if (!itemId || !handSlot) return;
+      const assetId = CONTENT.items[itemId]?.worldAssetId;
+      if (!assetId) return;
+      void instantiateAsset(assetId).then(({ object }) => {
+        if (disposed || sequence !== equipmentLoadSequence || !handSlot) return;
+        object.position.set(0, -0.56, 0);
+        object.rotation.set(0, 0, Math.PI);
+        object.scale.multiplyScalar(0.62);
+        object.traverse((child) => {
+          child.userData.playerEquipment = itemId;
+          if (child instanceof THREE.Mesh) child.castShadow = true;
+        });
+        handSlot.add(object);
+        equippedWorldObject = object;
+      }).catch((error) => console.warn(`Equipped asset ${assetId} failed`, error));
+    };
 
     const addAsset = async (
       id: string,
@@ -319,6 +390,12 @@ export function GameWorld() {
         animations = [];
       }
       if (disposed) return;
+      if (assetId === "player.adventurer" && id !== "player") {
+        for (const name of ["1H_Sword", "1H_Sword_Offhand", "2H_Sword", "Badge_Shield", "Rectangle_Shield", "Round_Shield", "Spike_Shield"]) {
+          const prop = object.getObjectByName(name);
+          if (prop) prop.visible = false;
+        }
+      }
       object.position.copy(world({ x, z }));
       if (assetId === "custom.fishing-ripples") object.position.y = -0.03;
       object.position.y += elevation;
@@ -338,6 +415,13 @@ export function GameWorld() {
     for (const item of zone.scenery) sceneryAssetJobs.push(addAsset(item.id, item.assetId, item.x, item.z, item.rotation, item.scale, item.elevation, item.tint));
     for (const item of zone.interactables) {
       criticalAssetJobs.push(addAsset(item.id, item.assetId, item.x, item.z, 0, 1, item.kind === "ground_item" ? 0.14 : 0, item.tint ?? null, true));
+      if (item.kind === "ground_item" || item.kind === "npc") {
+        const label = document.createElement("span");
+        label.className = item.kind === "ground_item" ? "world-label ground-item-label" : "world-label npc-label";
+        label.textContent = item.kind === "ground_item" ? `◆ ${item.displayName}` : item.displayName;
+        labelLayer.appendChild(label);
+        targetLabels.set(item.id, label);
+      }
     }
     void Promise.allSettled(criticalAssetJobs).then(() => {
       if (!disposed) element.dataset.ready = "true";
@@ -394,12 +478,7 @@ export function GameWorld() {
       }
     };
     renderer.domElement.addEventListener("pointerup", onPointer);
-    const showObjectiveRoute = (event: Event) => {
-      const requestedId = (event as CustomEvent<ObjectiveRouteDetail>).detail?.targetId;
-      const save = useGameStore.getState().save;
-      const target = objectiveGuidanceTarget(save);
-      if (!save || !requestedId || target?.id !== requestedId || !targetAvailable(target, save)) return;
-
+    const renderObjectiveRoute = (target: ZoneInteractable, save: NonNullable<ReturnType<typeof useGameStore.getState>["save"]>) => {
       const routePoints = pathToTarget(zone, save.position, target);
       const positions = routePoints.map((position) => {
         const point = world(position);
@@ -414,6 +493,13 @@ export function GameWorld() {
       const hasRoute = positions.length > 1;
       objectiveRouteTargetId = hasRoute ? target.id : null;
       objectiveRouteTrail.visible = hasRoute;
+    };
+    const showObjectiveRoute = (event: Event) => {
+      const requestedId = (event as CustomEvent<ObjectiveRouteDetail>).detail?.targetId;
+      const save = useGameStore.getState().save;
+      const target = objectiveGuidanceTarget(save);
+      if (!save || !requestedId || target?.id !== requestedId || !targetVisible(target, save)) return;
+      renderObjectiveRoute(target, save);
     };
     window.addEventListener(OBJECTIVE_ROUTE_EVENT, showObjectiveRoute);
     if (import.meta.env.DEV) {
@@ -440,6 +526,12 @@ export function GameWorld() {
           targetId: objectiveRouteTargetId,
           points: objectiveRouteTrail.geometry.getAttribute("position")?.count ?? 0,
         }),
+        equipmentVisual: () => ({ itemId: equippedWorldItemId, attached: Boolean(equippedWorldObject?.parent) }),
+        visibleTarget: (targetId: string) => targets.get(targetId)?.visible ?? false,
+        visibleLabel: (targetId: string) => {
+          const label = targetLabels.get(targetId);
+          return Boolean(label && label.style.display !== "none");
+        },
         equip: (itemId: string) => useGameStore.getState().equip(itemId),
         simulate: (elapsedMs: number) => useGameStore.getState().debugSimulateOffline(elapsedMs),
         stop: () => useGameStore.getState().cancelCurrentActivity(),
@@ -484,6 +576,7 @@ export function GameWorld() {
     let metricFrame = 0;
     let metricStart = last;
     let activeQuality = useGameStore.getState().save?.settings.quality ?? "standard";
+    let lastAutomaticObjectiveId: string | null = null;
     const animate = (now: number) => {
       if (disposed) return;
       requestAnimationFrame(animate);
@@ -505,6 +598,12 @@ export function GameWorld() {
         resize();
       }
       if (save) {
+        const equippedItemId = save.currentActivity?.type === "gathering"
+          ? save.equipment.tool
+          : save.currentActivity?.type === "combat"
+            ? save.equipment.weapon
+            : save.equipment.weapon ?? save.equipment.tool;
+        refreshEquipmentVisual(equippedItemId);
         const desired = world(save.position);
         if (route.length && !document.hidden) {
           const next = world(route[0]!);
@@ -542,7 +641,7 @@ export function GameWorld() {
         }
         for (const target of zone.interactables) {
           const object = targets.get(target.id);
-          if (object) object.visible = targetAvailable(target, save);
+          if (object) object.visible = targetVisible(target, save);
         }
         const focus = playerRoot.position.clone();
         camera.position.lerp(focus.clone().add(new THREE.Vector3(17, 21, 22)), 0.035);
@@ -576,7 +675,7 @@ export function GameWorld() {
       // bridges semantic enemy IDs (used by quest events) to their physical
       // world interactable IDs without changing quest-completion logic.
       const objectiveTarget = objectiveGuidanceTarget(save);
-      if (objectiveTarget && save && targetAvailable(objectiveTarget, save)) {
+      if (objectiveTarget && save && targetVisible(objectiveTarget, save)) {
         objectiveBeaconGroup.position.copy(world(objectiveTarget));
         objectiveBeaconGroup.position.y += Math.sin(now / 420) * 0.12;
         objectiveBeaconRing.scale.setScalar(1 + Math.sin(now / 280) * 0.12);
@@ -585,6 +684,12 @@ export function GameWorld() {
         objectiveBeaconGroup.visible = true;
       } else {
         objectiveBeaconGroup.visible = false;
+      }
+      if (objectiveTarget && save && targetVisible(objectiveTarget, save) && lastAutomaticObjectiveId !== objectiveTarget.id) {
+        renderObjectiveRoute(objectiveTarget, save);
+        lastAutomaticObjectiveId = objectiveTarget.id;
+      } else if (!objectiveTarget) {
+        lastAutomaticObjectiveId = null;
       }
       if (objectiveRouteTrail.visible && objectiveRouteTargetId !== objectiveTarget?.id) {
         objectiveRouteTrail.visible = false;
@@ -615,6 +720,31 @@ export function GameWorld() {
         activityEffect.visible = true;
       } else {
         activityEffect.visible = false;
+      }
+      for (const [targetId, label] of targetLabels) {
+        const target = zone.interactables.find((entry) => entry.id === targetId);
+        const object = targets.get(targetId);
+        const visible = Boolean(target && object?.visible);
+        if (!visible) {
+          label.style.display = "none";
+          continue;
+        }
+        const anchor = object!.getWorldPosition(new THREE.Vector3());
+        anchor.y += target!.kind === "npc" ? 2.35 : 1.15;
+        const projected = anchor.project(camera);
+        const onScreen = projected.z > -1 && projected.z < 1 && Math.abs(projected.x) < 1.08 && Math.abs(projected.y) < 1.08;
+        label.style.display = onScreen ? "block" : "none";
+        if (!onScreen) continue;
+        label.style.left = `${(projected.x + 1) * 50}%`;
+        label.style.top = `${(1 - projected.y) * 50}%`;
+        label.classList.toggle("objective-label", objectiveTarget?.id === targetId);
+      }
+      if (save) {
+        const projected = playerRoot.getWorldPosition(new THREE.Vector3()).add(new THREE.Vector3(0, 2.25, 0)).project(camera);
+        playerLabel.textContent = save.player.name;
+        playerLabel.style.display = "block";
+        playerLabel.style.left = `${(projected.x + 1) * 50}%`;
+        playerLabel.style.top = `${(1 - projected.y) * 50}%`;
       }
       renderer.render(scene, camera);
       metricFrame += 1;

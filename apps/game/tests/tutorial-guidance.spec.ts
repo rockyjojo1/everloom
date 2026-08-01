@@ -24,6 +24,9 @@ type TestApi = {
   };
   objectiveBeacon: () => { visible: boolean; targetId: string | null };
   objectiveRoute: () => { visible: boolean; targetId: string | null; points: number };
+  equipmentVisual: () => { itemId: string | null; attached: boolean };
+  visibleTarget: (targetId: string) => boolean;
+  visibleLabel: (targetId: string) => boolean;
 };
 
 async function activate(page: Page, target: string, objective: RegExp) {
@@ -69,10 +72,14 @@ test.describe("Tutorial guidance — starter tool discoverability", () => {
     expect(mark).toEqual({ visible: true, targetId: "npc_mara" });
     await expect(page.locator(".objective-map-marker")).toHaveAttribute("data-target-id", "npc_mara");
 
-    await page.getByRole("button", { name: "Show route" }).click();
+    // The trail is present by default. The button remains available only to
+    // refresh it from the player's new position.
     await expect.poll(async () => page.evaluate(() => (
       window as unknown as { __EVERLOOM_TEST__: TestApi }
     ).__EVERLOOM_TEST__.objectiveRoute())).toMatchObject({ visible: true, targetId: "npc_mara" });
+    await expect.poll(async () => page.evaluate(() => (
+      window as unknown as { __EVERLOOM_TEST__: TestApi }
+    ).__EVERLOOM_TEST__.visibleLabel("npc_mara"))).toBe(true);
 
     await activate(page, "npc_mara", /Pick up the worn hatchet/i);
 
@@ -84,11 +91,10 @@ test.describe("Tutorial guidance — starter tool discoverability", () => {
     await expect(page.locator(".objective-map-marker")).toHaveAttribute("data-target-id", "ground_worn_hatchet");
     await expect.poll(async () => page.evaluate(() => (
       window as unknown as { __EVERLOOM_TEST__: TestApi }
-    ).__EVERLOOM_TEST__.objectiveRoute())).toMatchObject({ visible: false, targetId: null });
-    await page.getByRole("button", { name: "Show route" }).click();
+    ).__EVERLOOM_TEST__.objectiveRoute())).toMatchObject({ visible: true, targetId: "ground_worn_hatchet" });
     await expect.poll(async () => page.evaluate(() => (
       window as unknown as { __EVERLOOM_TEST__: TestApi }
-    ).__EVERLOOM_TEST__.objectiveRoute())).toMatchObject({ visible: true, targetId: "ground_worn_hatchet" });
+    ).__EVERLOOM_TEST__.visibleLabel("ground_worn_hatchet"))).toBe(true);
     await page.waitForTimeout(350);
     await page.screenshot({ path: artifactPath(`objective-route-${viewSuffix}.png`), fullPage: true });
 
@@ -102,6 +108,9 @@ test.describe("Tutorial guidance — starter tool discoverability", () => {
 
     await page.getByRole("button", { name: "Open Pack" }).click();
     await page.locator("article").filter({ hasText: "Worn Hatchet" }).getByRole("button", { name: "Equip" }).click();
+    await expect.poll(async () => page.evaluate(() => (
+      window as unknown as { __EVERLOOM_TEST__: TestApi }
+    ).__EVERLOOM_TEST__.equipmentVisual())).toEqual({ itemId: "worn_hatchet", attached: true });
     await expect(page.getByText(/Chop three Meadow Logs/i)).toBeVisible();
     await page.getByRole("button", { name: "Close panel" }).click();
 
@@ -118,6 +127,9 @@ test.describe("Tutorial guidance — starter tool discoverability", () => {
     // jump: 21s comfortably covers the three logs (matches the budget
     // phase-one-flow.spec.ts already proved sufficient for this same step).
     await expect(page.getByRole("button", { name: "Stop" })).toBeVisible({ timeout: 35_000 });
+    await expect.poll(async () => page.evaluate(() => (
+      window as unknown as { __EVERLOOM_TEST__: TestApi }
+    ).__EVERLOOM_TEST__.visibleTarget("oak_west_1"))).toBe(true);
     await expect(page.locator(".objective")).toContainText(/Collect the worn pickaxe at the quarry entrance/i, { timeout: 40_000 });
     await page.getByRole("button", { name: "Stop" }).click();
 

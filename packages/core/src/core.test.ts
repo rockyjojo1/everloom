@@ -503,7 +503,7 @@ describe("save migration", () => {
   it("upgrades a v1 save in place without touching an incomplete First Thread", () => {
     const v1 = { ...createNewSave(0, "migrate-seed-1", { x: 5, z: 5 }), saveVersion: 1 };
     const migrated = migrateSave(v1);
-    expect(migrated.saveVersion).toBe(4);
+    expect(migrated.saveVersion).toBe(5);
     expect(migrated.quests.first_thread?.status).toBe("active");
     expect(migrated.quests.verdant_loomstone).toBeUndefined();
     expect(migrated.quests.forge_trade).toBeUndefined();
@@ -523,7 +523,7 @@ describe("save migration", () => {
       },
     };
     const migrated = migrateSave(v1);
-    expect(migrated.saveVersion).toBe(4);
+    expect(migrated.saveVersion).toBe(5);
     expect(migrated.quests.verdant_loomstone).toEqual({ status: "active", stepIndex: 0, stepProgress: 2 });
     expect(migrated.quests.first_thread?.status).toBe("completed");
     // Grandfathered: this save reached the old first_thread -> verdant_loomstone
@@ -575,7 +575,7 @@ describe("save migration", () => {
       currentActivity: { type: "cooking" as const, targetId: "fire", recipeId: "cook_raw", progressMs: 375 },
     };
     const migrated = migrateSave(v2);
-    expect(migrated.saveVersion).toBe(4);
+    expect(migrated.saveVersion).toBe(5);
     expect(migrated.skills.smithing).toEqual({ xp: 0 });
     expect(migrated.skills.cooking).toEqual({ xp: 14 });
     expect(migrated.currentActivity).toEqual({
@@ -590,10 +590,19 @@ describe("save migration", () => {
 });
 
 describe("v3 -> v4 migration: The Forge's Trade insertion", () => {
+  it("adds a default appearance when upgrading a real v4 save", () => {
+    const fresh = createNewSave(0, "appearance-migrate", { x: 5, z: 5 });
+    const { appearanceId: _appearanceId, ...legacyPlayer } = fresh.player;
+    const migrated = migrateSave({ ...fresh, saveVersion: 4, player: legacyPlayer });
+    expect(migrated.saveVersion).toBe(5);
+    expect(migrated.player.appearanceId).toBe("meadow");
+    expect(migrated.player.name).toBe("Wanderer");
+  });
+
   it("leaves an active, incomplete First Thread save untouched apart from the version stamp", () => {
     const v3 = { ...createNewSave(0, "forge-migrate-active", { x: 5, z: 5 }), saveVersion: 3 as const };
     const migrated = migrateSave(v3);
-    expect(migrated.saveVersion).toBe(4);
+    expect(migrated.saveVersion).toBe(5);
     expect(migrated.quests.first_thread).toEqual({ status: "active", stepIndex: 0, stepProgress: 0 });
     expect(migrated.quests.forge_trade).toBeUndefined();
     expect(migrated.quests.verdant_loomstone).toBeUndefined();
@@ -620,7 +629,7 @@ describe("v3 -> v4 migration: The Forge's Trade insertion", () => {
       },
     };
     const migrated = migrateSave(v3);
-    expect(migrated.saveVersion).toBe(4);
+    expect(migrated.saveVersion).toBe(5);
     expect(migrated.quests.verdant_loomstone).toEqual({ status: "active", stepIndex: 1, stepProgress: 0 });
     expect(migrated.quests.forge_trade).toEqual({ status: "completed", stepIndex: 4, stepProgress: 0 });
     expect(migrated.worldFlags.forge_trade_completed).toBe(true);
@@ -654,7 +663,7 @@ describe("v3 -> v4 migration: The Forge's Trade insertion", () => {
       quests: { first_thread: { status: "completed" as const, stepIndex: 16, stepProgress: 0 } },
     };
     const migrated = migrateSave(v3);
-    expect(migrated.saveVersion).toBe(4);
+    expect(migrated.saveVersion).toBe(5);
     expect(migrated.quests.forge_trade).toEqual({ status: "active", stepIndex: 0, stepProgress: 0 });
     expect(migrated.quests.verdant_loomstone).toBeUndefined();
   });
@@ -723,7 +732,7 @@ describe("v3 -> v4 migration: The Forge's Trade insertion", () => {
       },
     };
     const migrated = migrateSave(v1);
-    expect(migrated.saveVersion).toBe(4);
+    expect(migrated.saveVersion).toBe(5);
     // Fully attuned under v1 rules -> seedVerdantQuestForV1 skips straight past
     // the attune step, which then means v3->v4 grandfathers forge_trade.
     expect(migrated.quests.verdant_loomstone).toEqual({ status: "active", stepIndex: 1, stepProgress: 0 });
@@ -738,14 +747,14 @@ describe("v3 -> v4 migration: The Forge's Trade insertion", () => {
       quests: { first_thread: { status: "completed" as const, stepIndex: 16, stepProgress: 0 } },
     };
     const migrated = migrateSave(v2);
-    expect(migrated.saveVersion).toBe(4);
+    expect(migrated.saveVersion).toBe(5);
     expect(migrated.quests.forge_trade).toEqual({ status: "active", stepIndex: 0, stepProgress: 0 });
   });
 
   it("still rejects a genuinely unknown save version after the v4 bump", () => {
     const fresh = createNewSave(0, "forge-migrate-unknown", { x: 5, z: 5 });
     expect(() => migrateSave({ ...fresh, saveVersion: 99 })).toThrow();
-    expect(() => migrateSave({ ...fresh, saveVersion: 5 })).toThrow();
+    expect(() => migrateSave({ ...fresh, saveVersion: 6 })).toThrow();
   });
 });
 
