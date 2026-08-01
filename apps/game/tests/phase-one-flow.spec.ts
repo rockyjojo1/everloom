@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 type TestApi = {
   activateTarget: (id: string) => boolean;
+  targetPosition: (id: string) => { x: number; y: number } | null;
   equip: (id: string) => boolean;
   simulate: (ms: number) => void;
   stop: () => void;
@@ -37,6 +38,15 @@ async function startAndResolve(page: Page, target: string, elapsedMs: number, ob
   await resolve(page, elapsedMs, objective);
 }
 
+async function startAndResolveByPointer(page: Page, target: string, elapsedMs: number, objective: RegExp, capturePath?: string) {
+  const position = await page.evaluate((id) => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.targetPosition(id), target);
+  expect(position).not.toBeNull();
+  await page.mouse.click(position!.x, position!.y);
+  await expect(page.getByRole("button", { name: "Stop" })).toBeVisible({ timeout: 35_000 });
+  if (capturePath) await page.screenshot({ path: capturePath, fullPage: true });
+  await resolve(page, elapsedMs, objective);
+}
+
 test("all Phase One skills and The First Thread work through the browser", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop", "The mobile suite exercises the touch-sized first-tree gate.");
   // This is a deliberately complete, real-navigation chapter run. Cold model
@@ -60,7 +70,9 @@ test("all Phase One skills and The First Thread work through the browser", async
 
   await activate(page, "ground_worn_rod", /Equip the worn fishing rod/i);
   await equip(page, "worn_fishing_rod", /Catch two Riverlings/i);
-  await startAndResolve(page, "riverling_south", 10_000, /Cook a Riverling/i, testInfo.outputPath("everloom-fishing.png"));
+  // Use the same real pointer path as a player here. The old test called the
+  // activity hook directly and could not catch a hollow/unclickable shoal.
+  await startAndResolveByPointer(page, "riverling_south", 10_000, /Cook a Riverling/i, testInfo.outputPath("everloom-fishing.png"));
 
   await startAndResolve(page, "village_cooking_fire", 5_000, /Take the militia sword/i);
   await activate(page, "ground_militia_sword", /Equip the militia sword/i);

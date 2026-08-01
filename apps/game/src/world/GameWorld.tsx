@@ -401,6 +401,24 @@ export function GameWorld() {
       object.position.y += elevation;
       object.rotation.y = rotation;
       object.scale.multiplyScalar(scale);
+      // Ripple geometry is mostly empty space, so clicking its visual centre used to
+      // hit the water underneath instead of the fishing target. Keep a generous,
+      // invisible interaction surface over the shoal for real pointer input.
+      if (interactive && assetId === "custom.fishing-ripples") {
+        const fishingHitArea = new THREE.Mesh(
+          new THREE.CylinderGeometry(1.55, 1.55, 0.08, 24),
+          new THREE.MeshBasicMaterial({
+            transparent: true,
+            opacity: 0,
+            depthWrite: false,
+            colorWrite: false,
+            side: THREE.DoubleSide,
+          }),
+        );
+        fishingHitArea.position.y = 0.08;
+        fishingHitArea.userData.interactionHitArea = true;
+        object.add(fishingHitArea);
+      }
       object.userData.targetId = id;
       object.traverse((child) => { child.userData.targetId = id; });
       scene.add(object);
@@ -415,10 +433,15 @@ export function GameWorld() {
     for (const item of zone.scenery) sceneryAssetJobs.push(addAsset(item.id, item.assetId, item.x, item.z, item.rotation, item.scale, item.elevation, item.tint));
     for (const item of zone.interactables) {
       criticalAssetJobs.push(addAsset(item.id, item.assetId, item.x, item.z, 0, 1, item.kind === "ground_item" ? 0.14 : 0, item.tint ?? null, true));
-      if (item.kind === "ground_item" || item.kind === "npc") {
+      const isFishingSpot = item.kind === "resource" && item.assetId === "custom.fishing-ripples";
+      if (item.kind === "ground_item" || item.kind === "npc" || isFishingSpot) {
         const label = document.createElement("span");
-        label.className = item.kind === "ground_item" ? "world-label ground-item-label" : "world-label npc-label";
-        label.textContent = item.kind === "ground_item" ? `◆ ${item.displayName}` : item.displayName;
+        label.className = item.kind === "ground_item"
+          ? "world-label ground-item-label"
+          : isFishingSpot
+            ? "world-label resource-label"
+            : "world-label npc-label";
+        label.textContent = item.kind === "ground_item" ? `◆ ${item.displayName}` : isFishingSpot ? `≈ ${item.displayName}` : item.displayName;
         labelLayer.appendChild(label);
         targetLabels.set(item.id, label);
       }
