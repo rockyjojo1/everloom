@@ -12,6 +12,7 @@ const artifactPath = (filename: string) => join(artifactsDir, filename);
 
 type TestApi = {
   activateTarget: (id: string) => boolean;
+  navigateToTarget: (id: string) => boolean;
   equip: (id: string) => boolean;
   simulate: (ms: number) => void;
   stop: () => void;
@@ -34,15 +35,22 @@ type TestApi = {
 /**
  * Walks the player to a real interactable via the same pathToTarget/setRoute
  * flow the pointer handler uses, then waits for the walk animation to finish.
- * See phase-four-world-polish.spec.ts for the full rationale on the generous
- * timeouts this sandbox's SwiftShader software renderer requires.
+ * Uses navigateToTarget (walk only, never auto-acts) rather than
+ * activateTarget, so this test can walk to a facility and start its activity
+ * as two separately-timed steps without a race: activateTarget both routes
+ * AND auto-performs the target's action on arrival, so calling it once to
+ * "walk there" and again to "start the activity" can let the first call's
+ * auto-started activity already finish (e.g. inputs_exhausted) before the
+ * second call runs, leaving a later `expect(Stop button).toBeVisible()`
+ * waiting forever. See phase-four-world-polish.spec.ts for the rationale on
+ * the generous timeouts this sandbox's SwiftShader software renderer needs.
  */
 async function walkTo(page: Page, targetId: string, timeout = 90_000) {
   const ok = await page.evaluate(
-    (id) => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.activateTarget(id),
+    (id) => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.navigateToTarget(id),
     targetId,
   );
-  expect(ok, `activateTarget(${targetId}) should find a real path`).toBe(true);
+  expect(ok, `navigateToTarget(${targetId}) should find a real path`).toBe(true);
   await expect
     .poll(
       async () =>
@@ -106,7 +114,7 @@ test.describe("The Forge's Trade — Smithing tutorial loop", () => {
     // same precedent verdant-loomstone.spec.ts uses for its own brew step.
     await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.giveItem("worn_pickaxe", 1));
     expect(await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.equip("worn_pickaxe"))).toBe(true);
-    await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.giveItem("meadow_log", 2));
+    await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.giveItem("meadow_log", 4));
 
     // 1. Mine Copper Ore for real at a physical quarry node.
     await walkTo(page, "copper_north_1");
@@ -242,8 +250,14 @@ test.describe("The Forge's Trade — Smithing tutorial loop", () => {
     await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.attuneAllSkills());
     await expect(page.locator(".objective")).toContainText(/Tell Mara the five threads are ready/i, { timeout: 60_000 });
     await walkTo(page, "npc_mara", 150_000);
+    const talkedToMara = await page.evaluate(() =>
+      (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.activateTarget("npc_mara"));
+    expect(talkedToMara).toBe(true);
     await expect(page.locator(".objective")).toContainText(/Walk north to the grove and wake the Verdant Loomstone/i, { timeout: 30_000 });
     await walkTo(page, "verdant_loomstone", 150_000);
+    const wokeLoomstone = await page.evaluate(() =>
+      (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.activateTarget("verdant_loomstone"));
+    expect(wokeLoomstone).toBe(true);
     await expect(page.getByText("The Verdant Loomstone wakes beneath the grove.")).toBeVisible({ timeout: 30_000 });
 
     // groves_gift's own gather-and-brew loop is already exercised in full by

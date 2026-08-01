@@ -352,6 +352,24 @@ export function GameWorld() {
           setRoute(pathToTarget(zone, save.position, target), () => actOn(target));
           return true;
         },
+        // Navigation-only counterpart to activateTarget: walks the player into
+        // interaction range using the same real pathToTarget route, but never
+        // calls actOn and never starts/changes any activity. activateTarget
+        // both routes AND auto-acts on arrival, which is correct for normal
+        // click-to-play but creates a race in tests that need to walk to a
+        // target and then start its activity as two distinct, separately
+        // timed steps (e.g. confirming a "Stop" button appears) — calling
+        // activateTarget twice on the same facility can let the first call's
+        // auto-started activity already finish and stop (inputs_exhausted)
+        // before the second call ever runs, leaving the test waiting for a
+        // Stop button that will never appear.
+        navigateToTarget(targetId: string) {
+          const target = zone.interactables.find((entry) => entry.id === targetId);
+          const save = useGameStore.getState().save;
+          if (!target || !save || !targetAvailable(target, save)) return false;
+          setRoute(pathToTarget(zone, save.position, target), null);
+          return true;
+        },
       };
     }
 
