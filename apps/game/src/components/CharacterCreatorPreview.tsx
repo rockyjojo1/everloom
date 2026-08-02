@@ -8,6 +8,7 @@ import {
   getCharacterPresentation,
   type AccessorySlot,
 } from "../world/characterPresentation";
+import { disposeMaterial, disposeObject, disposeAnimationMixer, completeDisposal } from "../world/threeDisposal";
 
 // A real rotating rig preview for the character creator, replacing the flat
 // tint-swatch buttons previously used in App.tsx. Loads the same
@@ -35,9 +36,6 @@ export function CharacterCreatorPreview({ appearanceId, className }: CharacterCr
     const scene = new THREE.Scene();
     scene.background = null;
     const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 20);
-    // Framed a little higher/further back than a tight bust shot so the
-    // tallest accessory (Dusk's headwear spike, see characterPresentation.ts)
-    // stays inside the frame instead of clipping past the top edge.
     camera.position.set(0, 1.35, 3.5);
     camera.lookAt(0, 1.2, 0);
 
@@ -63,8 +61,16 @@ export function CharacterCreatorPreview({ appearanceId, className }: CharacterCr
     const rig = new THREE.Group();
     scene.add(rig);
 
-    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    // Respond to reduced-motion preference changes at runtime.
+    let reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
     let rotationSpeed = reducedMotion ? 0 : 0.55;
+    const motionMediaQuery = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+    const onMotionChange = (e: MediaQueryListEvent) => {
+      reducedMotion = e.matches;
+      rotationSpeed = reducedMotion ? 0 : 0.55;
+    };
+    if (motionMediaQuery) motionMediaQuery.addEventListener("change", onMotionChange);
+
     let dragging = false;
     let lastX = 0;
 
@@ -78,18 +84,34 @@ export function CharacterCreatorPreview({ appearanceId, className }: CharacterCr
       rig.rotation.y += (event.clientX - lastX) * 0.012;
       lastX = event.clientX;
     };
-    const onPointerUp = () => { dragging = false; };
+    const onPointerUp = () => {
+      dragging = false;
+      rotationSpeed = reducedMotion ? 0 : 0.55;
+    };
+    const onPointerCancel = () => {
+      dragging = false;
+      rotationSpeed = reducedMotion ? 0 : 0.55;
+    };
     renderer.domElement.addEventListener("pointerdown", onPointerDown);
+    renderer.domElement.addEventListener("pointercancel", onPointerCancel);
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", onPointerUp);
 
     let currentDecorations: Partial<Record<AccessorySlot, THREE.Group>> = {};
     let playerObject: THREE.Object3D | null = null;
+    let playerMaterials: THREE.Material[] = [];
     let mixer: THREE.AnimationMixer | null = null;
 
     const applyDecorations = (object: THREE.Object3D, id: PlayerAppearanceId) => {
-      for (const group of Object.values(currentDecorations)) group?.removeFromParent();
+      // Dispose old decorations.
+      for (const group of Object.values(currentDecorations)) {
+        if (group) {
+          disposeObject(group);
+          group.removeFromParent();
+        }
+      }
       currentDecorations = buildAppearanceDecorations(id);
+      // Attach new decorations.
       for (const [slot, bones] of Object.entries(APPEARANCE_ACCESSORY_BONES) as [AccessorySlot, readonly string[]][]) {
         const group = currentDecorations[slot];
         if (!group) continue;
@@ -98,26 +120,44 @@ export function CharacterCreatorPreview({ appearanceId, className }: CharacterCr
       }
     };
 
-    void instantiateAsset("player.adventurer", getCharacterPresentation(appearanceId).tint)
-      .then(({ object, animations }) => {
-        if (disposed) return;
-        playerObject = object;
-        for (const name of ["1H_Sword", "1H_Sword_Offhand", "2H_Sword", "Badge_Shield", "Rectangle_Shield", "Round_Shield", "Spike_Shield"]) {
-          const prop = object.getObjectByName(name);
-          if (prop) prop.visible = false;
-        }
-        object.traverse((child) => {
-          if (child instanceof THREE.Mesh) child.castShadow = false;
-        });
-        rig.add(object);
-        applyDecorations(object, appearanceRef.current);
-        if (animations.length) {
-          mixer = new THREE.AnimationMixer(object);
-          const idleClip = animations.find((clip) => clip.name === "Idle") ?? animations[0]!;
-          mixer.clipAction(idleClip).play();
-        }
-      })
-      .catch((error) => console.warn("Creator preview player model failed", error));
+    // Load player model once and reuse it.
+    const loadPlayerOnce = () => {
+      void instantiateAsset("player.adventurer", getCharacterPresentation(appearanceRef.current).tint)
+        .then(({ object, animations }) => {
+          if (disposed) return;
+          playerObject = object;
+
+          // Hide showcase weapons.
+          for (const name of ["1H_Sword", "1H_Sword_Offhand", "2H_Sword", "Badge_Shield", "Rectangle_Shield", "Round_Shield", "Spike_Shield"]) {
+            const prop = object.getObjectByName(name);
+            if (prop) prop.visible = false;
+          }
+
+          // Collect materials for tint changes.
+          object.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+              child.castShadow = false;
+              if (Array.isArray(child.material)) {
+                playerMaterials.push(...child.material);
+              } else if (child.material) {
+                playerMaterials.push(child.material);
+              }
+            }
+          });
+
+          rig.add(object);
+          applyDecorations(object, appearanceRef.current);
+
+          if (animations.length) {
+            mixer = new THREE.AnimationMixer(object);
+            const idleClip = animations.find((clip) => clip.name === "Idle") ?? animations[0]!;
+            mixer.clipAction(idleClip).play();
+          }
+        })
+        .catch((error) => console.warn("Creator preview player model failed", error));
+    };
+
+    loadPlayerOnce();
 
     let frame = 0;
     const clock = new THREE.Clock();
@@ -143,21 +183,23 @@ export function CharacterCreatorPreview({ appearanceId, className }: CharacterCr
 
     return () => {
       disposed = true;
-      cancelAnimationFrame(frame);
-      observer.disconnect();
-      renderer.domElement.removeEventListener("pointerdown", onPointerDown);
-      window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerup", onPointerUp);
-      renderer.dispose();
+      completeDisposal({
+        object: playerObject,
+        mixer,
+        renderer,
+        animationFrameId: frame,
+        resizeObserver: observer,
+        eventListeners: [
+          { target: renderer.domElement, event: "pointerdown", handler: onPointerDown },
+          { target: renderer.domElement, event: "pointercancel", handler: onPointerCancel },
+          { target: window, event: "pointermove", handler: onPointerMove },
+          { target: window, event: "pointerup", handler: onPointerUp },
+          { target: motionMediaQuery ?? window, event: "change", handler: onMotionChange as EventListener },
+        ],
+      });
       element.replaceChildren();
-      void playerObject;
     };
-    // Appearance swaps rebuild the whole preview scene deliberately: this is
-    // a small, cheap creator-only scene (one rig, no zone), so a full
-    // teardown/rebuild on appearance change is simpler and safer than
-    // hot-swapping the tint on a live GLTF clone in place.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appearanceId]);
+  }, []);
 
   return <div ref={host} className={className ? `creator-preview ${className}` : "creator-preview"} role="img" aria-label="Rotating preview of the selected character appearance" />;
 }

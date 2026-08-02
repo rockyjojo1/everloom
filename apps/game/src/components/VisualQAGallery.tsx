@@ -5,6 +5,7 @@ import type { PlayerAppearanceId } from "@everloom/core";
 import { instantiateAsset } from "../world/assets";
 import { getCharacterPresentation } from "../world/characterPresentation";
 import { QA_GALLERY_ITEM_IDS, getEquipmentTransform } from "../world/equipmentPresentation";
+import { disposeMaterial, disposeObject, disposeAnimationMixer, completeDisposal } from "../world/threeDisposal";
 
 // Non-gameplay-mutating visual QA gallery: loads the real player rig (same
 // `player.adventurer` asset GameWorld.tsx uses) and attaches each of the
@@ -23,6 +24,7 @@ export function VisualQAGallery() {
   const [appearanceId, setAppearanceId] = useState<PlayerAppearanceId>("meadow");
   const itemIndexRef = useRef(itemIndex);
   const posedRef = useRef(posed);
+  const callbacksRef = useRef<{ refreshEquipped?: () => void; replayAnimation?: () => void }>({});
   itemIndexRef.current = itemIndex;
   posedRef.current = posed;
 
@@ -33,15 +35,6 @@ export function VisualQAGallery() {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x2a2f33);
     const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 20);
-    // Pulled back and framed lower than a bust shot so the held item (which
-    // hangs well below shoulder height at the handslotr socket) is actually
-    // inside the frame alongside the face — a tight headshot here would
-    // defeat the entire point of an equipment gallery. Offset toward -X
-    // (rather than +X) because handslotr resolves to the character's
-    // near/right-hand side in this rig's world space, confirmed by direct
-    // measurement while building this gallery (handSlot world x ~= -0.88);
-    // a +X camera looked at the character's off-hand side and hid the item
-    // behind the torso.
     camera.position.set(-1.7, 1.35, 3.5);
     camera.lookAt(-0.35, 0.85, 0);
 
@@ -81,8 +74,14 @@ export function VisualQAGallery() {
       const itemId = QA_GALLERY_ITEM_IDS[itemIndexRef.current]!;
       equipSequence += 1;
       const sequence = equipSequence;
-      equippedObject?.removeFromParent();
+
+      // Dispose old equipped object.
+      if (equippedObject) {
+        disposeObject(equippedObject);
+        equippedObject.removeFromParent();
+      }
       equippedObject = null;
+
       const transform = getEquipmentTransform(itemId);
       const assetId = CONTENT.items[itemId]?.worldAssetId;
       if (!transform || !assetId || !handSlot) return;
@@ -96,6 +95,15 @@ export function VisualQAGallery() {
         playClip(posedRef.current ? transform.actionClip : "Idle");
       });
     };
+
+    const replayAnimation = () => {
+      const itemId = QA_GALLERY_ITEM_IDS[itemIndexRef.current]!;
+      const transform = getEquipmentTransform(itemId);
+      if (transform) playClip(posedRef.current ? transform.actionClip : "Idle");
+    };
+
+    callbacksRef.current.refreshEquipped = refreshEquipped;
+    callbacksRef.current.replayAnimation = replayAnimation;
 
     let rigGroup: THREE.Object3D | null = null;
     void instantiateAsset("player.adventurer", getCharacterPresentation(appearanceId).tint)
@@ -116,13 +124,6 @@ export function VisualQAGallery() {
         refreshEquipped();
       })
       .catch((error) => console.warn("QA gallery player model failed", error));
-
-    (element as unknown as { __refresh?: () => void }).__refresh = refreshEquipped;
-    (element as unknown as { __replay?: () => void }).__replay = () => {
-      const itemId = QA_GALLERY_ITEM_IDS[itemIndexRef.current]!;
-      const transform = getEquipmentTransform(itemId);
-      if (transform) playClip(posedRef.current ? transform.actionClip : "Idle");
-    };
 
     let frame = 0;
     const clock = new THREE.Clock();
@@ -146,22 +147,37 @@ export function VisualQAGallery() {
 
     return () => {
       disposed = true;
-      cancelAnimationFrame(frame);
-      observer.disconnect();
-      renderer.dispose();
+      callbacksRef.current.refreshEquipped = undefined;
+      callbacksRef.current.replayAnimation = undefined;
+      // Stop all animations and dispose mixer.
+      if (currentAction) currentAction.stop();
+      disposeAnimationMixer(mixer);
+      // Dispose equipped object.
+      if (equippedObject) {
+        disposeObject(equippedObject);
+      }
+      // Dispose rig and all its resources.
+      if (rigGroup) {
+        disposeObject(rigGroup);
+      }
+      completeDisposal({
+        renderer,
+        animationFrameId: frame,
+        resizeObserver: observer,
+      });
       element.replaceChildren();
-      void rigGroup;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appearanceId]);
 
+  // Refresh equipped item when item changes.
   useEffect(() => {
-    const element = host.current as unknown as { __refresh?: () => void } | null;
-    element?.__refresh?.();
+    callbacksRef.current.refreshEquipped?.();
   }, [itemIndex]);
+
+  // Replay animation when pose changes.
   useEffect(() => {
-    const element = host.current as unknown as { __replay?: () => void } | null;
-    element?.__replay?.();
+    callbacksRef.current.replayAnimation?.();
   }, [posed]);
 
   const currentItemId = QA_GALLERY_ITEM_IDS[itemIndex]!;
