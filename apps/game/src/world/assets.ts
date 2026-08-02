@@ -280,25 +280,55 @@ export async function instantiateAsset(assetId: string, tint?: string | null): P
   return { object, animations: gltf.animations };
 }
 
-export function addInteractionHitbox(object: THREE.Object3D, kind: string): void {
-  if (kind === "ground_item") {
-    // Check if hitbox already exists (idempotence)
-    if (object.children.some((child) => child.userData.interactionHitArea === true)) {
-      return;
-    }
+// Hitbox sizing: minimum protects small tools like hatchets/rods (0.3),
+// maximum prevents large objects from swallowing distant clicks (1.2).
+const INTERACTION_HITBOX_MIN_RADIUS = 0.3;
+const INTERACTION_HITBOX_MAX_RADIUS = 1.2;
 
-    const hitArea = new THREE.Mesh(
-      new THREE.SphereGeometry(0.5, 16, 16),
-      new THREE.MeshBasicMaterial({
-        transparent: true,
-        opacity: 0,
-        depthWrite: false,
-        colorWrite: false,
-        side: THREE.DoubleSide,
-      }),
-    );
-    hitArea.position.y = 0.3;
-    hitArea.userData.interactionHitArea = true;
-    object.add(hitArea);
+export function addInteractionHitbox(object: THREE.Object3D, kind: string): void {
+  if (kind !== "ground_item") {
+    return;
   }
+  // Idempotence: check if this object already has an interaction hitbox.
+  if (object.children.some((child) => child.userData.interactionHitArea === true)) {
+    return;
+  }
+
+  // Calculate bounding box to derive radius and centre from actual geometry.
+  const bbox = new THREE.Box3().setFromObject(object);
+  if (bbox.isEmpty()) {
+    // Object has no visible geometry; skip hitbox.
+    return;
+  }
+
+  // Derive radius from the largest dimension of the bounding box.
+  // This ensures small objects get clickable hitboxes and large objects
+  // don't accidentally swallow distant clicks.
+  const size = bbox.getSize(new THREE.Vector3());
+  const maxDimension = Math.max(size.x, size.y, size.z);
+  const radiusFromBounds = maxDimension / 2;
+
+  // Clamp to documented min/max.
+  const radius = Math.max(
+    INTERACTION_HITBOX_MIN_RADIUS,
+    Math.min(INTERACTION_HITBOX_MAX_RADIUS, radiusFromBounds),
+  );
+
+  // Calculate centre from the bounding box (not hardcoded position.y).
+  const centre = bbox.getCenter(new THREE.Vector3());
+
+  const hitArea = new THREE.Mesh(
+    new THREE.SphereGeometry(radius, 16, 16),
+    new THREE.MeshBasicMaterial({
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      colorWrite: false,
+      side: THREE.DoubleSide,
+    }),
+  );
+  hitArea.position.copy(centre);
+  hitArea.userData.interactionHitArea = true;
+  hitArea.name = "interaction-hitbox";
+  object.add(hitArea);
 }

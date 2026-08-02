@@ -1,0 +1,61 @@
+.gallery {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  background: #15221e;
+  z-index: 50;
+}
+
+.canvas {
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.controls {
+  display: grid;
+  gap: 8px;
+  padding: 10px 14px max(10px, env(safe-area-inset-bottom));
+  background: #0d1713e6;
+  border-top: 1px solid #ffffff14;
+}
+
+.items,
+.appearance {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.items button,
+.appearance button,
+.pose {
+  border: 1px solid #ffffff1c;
+  background: #365247;
+  color: #f7f1e2;
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 11px;
+}
+
+.items button.selected,
+.appearance button.selected {
+  background: #d6a94e;
+  color: #241d0f;
+  font-weight: 700;
+}
+
+@media (max-width: 700px) and (orientation: landscape) {
+  .controls {
+    padding: 6px 10px max(6px, env(safe-area-inset-bottom));
+    gap: 5px;
+  }
+
+  .items button,
+  .appearance button,
+  .pose {
+    padding: 5px 8px;
+    font-size: 10px;
+  }
+}

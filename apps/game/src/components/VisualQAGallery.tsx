@@ -6,6 +6,7 @@ import { instantiateAsset } from "../world/assets";
 import { getCharacterPresentation } from "../world/characterPresentation";
 import { QA_GALLERY_ITEM_IDS, getEquipmentTransform } from "../world/equipmentPresentation";
 import { disposeMaterial, disposeObject, disposeAnimationMixer, completeDisposal } from "../world/threeDisposal";
+import styles from "./VisualQAGallery.module.css";
 
 // Non-gameplay-mutating visual QA gallery: loads the real player rig (same
 // `player.adventurer` asset GameWorld.tsx uses) and attaches each of the
@@ -183,19 +184,19 @@ export function VisualQAGallery() {
   const currentItemId = QA_GALLERY_ITEM_IDS[itemIndex]!;
   const transform = getEquipmentTransform(currentItemId);
 
-  return <section className="qa-gallery" aria-label="Equipment visual QA gallery">
-    <div className="qa-gallery-canvas" ref={host} />
-    <div className="qa-gallery-controls">
-      <div className="qa-gallery-items">
+  return <section className={styles.gallery} aria-label="Equipment visual QA gallery">
+    <div className={styles.canvas} ref={host} />
+    <div className={styles.controls}>
+      <div className={styles.items}>
         {QA_GALLERY_ITEM_IDS.map((id, index) => <button key={id} type="button"
           className={index === itemIndex ? "selected" : ""}
           onClick={() => setItemIndex(index)}>{CONTENT.items[id]?.name ?? id}</button>)}
       </div>
-      <div className="qa-gallery-appearance">
+      <div className={styles.appearance}>
         {(["meadow", "ember", "tide", "dusk"] as const).map((id) =>
           <button key={id} type="button" className={id === appearanceId ? "selected" : ""} onClick={() => setAppearanceId(id)}>{id}</button>)}
       </div>
-      <button type="button" className="qa-gallery-pose" onClick={() => setPosed((value) => !value)}>
+      <button type="button" className={styles.pose} onClick={() => setPosed((value) => !value)}>
         {posed ? `Showing action pose (${transform?.actionClip ?? "?"})` : "Showing idle pose"}
       </button>
     </div>
