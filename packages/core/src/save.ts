@@ -41,6 +41,8 @@ export function createNewSave(
       effectsVolume: 0.7,
       reducedMotion: false,
     },
+    activeExpedition: null,
+    claimedExpeditions: {},
   };
 }
 
@@ -167,11 +169,20 @@ function migrateV3ToV4(save: Omit<GameSave, "saveVersion"> & { saveVersion: 3 | 
   return { ...save, saveVersion: 4 } as V4Save;
 }
 
-function migrateV4ToV5(save: V4Save): GameSave {
+function migrateV4ToV5(save: V4Save): Omit<GameSave, "saveVersion" | "activeExpedition" | "claimedExpeditions"> & { saveVersion: 5 } {
+  return {
+    ...save,
+    saveVersion: 5,
+    player: { ...save.player, appearanceId: "meadow" },
+  };
+}
+
+function migrateV5ToV6(save: Omit<GameSave, "saveVersion" | "activeExpedition" | "claimedExpeditions"> & { saveVersion: 5 }): GameSave {
   return {
     ...save,
     saveVersion: SAVE_VERSION,
-    player: { ...save.player, appearanceId: "meadow" },
+    activeExpedition: null,
+    claimedExpeditions: {},
   };
 }
 
@@ -179,7 +190,7 @@ export function migrateSave(value: unknown): GameSave {
   if (!value || typeof value !== "object") throw new Error("Save is not an object.");
   const candidate = value as Omit<Partial<GameSave>, "saveVersion"> & { saveVersion?: unknown };
   const version = candidate.saveVersion;
-  if (version !== SAVE_VERSION && version !== 4 && version !== 3 && version !== 2 && version !== 1) {
+  if (version !== SAVE_VERSION && version !== 5 && version !== 4 && version !== 3 && version !== 2 && version !== 1) {
     throw new Error(`Unsupported save version: ${String(version)}`);
   }
   if (!candidate.player || !candidate.position || !candidate.currentZone || !candidate.rngSeed) {
@@ -189,11 +200,12 @@ export function migrateSave(value: unknown): GameSave {
     throw new Error("Save is missing required progression fields.");
   }
   if (version === SAVE_VERSION) return candidate as GameSave;
-  if (version === 4) return migrateV4ToV5(candidate as unknown as V4Save);
+  if (version === 5) return migrateV5ToV6(candidate as unknown as Omit<GameSave, "saveVersion" | "activeExpedition" | "claimedExpeditions"> & { saveVersion: 5 });
+  if (version === 4) return migrateV5ToV6(migrateV4ToV5(candidate as unknown as V4Save));
   const atV3 = version === 3
     ? (candidate as Omit<GameSave, "saveVersion"> & { saveVersion: 3 })
     : migrateLegacyToV3(candidate as GameSave, version);
-  return migrateV4ToV5(migrateV3ToV4(atV3));
+  return migrateV5ToV6(migrateV4ToV5(migrateV3ToV4(atV3)));
 }
 
 export function serializeSave(state: GameSave): string {

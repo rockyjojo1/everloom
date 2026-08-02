@@ -363,6 +363,13 @@ export function advanceSimulation(
       break;
     }
 
+    // Expeditions are handled separately through their own resolution
+    if (activity.type === "expedition") {
+      state = { ...state, simulationTimeMs: state.simulationTimeMs + remainingMs };
+      remainingMs = 0;
+      break;
+    }
+
     if (activity.type === "gathering") {
       const resource = content.resources[activity.resourceId];
       if (!resource || !requiredToolEquipped(state, resource, content)) {

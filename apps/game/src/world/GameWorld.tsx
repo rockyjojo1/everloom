@@ -929,7 +929,7 @@ export function GameWorld() {
       }
       objectiveRouteMaterial.opacity = 0.72 + Math.sin(now / 230) * 0.2;
       const activity = save?.currentActivity;
-      const activityTarget = activity
+      const activityTarget = activity && activity.type !== "expedition"
         ? zone.interactables.find((target) => target.id === activity.targetId)
         : undefined;
       if (activityTarget && activity) {

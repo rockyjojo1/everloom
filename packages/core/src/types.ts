@@ -1,4 +1,4 @@
-export const SAVE_VERSION = 5 as const;
+export const SAVE_VERSION = 6 as const;
 export const PROBABILITY_SCALE = 1_000_000 as const;
 
 export type SkillId = "woodcutting" | "mining" | "fishing" | "cooking" | "smithing" | "melee";
@@ -255,7 +255,18 @@ export interface CombatActivity {
   readonly enemyHp: number;
 }
 
-export type Activity = GatheringActivity | ProductionActivity | CombatActivity;
+export interface ExpeditionActivity {
+  readonly type: "expedition";
+  readonly expeditionId: string;
+  readonly locationId: string;
+  readonly activityId: string;
+  readonly startedAtMs: number;
+  readonly requestedDurationMs: number;
+  readonly expeditionSeed: string;
+  readonly progressMs: number;
+}
+
+export type Activity = GatheringActivity | ProductionActivity | CombatActivity | ExpeditionActivity;
 
 export interface GameSettings {
   readonly quality: QualityLevel;
@@ -292,6 +303,8 @@ export interface GameSave {
   readonly lastSavedAt: number;
   readonly lastActiveAt: number;
   readonly settings: GameSettings;
+  readonly activeExpedition: ExpeditionActivity | null;
+  readonly claimedExpeditions: Readonly<Record<string, boolean>>;
 }
 
 export type StopReason =
@@ -303,7 +316,10 @@ export type StopReason =
   | "player_died"
   | "target_defeated"
   | "activity_invalid"
-  | "cancelled";
+  | "cancelled"
+  | "duration_reached"
+  | "food_exhausted"
+  | "health_critical";
 
 export type GameEvent =
   | { readonly type: "item_gained"; readonly itemId: string; readonly quantity: number; readonly sourceId: string }
@@ -335,6 +351,28 @@ export interface ActivityReport {
   readonly rareDrops: readonly InventoryStack[];
   readonly levelGains: readonly { readonly skill: SkillId; readonly from: number; readonly to: number }[];
   readonly deaths: number;
+}
+
+export interface ExpeditionResult {
+  readonly expeditionId: string;
+  readonly claimId: string;
+  readonly locationId: string;
+  readonly activityId: string;
+  readonly elapsedMs: number;
+  readonly productiveGatheringMs: number;
+  readonly combatInterruptionMs: number;
+  readonly resourcesObtained: number;
+  readonly resourceXpGained: number;
+  readonly combatXpGained: number;
+  readonly encounters: number;
+  readonly encounters_won: number;
+  readonly encounters_lost: number;
+  readonly damagePlayerTaken: number;
+  readonly foodConsumed: number;
+  readonly endingHealth: number;
+  readonly stopReason: StopReason;
+  readonly itemsGained: readonly InventoryStack[];
+  readonly xpGained: Readonly<Partial<Record<SkillId, number>>>;
 }
 
 export interface SimulationResult {

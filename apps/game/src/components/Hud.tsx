@@ -96,7 +96,7 @@ export function Hud() {
     </section>
     <Minimap />
     {activity && <section className="activity glass">
-      <span>{activity.type === "gathering" ? CONTENT.resources[activity.resourceId]?.name : activity.type === "production" ? CONTENT.recipes[activity.recipeId]?.name : CONTENT.enemies[activity.enemyId]?.name}
+      <span>{activity.type === "gathering" ? CONTENT.resources[activity.resourceId]?.name : activity.type === "production" ? CONTENT.recipes[activity.recipeId]?.name : activity.type === "combat" ? CONTENT.enemies[activity.enemyId]?.name : activity.type === "expedition" ? `${activity.activityId} expedition` : "unknown"}
         {activity.type === "combat" && <small>Lv {CONTENT.enemies[activity.enemyId]?.combatLevel} · {activity.enemyHp}/{CONTENT.enemies[activity.enemyId]?.maxHp} HP</small>}
         {activeResource && <small className="activity-mastery">Mastery rank {activeMasteryRank} · {activeMasteryXp} XP</small>}
       </span>
