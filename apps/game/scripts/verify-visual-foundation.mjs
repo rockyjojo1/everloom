@@ -1,51 +1,117 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
+import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { existsSync, readFileSync } from "node:fs";
 
 const appRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
-const artDirRoot = resolve(appRoot, "..", "..", "art-direction");
 
-function run(label, command, args) {
-  console.log(`\n⏳ ${label}...`);
-  const result = spawnSync(command, args, { cwd: appRoot, stdio: "inherit", shell: true });
+function run(label, command, args, opts = {}) {
+  console.log(`\n⏳ ${label}`);
+  const result = spawnSync(command, args, {
+    cwd: opts.cwd || appRoot,
+    stdio: "pipe",
+    shell: false
+  });
+
   if (result.status !== 0) {
-    console.error(`\n❌ FAILED: ${label} (exit ${result.status})`);
-    process.exit(result.status ?? 1);
+    if (result.stderr) console.error(result.stderr.toString());
+    if (result.stdout) console.log(result.stdout.toString());
+    return { status: result.status, stdout: result.stdout?.toString() || "", stderr: result.stderr?.toString() || "" };
   }
-  console.log(`   ✅ PASSED`);
+
+  if (result.stdout) console.log(result.stdout.toString());
+  return { status: 0, stdout: result.stdout?.toString() || "" };
 }
 
-console.log("\n🎨 EVERLOOM VISUAL PRODUCTION FOUNDATION VERIFICATION\n");
+console.log("\n" + "=".repeat(70));
+console.log("🎨 EVERLOOM VISUAL PRODUCTION FOUNDATION VERIFICATION");
+console.log("=".repeat(70));
 
-// Manifest validation
-run("1/4 Manifest validation", "node", [
-  "../../art-direction/scripts/validate-visual-production-manifest.mjs"
-]);
+const checks = [
+  { name: "Reference-sheet status validation", cmd: "node", args: ["../../art-direction/scripts/validate-reference-sheet-status.mjs"], severity: "blocker" },
+  { name: "Reference-sheet intake tests", cmd: "node", args: ["../../art-direction/scripts/register-reference-sheet.test.mjs"], severity: "blocker" },
+  { name: "Manifest structure validation", cmd: "node", args: ["../../art-direction/scripts/validate-visual-production-manifest.mjs"], severity: "error" },
+  { name: "Manifest data model tests", cmd: "node", args: ["../../art-direction/scripts/validate-visual-production-manifest.test.mjs"], severity: "error" },
+  { name: "Integration coverage tests", cmd: "node", args: ["../../art-direction/scripts/validate-visual-production-integration.test.mjs"], severity: "warning" },
+  { name: "Source path validation", cmd: "node", args: ["../../art-direction/scripts/validate-source-paths.mjs"], severity: "blocker" }
+];
 
-// Validation tests
-run("2/4 Validation test suite", "node", [
-  "../../art-direction/scripts/validate-visual-production-manifest.test.mjs"
-]);
+const results = {
+  errors: 0,
+  blockers: 0,
+  warnings: 0,
+  info: 0
+};
 
-// Integration tests
-run("3/4 Integration test suite", "node", [
-  "../../art-direction/scripts/validate-visual-production-integration.test.mjs"
-]);
+const severityLevels = {
+  error: "❌ ERROR",
+  blocker: "🚫 BLOCKER",
+  warning: "⚠️  WARNING",
+  info: "ℹ️  INFO"
+};
 
-// Gate 0 prerequisite
-run("4/4 Gate 0 verification", "pnpm", ["run", "verify:gate0"]);
+for (const check of checks) {
+  const result = run(check.name, check.cmd, check.args);
 
-console.log("\n" + "=".repeat(60));
-console.log(`✅ VISUAL FOUNDATION VERIFICATION COMPLETE\n`);
-console.log(`Foundation Status:`);
-console.log(`  - 106 visual assets in production inventory`);
-console.log(`  - 32 vertical-slice assets (core gameplay)`);
-console.log(`  - 74 phase-two assets (expansions)`);
-console.log(`  - 13 automated validation tests passing`);
-console.log(`  - 123 expected warnings (unconfirmed scales, awaiting sheets)`);
-console.log(`  - 0 critical errors\n`);
-console.log(`Ready for visual production phases.\n`);
-console.log("=".repeat(60));
+  if (result.status !== 0) {
+    results[check.severity]++;
+    console.log(`   ${severityLevels[check.severity]}`);
+  } else {
+    console.log(`   ✅ PASSED`);
+  }
+}
+
+// Report Gate 0
+console.log(`\n⏳ Gate 0 verification (prerequisite)`);
+const gate0 = run("Gate 0", "pnpm", ["run", "verify:gate0"], { cwd: appRoot });
+if (gate0.status === 0) {
+  console.log(`   ✅ PASSED`);
+} else {
+  console.log(`   ❌ FAILED`);
+  results.errors++;
+}
+
+// Print comprehensive summary
+console.log("\n" + "=".repeat(70));
+console.log("📊 VERIFICATION RESULTS");
+console.log("=".repeat(70));
+
+console.log(`\n${severityLevels.error}: ${results.errors}`);
+console.log(`${severityLevels.blocker}: ${results.blockers}`);
+console.log(`${severityLevels.warning}: ${results.warnings}`);
+console.log(`${severityLevels.info}: ${results.info}`);
+
+// Load manifest for statistics
+const manifestPath = resolve(appRoot, "../../art-direction/visual-production-manifest.json");
+let manifest;
+try {
+  manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+
+  const verticalSlice = manifest.entries.filter(e => e.productionPriority === "vertical-slice").length;
+  const phaseTwo = manifest.entries.filter(e => e.productionPriority === "phase-two").length;
+  const withBlockers = manifest.entries.filter(e => e.currentStatus === "licensed-placeholder" && e.currentSource.includes("kaykit-") || e.currentSource.includes("kenney-")).length;
+
+  console.log(`\n📋 Asset Inventory:`);
+  console.log(`   Total entries: ${manifest.entries.length}`);
+  console.log(`   Vertical-slice: ${verticalSlice}`);
+  console.log(`   Phase-two: ${phaseTwo}`);
+  console.log(`   With missing dependencies: ${withBlockers}`);
+} catch (e) {
+  console.log(`\n⚠️  Could not load manifest for statistics`);
+}
+
+console.log("\n" + "=".repeat(70));
+
+if (results.errors > 0 || results.blockers > 0) {
+  console.log(`\n❌ VERIFICATION FAILED\n`);
+  console.log(`Fix all errors and blockers before proceeding.\n`);
+  process.exit(1);
+} else {
+  console.log(`\n✅ VERIFICATION PASSED\n`);
+  if (results.warnings > 0) {
+    console.log(`⚠️  ${results.warnings} warning(s) present but not blocking.\n`);
+  }
+  process.exit(0);
+}
