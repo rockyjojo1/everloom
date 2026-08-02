@@ -16,7 +16,7 @@
     {
       "section": "11",
       "displayName": "Environmental Props",
-      "file": "art-direction/reference-sheets/everloom-11-props.png",
+      "file": "reference-sheets/everloom-11-props.png",
       "received": true,
       "receivedDate": "2026-08-02",
       "checksum": "C996CDA8B5E7F68B988267A1EFC4E881DAA529E07636B1631DE17ED84FB9F757",
@@ -40,7 +40,7 @@
     {
       "section": "12",
       "displayName": "Vegetation",
-      "file": "art-direction/reference-sheets/everloom-12-vegetation.png",
+      "file": "reference-sheets/everloom-12-vegetation.png",
       "received": true,
       "receivedDate": "2026-08-02",
       "checksum": "5AA557D3BD51D104FB4A707C18C7FF10C119CD4307930348F9FEBEED6BD18DBB",
@@ -60,7 +60,7 @@
     {
       "section": "13",
       "displayName": "Animation Contact Sheet",
-      "file": "art-direction/reference-sheets/everloom-13-animation-contact-sheet.png",
+      "file": "reference-sheets/everloom-13-animation-contact-sheet.png",
       "received": true,
       "receivedDate": "2026-08-02",
       "checksum": "B45D06D3EF1DF85D3AE552ACA3AABDC062813A0304D84B3F661A15184CA8375B",
@@ -84,7 +84,7 @@
     {
       "section": "14",
       "displayName": "VFX",
-      "file": "art-direction/reference-sheets/everloom-14-vfx.png",
+      "file": "reference-sheets/everloom-14-vfx.png",
       "received": true,
       "receivedDate": "2026-08-02",
       "checksum": "6AA27338A08371E12025719C8226DC0097C760CDC64586C56F25982A4D7427B9",
@@ -105,7 +105,7 @@
     {
       "section": "15",
       "displayName": "Interface",
-      "file": "art-direction/reference-sheets/everloom-15-interface.png",
+      "file": "reference-sheets/everloom-15-interface.png",
       "received": true,
       "receivedDate": "2026-08-02",
       "checksum": "09A231B92E22888378DF240F58CD510525AC4B8F22CDB29CCEADC10A7D17B30C",
@@ -126,7 +126,7 @@
     {
       "section": "16",
       "displayName": "Inventory Icons",
-      "file": "art-direction/reference-sheets/everloom-16-inventory-icons.png",
+      "file": "reference-sheets/everloom-16-inventory-icons.png",
       "received": true,
       "receivedDate": "2026-08-02",
       "checksum": "57F3111927C3F40BE9245820DCC6B55ED634AD469ED0445A74A994615337B30D",
@@ -144,7 +144,7 @@
     {
       "section": "17",
       "displayName": "Scale Chart",
-      "file": "art-direction/reference-sheets/everloom-17-scale-chart.png",
+      "file": "reference-sheets/everloom-17-scale-chart.png",
       "received": true,
       "receivedDate": "2026-08-02",
       "checksum": "07F6347E24B21549965B75112FEB0778A218394499C64BB4FE1A33352590EF91",
@@ -169,7 +169,7 @@
     {
       "section": "18",
       "displayName": "Do-and-Do-Not Comparison",
-      "file": "art-direction/reference-sheets/everloom-18-do-dont-comparison.png",
+      "file": "reference-sheets/everloom-18-do-dont-comparison.png",
       "received": true,
       "receivedDate": "2026-08-02",
       "checksum": "46A4A4259D54F42E25079ADA5518100574A1FF3FF1CDA3966A3E2D4564952234",
@@ -188,7 +188,7 @@
     {
       "section": "19",
       "displayName": "Character Modularity and Secondary NPCs",
-      "file": "art-direction/reference-sheets/everloom-19-character-modularity-secondary-npcs.png",
+      "file": "reference-sheets/everloom-19-character-modularity-secondary-npcs.png",
       "received": true,
       "receivedDate": "2026-08-02",
       "checksum": "24A26B76AF953BE04256C86F673F74D95934C129DC6B2EA70F1D8FE04DB8DBC4",
@@ -209,7 +209,7 @@
     {
       "section": "20",
       "displayName": "Technical Equipment Production",
-      "file": "art-direction/reference-sheets/everloom-20-technical-equipment-production.png",
+      "file": "reference-sheets/everloom-20-technical-equipment-production.png",
       "received": true,
       "receivedDate": "2026-08-02",
       "checksum": "819CBBB49C69BC82FBC1BCA95FAD3949AF8B9F44168657063765411D6267D750",

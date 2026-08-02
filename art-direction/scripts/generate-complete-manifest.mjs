@@ -138,7 +138,11 @@ function createEntry(registryId) {
     attachmentPoints: [],
     collisionRequirement: asset.interactionType ? asset.interactionType : "none",
     lodRequirement: "single",
-    targetFormat: asset.sourceFile.includes("json") ? "json" : "glb",
+    targetFormat: (() => {
+      if (asset.sourceFile.includes("json")) return "json";
+      if (asset.category === "effect" || asset.category === "icon") return "json";
+      return "glb";
+    })(),
     productionNotes: [
       asset.notes,
       `Pack: ${asset.pack}`,

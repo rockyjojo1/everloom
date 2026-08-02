@@ -6,40 +6,63 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const appRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
+const isWindows = process.platform === "win32";
+
+function getPnpmCommand() {
+  return isWindows ? "pnpm.cmd" : "pnpm";
+}
 
 function run(label, command, args) {
   console.log(`\n⏳ ${label}`);
-  const result = spawnSync(command, args, {
-    cwd: appRoot,
-    stdio: "pipe",
-    shell: false
-  });
-
-  if (result.status !== 0) {
-    if (result.stderr) console.error(result.stderr.toString());
-    if (result.stdout) console.log(result.stdout.toString());
-    throw new Error(`${label} failed with exit code ${result.status}`);
+  let result;
+  try {
+    // For pnpm on Windows, use shell:true because .cmd files can't be executed directly with shell:false
+    const usesShell = usePnpmShell && command === getPnpmCommand();
+    result = spawnSync(command, args, {
+      cwd: appRoot,
+      stdio: "inherit",
+      shell: usesShell || false  // Use shell for pnpm.cmd on Windows, false for everything else
+    });
+  } catch (e) {
+    throw new Error(`${label} failed to spawn: ${e.message}`);
   }
 
-  if (result.stdout) console.log(result.stdout.toString());
+  // Handle null status, signals, and non-zero exits
+  if (result.status === null || result.signal !== null || result.status !== 0) {
+    const exitCode = result.status !== null ? result.status : (result.signal ? `killed by ${result.signal}` : "unknown error");
+    if (result.error) {
+      throw new Error(`${label} failed: ${result.error.message}`);
+    }
+    throw new Error(`${label} failed with exit code ${exitCode}`);
+  }
+
   return { status: result.status };
 }
 
 console.log("\n" + "=".repeat(70));
-console.log("🎨 EVERLOOM VISUAL PRODUCTION FOUNDATION VERIFICATION (13 Stages)");
+console.log("🎨 EVERLOOM VISUAL PRODUCTION FOUNDATION VERIFICATION (15 Stages)");
 console.log("=".repeat(70));
 
+// For Windows, we need to use shell:true for pnpm commands because .cmd files
+// can't be executed directly with spawnSync shell:false
+const usePnpmShell = isWindows;
+
 const checks = [
-  { name: "1/13 Reference-sheet status", cmd: "node", args: ["../../art-direction/scripts/validate-reference-sheet-status.mjs"] },
-  { name: "2/13 Reference-sheet intake tests", cmd: "node", args: ["../../art-direction/scripts/register-reference-sheet.test.mjs"] },
-  { name: "3/13 Manifest structure", cmd: "node", args: ["../../art-direction/scripts/validate-visual-production-manifest.mjs"] },
-  { name: "4/13 Manifest data model tests", cmd: "node", args: ["../../art-direction/scripts/validate-visual-production-manifest.test.mjs"] },
-  { name: "5/13 Integration coverage tests", cmd: "node", args: ["../../art-direction/scripts/validate-visual-production-integration.test.mjs"] },
-  { name: "6/13 Source path validation", cmd: "node", args: ["../../art-direction/scripts/validate-source-paths.mjs"] },
-  { name: "7/13 Visual comparison tests", cmd: "node", args: ["../../art-direction/scripts/visual-comparison.test.mjs"] },
-  { name: "8/13 Workbench component tests", cmd: "pnpm", args: ["run", "test"] },
-  { name: "9/13 TypeScript verification", cmd: "pnpm", args: ["run", "typecheck"] },
-  { name: "10/13 Production build", cmd: "pnpm", args: ["run", "build"] }
+  { name: "1/15 Reference-sheet status", cmd: "node", args: ["../../art-direction/scripts/validate-reference-sheet-status.mjs"] },
+  { name: "2/15 Reference-sheet intake tests", cmd: "node", args: ["../../art-direction/scripts/register-reference-sheet.test.mjs"] },
+  { name: "3/15 Manifest structure", cmd: "node", args: ["../../art-direction/scripts/validate-visual-production-manifest.mjs"] },
+  { name: "4/15 Manifest data model tests", cmd: "node", args: ["../../art-direction/scripts/validate-visual-production-manifest.test.mjs"] },
+  { name: "5/15 Integration coverage tests", cmd: "node", args: ["../../art-direction/scripts/validate-visual-production-integration.test.mjs"] },
+  { name: "6/15 Source path validation", cmd: "node", args: ["../../art-direction/scripts/validate-source-paths.mjs"] },
+  { name: "7/15 Production-contract validation", cmd: "node", args: ["../../art-direction/scripts/validate-production-contracts.mjs"] },
+  { name: "8/15 Incoming queue validation", cmd: "node", args: ["../../art-direction/scripts/validate-incoming-queue.mjs"] },
+  { name: "9/15 Visual comparison tests", cmd: "node", args: ["../../art-direction/scripts/visual-comparison.test.mjs"] },
+  { name: "10/15 Safe task-generator tests", cmd: "node", args: ["../../art-direction/scripts/generate-asset-task.test.mjs"] },
+  { name: "11/15 Visual workbench tests", cmd: "node", args: ["scripts/test-visual-workbench.mjs"] },
+  { name: "12/15 Game unit tests", cmd: getPnpmCommand(), args: ["run", "test"] },
+  { name: "13/15 TypeScript verification", cmd: getPnpmCommand(), args: ["run", "typecheck"] },
+  { name: "14/15 Production build", cmd: getPnpmCommand(), args: ["run", "build"] },
+  { name: "15/15 Gate 0 verification", cmd: getPnpmCommand(), args: ["run", "verify:gate0"] }
 ];
 
 let completed = 0;
@@ -89,5 +112,8 @@ try {
 }
 
 console.log("\n" + "=".repeat(70));
-console.log(`\n✅ VISUAL PRODUCTION FOUNDATION VERIFIED\n`);
+console.log("🎨 VISUAL FOUNDATION CORE CHECKS PASSED");
+console.log("=".repeat(70));
+console.log(`\nBASELINE STATUS: PENDING, 0/10 captured`);
+console.log(`FULL VISUAL FOUNDATION NOT YET COMPLETE\n`);
 process.exit(0);

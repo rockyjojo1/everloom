@@ -74,16 +74,20 @@ for (const entry of manifest.entries) {
     warnings.push(`Entry ${entry.id}: status is reference-approved but no reference-sheet path found`);
   }
 
-  // Check source files exist
-  if (entry.currentSource && !entry.currentSource.startsWith("http") && !entry.currentSource.includes("placeholder")) {
-    const srcPath = resolve(__dirname, "..", "..", entry.currentSource);
-    if (!existsSync(srcPath) && !entry.currentSource.includes("*")) {
-      warnings.push(`Entry ${entry.id}: source file not found: ${entry.currentSource}`);
+  // Check source files exist (skip procedural, component, composite, http, external packs)
+  if (entry.currentSource && !entry.currentSource.startsWith("http") && !entry.currentSource.startsWith("procedural://") && !entry.currentSource.startsWith("component://") && !entry.currentSource.startsWith("composite://") && !entry.currentSource.includes("placeholder")) {
+    // Skip validation for known external packs (KayKit, Kenney) - these are downloaded separately
+    const isExternalPack = entry.currentSource.includes("kaykit-") || entry.currentSource.includes("kenney-");
+    if (!isExternalPack) {
+      const srcPath = resolve(__dirname, "..", "..", entry.currentSource);
+      if (!existsSync(srcPath) && !entry.currentSource.includes("*")) {
+        warnings.push(`Entry ${entry.id}: source file not found: ${entry.currentSource}`);
+      }
     }
   }
 
-  // Warn about unknown license
-  if (entry.currentLicense && !["CC0", "CC-BY", "CC-BY-SA", "MIT", "OFL"].some(l => entry.currentLicense.includes(l))) {
+  // Warn about unknown license (accept CC-0 as CC0 variant, Project original as documented)
+  if (entry.currentLicense && !["CC0", "CC-1.0", "CC0-1.0", "CC-BY", "CC-BY-SA", "MIT", "OFL", "Project original"].some(l => entry.currentLicense.includes(l))) {
     if (entry.currentLicense !== "unknown") {
       warnings.push(`Entry ${entry.id}: unknown license type: ${entry.currentLicense}`);
     }
@@ -126,9 +130,11 @@ for (const entry of manifest.entries) {
     vegetation: ["glb"],
     prop: ["glb"],
     vfx: ["json"],
-    interface: ["png", "webp"],
+    interface: ["png", "webp", "json"],
     animation: ["json"],
-    material: ["json"]
+    material: ["json"],
+    effect: ["json"],
+    icon: ["json"]
   };
 
   if (entry.targetFormat && validFormats[entry.category]?.length > 0) {
