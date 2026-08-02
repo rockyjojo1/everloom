@@ -17,6 +17,14 @@ import {
 } from "./characterPresentation";
 import { buildEnvironment, terrainHeight, updateEnvironment } from "./environment";
 import { getEquipmentTransform } from "./equipmentPresentation";
+import {
+  buildMeadowrestHall,
+  buildEntryGate,
+  buildWaystone,
+  buildGroveEntrance,
+  buildWoodpile,
+  createGatherParticles,
+} from "./landmarks";
 
 const zone = CONTENT.zones.meadowrest!;
 // Multiplied against the shared adventurer model's own material colours, so
@@ -159,6 +167,32 @@ export function GameWorld() {
     sun.shadow.camera.bottom = -28;
     const environment = buildEnvironment(zone, useGameStore.getState().save?.settings.quality ?? "standard");
     scene.add(sun, environment.root);
+
+    // Stage B landmarks: Meadowrest Hall, Entry Gate, Waystones, Grove Entrance, Woodpile
+    const hall = buildMeadowrestHall();
+    hall.position.copy(world({ x: 22, z: 19 }));
+    scene.add(hall);
+
+    const entryGate = buildEntryGate();
+    entryGate.position.copy(world({ x: 24, z: 25 }));
+    scene.add(entryGate);
+
+    const waystone1 = buildWaystone();
+    waystone1.position.copy(world({ x: 24, z: 17 }));
+    scene.add(waystone1);
+
+    const groveEntrance = buildGroveEntrance();
+    groveEntrance.position.copy(world({ x: 8, z: 12 }));
+    scene.add(groveEntrance);
+
+    const woodpile = buildWoodpile();
+    woodpile.position.copy(world({ x: 5, z: 8 })).add(new THREE.Vector3(0, 0, 0.4));
+    scene.add(woodpile);
+
+    // Prepare gather particle effect for reuse during gathering actions
+    const gatherParticleTemplate = createGatherParticles();
+    gatherParticleTemplate.visible = false;
+    scene.add(gatherParticleTemplate);
 
     const fireLight = new THREE.PointLight(0xff9a45, 2.2, 8, 2);
     fireLight.position.copy(world({ x: 22, z: 19 })).add(new THREE.Vector3(0, 1.1, 0));
