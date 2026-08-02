@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
   "generatedAt": "2026-08-02T00:00:00Z",
-  "description": "Production contracts for vertical-slice visual assets. Each contract specifies reference sheet linkage, runtime asset ID, format requirements, and acceptance criteria.",
+  "description": "Production contracts for vertical-slice visual assets. 10 mandatory entries with reference sheet linkage, runtime IDs, format requirements, and acceptance criteria.",
   "contracts": [
     {
       "id": "contract-01",
@@ -12,117 +12,18 @@
       "runtimeAssetId": "player.adventurer",
       "format": "glTF 2.0 (GLB with embedded textures)",
       "requirements": {
-        "geometry": {
-          "polycount": { "min": 1000, "max": 50000 },
-          "boundingBox": { "maxDimension": 2.5 },
-          "hasNormals": true,
-          "hasUVs": true
-        },
-        "materials": {
-          "colorSpace": "sRGB",
-          "supportsPBR": true,
-          "baseTextureResolution": 2048
-        },
-        "animations": {
-          "required": ["Idle", "Walk", "Run"],
-          "optional": ["Jump", "Fall", "Land"]
-        },
-        "armature": {
-          "hasSkeleton": true,
-          "rootBone": "Armature",
-          "handSockets": ["handslotr", "handslotml"],
-          "maxBonesPerVertex": 4
-        }
+        "geometry": { "polycount": { "min": 1000, "max": 50000 }, "boundingBox": { "maxDimension": 2.5 }, "hasNormals": true, "hasUVs": true },
+        "materials": { "colorSpace": "sRGB", "supportsPBR": true, "baseTextureResolution": 2048 },
+        "animations": { "required": ["Idle", "Walk", "Run"], "optional": ["Jump", "Fall", "Land"] },
+        "armature": { "hasSkeleton": true, "rootBone": "Armature", "handSockets": ["handslotr", "handslotml"], "maxBonesPerVertex": 4 }
       },
-      "acceptanceCriteria": [
-        "Loads without errors in THREE.js GLTFLoader",
-        "All required animations play smoothly",
-        "Bones import with correct hierarchy",
-        "Meshes render with correct UV mapping",
-        "No texture errors or warnings in console"
-      ],
+      "acceptanceCriteria": ["Loads without errors in THREE.js GLTFLoader", "All required animations play smoothly", "Bones import with correct hierarchy", "Meshes render with correct UV mapping", "No texture errors or warnings in console"],
       "boardSection": "02",
       "contractStatus": "active",
-      "signedBy": "QA",
       "signedDate": "2026-08-02"
     },
     {
       "id": "contract-02",
-      "manifestId": "player.appearance.meadow",
-      "displayName": "Player Appearance: Meadow",
-      "productionPriority": "vertical-slice",
-      "referenceSheets": ["02"],
-      "runtimeAssetId": "player.appearance.meadow",
-      "format": "PNG tint color map + material definitions",
-      "requirements": {
-        "image": {
-          "format": "PNG",
-          "colorSpace": "sRGB",
-          "resolution": { "width": 2048, "height": 2048 }
-        },
-        "colorValues": {
-          "skinTone": { "format": "hex", "example": "#D4A574" },
-          "hairColor": { "format": "hex", "example": "#8B4513" },
-          "eyeColor": { "format": "hex", "example": "#6B8E23" }
-        },
-        "metadata": {
-          "appearance": "meadow",
-          "season": "spring",
-          "mood": "hopeful"
-        }
-      },
-      "acceptanceCriteria": [
-        "PNG loads without errors",
-        "Color values are distinct and recognizable",
-        "Tint applies correctly to base rig",
-        "Matches reference sheet color palette",
-        "No alpha channel issues"
-      ],
-      "boardSection": "02",
-      "contractStatus": "active",
-      "signedBy": "QA",
-      "signedDate": "2026-08-02"
-    },
-    {
-      "id": "contract-03",
-      "manifestId": "equipment.worn-hatchet",
-      "displayName": "Hatchet (Worn)",
-      "productionPriority": "vertical-slice",
-      "referenceSheets": ["05"],
-      "runtimeAssetId": "equipment.worn-hatchet",
-      "format": "glTF 2.0 (GLB)",
-      "requirements": {
-        "geometry": {
-          "polycount": { "min": 100, "max": 5000 },
-          "boundingBox": { "maxDimension": 1.0 },
-          "hasNormals": true,
-          "hasUVs": true
-        },
-        "handSocket": {
-          "attachmentPoint": "handslotr",
-          "position": [0.1, -0.2, 0.05],
-          "rotation": [0, 0, 0.4],
-          "scale": 1.0
-        },
-        "animations": {
-          "required": ["Idle"],
-          "actionClip": "Woodcutting"
-        }
-      },
-      "acceptanceCriteria": [
-        "Attaches correctly to hand socket",
-        "Rotates properly during Woodcutting animation",
-        "No clipping with character body",
-        "Matches reference sheet worn appearance",
-        "Blade is sharp-looking and distinct from handle"
-      ],
-      "boardSection": "05",
-      "contractStatus": "active",
-      "signedBy": "QA",
-      "signedDate": "2026-08-02"
-    },
-    {
-      "id": "contract-04",
       "manifestId": "npc.mara",
       "displayName": "NPC Mara",
       "productionPriority": "vertical-slice",
@@ -130,72 +31,53 @@
       "runtimeAssetId": "npc.mara",
       "format": "glTF 2.0 (GLB)",
       "requirements": {
-        "geometry": {
-          "polycount": { "min": 500, "max": 20000 },
-          "boundingBox": { "maxDimension": 2.5 },
-          "hasNormals": true,
-          "hasUVs": true
-        },
-        "animations": {
-          "required": ["Idle"],
-          "optional": ["Talk", "Gesture"]
-        },
-        "characterTraits": {
-          "role": "NPC Guide",
-          "expressiveness": "friendly",
-          "costume": "worn traveler garb"
-        }
+        "geometry": { "polycount": { "min": 500, "max": 20000 }, "boundingBox": { "maxDimension": 2.5 }, "hasNormals": true, "hasUVs": true },
+        "animations": { "required": ["Idle"], "optional": ["Talk", "Gesture"] },
+        "characterTraits": { "role": "NPC Guide", "expressiveness": "friendly", "costume": "worn traveler garb" }
       },
-      "acceptanceCriteria": [
-        "Idle animation loops smoothly",
-        "Face is expressive and friendly",
-        "Clothing matches worn traveler reference",
-        "Loads correctly in game world",
-        "No missing textures or geometry"
-      ],
+      "acceptanceCriteria": ["Idle animation loops smoothly", "Face is expressive and friendly", "Clothing matches worn traveler reference", "Loads correctly in game world", "No missing textures or geometry"],
       "boardSection": "03",
       "contractStatus": "active",
-      "signedBy": "QA",
+      "signedDate": "2026-08-02"
+    },
+    {
+      "id": "contract-03",
+      "manifestId": "equipment.worn-hatchet",
+      "displayName": "Hatchet (Worn, Handheld)",
+      "productionPriority": "vertical-slice",
+      "referenceSheets": ["05"],
+      "runtimeAssetId": "equipment.worn-hatchet",
+      "format": "glTF 2.0 (GLB)",
+      "requirements": {
+        "geometry": { "polycount": { "min": 100, "max": 5000 }, "boundingBox": { "maxDimension": 1.0 }, "hasNormals": true, "hasUVs": true },
+        "handSocket": { "attachmentPoint": "handslotr", "position": [0.1, -0.2, 0.05], "rotation": [0, 0, 0.4], "scale": 1.0 },
+        "animations": { "required": ["Idle"], "actionClip": "Woodcutting" }
+      },
+      "acceptanceCriteria": ["Attaches correctly to hand socket", "Rotates properly during Woodcutting animation", "No clipping with character body", "Matches reference sheet worn appearance", "Blade is sharp-looking and distinct"],
+      "boardSection": "05",
+      "contractStatus": "active",
+      "signedDate": "2026-08-02"
+    },
+    {
+      "id": "contract-04",
+      "manifestId": "ground-item.worn-hatchet",
+      "displayName": "Hatchet (Worn, Ground Item)",
+      "productionPriority": "vertical-slice",
+      "referenceSheets": ["05"],
+      "runtimeAssetId": "ground-item.worn-hatchet",
+      "format": "glTF 2.0 (GLB)",
+      "requirements": {
+        "geometry": { "polycount": { "min": 100, "max": 5000 }, "boundingBox": { "maxDimension": 1.0 }, "hasNormals": true, "hasUVs": true },
+        "groundPresentation": { "position": [0, 0, 0], "rotation": [0.7, 0, 0.3], "scale": 1.0, "raiseAboveGround": 0.1 },
+        "interactivity": { "pickupable": true, "glintEffect": "gold-shine" }
+      },
+      "acceptanceCriteria": ["Hatchet rests naturally on ground", "Glint effect catches player eye", "Model matches equipped hatchet appearance", "Pickup collision is accurate", "Matches reference sheet tool appearance"],
+      "boardSection": "05",
+      "contractStatus": "active",
       "signedDate": "2026-08-02"
     },
     {
       "id": "contract-05",
-      "manifestId": "vegetation.tree-harvestable",
-      "displayName": "Harvestable Tree",
-      "productionPriority": "vertical-slice",
-      "referenceSheets": ["07"],
-      "runtimeAssetId": "vegetation.tree-harvestable",
-      "format": "glTF 2.0 (GLB)",
-      "requirements": {
-        "geometry": {
-          "polycount": { "min": 200, "max": 10000 },
-          "boundingBox": { "maxDimension": 5.0 },
-          "hasNormals": true,
-          "hasUVs": true
-        },
-        "materialStates": {
-          "healthy": { "foliageDensity": 1.0, "colorBrightness": 1.0 },
-          "depleted": { "foliageDensity": 0.3, "colorBrightness": 0.6 }
-        },
-        "harvestInteraction": {
-          "animationClip": "Woodcutting",
-          "particleEffect": "wood-particles"
-        }
-      },
-      "acceptanceCriteria": [
-        "Tree mesh is recognizable and naturalistic",
-        "States transition smoothly between healthy and depleted",
-        "Harvest animation triggers correctly",
-        "Foliage moves realistically in wind",
-        "Matches reference sheet tree appearance"
-      ],
-      "boardSection": "07",
-      "contractStatus": "active",
-      "signedBy": "QA",
-      "signedDate": "2026-08-02"
-    },
-    {
-      "id": "contract-06",
       "manifestId": "architecture.loom-hall",
       "displayName": "Loom Hall (Main Building)",
       "productionPriority": "vertical-slice",
@@ -203,184 +85,108 @@
       "runtimeAssetId": "architecture.loom-hall",
       "format": "glTF 2.0 (GLB)",
       "requirements": {
-        "geometry": {
-          "polycount": { "min": 2000, "max": 50000 },
-          "boundingBox": { "maxDimension": 15.0 },
-          "hasNormals": true,
-          "hasUVs": true
-        },
-        "interiorAccess": {
-          "doorways": [
-            { "position": [1.5, 0, 5], "facing": "north" }
-          ],
-          "interiorConnector": "loom-hall-interior"
-        },
-        "materials": {
-          "roofingMaterial": "thatch",
-          "wallMaterial": "wattle-and-daub",
-          "windowFrames": "dark-wood"
-        }
+        "geometry": { "polycount": { "min": 2000, "max": 50000 }, "boundingBox": { "maxDimension": 15.0 }, "hasNormals": true, "hasUVs": true },
+        "interiorAccess": { "doorways": [{ "position": [1.5, 0, 5], "facing": "north" }], "interiorConnector": "loom-hall-interior" },
+        "materials": { "roofingMaterial": "thatch", "wallMaterial": "wattle-and-daub", "windowFrames": "dark-wood" }
       },
-      "acceptanceCriteria": [
-        "Building structure is sturdy and detailed",
-        "Doors and windows align to reference",
-        "Interior space is accessible",
-        "Thatch roofing looks weathered and authentic",
-        "Matches reference sheet architectural style"
-      ],
+      "acceptanceCriteria": ["Building structure is sturdy and detailed", "Doors and windows align to reference", "Interior space is accessible", "Thatch roofing looks weathered and authentic", "Matches reference sheet architectural style"],
       "boardSection": "08",
       "contractStatus": "active",
-      "signedBy": "QA",
+      "signedDate": "2026-08-02"
+    },
+    {
+      "id": "contract-06",
+      "manifestId": "vegetation.tree-harvestable",
+      "displayName": "Harvestable Tree",
+      "productionPriority": "vertical-slice",
+      "referenceSheets": ["07"],
+      "runtimeAssetId": "vegetation.tree-harvestable",
+      "format": "glTF 2.0 (GLB)",
+      "requirements": {
+        "geometry": { "polycount": { "min": 200, "max": 10000 }, "boundingBox": { "maxDimension": 5.0 }, "hasNormals": true, "hasUVs": true },
+        "materialStates": { "healthy": { "foliageDensity": 1.0, "colorBrightness": 1.0 }, "depleted": { "foliageDensity": 0.3, "colorBrightness": 0.6 } },
+        "harvestInteraction": { "animationClip": "Woodcutting", "particleEffect": "wood-particles" }
+      },
+      "acceptanceCriteria": ["Tree mesh is recognizable and naturalistic", "States transition smoothly between healthy and depleted", "Harvest animation triggers correctly", "Foliage moves realistically in wind", "Matches reference sheet tree appearance"],
+      "boardSection": "07",
+      "contractStatus": "active",
       "signedDate": "2026-08-02"
     },
     {
       "id": "contract-07",
-      "manifestId": "enemy.skeleton-warrior",
-      "displayName": "Skeleton Warrior (Enemy)",
+      "manifestId": "architecture.village-gate",
+      "displayName": "Village Gate",
       "productionPriority": "vertical-slice",
-      "referenceSheets": ["04"],
-      "runtimeAssetId": "enemy.skeleton-warrior",
+      "referenceSheets": ["08"],
+      "runtimeAssetId": "architecture.village-gate",
       "format": "glTF 2.0 (GLB)",
       "requirements": {
-        "geometry": {
-          "polycount": { "min": 1000, "max": 30000 },
-          "boundingBox": { "maxDimension": 2.5 },
-          "hasNormals": true,
-          "hasUVs": true
-        },
-        "animations": {
-          "required": ["Idle", "Walk", "Attack"],
-          "optional": ["Damaged", "Death"]
-        },
-        "combatTraits": {
-          "weaponType": "sword",
-          "animationSpeed": "fast",
-          "visualThreat": "high"
-        }
+        "geometry": { "polycount": { "min": 500, "max": 10000 }, "boundingBox": { "maxDimension": 8.0 }, "hasNormals": true, "hasUVs": true },
+        "gateFunction": { "openable": true, "animationClip": "gate-open-close", "collisionWhenClosed": true },
+        "materials": { "frameMaterial": "wood", "decorativeMaterial": "forged-metal", "weatherLevel": "weathered" }
       },
-      "acceptanceCriteria": [
-        "Skeleton structure is anatomically menacing",
-        "Attack animation is fast and threatening",
-        "Bones have proper articulation",
-        "Matches reference sheet enemy appearance",
-        "Weapon attaches correctly to skeleton hand"
-      ],
-      "boardSection": "04",
+      "acceptanceCriteria": ["Gate structure is sturdy and functional", "Open/close animation is smooth", "Collision works when closed, passes when open", "Decorative metalwork is visible and detailed", "Matches reference sheet gate design"],
+      "boardSection": "08",
       "contractStatus": "active",
-      "signedBy": "QA",
+      "scaleNote": "World unit scale provisional, see section 17 for relative guidance",
       "signedDate": "2026-08-02"
     },
     {
       "id": "contract-08",
-      "manifestId": "terrain.grass-meadow",
-      "displayName": "Grass Meadow Terrain",
+      "manifestId": "architecture.fence-kit",
+      "displayName": "Fence Kit",
       "productionPriority": "vertical-slice",
-      "referenceSheets": ["10"],
-      "runtimeAssetId": "terrain.grass-meadow",
-      "format": "Heightmap PNG + Material defs",
+      "referenceSheets": ["08"],
+      "runtimeAssetId": "architecture.fence-kit",
+      "format": "glTF 2.0 (GLB)",
       "requirements": {
-        "heightmap": {
-          "format": "PNG",
-          "resolution": { "width": 2048, "height": 2048 },
-          "bitDepth": 8,
-          "scale": 2.0
-        },
-        "material": {
-          "colorMap": "grass-diffuse.png",
-          "normalMap": "grass-normal.png",
-          "roughnessMap": "grass-roughness.png"
-        },
-        "vegetation": {
-          "grassDensity": 0.8,
-          "flowerScatter": 0.1
-        }
+        "geometry": { "polycount": { "min": 100, "max": 2000 }, "boundingBox": { "maxDimension": 3.0 }, "hasNormals": true, "hasUVs": true },
+        "modularity": { "postHeight": 2.5, "railSections": 1.5, "repeatable": true },
+        "materials": { "material": "weathered-wood", "detailLevel": "medium" }
       },
-      "acceptanceCriteria": [
-        "Heightmap generates smooth terrain",
-        "No visible stretching or warping",
-        "Grass material is soft and naturalistic",
-        "Flowers add character without overwhelming",
-        "Matches reference sheet meadow appearance"
-      ],
-      "boardSection": "10",
+      "acceptanceCriteria": ["Posts and rails align properly", "Can be repeated to create long fences", "Weathering looks consistent and aged", "No visual seams when repeated", "Matches reference sheet fence style"],
+      "boardSection": "08",
       "contractStatus": "active",
-      "signedBy": "QA",
+      "scaleNote": "World unit scale provisional, see section 17 for relative guidance",
       "signedDate": "2026-08-02"
     },
     {
       "id": "contract-09",
-      "manifestId": "prop.signpost",
-      "displayName": "Signpost (Landmark)",
+      "manifestId": "terrain.dirt-path",
+      "displayName": "Dirt Path",
       "productionPriority": "vertical-slice",
-      "referenceSheets": ["09"],
-      "runtimeAssetId": "prop.signpost",
-      "format": "glTF 2.0 (GLB)",
+      "referenceSheets": ["10"],
+      "runtimeAssetId": "terrain.dirt-path",
+      "format": "Heightmap PNG + Material defs",
       "requirements": {
-        "geometry": {
-          "polycount": { "min": 50, "max": 2000 },
-          "boundingBox": { "maxDimension": 3.0 },
-          "hasNormals": true,
-          "hasUVs": true
-        },
-        "signageDetail": {
-          "textOnSign": "Meadowrest",
-          "textStyle": "carved",
-          "woodAging": "weathered"
-        },
-        "collisionBounds": {
-          "shape": "capsule",
-          "radius": 0.3,
-          "height": 2.5
-        }
+        "heightmap": { "format": "PNG", "resolution": { "width": 1024, "height": 1024 }, "bitDepth": 8, "scale": 0.5 },
+        "material": { "colorMap": "dirt-diffuse.png", "normalMap": "dirt-normal.png", "roughnessMap": "dirt-roughness.png" },
+        "wear": { "wheelRutDepth": 0.2, "footstepMarks": 0.05 }
       },
-      "acceptanceCriteria": [
-        "Signpost is solid and detailed",
-        "Sign text is readable and carved-looking",
-        "Wood shows realistic weathering",
-        "Collision bounds fit the geometry",
-        "Matches reference sheet landmark style"
-      ],
-      "boardSection": "09",
+      "acceptanceCriteria": ["Heightmap generates smooth terrain without artifacts", "Wear marks show natural foot and cart traffic", "Dirt material is realistic and earthy", "Transitions smoothly to adjacent terrain", "Matches reference sheet path appearance"],
+      "boardSection": "10",
       "contractStatus": "active",
-      "signedBy": "QA",
+      "scaleNote": "World unit scale provisional, see section 17 for relative guidance",
       "signedDate": "2026-08-02"
     },
     {
       "id": "contract-10",
-      "manifestId": "ground-item.worn-hatchet",
-      "displayName": "Hatchet (Ground Item)",
+      "manifestId": "terrain.water-shallow",
+      "displayName": "Shallow Water",
       "productionPriority": "vertical-slice",
-      "referenceSheets": ["05"],
-      "runtimeAssetId": "ground-item.worn-hatchet",
-      "format": "glTF 2.0 (GLB)",
+      "referenceSheets": ["10"],
+      "runtimeAssetId": "terrain.water-shallow",
+      "format": "Shader + Heightmap",
       "requirements": {
-        "geometry": {
-          "polycount": { "min": 100, "max": 5000 },
-          "boundingBox": { "maxDimension": 1.0 },
-          "hasNormals": true,
-          "hasUVs": true
-        },
-        "groundPresentation": {
-          "position": [0, 0, 0],
-          "rotation": [0.7, 0, 0.3],
-          "scale": 1.0,
-          "raiseAboveGround": 0.1
-        },
-        "interactivity": {
-          "pickupable": true,
-          "glintEffect": "gold-shine"
-        }
+        "shader": { "type": "water-surface", "wavesEnabled": true, "transparency": 0.7, "refraction": true },
+        "heightmap": { "waveAmplitude": 0.1, "waveFrequency": 0.5 },
+        "material": { "colorMap": "water-color.png", "normalMap": "water-normal.png" },
+        "interaction": { "swimmable": false, "wading": true, "maxDepth": 1.5 }
       },
-      "acceptanceCriteria": [
-        "Hatchet rests naturally on ground",
-        "Glint effect catches player eye",
-        "Model matches equipped hatchet appearance",
-        "Pickup collision is accurate",
-        "Matches reference sheet tool appearance"
-      ],
-      "boardSection": "05",
+      "acceptanceCriteria": ["Water surface shows realistic wave motion", "Transparency and refraction work correctly", "Color matches reference sheet water", "Shallow areas show ground through water", "Wading animations trigger in shallow areas"],
+      "boardSection": "10",
       "contractStatus": "active",
-      "signedBy": "QA",
+      "scaleNote": "World unit scale provisional, see section 17 for relative guidance",
       "signedDate": "2026-08-02"
     }
   ],
@@ -388,6 +194,9 @@
     "totalContracts": 10,
     "activeContracts": 10,
     "completedContracts": 0,
-    "blockingIssues": 0
+    "blockingIssues": 1
+  },
+  "blockers": {
+    "unresolved-world-unit-scale": "Contracts 7-10 reference section 17 for relative scale guidance. Numeric world-unit reconciliation between section 17 measurements and actual implementation remains unresolved."
   }
 }

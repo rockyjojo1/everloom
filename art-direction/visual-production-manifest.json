@@ -815,7 +815,7 @@
         "packages/content/src/data/zones.json",
         "packages/content/src/index.ts"
       ],
-      "boardSection": null,
+      "boardSection": "04",
       "currentAssetId": "enemy.skeleton-warrior",
       "currentSource": "apps/client3d/dist/models/kaykit-skeletons/Skeleton_Warrior.glb",
       "currentLicense": "CC0-1.0",

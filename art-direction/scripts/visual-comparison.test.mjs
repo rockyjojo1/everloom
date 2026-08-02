@@ -1,105 +1,137 @@
 import { test } from "node:test";
 import { strict as assert } from "node:assert";
-import { writeFileSync, unlinkSync, mkdtempSync } from "node:fs";
-import { resolve } from "node:path";
-import { createHash } from "node:crypto";
+import { writeFileSync, rmSync, mkdtempSync } from "node:fs";
+import { resolve, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import PNG from "pngjs";
+import { spawnSync } from "node:child_process";
 
-// GATE 9 TESTS - Visual comparison tooling
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const toolPath = resolve(__dirname, "visual-comparison.mjs");
 
-function createTestPNG(width, height, colorVariation = 0) {
-  const png = Buffer.alloc(33 + 12 + 12 + (width * height * 4));
-  let offset = 0;
-
-  // PNG signature
-  png.writeUInt8(0x89, offset++);
-  png.write("PNG", offset);
-  offset += 3;
-  png.writeUInt8(0x0d, offset++);
-  png.writeUInt8(0x0a, offset++);
-  png.writeUInt8(0x1a, offset++);
-  png.writeUInt8(0x0a, offset++);
-
-  // IHDR chunk
-  png.writeUInt32BE(13, offset);
-  offset += 4;
-  png.write("IHDR", offset);
-  offset += 4;
-  png.writeUInt32BE(width, offset);
-  offset += 4;
-  png.writeUInt32BE(height, offset);
-  offset += 4;
-  png.writeUInt8(8, offset++);
-  png.writeUInt8(2, offset++);
-  png.writeUInt8(0, offset++);
-  png.writeUInt8(0, offset++);
-  png.writeUInt8(0, offset++);
-  offset += 4; // CRC
-
-  // Pixel data
-  const pixelStart = offset;
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      png.writeUInt8(255 - colorVariation, offset++); // R
-      png.writeUInt8(128 + colorVariation, offset++); // G
-      png.writeUInt8(64 + colorVariation, offset++);  // B
-      png.writeUInt8(255, offset++);                   // A
-    }
+function createPNGBuffer(width, height, channels = { r: 255, g: 128, b: 64, a: 255 }) {
+  const png = new PNG.PNG({ width, height });
+  for (let i = 0; i < png.data.length; i += 4) {
+    png.data[i] = channels.r;
+    png.data[i + 1] = channels.g;
+    png.data[i + 2] = channels.b;
+    png.data[i + 3] = channels.a;
   }
-
-  // IEND chunk
-  png.writeUInt32BE(0, offset);
-  offset += 4;
-  png.write("IEND", offset);
-  offset += 4;
-  offset += 4; // CRC
-
-  return png.slice(0, offset);
+  return png.pack();
 }
 
-test("Visual comparison: identical images match", (t) => {
-  const png1 = createTestPNG(100, 100, 0);
-  const png2 = createTestPNG(100, 100, 0);
+async function bufferFromStream(stream) {
+  const chunks = [];
+  return new Promise((resolve, reject) => {
+    stream.on("data", (chunk) => chunks.push(chunk));
+    stream.on("end", () => resolve(Buffer.concat(chunks)));
+    stream.on("error", reject);
+  });
+}
 
-  // In real scenario, compare pixel data
-  assert.equal(png1.length, png2.length, "PNG files have same size");
+test("Visual comparison: identical PNGs pass", async (t) => {
+  const tmpDir = mkdtempSync("everloom-");
+  const baseline = resolve(tmpDir, "baseline.png");
+  const current = resolve(tmpDir, "current.png");
+
+  const buf = await bufferFromStream(createPNGBuffer(100, 100));
+  writeFileSync(baseline, buf);
+  writeFileSync(current, buf);
+
+  const result = spawnSync("node", [toolPath, "--baseline", baseline, "--current", current], {
+    encoding: "utf8",
+  });
+
+  assert(result.status === 0, "Identical images pass");
+  assert(result.stdout.includes("0.00%"), "0% difference reported");
+  assert(result.stdout.includes("PASSED"), "PASSED status shown");
+
+  rmSync(tmpDir, { recursive: true });
 });
 
-test("Visual comparison: one-pixel change is measured", (t) => {
-  const png1 = createTestPNG(100, 100, 0);
-  const png2 = createTestPNG(100, 100, 5);
+test("Visual comparison: dimension mismatch fails", async (t) => {
+  const tmpDir = mkdtempSync("everloom-");
+  const baseline = resolve(tmpDir, "baseline.png");
+  const current = resolve(tmpDir, "current.png");
 
-  // Data should differ
-  assert.notEqual(png1.equals(png2), true, "Different color variations detected");
+  const buf1 = await bufferFromStream(createPNGBuffer(100, 100));
+  const buf2 = await bufferFromStream(createPNGBuffer(200, 100));
+  writeFileSync(baseline, buf1);
+  writeFileSync(current, buf2);
+
+  const result = spawnSync("node", [toolPath, "--baseline", baseline, "--current", current], {
+    encoding: "utf8",
+  });
+
+  assert(result.status !== 0, "Dimension mismatch fails");
+  assert(
+    result.stderr.includes("Dimension") || result.stdout.includes("Dimension"),
+    "Dimension error message shown"
+  );
+
+  rmSync(tmpDir, { recursive: true });
 });
 
-test("Visual comparison: threshold comparison works", (t) => {
-  // 5% difference
-  const changedPercent = 5.0;
-  const threshold = 5.0;
+test("Visual comparison: threshold enforcement", async (t) => {
+  const tmpDir = mkdtempSync("everloom-");
+  const baseline = resolve(tmpDir, "baseline.png");
+  const current = resolve(tmpDir, "current.png");
 
-  assert.equal(changedPercent <= threshold, true, "5% equals threshold, passes at boundary");
-  assert.equal(changedPercent < threshold, false, "5% not strictly less than 5%");
+  const buf1 = await bufferFromStream(createPNGBuffer(100, 100));
+
+  const png2 = new PNG.PNG({ width: 100, height: 100 });
+  for (let i = 0; i < png2.data.length; i += 4) {
+    if (i < 400) {
+      png2.data[i] = 100;
+      png2.data[i + 1] = 100;
+      png2.data[i + 2] = 100;
+      png2.data[i + 3] = 255;
+    } else {
+      png2.data[i] = 255;
+      png2.data[i + 1] = 128;
+      png2.data[i + 2] = 64;
+      png2.data[i + 3] = 255;
+    }
+  }
+  const buf2 = await bufferFromStream(png2.pack());
+
+  writeFileSync(baseline, buf1);
+  writeFileSync(current, buf2);
+
+  const result = spawnSync("node", [
+    toolPath,
+    "--baseline",
+    baseline,
+    "--current",
+    current,
+    "--threshold",
+    "0.5",
+  ], { encoding: "utf8" });
+
+  assert(result.status !== 0, "Exceeds threshold, fails");
+  assert(result.stdout.includes("FAILED"), "FAILED status shown");
+
+  rmSync(tmpDir, { recursive: true });
 });
 
-test("Visual comparison: above-threshold diff fails", (t) => {
-  const changedPercent = 15.0;
-  const threshold = 5.0;
+test("Visual comparison: missing file error", async (t) => {
+  const result = spawnSync("node", [
+    toolPath,
+    "--baseline",
+    "/nonexistent/baseline.png",
+    "--current",
+    "/nonexistent/current.png",
+  ], { encoding: "utf8" });
 
-  assert.ok(changedPercent > threshold, "15% exceeds 5% threshold");
+  assert(result.status !== 0, "Missing file fails");
+  assert(result.stderr.includes("Error") || result.stdout.includes("Error"), "Error message shown");
 });
 
-test("Visual comparison: within-threshold diff passes", (t) => {
-  const changedPercent = 2.5;
-  const threshold = 5.0;
+test("Visual comparison: missing arguments error", async (t) => {
+  const result = spawnSync("node", [toolPath], { encoding: "utf8" });
 
-  assert.ok(changedPercent <= threshold, "2.5% within 5% threshold");
-});
-
-test("Visual comparison: update flag requires success", (t) => {
-  const updateWithoutCheck = false;
-
-  // Update should only happen if comparison passes
-  assert.equal(updateWithoutCheck, false, "Update must not bypass comparison check");
+  assert(result.status !== 0, "Missing args fails");
+  assert(result.stderr.includes("Usage") || result.stdout.includes("Usage"), "Usage message shown");
 });
 
 console.log("\n✅ All visual comparison tests passed!");

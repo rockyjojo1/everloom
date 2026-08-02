@@ -1,285 +1,237 @@
 {
   "version": "1.0.0",
   "generatedAt": "2026-08-02T00:00:00Z",
-  "description": "Incoming reference sheet queue for sections 11-20. Tracks submissions, review status, and blockers for future production phases.",
+  "description": "Incoming reference sheet queue for sections 11-20. All sheets submitted and under review.",
   "processingRules": {
     "submissionDeadline": "2026-12-31",
-    "reviewCycle": "bi-weekly",
-    "maxSectionBatch": 3,
-    "blockingStatusReasons": ["incomplete-reference", "conflicting-style", "scale-mismatch"]
+    "reviewCycle": "as-needed",
+    "blockingStatusReasons": [
+      "incomplete-reference",
+      "conflicting-style",
+      "scale-mismatch",
+      "revision-required"
+    ]
   },
   "queue": [
     {
       "section": "11",
-      "name": "Potions and consumables",
-      "priority": "phase-two",
-      "submissionStatus": "awaiting-submission",
-      "received": false,
-      "receivedDate": null,
-      "estimatedArrival": "2026-09-15",
-      "assignedTo": "artist-team",
-      "requirements": {
-        "assetCount": { "min": 15, "max": 30 },
-        "categories": ["healing-potions", "buff-potions", "ingredient-plants"],
-        "referenceStyle": "consistent-with-sections-01-10",
-        "resolutions": ["512x512", "1024x1024"]
+      "displayName": "Environmental Props",
+      "file": "art-direction/reference-sheets/everloom-11-props.png",
+      "received": true,
+      "receivedDate": "2026-08-02",
+      "checksum": "C996CDA8B5E7F68B988267A1EFC4E881DAA529E07636B1631DE17ED84FB9F757",
+      "dimensions": {
+        "width": 1672,
+        "height": 941
       },
-      "reviewNotes": [],
-      "blockers": [],
-      "expectedEntries": [
-        "item.potion-health-minor",
-        "item.potion-health-major",
-        "item.potion-mana-minor",
-        "item.potion-mana-major",
-        "item.potion-stamina-minor",
-        "item.potion-stamina-major",
-        "ingredient.mandrake-root",
-        "ingredient.moonflower-petals",
-        "ingredient.thread-wisps"
-      ]
+      "reviewStatus": "approved",
+      "approvalDate": "2026-08-02",
+      "priority": "phase-two",
+      "manifestCoverage": [
+        "prop.signpost",
+        "prop.barrel",
+        "prop.crate",
+        "prop.woodpile",
+        "prop.banner-cloth"
+      ],
+      "limitations": "Covers secondary props only; primary Meadowrest props in sections 01-10",
+      "blockers": []
     },
     {
       "section": "12",
-      "name": "Secondary locations and dungeons",
-      "priority": "phase-two",
-      "submissionStatus": "awaiting-submission",
-      "received": false,
-      "receivedDate": null,
-      "estimatedArrival": "2026-10-01",
-      "assignedTo": "environment-team",
-      "requirements": {
-        "assetCount": { "min": 20, "max": 50 },
-        "categories": ["dungeon-architecture", "underground-terrain", "settlement-variations"],
-        "referenceStyle": "consistent-with-sections-01-10",
-        "resolutions": ["2048x1024"]
+      "displayName": "Vegetation",
+      "file": "art-direction/reference-sheets/everloom-12-vegetation.png",
+      "received": true,
+      "receivedDate": "2026-08-02",
+      "checksum": "5AA557D3BD51D104FB4A707C18C7FF10C119CD4307930348F9FEBEED6BD18DBB",
+      "dimensions": {
+        "width": 1491,
+        "height": 1055
       },
-      "reviewNotes": [],
-      "blockers": [],
-      "expectedEntries": [
-        "architecture.dungeon-entrance",
-        "architecture.deep-cavern",
-        "architecture.abandoned-temple",
-        "terrain.stone-cavern",
-        "terrain.underground-water",
-        "settlement.trading-post"
-      ]
+      "reviewStatus": "approved",
+      "approvalDate": "2026-08-02",
+      "priority": "phase-two",
+      "manifestCoverage": [
+        "vegetation.grass-tuft"
+      ],
+      "limitations": "Expansions of core vegetation from sections 01-10",
+      "blockers": []
     },
     {
       "section": "13",
-      "name": "Seasonal variations and weather",
-      "priority": "phase-two",
-      "submissionStatus": "awaiting-submission",
-      "received": false,
-      "receivedDate": null,
-      "estimatedArrival": "2026-10-15",
-      "assignedTo": "environment-team",
-      "requirements": {
-        "assetCount": { "min": 12, "max": 24 },
-        "categories": ["seasonal-foliage", "weather-effects", "lighting-variations"],
-        "referenceStyle": "consistent-with-sections-01-10",
-        "resolutions": ["2048x2048"]
+      "displayName": "Animation Contact Sheet",
+      "file": "art-direction/reference-sheets/everloom-13-animation-contact-sheet.png",
+      "received": true,
+      "receivedDate": "2026-08-02",
+      "checksum": "B45D06D3EF1DF85D3AE552ACA3AABDC062813A0304D84B3F661A15184CA8375B",
+      "dimensions": {
+        "width": 1491,
+        "height": 1055
       },
-      "reviewNotes": [],
-      "blockers": [],
-      "expectedEntries": [
-        "terrain.grass-autumn",
-        "terrain.grass-winter",
-        "weather.rain-effect",
-        "weather.snow-effect",
-        "lighting.twilight-environment",
-        "lighting.night-environment"
-      ]
+      "reviewStatus": "approved",
+      "approvalDate": "2026-08-02",
+      "priority": "phase-two",
+      "note": "animation-direction",
+      "manifestCoverage": [
+        "animation.npc-mara-idle",
+        "animation.player-idle",
+        "animation.player-walk",
+        "animation.woodcutting"
+      ],
+      "limitations": "Direction reference only, not final animation data; models reference this for pose guidance",
+      "blockers": []
     },
     {
       "section": "14",
-      "name": "Magic and spell effects",
-      "priority": "phase-two",
-      "submissionStatus": "awaiting-submission",
-      "received": false,
-      "receivedDate": null,
-      "estimatedArrival": "2026-11-01",
-      "assignedTo": "vfx-team",
-      "requirements": {
-        "assetCount": { "min": 20, "max": 40 },
-        "categories": ["spell-projectiles", "impact-effects", "aura-effects"],
-        "referenceStyle": "bright-energetic-clean-lines",
-        "resolutions": ["1024x1024"]
+      "displayName": "VFX",
+      "file": "art-direction/reference-sheets/everloom-14-vfx.png",
+      "received": true,
+      "receivedDate": "2026-08-02",
+      "checksum": "6AA27338A08371E12025719C8226DC0097C760CDC64586C56F25982A4D7427B9",
+      "dimensions": {
+        "width": 1672,
+        "height": 941
       },
-      "reviewNotes": [],
-      "blockers": [],
-      "expectedEntries": [
-        "effect.fireball-projectile",
-        "effect.frost-projectile",
-        "effect.impact-fire",
-        "effect.impact-frost",
-        "effect.healing-aura",
-        "effect.mana-shield"
-      ]
+      "reviewStatus": "approved",
+      "approvalDate": "2026-08-02",
+      "priority": "phase-two",
+      "manifestCoverage": [
+        "vfx.item-pickup-feedback",
+        "vfx.tree-impact"
+      ],
+      "limitations": "Concept reference; final VFX implementation uses procedural systems",
+      "blockers": []
     },
     {
       "section": "15",
-      "name": "Boss enemies and variants",
-      "priority": "phase-two",
-      "submissionStatus": "awaiting-submission",
-      "received": false,
-      "receivedDate": null,
-      "estimatedArrival": "2026-11-15",
-      "assignedTo": "character-team",
-      "requirements": {
-        "assetCount": { "min": 8, "max": 15 },
-        "categories": ["boss-enemies", "phase-variants", "defeated-states"],
-        "referenceStyle": "intimidating-dynamic-poses",
-        "resolutions": ["2048x2048"]
+      "displayName": "Interface",
+      "file": "art-direction/reference-sheets/everloom-15-interface.png",
+      "received": true,
+      "receivedDate": "2026-08-02",
+      "checksum": "09A231B92E22888378DF240F58CD510525AC4B8F22CDB29CCEADC10A7D17B30C",
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
       },
-      "reviewNotes": [],
-      "blockers": [],
-      "expectedEntries": [
-        "enemy.shadowlord-phase1",
-        "enemy.shadowlord-phase2",
-        "enemy.corrupted-guardian",
-        "enemy.fallen-knight"
+      "reviewStatus": "needs-revision",
+      "approvalDate": null,
+      "priority": "phase-two",
+      "manifestCoverage": [],
+      "limitations": "Design too similar to RuneScape UI; requires differentiation before production",
+      "blockers": [
+        "interface-design-conflict",
+        "requires-visual-differentiation"
       ]
     },
     {
       "section": "16",
-      "name": "Interactive objects and furniture",
-      "priority": "phase-two",
-      "submissionStatus": "awaiting-submission",
-      "received": false,
-      "receivedDate": null,
-      "estimatedArrival": "2026-12-01",
-      "assignedTo": "environment-team",
-      "requirements": {
-        "assetCount": { "min": 25, "max": 50 },
-        "categories": ["doors-and-gates", "crafting-stations", "storage-containers", "decorative-furniture"],
-        "referenceStyle": "detailed-functional-design",
-        "resolutions": ["1024x1024"]
+      "displayName": "Inventory Icons",
+      "file": "art-direction/reference-sheets/everloom-16-inventory-icons.png",
+      "received": true,
+      "receivedDate": "2026-08-02",
+      "checksum": "57F3111927C3F40BE9245820DCC6B55ED634AD469ED0445A74A994615337B30D",
+      "dimensions": {
+        "width": 1448,
+        "height": 1086
       },
-      "reviewNotes": [],
-      "blockers": [],
-      "expectedEntries": [
-        "interaction.door-wooden",
-        "interaction.chest-ornate",
-        "interaction.loom-workstation",
-        "interaction.forge-anvil",
-        "prop.barrel",
-        "prop.bookshelf"
-      ]
+      "reviewStatus": "approved",
+      "approvalDate": "2026-08-02",
+      "priority": "phase-two",
+      "manifestCoverage": [],
+      "limitations": "Reference only; icon implementation is procedural via UI framework",
+      "blockers": []
     },
     {
       "section": "17",
-      "name": "Character customization and cosmetics",
-      "priority": "phase-three",
-      "submissionStatus": "awaiting-submission",
-      "received": false,
-      "receivedDate": null,
-      "estimatedArrival": "2027-01-15",
-      "assignedTo": "character-team",
-      "requirements": {
-        "assetCount": { "min": 30, "max": 60 },
-        "categories": ["alternative-appearances", "cosmetic-armor", "haircuts", "special-effects"],
-        "referenceStyle": "consistent-with-sections-01-10",
-        "resolutions": ["2048x2048"]
+      "displayName": "Scale Chart",
+      "file": "art-direction/reference-sheets/everloom-17-scale-chart.png",
+      "received": true,
+      "receivedDate": "2026-08-02",
+      "checksum": "07F6347E24B21549965B75112FEB0778A218394499C64BB4FE1A33352590EF91",
+      "dimensions": {
+        "width": 1672,
+        "height": 941
       },
-      "reviewNotes": [],
-      "blockers": [],
-      "expectedEntries": [
-        "player.appearance.ember-variant2",
-        "player.appearance.tide-variant2",
-        "cosmetic.regal-crown",
-        "cosmetic.scholar-robes"
+      "reviewStatus": "approved",
+      "approvalDate": "2026-08-02",
+      "priority": "phase-two",
+      "note": "relative-scale-direction",
+      "manifestCoverage": [
+        "player.base-body",
+        "enemy.skeleton-warrior",
+        "vegetation.tree-harvestable"
+      ],
+      "limitations": "Relative scale guidance only; numeric measurements provisional and require world-unit reconciliation",
+      "blockers": [
+        "world-unit-scale-unresolved"
       ]
     },
     {
       "section": "18",
-      "name": "Ambient creatures and wildlife",
-      "priority": "phase-three",
-      "submissionStatus": "awaiting-submission",
-      "received": false,
-      "receivedDate": null,
-      "estimatedArrival": "2027-02-01",
-      "assignedTo": "character-team",
-      "requirements": {
-        "assetCount": { "min": 15, "max": 30 },
-        "categories": ["passive-animals", "flocking-birds", "ambient-insects"],
-        "referenceStyle": "naturalistic-varied-sizes",
-        "resolutions": ["1024x1024"]
+      "displayName": "Do-and-Do-Not Comparison",
+      "file": "art-direction/reference-sheets/everloom-18-do-dont-comparison.png",
+      "received": true,
+      "receivedDate": "2026-08-02",
+      "checksum": "46A4A4259D54F42E25079ADA5518100574A1FF3FF1CDA3966A3E2D4564952234",
+      "dimensions": {
+        "width": 1672,
+        "height": 941
       },
-      "reviewNotes": [],
-      "blockers": [],
-      "expectedEntries": [
-        "ambient.butterfly-red",
-        "ambient.butterfly-blue",
-        "ambient.bird-finch",
-        "ambient.bird-thrush",
-        "ambient.rabbit"
-      ]
+      "reviewStatus": "approved",
+      "approvalDate": "2026-08-02",
+      "priority": "phase-two",
+      "note": "internal-visual-guardrail",
+      "manifestCoverage": [],
+      "limitations": "Internal production guide only, not a production asset; shows style violations",
+      "blockers": []
     },
     {
       "section": "19",
-      "name": "RESERVED - Future expansion",
-      "priority": "future",
-      "submissionStatus": "awaiting-definition",
-      "received": false,
-      "receivedDate": null,
-      "estimatedArrival": null,
-      "assignedTo": null,
-      "requirements": {
-        "assetCount": { "min": 0, "max": 0 },
-        "categories": [],
-        "referenceStyle": "TBD",
-        "resolutions": []
+      "displayName": "Character Modularity and Secondary NPCs",
+      "file": "art-direction/reference-sheets/everloom-19-character-modularity-secondary-npcs.png",
+      "received": true,
+      "receivedDate": "2026-08-02",
+      "checksum": "24A26B76AF953BE04256C86F673F74D95934C129DC6B2EA70F1D8FE04DB8DBC4",
+      "dimensions": {
+        "width": 1672,
+        "height": 941
       },
-      "reviewNotes": ["Reserved for future production phases beyond phase-three"],
-      "blockers": ["not-yet-defined"],
-      "expectedEntries": []
+      "reviewStatus": "approved",
+      "approvalDate": "2026-08-02",
+      "priority": "phase-three",
+      "note": "supplementary-direction",
+      "manifestCoverage": [
+        "character.secondary-npc-concepts"
+      ],
+      "limitations": "Supplementary direction for phase-three character expansion; not yet integrated into production pipeline",
+      "blockers": []
     },
     {
       "section": "20",
-      "name": "RESERVED - Future expansion",
-      "priority": "future",
-      "submissionStatus": "awaiting-definition",
-      "received": false,
-      "receivedDate": null,
-      "estimatedArrival": null,
-      "assignedTo": null,
-      "requirements": {
-        "assetCount": { "min": 0, "max": 0 },
-        "categories": [],
-        "referenceStyle": "TBD",
-        "resolutions": []
+      "displayName": "Technical Equipment Production",
+      "file": "art-direction/reference-sheets/everloom-20-technical-equipment-production.png",
+      "received": true,
+      "receivedDate": "2026-08-02",
+      "checksum": "819CBBB49C69BC82FBC1BCA95FAD3949AF8B9F44168657063765411D6267D750",
+      "dimensions": {
+        "width": 1535,
+        "height": 1024
       },
-      "reviewNotes": ["Reserved for future production phases beyond phase-three"],
-      "blockers": ["not-yet-defined"],
-      "expectedEntries": []
+      "reviewStatus": "approved",
+      "approvalDate": "2026-08-02",
+      "priority": "phase-three",
+      "note": "supplementary-technical-direction",
+      "manifestCoverage": [],
+      "limitations": "Technical reference for equipment rigging; not a design specification",
+      "blockers": []
     }
   ],
   "summary": {
     "totalSections": 10,
-    "definedSections": 8,
-    "reservedSections": 2,
-    "submittedSections": 0,
-    "inReviewSections": 0,
-    "approvedSections": 0,
-    "blockedSections": 0,
-    "expectedTotalAssets": 165,
-    "processingDeadline": "2026-12-31"
-  },
-  "timeline": {
-    "phase-two": {
-      "sections": ["11", "12", "13", "14", "15", "16"],
-      "deadline": "2026-12-31",
-      "estimatedAssets": 120
-    },
-    "phase-three": {
-      "sections": ["17", "18"],
-      "deadline": "2027-02-28",
-      "estimatedAssets": 45
-    },
-    "future": {
-      "sections": ["19", "20"],
-      "deadline": null,
-      "estimatedAssets": 0
-    }
+    "receivedSections": 10,
+    "approvedSections": 8,
+    "needsRevisionSections": 1,
+    "reservedSections": 0,
+    "blockingIssues": 2
   }
 }
