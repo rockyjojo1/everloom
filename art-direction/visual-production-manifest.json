@@ -739,7 +739,7 @@
       "currentAssetId": "dungeon.barrel",
       "currentSource": "packages/assets/src/kaykit-dungeon/barrel_large.gltf.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -777,7 +777,7 @@
       "currentAssetId": "dungeon.crates",
       "currentSource": "packages/assets/src/kaykit-dungeon/crates_stacked.gltf.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -816,7 +816,7 @@
       "currentAssetId": "enemy.skeleton-warrior",
       "currentSource": "packages/assets/src/kaykit-skeletons/Skeleton_Warrior.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "vertical-slice",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -1668,7 +1668,7 @@
       "currentAssetId": "landmark.verdant-loomstone",
       "currentSource": "packages/assets/src/kenney-nature/stone_tallA.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "vertical-slice",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -1711,7 +1711,7 @@
       "currentAssetId": "nature.bridge",
       "currentSource": "packages/assets/src/kenney-nature/bridge_wood.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -1749,7 +1749,7 @@
       "currentAssetId": "nature.bush",
       "currentSource": "packages/assets/src/kenney-nature/plant_bush.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -1787,7 +1787,7 @@
       "currentAssetId": "nature.bush-detailed",
       "currentSource": "packages/assets/src/kenney-nature/plant_bushDetailed.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -1826,7 +1826,7 @@
       "currentAssetId": "nature.campfire",
       "currentSource": "packages/assets/src/kenney-nature/campfire_stones.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "vertical-slice",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -1869,7 +1869,7 @@
       "currentAssetId": "nature.cliff-block",
       "currentSource": "packages/assets/src/kenney-nature/cliff_block_rock.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -1907,7 +1907,7 @@
       "currentAssetId": "nature.cliff-large",
       "currentSource": "packages/assets/src/kenney-nature/cliff_large_rock.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -1945,7 +1945,7 @@
       "currentAssetId": "nature.cliff-rock",
       "currentSource": "packages/assets/src/kenney-nature/cliff_rock.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -1983,7 +1983,7 @@
       "currentAssetId": "nature.flower-purple",
       "currentSource": "packages/assets/src/kenney-nature/flower_purpleB.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2021,7 +2021,7 @@
       "currentAssetId": "nature.flower-yellow",
       "currentSource": "packages/assets/src/kenney-nature/flower_yellowB.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2059,7 +2059,7 @@
       "currentAssetId": "nature.hanging-moss",
       "currentSource": "packages/assets/src/kenney-nature/hanging_moss.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2097,7 +2097,7 @@
       "currentAssetId": "nature.lily-pad",
       "currentSource": "packages/assets/src/kenney-nature/lily_large.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2135,7 +2135,7 @@
       "currentAssetId": "nature.log",
       "currentSource": "packages/assets/src/kenney-nature/log.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2173,7 +2173,7 @@
       "currentAssetId": "nature.mushroom-red",
       "currentSource": "packages/assets/src/kenney-nature/mushroom_redGroup.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2211,7 +2211,7 @@
       "currentAssetId": "nature.mushroom-tan",
       "currentSource": "packages/assets/src/kenney-nature/mushroom_tanGroup.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2250,7 +2250,7 @@
       "currentAssetId": "nature.oak",
       "currentSource": "packages/assets/src/kenney-nature/tree_oak.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "vertical-slice",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2294,7 +2294,7 @@
       "currentAssetId": "nature.oak-fall",
       "currentSource": "packages/assets/src/kenney-nature/tree_oak_fall.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "vertical-slice",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2337,7 +2337,7 @@
       "currentAssetId": "nature.path-rocks",
       "currentSource": "packages/assets/src/kenney-nature/ground_pathRocks.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2375,7 +2375,7 @@
       "currentAssetId": "nature.pine",
       "currentSource": "packages/assets/src/kenney-nature/tree_pineDefaultA.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2413,7 +2413,7 @@
       "currentAssetId": "nature.rock-flat",
       "currentSource": "packages/assets/src/kenney-nature/rock_smallFlatA.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2452,7 +2452,7 @@
       "currentAssetId": "nature.rock-large",
       "currentSource": "packages/assets/src/kenney-nature/rock_largeC.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "vertical-slice",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2495,7 +2495,7 @@
       "currentAssetId": "nature.rock-small",
       "currentSource": "packages/assets/src/kenney-nature/rock_smallB.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2533,7 +2533,7 @@
       "currentAssetId": "nature.rock-tall",
       "currentSource": "packages/assets/src/kenney-nature/rock_tallC.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2571,7 +2571,7 @@
       "currentAssetId": "nature.rock-tall-b",
       "currentSource": "packages/assets/src/kenney-nature/rock_tallF.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2609,7 +2609,7 @@
       "currentAssetId": "nature.stone-ring",
       "currentSource": "packages/assets/src/kenney-nature/statue_ring.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2648,7 +2648,7 @@
       "currentAssetId": "nature.stone-tall",
       "currentSource": "packages/assets/src/kenney-nature/stone_tallA.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "vertical-slice",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2691,7 +2691,7 @@
       "currentAssetId": "nature.stump-old",
       "currentSource": "packages/assets/src/kenney-nature/stump_old.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2729,7 +2729,7 @@
       "currentAssetId": "nature.stump-round",
       "currentSource": "packages/assets/src/kenney-nature/stump_round.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2767,7 +2767,7 @@
       "currentAssetId": "nature.tree-detailed",
       "currentSource": "packages/assets/src/kenney-nature/tree_detailed.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2805,7 +2805,7 @@
       "currentAssetId": "nature.tree-round",
       "currentSource": "packages/assets/src/kenney-nature/tree_pineRoundC.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2844,7 +2844,7 @@
       "currentAssetId": "player.adventurer",
       "currentSource": "packages/assets/src/kaykit-adventurers/Character.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "vertical-slice",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -2893,7 +2893,7 @@
       "currentAssetId": "player.adventurer",
       "currentSource": "packages/assets/src/kaykit-adventurers/Character.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "vertical-slice",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -3103,7 +3103,7 @@
       "currentAssetId": "player.adventurer",
       "currentSource": "packages/assets/src/kaykit-adventurers/Character.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "vertical-slice",
       "requiredViews": [
         "gameplay-three-quarter",
@@ -3580,7 +3580,7 @@
       "currentAssetId": "town.banner",
       "currentSource": "packages/assets/src/kenney-fantasy/banner-green.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -3618,7 +3618,7 @@
       "currentAssetId": "town.cart",
       "currentSource": "packages/assets/src/kenney-fantasy/cart.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -3656,7 +3656,7 @@
       "currentAssetId": "town.chimney",
       "currentSource": "packages/assets/src/kenney-fantasy/chimney.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -3737,7 +3737,7 @@
       "currentAssetId": "town.fence",
       "currentSource": "packages/assets/src/kenney-fantasy/fence.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -3775,7 +3775,7 @@
       "currentAssetId": "town.hedge",
       "currentSource": "packages/assets/src/kenney-fantasy/hedge.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -3813,7 +3813,7 @@
       "currentAssetId": "town.lantern",
       "currentSource": "packages/assets/src/kenney-fantasy/lantern.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -3851,7 +3851,7 @@
       "currentAssetId": "town.roof",
       "currentSource": "packages/assets/src/kenney-fantasy/roof-gable.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -3889,7 +3889,7 @@
       "currentAssetId": "town.roof-end",
       "currentSource": "packages/assets/src/kenney-fantasy/roof-gable-end.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -3927,7 +3927,7 @@
       "currentAssetId": "town.stall",
       "currentSource": "packages/assets/src/kenney-fantasy/stall-green.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -3965,7 +3965,7 @@
       "currentAssetId": "town.wall",
       "currentSource": "packages/assets/src/kenney-fantasy/wall.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -4008,7 +4008,7 @@
       "currentAssetId": "town.wall-door",
       "currentSource": "packages/assets/src/kenney-fantasy/wall-door.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -4046,7 +4046,7 @@
       "currentAssetId": "town.wall-window",
       "currentSource": "packages/assets/src/kenney-fantasy/wall-window-shutters.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
@@ -4084,7 +4084,7 @@
       "currentAssetId": "town.watermill",
       "currentSource": "packages/assets/src/kenney-fantasy/watermill.glb",
       "currentLicense": "CC0-1.0",
-      "currentStatus": "approved-existing",
+      "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
         "gameplay-three-quarter"
