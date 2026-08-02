@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import type { PlayerAppearanceId } from "@everloom/core";
+import { CharacterCreatorPreview } from "./components/CharacterCreatorPreview";
 import { DebugPanel } from "./components/DebugPanel";
 import { EscapeIntro } from "./components/EscapeIntro";
 import { Hud } from "./components/Hud";
@@ -24,6 +25,11 @@ const AssetBrowser = lazy(async () => {
 const CloudAccount = lazy(async () => {
   const module = await import("./components/CloudAccount");
   return { default: module.CloudAccount };
+});
+
+const VisualQAGallery = lazy(async () => {
+  const module = await import("./components/VisualQAGallery");
+  return { default: module.VisualQAGallery };
 });
 
 export default function App() {
@@ -53,6 +59,9 @@ export default function App() {
   }, []);
 
   if (new URLSearchParams(location.search).has("asset-browser")) return <Suspense fallback={<main className="loading"><div className="loom-mark" /><span>Opening the asset archive…</span></main>}><AssetBrowser /></Suspense>;
+  if (new URLSearchParams(location.search).has("qa") && new URLSearchParams(location.search).get("qa") === "gallery") {
+    return <Suspense fallback={<main className="loading"><div className="loom-mark" /><span>Opening the QA gallery…</span></main>}><VisualQAGallery /></Suspense>;
+  }
   if (status === "error") return <main className="fatal"><h1>The thread snagged.</h1><p>{error}</p><button onClick={() => location.reload()}>Try again</button></main>;
   if (status !== "ready" || !save) return <main className="loading"><div className="loom-mark" /><span>Weaving Meadowrest…</span></main>;
 
@@ -81,6 +90,7 @@ export default function App() {
             <i><b /></i><span>{id}</span>
           </button>)}
       </fieldset>
+      <CharacterCreatorPreview appearanceId={appearanceId} />
       <details className="cloud-details">
         <summary>Online account and cross-device saving</summary>
         <Suspense fallback={<small>Opening account options…</small>}><CloudAccount /></Suspense>

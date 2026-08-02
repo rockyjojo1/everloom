@@ -813,3 +813,72 @@
 .high-contrast .empty {
   color: #d8dfd8;
 }
+
+/* Rotating character-creator preview (CharacterCreatorPreview.tsx). Sits
+   above the flat appearance swatches so the swatches remain the compact
+   selection control while this canvas is the real visual proof of the
+   chosen look. Sized to stay well inside the existing 620px-wide creator
+   card on both desktop and landscape-mobile heights. */
+.creator-preview {
+  width: 100%;
+  height: clamp(120px, 26vh, 220px);
+  margin: 0 auto 10px;
+  border-radius: 12px;
+  background: radial-gradient(circle at 50% 30%, #23352c, #101a16 78%);
+  border: 1px solid #ffffff14;
+  touch-action: none;
+  cursor: grab;
+}
+.creator-preview:active { cursor: grabbing; }
+
+@media (max-height: 520px) {
+  .creator-preview { height: clamp(90px, 22vh, 150px); margin-bottom: 6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* CharacterCreatorPreview reads this same media query itself to stop the
+     idle auto-rotation; this rule additionally removes any CSS-level motion
+     so a reduced-motion user never sees the canvas itself animate in from a
+     transition even before the component mounts. */
+  .creator-preview { animation: none !important; transition: none !important; }
+}
+
+/* Dev-only equipment visual QA gallery (VisualQAGallery.tsx), mounted behind
+   the ?qa=gallery URL flag in App.tsx. Not part of the normal player flow. */
+.qa-gallery {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  background: #15221e;
+  z-index: 50;
+}
+.qa-gallery-canvas { width: 100%; height: 100%; touch-action: none; }
+.qa-gallery-controls {
+  display: grid;
+  gap: 8px;
+  padding: 10px 14px max(10px, env(safe-area-inset-bottom));
+  background: #0d1713e6;
+  border-top: 1px solid #ffffff14;
+}
+.qa-gallery-items,
+.qa-gallery-appearance { display: flex; gap: 6px; flex-wrap: wrap; }
+.qa-gallery-items button,
+.qa-gallery-appearance button,
+.qa-gallery-pose {
+  border: 1px solid #ffffff1c;
+  background: #365247;
+  color: #f7f1e2;
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 11px;
+}
+.qa-gallery-items button.selected,
+.qa-gallery-appearance button.selected { background: #d6a94e; color: #241d0f; font-weight: 700; }
+
+@media (max-width: 700px) and (orientation: landscape) {
+  .qa-gallery-controls { padding: 6px 10px max(6px, env(safe-area-inset-bottom)); gap: 5px; }
+  .qa-gallery-items button,
+  .qa-gallery-appearance button,
+  .qa-gallery-pose { padding: 5px 8px; font-size: 10px; }
+}

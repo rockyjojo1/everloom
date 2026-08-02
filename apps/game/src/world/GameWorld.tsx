@@ -10,7 +10,13 @@ import {
 import { blockedSet, findPath, pathToTarget } from "../game/pathfinding";
 import { useGameStore } from "../game/store";
 import { addInteractionHitbox, instantiateAsset } from "./assets";
+import {
+  APPEARANCE_ACCESSORY_BONES,
+  buildAppearanceDecorations,
+  type AccessorySlot,
+} from "./characterPresentation";
 import { buildEnvironment, terrainHeight, updateEnvironment } from "./environment";
+import { getEquipmentTransform } from "./equipmentPresentation";
 
 const zone = CONTENT.zones.meadowrest!;
 // Multiplied against the shared adventurer model's own material colours, so
@@ -375,6 +381,14 @@ export function GameWorld() {
         object.userData.animations = animations;
         playerRoot.userData.animations = animations;
         playerRoot.add(object);
+        // Apply appearance decorations (belt, gloves, scarf, etc.) to the character rig.
+        const decorations = buildAppearanceDecorations(appearanceId);
+        for (const [slot, bones] of Object.entries(APPEARANCE_ACCESSORY_BONES) as [AccessorySlot, readonly string[]][]) {
+          const group = decorations[slot];
+          if (!group) continue;
+          const bone = bones.map((n) => object.getObjectByName(n)).find(Boolean);
+          bone?.add(group);
+        }
         if (animations.length) {
           playerMixer = new THREE.AnimationMixer(object);
           (playerMixer as THREE.AnimationMixer & { _root?: THREE.Object3D })._root = playerRoot;
@@ -395,9 +409,10 @@ export function GameWorld() {
       if (!assetId) return;
       void instantiateAsset(assetId).then(({ object }) => {
         if (disposed || sequence !== equipmentLoadSequence || !handSlot) return;
-        object.position.set(0, -0.56, 0);
-        object.rotation.set(0, 0, Math.PI);
-        object.scale.multiplyScalar(0.62);
+        const calibrated = getEquipmentTransform(itemId);
+        object.position.set(...(calibrated?.position ?? [0, -0.56, 0]));
+        object.rotation.set(...(calibrated?.rotation ?? [0, 0, Math.PI]));
+        object.scale.multiplyScalar(calibrated?.scale ?? 0.62);
         object.traverse((child) => {
           child.userData.playerEquipment = itemId;
           if (child instanceof THREE.Mesh) child.castShadow = true;
