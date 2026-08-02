@@ -98,41 +98,43 @@
                            {
                                "sectionNumber":  "06",
                                "filename":  "everloom-06-equipment-clothing.png",
-                               "received":  false,
-                               "checksum":  null,
-                               "dimensions":  null,
-                               "reviewStatus":  "awaiting-submission",
-                               "approvedDate":  null,
+                               "received":  true,
+                               "checksum":  "221D8D4FB85F8ADE5AE71BBD15B42A5AC5AB132680DAD56173B7C8D4FDC46BE9",
+                               "dimensions":  "1672x941",
+                               "reviewStatus":  "approved",
+                               "approvedDate":  "2026-08-02",
                                "rejectionReasons":  [
 
                                                     ],
                                "manifestIDs":  [
 
-                                               ]
+                                               ],
+                               "reviewNotes":  "Approved equipment and clothing reference. Binding for outfit silhouettes, modular garment families, palette progression and Loom motifs."
                            },
                            {
                                "sectionNumber":  "07",
                                "filename":  "everloom-07-resource-nodes.png",
-                               "received":  false,
-                               "checksum":  null,
-                               "dimensions":  null,
-                               "reviewStatus":  "awaiting-submission",
-                               "approvedDate":  null,
+                               "received":  true,
+                               "checksum":  "EAA7396FF0838D45B65DD15BFEFF9F26B2CBD33318CB4614B4A4E910F4C08521",
+                               "dimensions":  "1672x941",
+                               "reviewStatus":  "approved",
+                               "approvedDate":  "2026-08-02",
                                "rejectionReasons":  [
 
                                                     ],
                                "manifestIDs":  [
                                                    "vegetation.tree-harvestable"
-                                               ]
+                                               ],
+                               "reviewNotes":  "Approved resource-node reference. Binding for available, depleted and transformed state readability."
                            },
                            {
                                "sectionNumber":  "08",
                                "filename":  "everloom-08-architecture.png",
-                               "received":  false,
-                               "checksum":  null,
-                               "dimensions":  null,
-                               "reviewStatus":  "awaiting-submission",
-                               "approvedDate":  null,
+                               "received":  true,
+                               "checksum":  "8A9E2919CC2937285B5001F2DC5E42382D559B49CA78073DD7A368027F7EB40E",
+                               "dimensions":  "1672x941",
+                               "reviewStatus":  "approved",
+                               "approvedDate":  "2026-08-02",
                                "rejectionReasons":  [
 
                                                     ],
@@ -140,32 +142,34 @@
                                                    "architecture.loom-hall",
                                                    "architecture.cottage",
                                                    "architecture.fence"
-                                               ]
+                                               ],
+                               "reviewNotes":  "Approved Meadowrest architecture reference. Binding for Loom Hall, cottages, work shelters, market, dock, gate, bridge and modular construction language."
                            },
                            {
                                "sectionNumber":  "09",
                                "filename":  "everloom-09-landmarks.png",
-                               "received":  false,
-                               "checksum":  null,
-                               "dimensions":  null,
-                               "reviewStatus":  "awaiting-submission",
-                               "approvedDate":  null,
+                               "received":  true,
+                               "checksum":  "64DF019E7ED0E69689EE783C56CB9D9B132BCE319B44517F341573A20923CCEC",
+                               "dimensions":  "1672x941",
+                               "reviewStatus":  "approved",
+                               "approvedDate":  "2026-08-02",
                                "rejectionReasons":  [
 
                                                     ],
                                "manifestIDs":  [
                                                    "prop.signpost",
                                                    "landmark.loom-motif"
-                                               ]
+                                               ],
+                               "reviewNotes":  "Approved landmark reference. Binding for Loom Hall landmark treatment, loomstones, grove entrance, quarry forge, bridge, ancient tree and shrine silhouettes."
                            },
                            {
                                "sectionNumber":  "10",
                                "filename":  "everloom-10-terrain-materials.png",
-                               "received":  false,
-                               "checksum":  null,
-                               "dimensions":  null,
-                               "reviewStatus":  "awaiting-submission",
-                               "approvedDate":  null,
+                               "received":  true,
+                               "checksum":  "75CA4C1DC6545D1A32E24719410C413C2220351D9F28F61D8503BE88A5543963",
+                               "dimensions":  "1672x941",
+                               "reviewStatus":  "approved",
+                               "approvedDate":  "2026-08-02",
                                "rejectionReasons":  [
 
                                                     ],
@@ -175,136 +179,129 @@
                                                    "terrain.stone-rocky",
                                                    "terrain.water-shallow",
                                                    "terrain.river-deep"
-                                               ]
+                                               ],
+                               "reviewNotes":  "Approved terrain and material reference. Binding for low-poly surface language, transitions, shallow and deep water, paths, stone, timber, plaster, roofing, iron and copper."
                            },
                            {
                                "sectionNumber":  "11",
                                "filename":  "everloom-11-props.png",
-                               "received":  false,
-                               "checksum":  null,
-                               "dimensions":  null,
-                               "reviewStatus":  "awaiting-submission",
-                               "approvedDate":  null,
-                               "rejectionReasons":  [
-
-                                                    ],
+                               "received":  true,
+                               "checksum":  "C996CDA8B5E7F68B988267A1EFC4E881DAA529E07636B1631DE17ED84FB9F757",
+                               "dimensions":  "1672x941",
+                               "reviewStatus":  "approved",
+                               "approvedDate":  "2026-08-02",
+                               "rejectionReasons":  null,
                                "manifestIDs":  [
                                                    "prop.woodpile",
                                                    "prop.barrel",
                                                    "prop.crate",
                                                    "prop.banner-cloth"
-                                               ]
+                                               ],
+                               "reviewNotes":  "Approved environmental-props direction. Binding for compact low-poly village props and crafting furniture."
                            },
                            {
                                "sectionNumber":  "12",
                                "filename":  "everloom-12-vegetation.png",
-                               "received":  false,
-                               "checksum":  null,
-                               "dimensions":  null,
-                               "reviewStatus":  "awaiting-submission",
-                               "approvedDate":  null,
-                               "rejectionReasons":  [
-
-                                                    ],
+                               "received":  true,
+                               "checksum":  "5AA557D3BD51D104FB4A707C18C7FF10C119CD4307930348F9FEBEED6BD18DBB",
+                               "dimensions":  "1491x1055",
+                               "reviewStatus":  "approved",
+                               "approvedDate":  "2026-08-02",
+                               "rejectionReasons":  null,
                                "manifestIDs":  [
                                                    "vegetation.grass-tuft"
-                                               ]
+                                               ],
+                               "reviewNotes":  "Approved vegetation direction. Resource and corruption states must remain shape-readable at gameplay distance."
                            },
                            {
                                "sectionNumber":  "13",
                                "filename":  "everloom-13-animation-contact-sheet.png",
-                               "received":  false,
-                               "checksum":  null,
-                               "dimensions":  null,
-                               "reviewStatus":  "awaiting-submission",
-                               "approvedDate":  null,
-                               "rejectionReasons":  [
-
-                                                    ],
+                               "received":  true,
+                               "checksum":  "B45D06D3EF1DF85D3AE552ACA3AABDC062813A0304D84B3F661A15184CA8375B",
+                               "dimensions":  "1491x1055",
+                               "reviewStatus":  "approved",
+                               "approvedDate":  "2026-08-02",
+                               "rejectionReasons":  null,
                                "manifestIDs":  [
                                                    "animation.woodcutting",
                                                    "animation.player-idle",
                                                    "animation.player-walk",
                                                    "animation.npc-mara-idle"
-                                               ]
+                                               ],
+                               "reviewNotes":  "Approved animation direction and contact-pose language. Not authoritative animation data; rigging, timing, grips and continuity require technical validation."
                            },
                            {
                                "sectionNumber":  "14",
                                "filename":  "everloom-14-vfx.png",
-                               "received":  false,
-                               "checksum":  null,
-                               "dimensions":  null,
-                               "reviewStatus":  "awaiting-submission",
-                               "approvedDate":  null,
-                               "rejectionReasons":  [
-
-                                                    ],
+                               "received":  true,
+                               "checksum":  "6AA27338A08371E12025719C8226DC0097C760CDC64586C56F25982A4D7427B9",
+                               "dimensions":  "1672x941",
+                               "reviewStatus":  "approved",
+                               "approvedDate":  "2026-08-02",
+                               "rejectionReasons":  null,
                                "manifestIDs":  [
                                                    "vfx.item-pickup-feedback",
                                                    "vfx.tree-impact",
                                                    "vfx.fishing-ripples"
-                                               ]
+                                               ],
+                               "reviewNotes":  "Approved VFX direction. Binding for restrained readable four-stage effects; runtime particle budgets remain to be specified."
                            },
                            {
                                "sectionNumber":  "15",
                                "filename":  "everloom-15-interface.png",
-                               "received":  false,
-                               "checksum":  null,
-                               "dimensions":  null,
-                               "reviewStatus":  "awaiting-submission",
+                               "received":  true,
+                               "checksum":  "09A231B92E22888378DF240F58CD510525AC4B8F22CDB29CCEADC10A7D17B30C",
+                               "dimensions":  "1536x1024",
+                               "reviewStatus":  "needs-revision",
                                "approvedDate":  null,
-                               "rejectionReasons":  [
-
-                                                    ],
+                               "rejectionReasons":  "Too close to RuneScape interface composition and contains RuneScape-specific presentation elements.",
                                "manifestIDs":  [
                                                    "interface.objective-marker",
                                                    "interface.item-tooltip"
-                                               ]
+                                               ],
+                               "reviewNotes":  "Preserved as interface inspiration only. Not approved for direct production because layout and elements are too close to RuneScape, including a Wiki button. Must be redesigned into an original Everloom interface while retaining compact information density."
                            },
                            {
                                "sectionNumber":  "16",
                                "filename":  "everloom-16-inventory-icons.png",
-                               "received":  false,
-                               "checksum":  null,
-                               "dimensions":  null,
-                               "reviewStatus":  "awaiting-submission",
-                               "approvedDate":  null,
-                               "rejectionReasons":  [
-
-                                                    ],
+                               "received":  true,
+                               "checksum":  "57F3111927C3F40BE9245820DCC6B55ED634AD469ED0445A74A994615337B30D",
+                               "dimensions":  "1448x1086",
+                               "reviewStatus":  "approved",
+                               "approvedDate":  "2026-08-02",
+                               "rejectionReasons":  null,
                                "manifestIDs":  [
                                                    "interface.inventory-icon-worn-hatchet"
-                                               ]
+                                               ],
+                               "reviewNotes":  "Approved inventory-icon shape and material direction. Final icons must be exported individually and tested at actual game sizes."
                            },
                            {
                                "sectionNumber":  "17",
                                "filename":  "everloom-17-scale-chart.png",
-                               "received":  false,
-                               "checksum":  null,
-                               "dimensions":  null,
-                               "reviewStatus":  "awaiting-submission",
-                               "approvedDate":  null,
-                               "rejectionReasons":  [
-
-                                                    ],
+                               "received":  true,
+                               "checksum":  "07F6347E24B21549965B75112FEB0778A218394499C64BB4FE1A33352590EF91",
+                               "dimensions":  "1672x941",
+                               "reviewStatus":  "approved",
+                               "approvedDate":  "2026-08-02",
+                               "rejectionReasons":  null,
                                "manifestIDs":  [
 
-                                               ]
+                                               ],
+                               "reviewNotes":  "Approved relative-scale direction. Printed numeric measurements are provisional until reconciled with existing world units and collision systems."
                            },
                            {
                                "sectionNumber":  "18",
                                "filename":  "everloom-18-do-dont-comparison.png",
-                               "received":  false,
-                               "checksum":  null,
-                               "dimensions":  null,
-                               "reviewStatus":  "awaiting-submission",
-                               "approvedDate":  null,
-                               "rejectionReasons":  [
-
-                                                    ],
+                               "received":  true,
+                               "checksum":  "46A4A4259D54F42E25079ADA5518100574A1FF3FF1CDA3966A3E2D4564952234",
+                               "dimensions":  "1672x941",
+                               "reviewStatus":  "approved",
+                               "approvedDate":  "2026-08-02",
+                               "rejectionReasons":  null,
                                "manifestIDs":  [
 
-                                               ]
+                                               ],
+                               "reviewNotes":  "Approved internal do-and-do-not guardrail. Rejected examples are prohibition references and are not production assets."
                            }
                        ],
     "masterBoard":  {
