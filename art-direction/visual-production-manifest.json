@@ -41,7 +41,8 @@
         "Appropriate for NPC interaction context",
         "Loops naturally"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     },
     {
       "id": "animation.player-idle",
@@ -81,7 +82,8 @@
         "Subtle movement (slight breathing, weight shift)",
         "Loops seamlessly"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     },
     {
       "id": "animation.player-walk",
@@ -121,7 +123,8 @@
         "Foot placement convincing",
         "Loops smoothly"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     },
     {
       "id": "animation.woodcutting",
@@ -166,7 +169,8 @@
         "Loopable or single-frame",
         "Timing appropriate for hatchet speed"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     },
     {
       "id": "architecture.cottage",
@@ -208,7 +212,8 @@
         "Consistent with Loom Hall",
         "Pitched roof + chimney readable"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "composite"
     },
     {
       "id": "architecture.fence",
@@ -249,7 +254,8 @@
         "Works in repeating patterns",
         "Consistent with architecture"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "runtime-asset"
     },
     {
       "id": "architecture.loom-hall",
@@ -296,7 +302,8 @@
         "Interior layout supports NPC placement",
         "Matches village architecture style"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     },
     {
       "id": "custom.armor-boneguard-vest",
@@ -333,7 +340,8 @@
         "Pack: everloom-original"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "custom.facility-anvil",
@@ -376,7 +384,8 @@
         "Visible and readable",
         "Matches reference sheet or placeholder specification"
       ],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "custom.facility-smelter",
@@ -419,7 +428,8 @@
         "Visible and readable",
         "Matches reference sheet or placeholder specification"
       ],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "custom.fishing-ripples",
@@ -462,7 +472,8 @@
         "Visible and readable",
         "Matches reference sheet or placeholder specification"
       ],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "custom.npc-mara-shawl",
@@ -499,7 +510,8 @@
         "Pack: everloom-original"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "custom.tool-hatchet",
@@ -542,7 +554,8 @@
         "Visible and readable",
         "Matches reference sheet or placeholder specification"
       ],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "procedural-system"
     },
     {
       "id": "custom.tool-pickaxe",
@@ -585,7 +598,8 @@
         "Visible and readable",
         "Matches reference sheet or placeholder specification"
       ],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "custom.tool-rod",
@@ -628,7 +642,8 @@
         "Visible and readable",
         "Matches reference sheet or placeholder specification"
       ],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "custom.weapon-battleaxe",
@@ -665,7 +680,8 @@
         "Pack: everloom-original"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "custom.weapon-sword",
@@ -708,7 +724,8 @@
         "Visible and readable",
         "Matches reference sheet or placeholder specification"
       ],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "dungeon.barrel",
@@ -745,7 +762,8 @@
         "Pack: kaykit-dungeon"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "dungeon.crates",
@@ -782,7 +800,8 @@
         "Pack: kaykit-dungeon"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "enemy.skeleton-warrior",
@@ -825,7 +844,8 @@
         "Visible and readable",
         "Matches reference sheet or placeholder specification"
       ],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "equipment.worn-hatchet",
@@ -876,7 +896,13 @@
         "Aligns with hand position without clipping",
         "Works in both gathering and combat poses"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "runtime-asset",
+      "canonicalMapping": {
+        "runtimeAssetId": "custom.tool-hatchet",
+        "canonicalEntryId": "custom.tool-hatchet",
+        "reason": "shared asset - secondary reference"
+      }
     },
     {
       "id": "ground-item.worn-hatchet",
@@ -921,7 +947,8 @@
         "Clickable in gameplay",
         "Distinguishable from other ground items"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     },
     {
       "id": "icon.amber",
@@ -958,7 +985,8 @@
         "Pack: everloom-original"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "icon.battleaxe",
@@ -995,7 +1023,8 @@
         "Pack: everloom-original"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "icon.bone",
@@ -1032,7 +1061,8 @@
         "Pack: everloom-original"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "icon.fish",
@@ -1069,7 +1099,8 @@
         "Pack: everloom-original"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "icon.fishing-rod",
@@ -1106,7 +1137,8 @@
         "Pack: everloom-original"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "icon.food",
@@ -1143,7 +1175,8 @@
         "Pack: everloom-original"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "icon.hatchet",
@@ -1180,7 +1213,8 @@
         "Pack: everloom-original"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "icon.heartwood",
@@ -1217,7 +1251,8 @@
         "Pack: everloom-original"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "icon.ingot",
@@ -1254,7 +1289,8 @@
         "Pack: everloom-original"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "icon.log",
@@ -1291,7 +1327,8 @@
         "Pack: everloom-original"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "icon.ore",
@@ -1328,7 +1365,8 @@
         "Pack: everloom-original"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "icon.pickaxe",
@@ -1365,7 +1403,8 @@
         "Pack: everloom-original"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "icon.sword",
@@ -1402,7 +1441,8 @@
         "Pack: everloom-original"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "icon.tonic",
@@ -1439,7 +1479,8 @@
         "Pack: everloom-original"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "interface.inventory-icon-worn-hatchet",
@@ -1480,7 +1521,8 @@
         "Instantly identifies hatchet",
         "Consistent with other item icons"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     },
     {
       "id": "interface.item-tooltip",
@@ -1522,7 +1564,8 @@
         "Positioned clearly",
         "Doesn't obstruct gameplay"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     },
     {
       "id": "interface.objective-marker",
@@ -1564,7 +1607,8 @@
         "Doesn't clutter screen",
         "Consistent with UI theme"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     },
     {
       "id": "landmark.loom-motif",
@@ -1608,7 +1652,8 @@
         "Readable at small scales",
         "Consistent across world and UI"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     },
     {
       "id": "landmark.verdant-loomstone",
@@ -1651,7 +1696,8 @@
         "Visible and readable",
         "Matches reference sheet or placeholder specification"
       ],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.bridge",
@@ -1688,7 +1734,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.bush",
@@ -1725,7 +1772,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.bush-detailed",
@@ -1762,7 +1810,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.campfire",
@@ -1805,7 +1854,8 @@
         "Visible and readable",
         "Matches reference sheet or placeholder specification"
       ],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.cliff-block",
@@ -1842,7 +1892,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.cliff-large",
@@ -1879,7 +1930,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.cliff-rock",
@@ -1916,7 +1968,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.flower-purple",
@@ -1953,7 +2006,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.flower-yellow",
@@ -1990,7 +2044,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.hanging-moss",
@@ -2027,7 +2082,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.lily-pad",
@@ -2064,7 +2120,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.log",
@@ -2101,7 +2158,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.mushroom-red",
@@ -2138,7 +2196,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.mushroom-tan",
@@ -2175,7 +2234,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.oak",
@@ -2218,7 +2278,8 @@
         "Visible and readable",
         "Matches reference sheet or placeholder specification"
       ],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.oak-fall",
@@ -2261,7 +2322,8 @@
         "Visible and readable",
         "Matches reference sheet or placeholder specification"
       ],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.path-rocks",
@@ -2298,7 +2360,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.pine",
@@ -2335,7 +2398,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.rock-flat",
@@ -2372,7 +2436,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.rock-large",
@@ -2415,7 +2480,8 @@
         "Visible and readable",
         "Matches reference sheet or placeholder specification"
       ],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.rock-small",
@@ -2452,7 +2518,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.rock-tall",
@@ -2489,7 +2556,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.rock-tall-b",
@@ -2526,7 +2594,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.stone-ring",
@@ -2563,7 +2632,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.stone-tall",
@@ -2606,7 +2676,8 @@
         "Visible and readable",
         "Matches reference sheet or placeholder specification"
       ],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.stump-old",
@@ -2643,7 +2714,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.stump-round",
@@ -2680,7 +2752,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.tree-detailed",
@@ -2717,7 +2790,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "nature.tree-round",
@@ -2754,7 +2828,8 @@
         "Pack: kenney-nature"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "npc.mara",
@@ -2802,7 +2877,8 @@
         "Fits Loom Hall interior",
         "Readable in dialogue scenes"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "runtime-asset"
     },
     {
       "id": "player.adventurer",
@@ -2845,7 +2921,13 @@
         "Visible and readable",
         "Matches reference sheet or placeholder specification"
       ],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset",
+      "canonicalMapping": {
+        "runtimeAssetId": "player.adventurer",
+        "canonicalEntryId": "npc.mara",
+        "reason": "shared asset - secondary reference"
+      }
     },
     {
       "id": "player.appearance.dusk",
@@ -2884,7 +2966,8 @@
         "Distinct dark tone",
         "Plausible as evening/rest appearance"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "procedural-system"
     },
     {
       "id": "player.appearance.ember",
@@ -2923,7 +3006,8 @@
         "Distinct warm tone",
         "Plausible as combat/smithing appearance"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "procedural-system"
     },
     {
       "id": "player.appearance.meadow",
@@ -2964,7 +3048,8 @@
         "Color reads clearly in Meadowrest",
         "Overlays don't obscure hand/head attachment points"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "procedural-system"
     },
     {
       "id": "player.appearance.tide",
@@ -3003,7 +3088,8 @@
         "Distinct cool tone",
         "Plausible as fishing/exploration appearance"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "procedural-system"
     },
     {
       "id": "player.base-body",
@@ -3059,7 +3145,13 @@
         "Animations smooth (walk/idle/gather)",
         "Attachment points work for tools and accessories"
       ],
-      "status": "integrated"
+      "status": "integrated",
+      "role": "runtime-asset",
+      "canonicalMapping": {
+        "runtimeAssetId": "player.adventurer",
+        "canonicalEntryId": "npc.mara",
+        "reason": "shared asset - secondary reference"
+      }
     },
     {
       "id": "prop.banner-cloth",
@@ -3099,7 +3191,8 @@
         "Can display Loom motif or Meadowrest colors",
         "Visible from gameplay distance"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     },
     {
       "id": "prop.barrel",
@@ -3138,7 +3231,8 @@
         "Sturdy appearance",
         "Works in groups"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     },
     {
       "id": "prop.crate",
@@ -3177,7 +3271,8 @@
         "Suggests contents",
         "Stackable appearance"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     },
     {
       "id": "prop.signpost",
@@ -3218,7 +3313,8 @@
         "Not too large (doesn't dominate scene)",
         "Matches village style"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     },
     {
       "id": "prop.woodpile",
@@ -3258,7 +3354,8 @@
         "Matches village architecture",
         "Solid obstacle"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     },
     {
       "id": "terrain.dirt-path",
@@ -3299,7 +3396,8 @@
         "Worn appearance",
         "Readable paths"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     },
     {
       "id": "terrain.grass-meadow",
@@ -3341,7 +3439,8 @@
         "No tiling artifacts",
         "LOD performance acceptable"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "procedural-system"
     },
     {
       "id": "terrain.river-deep",
@@ -3382,7 +3481,8 @@
         "Impassable boundary readable",
         "Animation consistent"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     },
     {
       "id": "terrain.stone-rocky",
@@ -3423,7 +3523,8 @@
         "Bumpy enough to suggest mining area",
         "Performance acceptable"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     },
     {
       "id": "terrain.water-shallow",
@@ -3464,7 +3565,8 @@
         "Color transition readable",
         "Performance acceptable"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     },
     {
       "id": "town.banner",
@@ -3501,7 +3603,8 @@
         "Pack: kenney-fantasy"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "town.cart",
@@ -3538,7 +3641,8 @@
         "Pack: kenney-fantasy"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "town.chimney",
@@ -3575,7 +3679,8 @@
         "Pack: kenney-fantasy"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "town.cottage",
@@ -3612,7 +3717,13 @@
         "Pack: everloom-composite"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset",
+      "canonicalMapping": {
+        "runtimeAssetId": "town.cottage",
+        "canonicalEntryId": "architecture.cottage",
+        "reason": "shared asset - secondary reference"
+      }
     },
     {
       "id": "town.fence",
@@ -3649,7 +3760,8 @@
         "Pack: kenney-fantasy"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "town.hedge",
@@ -3686,7 +3798,8 @@
         "Pack: kenney-fantasy"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "town.lantern",
@@ -3723,7 +3836,8 @@
         "Pack: kenney-fantasy"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "town.roof",
@@ -3760,7 +3874,8 @@
         "Pack: kenney-fantasy"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "town.roof-end",
@@ -3797,7 +3912,8 @@
         "Pack: kenney-fantasy"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "town.stall",
@@ -3834,7 +3950,8 @@
         "Pack: kenney-fantasy"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "town.wall",
@@ -3871,7 +3988,13 @@
         "Pack: kenney-fantasy"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset",
+      "canonicalMapping": {
+        "runtimeAssetId": "town.wall",
+        "canonicalEntryId": "architecture.fence",
+        "reason": "shared asset - secondary reference"
+      }
     },
     {
       "id": "town.wall-door",
@@ -3908,7 +4031,8 @@
         "Pack: kenney-fantasy"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "town.wall-window",
@@ -3945,7 +4069,8 @@
         "Pack: kenney-fantasy"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "town.watermill",
@@ -3982,7 +4107,8 @@
         "Pack: kenney-fantasy"
       ],
       "acceptanceCriteria": [],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "runtime-asset"
     },
     {
       "id": "vegetation.grass-tuft",
@@ -4023,7 +4149,8 @@
         "No obvious grid pattern",
         "Doesn't occlude gameplay elements"
       ],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "procedural-system"
     },
     {
       "id": "vegetation.tree-harvestable",
@@ -4068,7 +4195,8 @@
         "State changes visible (depleted/recovering)",
         "Color matches Meadowrest palette"
       ],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "procedural-system"
     },
     {
       "id": "vfx.fishing-ripples",
@@ -4109,7 +4237,8 @@
         "Circular ripple pattern",
         "Fades naturally"
       ],
-      "status": "awaiting-reference"
+      "status": "awaiting-reference",
+      "role": "procedural-system"
     },
     {
       "id": "vfx.item-pickup-feedback",
@@ -4150,7 +4279,8 @@
         "Doesn't distract from gameplay",
         "Consistent with art direction"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     },
     {
       "id": "vfx.tree-impact",
@@ -4191,7 +4321,8 @@
         "Reads quickly",
         "Doesn't obstruct tree"
       ],
-      "status": "reference-approved"
+      "status": "reference-approved",
+      "role": "production-concept"
     }
   ]
 }
