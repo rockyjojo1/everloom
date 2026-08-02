@@ -282,6 +282,11 @@ export async function instantiateAsset(assetId: string, tint?: string | null): P
 
 export function addInteractionHitbox(object: THREE.Object3D, kind: string): void {
   if (kind === "ground_item") {
+    // Check if hitbox already exists (idempotence)
+    if (object.children.some((child) => child.userData.interactionHitArea === true)) {
+      return;
+    }
+
     const hitArea = new THREE.Mesh(
       new THREE.SphereGeometry(0.5, 16, 16),
       new THREE.MeshBasicMaterial({

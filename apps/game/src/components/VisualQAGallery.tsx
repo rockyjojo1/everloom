@@ -24,7 +24,7 @@ export function VisualQAGallery() {
   const [appearanceId, setAppearanceId] = useState<PlayerAppearanceId>("meadow");
   const itemIndexRef = useRef(itemIndex);
   const posedRef = useRef(posed);
-  const callbacksRef = useRef<{ refreshEquipped?: () => void; replayAnimation?: () => void }>({});
+  const callbacksRef = useRef<{ refreshEquipped?: (() => void) | undefined; replayAnimation?: (() => void) | undefined }>({});
   itemIndexRef.current = itemIndex;
   posedRef.current = posed;
 

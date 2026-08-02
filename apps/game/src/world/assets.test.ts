@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import * as THREE from "three";
 import { addInteractionHitbox } from "./assets";
 
@@ -7,7 +7,7 @@ describe("addInteractionHitbox", () => {
     const object = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
     const initialChildCount = object.children.length;
 
-    addInteractionHitbox(object);
+    addInteractionHitbox(object, "ground_item");
 
     expect(object.children.length).toBe(initialChildCount + 1);
     const hitbox = object.children[object.children.length - 1];
@@ -16,7 +16,7 @@ describe("addInteractionHitbox", () => {
 
   it("creates sphere geometry with appropriate radius", () => {
     const object = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
-    addInteractionHitbox(object);
+    addInteractionHitbox(object, "ground_item");
 
     const hitbox = object.children[object.children.length - 1] as THREE.Mesh;
     expect(hitbox.geometry).toBeInstanceOf(THREE.SphereGeometry);
@@ -24,19 +24,19 @@ describe("addInteractionHitbox", () => {
 
   it("marks hitbox with object interaction property", () => {
     const object = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
-    addInteractionHitbox(object);
+    addInteractionHitbox(object, "ground_item");
 
-    const hitbox = object.children[object.children.length - 1] as THREE.Mesh & { isInteractionHitbox?: boolean };
-    expect(hitbox.isInteractionHitbox).toBe(true);
+    const hitbox = object.children[object.children.length - 1] as THREE.Mesh;
+    expect(hitbox.userData.interactionHitArea).toBe(true);
   });
 
   it("does not call addInteractionHitbox twice on same object", () => {
     const object = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
 
-    addInteractionHitbox(object);
+    addInteractionHitbox(object, "ground_item");
     const childCountAfterFirst = object.children.length;
 
-    addInteractionHitbox(object);
+    addInteractionHitbox(object, "ground_item");
     const childCountAfterSecond = object.children.length;
 
     // Should not add another hitbox if already present.
@@ -45,7 +45,7 @@ describe("addInteractionHitbox", () => {
 
   it("hitbox material is invisible (transparent with 0 opacity)", () => {
     const object = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
-    addInteractionHitbox(object);
+    addInteractionHitbox(object, "ground_item");
 
     const hitbox = object.children[object.children.length - 1] as THREE.Mesh;
     const material = hitbox.material as THREE.Material & { transparent?: boolean; opacity?: number };
@@ -56,7 +56,7 @@ describe("addInteractionHitbox", () => {
 
   it("hitbox is not visible in scene", () => {
     const object = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
-    addInteractionHitbox(object);
+    addInteractionHitbox(object, "ground_item");
 
     const hitbox = object.children[object.children.length - 1] as THREE.Mesh;
     expect(hitbox.visible).toBe(true); // Hidden via material transparency, not visibility flag.
@@ -67,7 +67,7 @@ describe("addInteractionHitbox", () => {
     const child = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5));
     parent.add(child);
 
-    addInteractionHitbox(parent);
+    addInteractionHitbox(parent, "ground_item");
 
     // Hitbox should not interfere with raycast of child.
     const raycaster = new THREE.Raycaster();
@@ -81,7 +81,7 @@ describe("addInteractionHitbox", () => {
     const parent = new THREE.Group();
     const object = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
     parent.add(object);
-    addInteractionHitbox(object);
+    addInteractionHitbox(object, "ground_item");
 
     const hitbox = object.children[object.children.length - 1] as THREE.Mesh;
     const geometry = hitbox.geometry;
@@ -97,8 +97,8 @@ describe("addInteractionHitbox", () => {
     const smallBox = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 0.2));
     const largeBox = new THREE.Mesh(new THREE.BoxGeometry(5, 5, 5));
 
-    addInteractionHitbox(smallBox);
-    addInteractionHitbox(largeBox);
+    addInteractionHitbox(smallBox, "ground_item");
+    addInteractionHitbox(largeBox, "ground_item");
 
     const smallHitbox = smallBox.children[smallBox.children.length - 1] as THREE.Mesh;
     const largeHitbox = largeBox.children[largeBox.children.length - 1] as THREE.Mesh;

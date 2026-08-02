@@ -79,8 +79,6 @@ export function disposeObject(object: THREE.Object3D): void {
 export function disposeAnimationMixer(mixer: THREE.AnimationMixer | null | undefined): void {
   if (!mixer) return;
   mixer.stopAllAction();
-  mixer.uncacheRoot(mixer._root as THREE.Object3D);
-  mixer.uncacheClip(undefined as any);
 }
 
 /**

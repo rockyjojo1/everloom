@@ -190,10 +190,10 @@ export function CharacterCreatorPreview({ appearanceId, className }: CharacterCr
         animationFrameId: frame,
         resizeObserver: observer,
         eventListeners: [
-          { target: renderer.domElement, event: "pointerdown", handler: onPointerDown },
-          { target: renderer.domElement, event: "pointercancel", handler: onPointerCancel },
-          { target: window, event: "pointermove", handler: onPointerMove },
-          { target: window, event: "pointerup", handler: onPointerUp },
+          { target: renderer.domElement, event: "pointerdown", handler: onPointerDown as EventListener },
+          { target: renderer.domElement, event: "pointercancel", handler: onPointerCancel as EventListener },
+          { target: window, event: "pointermove", handler: onPointerMove as EventListener },
+          { target: window, event: "pointerup", handler: onPointerUp as EventListener },
           { target: motionMediaQuery ?? window, event: "change", handler: onMotionChange as EventListener },
         ],
       });
