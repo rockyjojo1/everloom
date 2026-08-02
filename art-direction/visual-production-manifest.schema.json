@@ -1,0 +1,174 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Everloom Visual Production Manifest",
+  "description": "Authoritative inventory of all game visual assets and their production status",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "displayName",
+          "category",
+          "gameReferences",
+          "currentStatus",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9_.-]+$",
+            "description": "Stable semantic ID for this asset"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "Human-readable name"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "character",
+              "equipment",
+              "creature",
+              "architecture",
+              "landmark",
+              "resource",
+              "terrain",
+              "vegetation",
+              "prop",
+              "vfx",
+              "interface",
+              "animation",
+              "material"
+            ]
+          },
+          "gameReferences": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Exact source file paths or content IDs where this asset is referenced"
+          },
+          "boardSection": {
+            "type": ["string", "null"],
+            "pattern": "^(01|02|03|04|05|06|07|08|09|10|11|12|13|14|15|16|17|18)$|^null$"
+          },
+          "currentAssetId": {
+            "type": ["string", "null"],
+            "description": "Existing semantic asset ID from the catalog"
+          },
+          "currentSource": {
+            "type": ["string", "null"],
+            "description": "Exact current source path (file, URL, or asset ID)"
+          },
+          "currentLicense": {
+            "type": ["string", "null"],
+            "description": "SPDX license identifier or license string"
+          },
+          "currentStatus": {
+            "type": "string",
+            "enum": [
+              "approved-existing",
+              "licensed-placeholder",
+              "procedural-placeholder",
+              "missing",
+              "needs-audit"
+            ]
+          },
+          "productionPriority": {
+            "type": "string",
+            "enum": [
+              "vertical-slice",
+              "phase-two",
+              "later"
+            ]
+          },
+          "requiredViews": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "examples": ["gameplay-three-quarter", "inventory", "character-sheet"]
+          },
+          "requiredStates": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "examples": ["idle", "walking", "attacking", "available", "depleted"]
+          },
+          "scaleReference": {
+            "type": "object",
+            "properties": {
+              "heightOrSize": {
+                "type": ["number", "null"]
+              },
+              "unit": {
+                "type": "string"
+              },
+              "authority": {
+                "type": "string",
+                "enum": ["confirmed", "unconfirmed", "derived"]
+              }
+            }
+          },
+          "rigRequirement": {
+            "type": "string",
+            "enum": ["none", "humanoid", "creature", "attachment-only"]
+          },
+          "attachmentPoints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "collisionRequirement": {
+            "type": "string",
+            "enum": ["none", "obstacle", "interactable", "walkable"]
+          },
+          "lodRequirement": {
+            "type": "string",
+            "enum": ["single", "optional", "required"]
+          },
+          "targetFormat": {
+            "type": "string",
+            "enum": ["glb", "png", "webp", "jpeg", "json"]
+          },
+          "productionNotes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "acceptanceCriteria": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "awaiting-reference",
+              "reference-approved",
+              "modelling",
+              "integrated",
+              "accepted"
+            ]
+          }
+        }
+      }
+    }
+  },
+  "required": ["version", "generatedAt", "entries"]
+}
