@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "generatedAt": "2026-08-02T07:10:50.918Z",
+  "generatedAt": "2026-08-02T07:13:59.904Z",
   "entries": [
     {
       "id": "animation.npc-mara-idle",
@@ -11,8 +11,8 @@
       ],
       "boardSection": "03",
       "currentAssetId": null,
-      "currentSource": "Custom (status unclear)",
-      "currentLicense": "unknown",
+      "currentSource": "packages/assets/src/kaykit-adventurers/Character.glb",
+      "currentLicense": "CC0-1.0",
       "currentStatus": "needs-audit",
       "productionPriority": "vertical-slice",
       "requiredViews": [
@@ -41,7 +41,7 @@
         "Appropriate for NPC interaction context",
         "Loops naturally"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "animation.player-idle",
@@ -52,7 +52,7 @@
       ],
       "boardSection": "13",
       "currentAssetId": null,
-      "currentSource": "KayKit Adventurers",
+      "currentSource": "packages/assets/src/kaykit-adventurers/Character.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "licensed-placeholder",
       "productionPriority": "vertical-slice",
@@ -92,7 +92,7 @@
       ],
       "boardSection": "13",
       "currentAssetId": null,
-      "currentSource": "KayKit Adventurers",
+      "currentSource": "packages/assets/src/kaykit-adventurers/Character.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "licensed-placeholder",
       "productionPriority": "vertical-slice",
@@ -133,7 +133,7 @@
       ],
       "boardSection": "13",
       "currentAssetId": null,
-      "currentSource": "KayKit Adventurers (1H_Melee_Attack_Chop)",
+      "currentSource": "packages/assets/src/kaykit-adventurers/Character.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "licensed-placeholder",
       "productionPriority": "vertical-slice",
@@ -177,7 +177,7 @@
       ],
       "boardSection": "08",
       "currentAssetId": "town.cottage",
-      "currentSource": "GLTF component pack (town.* parts)",
+      "currentSource": "composite://kenney-fantasy/cottage",
       "currentLicense": "unknown",
       "currentStatus": "licensed-placeholder",
       "productionPriority": "vertical-slice",
@@ -220,7 +220,7 @@
       ],
       "boardSection": "08",
       "currentAssetId": "town.wall",
-      "currentSource": "GLTF component pack",
+      "currentSource": "packages/assets/src/kenney-fantasy/wall.glb",
       "currentLicense": "unknown",
       "currentStatus": "licensed-placeholder",
       "productionPriority": "vertical-slice",
@@ -296,7 +296,7 @@
         "Interior layout supports NPC placement",
         "Matches village architecture style"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "custom.armor-boneguard-vest",
@@ -309,7 +309,7 @@
       "boardSection": null,
       "currentAssetId": "custom.armor-boneguard-vest",
       "currentSource": "procedural://armor/boneguard-vest",
-      "currentLicense": "CC-0",
+      "currentLicense": "CC0-1.0",
       "currentStatus": "procedural-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
@@ -347,7 +347,7 @@
       "boardSection": null,
       "currentAssetId": "custom.facility-anvil",
       "currentSource": "procedural://facility/anvil",
-      "currentLicense": "CC-0",
+      "currentLicense": "CC0-1.0",
       "currentStatus": "procedural-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
@@ -390,7 +390,7 @@
       "boardSection": null,
       "currentAssetId": "custom.facility-smelter",
       "currentSource": "procedural://facility/smelter",
-      "currentLicense": "CC-0",
+      "currentLicense": "CC0-1.0",
       "currentStatus": "procedural-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
@@ -433,7 +433,7 @@
       "boardSection": null,
       "currentAssetId": "custom.fishing-ripples",
       "currentSource": "procedural://world/fishing-ripples",
-      "currentLicense": "CC-0",
+      "currentLicense": "CC0-1.0",
       "currentStatus": "procedural-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
@@ -451,7 +451,7 @@
       "attachmentPoints": [],
       "collisionRequirement": "resource",
       "lodRequirement": "single",
-      "targetFormat": "glb",
+      "targetFormat": "json",
       "productionNotes": [
         "Subtle world-space rings identifying a fishing location.",
         "Pack: everloom-original",
@@ -475,7 +475,7 @@
       "boardSection": null,
       "currentAssetId": "custom.npc-mara-shawl",
       "currentSource": "procedural://npc/mara-shawl",
-      "currentLicense": "CC-0",
+      "currentLicense": "CC0-1.0",
       "currentStatus": "procedural-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
@@ -513,7 +513,7 @@
       "boardSection": null,
       "currentAssetId": "custom.tool-hatchet",
       "currentSource": "procedural://tool/hatchet",
-      "currentLicense": "CC-0",
+      "currentLicense": "CC0-1.0",
       "currentStatus": "procedural-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
@@ -556,7 +556,7 @@
       "boardSection": null,
       "currentAssetId": "custom.tool-pickaxe",
       "currentSource": "procedural://tool/pickaxe",
-      "currentLicense": "CC-0",
+      "currentLicense": "CC0-1.0",
       "currentStatus": "procedural-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
@@ -599,7 +599,7 @@
       "boardSection": null,
       "currentAssetId": "custom.tool-rod",
       "currentSource": "procedural://tool/fishing-rod",
-      "currentLicense": "CC-0",
+      "currentLicense": "CC0-1.0",
       "currentStatus": "procedural-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
@@ -641,7 +641,7 @@
       "boardSection": null,
       "currentAssetId": "custom.weapon-battleaxe",
       "currentSource": "procedural://weapon/battleaxe",
-      "currentLicense": "CC-0",
+      "currentLicense": "CC0-1.0",
       "currentStatus": "procedural-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
@@ -679,7 +679,7 @@
       "boardSection": null,
       "currentAssetId": "custom.weapon-sword",
       "currentSource": "procedural://weapon/sword",
-      "currentLicense": "CC-0",
+      "currentLicense": "CC0-1.0",
       "currentStatus": "procedural-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
@@ -838,7 +838,7 @@
       "boardSection": "05",
       "currentAssetId": "custom.tool-hatchet",
       "currentSource": "procedural://player-appearance",
-      "currentLicense": "CC-0",
+      "currentLicense": "CC0-1.0",
       "currentStatus": "procedural-placeholder",
       "productionPriority": "vertical-slice",
       "requiredViews": [
@@ -876,7 +876,7 @@
         "Aligns with hand position without clipping",
         "Works in both gathering and combat poses"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "ground-item.worn-hatchet",
@@ -921,7 +921,7 @@
         "Clickable in gameplay",
         "Distinguishable from other ground items"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "icon.amber",
@@ -952,7 +952,7 @@
       "attachmentPoints": [],
       "collisionRequirement": "none",
       "lodRequirement": "single",
-      "targetFormat": "glb",
+      "targetFormat": "json",
       "productionNotes": [
         "Code-native interface symbol.",
         "Pack: everloom-original"
@@ -989,7 +989,7 @@
       "attachmentPoints": [],
       "collisionRequirement": "none",
       "lodRequirement": "single",
-      "targetFormat": "glb",
+      "targetFormat": "json",
       "productionNotes": [
         "Code-native interface symbol for the Copper Battleaxe.",
         "Pack: everloom-original"
@@ -1026,7 +1026,7 @@
       "attachmentPoints": [],
       "collisionRequirement": "none",
       "lodRequirement": "single",
-      "targetFormat": "glb",
+      "targetFormat": "json",
       "productionNotes": [
         "Code-native interface symbol.",
         "Pack: everloom-original"
@@ -1063,7 +1063,7 @@
       "attachmentPoints": [],
       "collisionRequirement": "none",
       "lodRequirement": "single",
-      "targetFormat": "glb",
+      "targetFormat": "json",
       "productionNotes": [
         "Code-native interface symbol.",
         "Pack: everloom-original"
@@ -1100,7 +1100,7 @@
       "attachmentPoints": [],
       "collisionRequirement": "none",
       "lodRequirement": "single",
-      "targetFormat": "glb",
+      "targetFormat": "json",
       "productionNotes": [
         "Code-native interface symbol.",
         "Pack: everloom-original"
@@ -1137,7 +1137,7 @@
       "attachmentPoints": [],
       "collisionRequirement": "none",
       "lodRequirement": "single",
-      "targetFormat": "glb",
+      "targetFormat": "json",
       "productionNotes": [
         "Code-native interface symbol.",
         "Pack: everloom-original"
@@ -1174,7 +1174,7 @@
       "attachmentPoints": [],
       "collisionRequirement": "none",
       "lodRequirement": "single",
-      "targetFormat": "glb",
+      "targetFormat": "json",
       "productionNotes": [
         "Code-native interface symbol.",
         "Pack: everloom-original"
@@ -1211,7 +1211,7 @@
       "attachmentPoints": [],
       "collisionRequirement": "none",
       "lodRequirement": "single",
-      "targetFormat": "glb",
+      "targetFormat": "json",
       "productionNotes": [
         "Code-native interface symbol for the Verdant Grove's tier-two timber.",
         "Pack: everloom-original"
@@ -1248,7 +1248,7 @@
       "attachmentPoints": [],
       "collisionRequirement": "none",
       "lodRequirement": "single",
-      "targetFormat": "glb",
+      "targetFormat": "json",
       "productionNotes": [
         "Code-native interface symbol for the Copper Ingot.",
         "Pack: everloom-original"
@@ -1285,7 +1285,7 @@
       "attachmentPoints": [],
       "collisionRequirement": "none",
       "lodRequirement": "single",
-      "targetFormat": "glb",
+      "targetFormat": "json",
       "productionNotes": [
         "Code-native interface symbol.",
         "Pack: everloom-original"
@@ -1322,7 +1322,7 @@
       "attachmentPoints": [],
       "collisionRequirement": "none",
       "lodRequirement": "single",
-      "targetFormat": "glb",
+      "targetFormat": "json",
       "productionNotes": [
         "Code-native interface symbol.",
         "Pack: everloom-original"
@@ -1359,7 +1359,7 @@
       "attachmentPoints": [],
       "collisionRequirement": "none",
       "lodRequirement": "single",
-      "targetFormat": "glb",
+      "targetFormat": "json",
       "productionNotes": [
         "Code-native interface symbol.",
         "Pack: everloom-original"
@@ -1396,7 +1396,7 @@
       "attachmentPoints": [],
       "collisionRequirement": "none",
       "lodRequirement": "single",
-      "targetFormat": "glb",
+      "targetFormat": "json",
       "productionNotes": [
         "Code-native interface symbol.",
         "Pack: everloom-original"
@@ -1433,7 +1433,7 @@
       "attachmentPoints": [],
       "collisionRequirement": "none",
       "lodRequirement": "single",
-      "targetFormat": "glb",
+      "targetFormat": "json",
       "productionNotes": [
         "Code-native interface symbol for the Verdant Tonic reward food.",
         "Pack: everloom-original"
@@ -1469,7 +1469,7 @@
       "attachmentPoints": [],
       "collisionRequirement": "none",
       "lodRequirement": "single",
-      "targetFormat": "png",
+      "targetFormat": "json",
       "productionNotes": [
         "Small inventory icon",
         "Recognizable silhouette",
@@ -1480,7 +1480,7 @@
         "Instantly identifies hatchet",
         "Consistent with other item icons"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "interface.item-tooltip",
@@ -1511,7 +1511,7 @@
       "attachmentPoints": [],
       "collisionRequirement": "none",
       "lodRequirement": "single",
-      "targetFormat": "png",
+      "targetFormat": "json",
       "productionNotes": [
         "Tooltip styling for item hover/selection",
         "Should display item name, description, stats",
@@ -1522,7 +1522,7 @@
         "Positioned clearly",
         "Doesn't obstruct gameplay"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "interface.objective-marker",
@@ -1553,7 +1553,7 @@
       "attachmentPoints": [],
       "collisionRequirement": "none",
       "lodRequirement": "single",
-      "targetFormat": "png",
+      "targetFormat": "json",
       "productionNotes": [
         "HUD marker for active quest objectives",
         "Should be non-intrusive but readable",
@@ -1564,7 +1564,7 @@
         "Doesn't clutter screen",
         "Consistent with UI theme"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "landmark.loom-motif",
@@ -1608,7 +1608,7 @@
         "Readable at small scales",
         "Consistent across world and UI"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "landmark.verdant-loomstone",
@@ -2767,7 +2767,7 @@
       ],
       "boardSection": "03",
       "currentAssetId": "player.adventurer",
-      "currentSource": "packages/assets/src/registry.json",
+      "currentSource": "packages/assets/src/kaykit-adventurers/Character.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "vertical-slice",
@@ -2802,7 +2802,7 @@
         "Fits Loom Hall interior",
         "Readable in dialogue scenes"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "player.adventurer",
@@ -2884,7 +2884,7 @@
         "Distinct dark tone",
         "Plausible as evening/rest appearance"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "player.appearance.ember",
@@ -2923,7 +2923,7 @@
         "Distinct warm tone",
         "Plausible as combat/smithing appearance"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "player.appearance.meadow",
@@ -2964,7 +2964,7 @@
         "Color reads clearly in Meadowrest",
         "Overlays don't obscure hand/head attachment points"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "player.appearance.tide",
@@ -3003,7 +3003,7 @@
         "Distinct cool tone",
         "Plausible as fishing/exploration appearance"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "player.base-body",
@@ -3015,7 +3015,7 @@
       ],
       "boardSection": "02",
       "currentAssetId": "player.adventurer",
-      "currentSource": "KayKit Adventurers (CC0-1.0)",
+      "currentSource": "packages/assets/src/kaykit-adventurers/Character.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "vertical-slice",
@@ -3099,7 +3099,7 @@
         "Can display Loom motif or Meadowrest colors",
         "Visible from gameplay distance"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "prop.barrel",
@@ -3138,7 +3138,7 @@
         "Sturdy appearance",
         "Works in groups"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "prop.crate",
@@ -3177,7 +3177,7 @@
         "Suggests contents",
         "Stackable appearance"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "prop.signpost",
@@ -3218,7 +3218,7 @@
         "Not too large (doesn't dominate scene)",
         "Matches village style"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "prop.woodpile",
@@ -3258,7 +3258,7 @@
         "Matches village architecture",
         "Solid obstacle"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "terrain.dirt-path",
@@ -3299,7 +3299,7 @@
         "Worn appearance",
         "Readable paths"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "terrain.grass-meadow",
@@ -3341,7 +3341,7 @@
         "No tiling artifacts",
         "LOD performance acceptable"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "terrain.river-deep",
@@ -3382,7 +3382,7 @@
         "Impassable boundary readable",
         "Animation consistent"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "terrain.stone-rocky",
@@ -3423,7 +3423,7 @@
         "Bumpy enough to suggest mining area",
         "Performance acceptable"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "terrain.water-shallow",
@@ -3464,7 +3464,7 @@
         "Color transition readable",
         "Performance acceptable"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "town.banner",
@@ -3993,8 +3993,8 @@
       ],
       "boardSection": "12",
       "currentAssetId": null,
-      "currentSource": "Procedural instanced geometry",
-      "currentLicense": "Original",
+      "currentSource": "procedural://vegetation/grass-tuft",
+      "currentLicense": "CC-0",
       "currentStatus": "procedural-placeholder",
       "productionPriority": "vertical-slice",
       "requiredViews": [
@@ -4035,8 +4035,8 @@
       ],
       "boardSection": "07",
       "currentAssetId": null,
-      "currentSource": "Procedural (cone canopy + cylinder trunk)",
-      "currentLicense": "Original",
+      "currentSource": "procedural://vegetation/tree-harvestable",
+      "currentLicense": "CC-0",
       "currentStatus": "procedural-placeholder",
       "productionPriority": "vertical-slice",
       "requiredViews": [
@@ -4079,8 +4079,8 @@
       ],
       "boardSection": "14",
       "currentAssetId": null,
-      "currentSource": "Procedural (three concentric torus rings)",
-      "currentLicense": "Original",
+      "currentSource": "procedural://vfx/fishing-ripples",
+      "currentLicense": "CC-0",
       "currentStatus": "procedural-placeholder",
       "productionPriority": "phase-two",
       "requiredViews": [
@@ -4150,7 +4150,7 @@
         "Doesn't distract from gameplay",
         "Consistent with art direction"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     },
     {
       "id": "vfx.tree-impact",
@@ -4191,7 +4191,7 @@
         "Reads quickly",
         "Doesn't obstruct tree"
       ],
-      "status": "awaiting-reference"
+      "status": "reference-approved"
     }
   ]
 }
