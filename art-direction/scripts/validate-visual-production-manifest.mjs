@@ -23,6 +23,7 @@ const warnings = [];
 // Basic structure validation
 if (!manifest.version || !manifest.entries) {
   errors.push("Manifest missing version or entries array");
+  process.exit(1);
 }
 
 // Check for duplicate IDs
@@ -34,13 +35,14 @@ for (const entry of manifest.entries) {
   ids.add(entry.id);
 }
 
-// Load semantic asset IDs from catalog
-const catalogContent = readFileSync(catalogPath, "utf8");
-const catalogIds = new Set();
-const catalogRegex = /['"]id['"]\s*:\s*['"]([^'"]+)['"]/g;
-let match;
-while ((match = catalogRegex.exec(catalogContent)) !== null) {
-  catalogIds.add(match[1]);
+// Load SEMANTIC asset IDs from registry (NOT catalog)
+const registryPath = resolve(__dirname, "..", "..", "packages", "assets", "src", "registry.json");
+let registryIds = new Set();
+try {
+  const registryData = JSON.parse(readFileSync(registryPath, "utf8"));
+  registryIds = new Set(registryData.map(a => a.id));
+} catch (e) {
+  console.error(`Warning: Could not load registry: ${e.message}`);
 }
 
 // Per-entry validation
@@ -57,9 +59,9 @@ for (const entry of manifest.entries) {
     errors.push(`Entry ${entry.id}: approved-existing lacks license`);
   }
 
-  // Check claimed asset IDs exist in catalog
-  if (entry.currentAssetId && !catalogIds.has(entry.currentAssetId)) {
-    errors.push(`Entry ${entry.id}: currentAssetId "${entry.currentAssetId}" not found in asset catalog`);
+  // Check claimed semantic asset IDs exist in registry
+  if (entry.currentAssetId && !registryIds.has(entry.currentAssetId)) {
+    errors.push(`Entry ${entry.id}: currentAssetId "${entry.currentAssetId}" not found in semantic asset registry`);
   }
 
   // Check reference sheets don't point to master PNG

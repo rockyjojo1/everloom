@@ -14,6 +14,7 @@
     "preview": "vite preview",
     "verify:gate0": "node scripts/verify-gate0.mjs",
     "validate:visual-production": "node ../../art-direction/scripts/validate-visual-production-manifest.mjs",
+    "test:visual-production": "node ../../art-direction/scripts/validate-visual-production-manifest.test.mjs",
     "verify:visual-foundation": "node scripts/verify-visual-foundation.mjs"
   },
   "dependencies": {
