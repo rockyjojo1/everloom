@@ -1,57 +1,52 @@
 import { describe, it, expect, vi } from "vitest";
 import * as THREE from "three";
 import { addInteractionHitbox } from "./assets";
+import { disposeObject } from "./threeDisposal";
+
+function findHitbox(object: THREE.Object3D): THREE.Mesh {
+  const hitbox = object.children.find((child) => child.userData.interactionHitArea === true);
+  if (!hitbox) throw new Error("hitbox not found");
+  return hitbox as THREE.Mesh;
+}
 
 describe("addInteractionHitbox", () => {
-  it("ground item receives one hitbox", () => {
+  it("ground item receives exactly one hitbox", () => {
     const object = new THREE.Group();
-    const visible = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
-    object.add(visible);
+    object.add(new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1)));
 
     addInteractionHitbox(object, "ground_item");
 
     const hitboxes = object.children.filter((child) => child.userData.interactionHitArea === true);
     expect(hitboxes).toHaveLength(1);
     expect(hitboxes[0]).toBeInstanceOf(THREE.Mesh);
-    const hitboxMesh = hitboxes[0] as THREE.Mesh;
-    expect(hitboxMesh.geometry).toBeInstanceOf(THREE.SphereGeometry);
+    expect((hitboxes[0] as THREE.Mesh).geometry).toBeInstanceOf(THREE.SphereGeometry);
   });
 
-  it("non-ground item receives no hitbox", () => {
-    const object = new THREE.Group();
-    const visible = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
-    object.add(visible);
-
-    const kinds = ["npc", "resource", "scenery"];
-    for (const kind of kinds) {
+  it("npc, resource and scenery receive no hitbox", () => {
+    for (const kind of ["npc", "resource", "scenery"]) {
+      const object = new THREE.Group();
+      object.add(new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1)));
       addInteractionHitbox(object, kind);
-      const hitboxes = object.children.filter((child) => child.userData.interactionHitArea === true);
-      expect(hitboxes).toHaveLength(0);
+      expect(object.children.filter((child) => child.userData.interactionHitArea === true)).toHaveLength(0);
     }
   });
 
-  it("idempotency: calling twice creates exactly one hitbox", () => {
+  it("repeated calls remain idempotent", () => {
     const object = new THREE.Group();
-    const visible = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
-    object.add(visible);
+    object.add(new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1)));
 
     addInteractionHitbox(object, "ground_item");
-    const firstCount = object.children.filter((child) => child.userData.interactionHitArea === true).length;
-
     addInteractionHitbox(object, "ground_item");
-    const secondCount = object.children.filter((child) => child.userData.interactionHitArea === true).length;
+    addInteractionHitbox(object, "ground_item");
 
-    expect(firstCount).toBe(1);
-    expect(secondCount).toBe(1);
+    expect(object.children.filter((child) => child.userData.interactionHitArea === true)).toHaveLength(1);
   });
 
-  it("geometry-derived clamped sizing: small/medium/large prove clamping", () => {
+  it("small/medium/large geometry prove minimum, derived and maximum sizing", () => {
     const small = new THREE.Group();
     small.add(new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1)));
-
     const medium = new THREE.Group();
     medium.add(new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1)));
-
     const large = new THREE.Group();
     large.add(new THREE.Mesh(new THREE.BoxGeometry(5, 5, 5)));
 
@@ -59,25 +54,17 @@ describe("addInteractionHitbox", () => {
     addInteractionHitbox(medium, "ground_item");
     addInteractionHitbox(large, "ground_item");
 
-    const smallHitbox = small.children.find((child) => child.userData.interactionHitArea) as THREE.Mesh;
-    const mediumHitbox = medium.children.find((child) => child.userData.interactionHitArea) as THREE.Mesh;
-    const largeHitbox = large.children.find((child) => child.userData.interactionHitArea) as THREE.Mesh;
+    const smallRadius = (findHitbox(small).geometry as THREE.SphereGeometry).parameters.radius;
+    const mediumRadius = (findHitbox(medium).geometry as THREE.SphereGeometry).parameters.radius;
+    const largeRadius = (findHitbox(large).geometry as THREE.SphereGeometry).parameters.radius;
 
-    const smallRadius = (smallHitbox.geometry as THREE.SphereGeometry).parameters.radius;
-    const mediumRadius = (mediumHitbox.geometry as THREE.SphereGeometry).parameters.radius;
-    const largeRadius = (largeHitbox.geometry as THREE.SphereGeometry).parameters.radius;
-
-    // Small should hit minimum (0.3).
-    expect(smallRadius).toBe(0.3);
-    // Medium should be derived (not clamped).
-    expect(mediumRadius).toBe(0.5);
-    // Large should hit maximum (1.2).
-    expect(largeRadius).toBe(1.2);
-    // Prove all three are different, proving clamping.
+    expect(smallRadius).toBe(0.3); // clamped to documented minimum
+    expect(mediumRadius).toBe(0.5); // derived from bounds, unclamped
+    expect(largeRadius).toBe(1.2); // clamped to documented maximum
     expect(new Set([smallRadius, mediumRadius, largeRadius]).size).toBe(3);
   });
 
-  it("correct centre: hitbox is centred on geometry bounds", () => {
+  it("local centre is correct for offset geometry", () => {
     const object = new THREE.Group();
     const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
     mesh.position.set(2, 3, 4);
@@ -85,85 +72,111 @@ describe("addInteractionHitbox", () => {
 
     addInteractionHitbox(object, "ground_item");
 
-    const hitbox = object.children.find((child) => child.userData.interactionHitArea) as THREE.Mesh;
-    // Hitbox should be at the centre of the geometry (2, 3, 4), not hardcoded (0, 0.3, 0).
-    expect(hitbox.position.x).toBeCloseTo(2, 1);
-    expect(hitbox.position.y).toBeCloseTo(3, 1);
-    expect(hitbox.position.z).toBeCloseTo(4, 1);
+    const hitbox = findHitbox(object);
+    expect(hitbox.position.x).toBeCloseTo(2, 5);
+    expect(hitbox.position.y).toBeCloseTo(3, 5);
+    expect(hitbox.position.z).toBeCloseTo(4, 5);
   });
 
-  it("invisibility and raycastability: material transparent/opaque, visible=true", () => {
+  it("centre remains correct when the parent is translated, rotated and scaled", () => {
+    // Mirrors GameWorld's real addAsset order: position/rotation/scale are
+    // applied to the object *before* addInteractionHitbox runs.
+    const object = new THREE.Group();
+    const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
+    mesh.position.set(1, 0, 0); // local offset inside the object
+    object.add(mesh);
+    object.position.set(10, 0, -5);
+    object.rotation.y = Math.PI / 2;
+    object.scale.set(2, 2, 2);
+
+    addInteractionHitbox(object, "ground_item");
+    object.updateMatrixWorld(true);
+
+    const hitbox = findHitbox(object);
+    // Local centre must equal the mesh's own local offset, unaffected by
+    // the parent's transform (that transform applies once, automatically,
+    // via the scene graph when world position is read).
+    expect(hitbox.position.x).toBeCloseTo(1, 5);
+    expect(hitbox.position.y).toBeCloseTo(0, 5);
+    expect(hitbox.position.z).toBeCloseTo(0, 5);
+
+    // World position must reflect the parent's transform applied exactly
+    // once: rotate (1,0,0) by 90° around Y -> (0,0,-1), scale by 2 ->
+    // (0,0,-2), then translate by (10,0,-5) -> (10,0,-7).
+    const worldPosition = hitbox.getWorldPosition(new THREE.Vector3());
+    expect(worldPosition.x).toBeCloseTo(10, 4);
+    expect(worldPosition.y).toBeCloseTo(0, 4);
+    expect(worldPosition.z).toBeCloseTo(-7, 4);
+  });
+
+  it("material is visually invisible but raycastable", () => {
     const object = new THREE.Group();
     object.add(new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1)));
 
     addInteractionHitbox(object, "ground_item");
 
-    const hitbox = object.children.find((child) => child.userData.interactionHitArea) as THREE.Mesh;
+    const hitbox = findHitbox(object);
     const material = hitbox.material as THREE.MeshBasicMaterial;
-
     expect(material.transparent).toBe(true);
     expect(material.opacity).toBe(0);
     expect(material.depthWrite).toBe(false);
     expect(material.colorWrite).toBe(false);
-    expect(hitbox.visible).toBe(true); // Three.js raycasts invisible=false, but this is visible for raycasting.
+    // visible=true is required for Three.js to raycast it at all.
+    expect(hitbox.visible).toBe(true);
   });
 
-  it("actual raycast: ray through hitbox intersects, ray outside does not", () => {
+  it("a real ray through the hitbox intersects it, and the correct targetId is carried", () => {
     const object = new THREE.Group();
-    const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1));
-    object.add(mesh);
+    object.add(new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1)));
 
     const scene = new THREE.Scene();
     scene.add(object);
     object.position.set(0, 0, -10);
     object.updateMatrixWorld(true);
 
-    addInteractionHitbox(object, "ground_item");
+    addInteractionHitbox(object, "ground_item", "ground_worn_hatchet");
 
     const raycaster = new THREE.Raycaster();
-
-    // Ray through the center of the hitbox using world-space coordinates.
     raycaster.ray.origin.set(0, 0, 0);
     raycaster.ray.direction.set(0, 0, -1).normalize();
-    const hitThrough = raycaster.intersectObjects(scene.children, true);
-    const hitboxInThrough = hitThrough.some((entry) => entry.object.userData.interactionHitArea === true);
-    expect(hitboxInThrough).toBe(true);
+    const hits = raycaster.intersectObjects(scene.children, true);
+    const hitboxHit = hits.find((entry) => entry.object.userData.interactionHitArea === true);
 
-    // Ray far away from the object (at x=5, y=5, aimed at the object).
-    // The hitbox is at (0, 0, -10) with radius 0.5, so this ray misses it.
+    expect(hitboxHit).toBeDefined();
+    expect(hitboxHit!.object.userData.targetId).toBe("ground_worn_hatchet");
+  });
+
+  it("a real ray outside the hitbox does not intersect it", () => {
+    const object = new THREE.Group();
+    object.add(new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1)));
+
+    const scene = new THREE.Scene();
+    scene.add(object);
+    object.position.set(0, 0, -10);
+    object.updateMatrixWorld(true);
+
+    addInteractionHitbox(object, "ground_item", "ground_worn_hatchet");
+
+    const raycaster = new THREE.Raycaster();
+    // Origin far to the side, aimed parallel to the hitbox rather than at it.
     raycaster.ray.origin.set(5, 5, 0);
     raycaster.ray.direction.set(0, 0, -1).normalize();
-    const hitOutside = raycaster.intersectObjects(scene.children, true);
-    const hitboxInOutside = hitOutside.some((entry) => entry.object.userData.interactionHitArea === true);
-    expect(hitboxInOutside).toBe(false);
+    const hits = raycaster.intersectObjects(scene.children, true);
+    const hitboxHit = hits.some((entry) => entry.object.userData.interactionHitArea === true);
+
+    expect(hitboxHit).toBe(false);
   });
 
-  it("target identity propagation: hitbox receives parent targetId", () => {
+  it("the production disposal utility disposes hitbox geometry and material exactly once", () => {
     const object = new THREE.Group();
     object.add(new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1)));
-    object.userData.targetId = "test_target_123";
-
     addInteractionHitbox(object, "ground_item");
 
-    const hitbox = object.children.find((child) => child.userData.interactionHitArea) as THREE.Mesh;
-    // The hitbox itself doesn't get targetId; raycasting finds it and traverses
-    // up to find the parent's targetId. Verify parent has it.
-    expect(object.userData.targetId).toBe("test_target_123");
-  });
-
-  it("actual disposal: geometry and material are disposed", () => {
-    const object = new THREE.Group();
-    object.add(new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1)));
-
-    addInteractionHitbox(object, "ground_item");
-
-    const hitbox = object.children.find((child) => child.userData.interactionHitArea) as THREE.Mesh;
+    const hitbox = findHitbox(object);
     const geometrySpy = vi.spyOn(hitbox.geometry, "dispose");
     const materialSpy = vi.spyOn(hitbox.material as THREE.Material, "dispose");
 
-    // Manually dispose (as would happen in world cleanup).
-    hitbox.geometry.dispose();
-    (hitbox.material as THREE.Material).dispose();
+    disposeObject(object);
 
     expect(geometrySpy).toHaveBeenCalledTimes(1);
     expect(materialSpy).toHaveBeenCalledTimes(1);

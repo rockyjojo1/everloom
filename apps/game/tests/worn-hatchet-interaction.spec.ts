@@ -1,224 +1,114 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
-// Fresh-state setup: clear all browser storage and service workers
-async function clearBrowserState(page: any) {
-  // Clear cookies
-  const context = page.context();
-  await context.clearCookies();
+// Matches the read-only bridge shape declared in GameWorld.tsx, compiled
+// only under Vite's "test" mode (see playwright.gate0.config.ts). None of
+// these methods mutate game state; they only report what is already true.
+interface TargetDiagnostics {
+  exists: boolean;
+  available: boolean;
+  visible: boolean;
+  centre: { x: number; y: number } | null;
+  outsidePoint: { x: number; y: number } | null;
+}
 
-  // Clear local storage, session storage
-  await page.evaluate(() => {
-    localStorage.clear();
-    sessionStorage.clear();
-  });
+interface ReadonlyTestBridge {
+  worldReady(): boolean;
+  selectedTargetId(): string | null;
+  inventoryQuantity(itemId: string): number;
+  target(targetId: string): TargetDiagnostics;
+}
 
-  // Clear IndexedDB
-  await page.evaluate(() => {
-    return new Promise<void>((resolve, reject) => {
-      const dbNames = (window as any).indexedDB?.databases?.();
-      if (!dbNames) {
-        resolve();
-        return;
-      }
-      Promise.all(dbNames.map((db: any) => (window as any).indexedDB.deleteDatabase(db.name)))
-        .then(() => resolve())
-        .catch((error: any) => {
-          console.warn("IndexedDB clear failed (expected)", error);
-          resolve();
-        });
-    });
-  });
+declare global {
+  interface Window {
+    __EVERLOOM_READONLY_TEST__?: ReadonlyTestBridge;
+  }
+}
 
-  // Clear Cache Storage
-  await page.evaluate(() => {
-    return caches.keys().then((names: string[]) =>
-      Promise.all(names.map((name: string) => caches.delete(name)))
-    );
-  });
+const HATCHET_TARGET_ID = "ground_worn_hatchet";
+const HATCHET_ITEM_ID = "worn_hatchet";
 
-  // Unregister service workers
-  await page.evaluate(() => {
-    return navigator.serviceWorker?.getRegistrations?.().then((regs: readonly ServiceWorkerRegistration[]) =>
-      Promise.all(Array.from(regs).map((reg: ServiceWorkerRegistration) => reg.unregister()))
-    );
-  });
+async function enterFreshWorld(page: Page) {
+  // Each Playwright test already runs in its own brand-new browser context,
+  // so cookies, localStorage, sessionStorage and IndexedDB all start empty
+  // without any manual clearing here. `?e2e=1` is this repo's existing
+  // convention (see EscapeIntro.tsx) for skipping the one-time locked
+  // conversation modal that would otherwise intercept pointer input.
+  await page.goto("/?e2e=1");
+  await page.getByRole("button", { name: "Enter Meadowrest" }).click();
+  await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true", { timeout: 35_000 });
+  await expect
+    .poll(() => page.evaluate(() => window.__EVERLOOM_READONLY_TEST__?.worldReady() ?? false), { timeout: 20_000 })
+    .toBe(true);
+}
+
+function readTarget(page: Page, targetId: string): Promise<TargetDiagnostics> {
+  return page.evaluate((id) => window.__EVERLOOM_READONLY_TEST__!.target(id), targetId);
+}
+
+function readInventoryQuantity(page: Page, itemId: string): Promise<number> {
+  return page.evaluate((id) => window.__EVERLOOM_READONLY_TEST__!.inventoryQuantity(id), itemId);
 }
 
 test.describe("Worn Hatchet Interaction", () => {
-  test.beforeEach(async ({ page }) => {
-    // Navigate and clear state
-    await page.goto("/");
-    await clearBrowserState(page);
-    await page.reload();
+  test("desktop collection: clicking the real hatchet coordinate collects it", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop", "Desktop-only pointer scenario.");
+    await enterFreshWorld(page);
+
+    const before = await readTarget(page, HATCHET_TARGET_ID);
+    expect(before.exists).toBe(true);
+    expect(before.available).toBe(true);
+    expect(before.centre).not.toBeNull();
+    expect(await readInventoryQuantity(page, HATCHET_ITEM_ID)).toBe(0);
+
+    await page.mouse.click(before.centre!.x, before.centre!.y);
+
+    await expect
+      .poll(() => readInventoryQuantity(page, HATCHET_ITEM_ID), { timeout: 15_000 })
+      .toBe(1);
+
+    const after = await readTarget(page, HATCHET_TARGET_ID);
+    expect(after.available).toBe(false);
   });
 
-  test("desktop collection: click the hatchet and collect it", async ({ page }) => {
-    // Wait for the game to be ready
-    await page.waitForLoadState("networkidle");
+  test("desktop adjacent-miss: clicking outside the hitbox collects nothing", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "desktop", "Desktop-only pointer scenario.");
+    await enterFreshWorld(page);
 
-    // Fill character creation form
-    const nameInput = page.locator('input[aria-label="Character name"]');
-    await nameInput.fill("TestHunter");
+    const before = await readTarget(page, HATCHET_TARGET_ID);
+    expect(before.available).toBe(true);
+    expect(before.outsidePoint).not.toBeNull();
+    expect(await readInventoryQuantity(page, HATCHET_ITEM_ID)).toBe(0);
 
-    // Select an appearance (click the first appearance button)
-    const appearanceButtons = page.locator('button[aria-pressed]');
-    await appearanceButtons.first().click();
-
-    // Click "Enter Meadowrest"
-    const enterButton = page.getByRole("button", { name: /Enter Meadowrest/ });
-    await enterButton.click();
-
-    // Wait for the world to be ready (use the test bridge)
-    await page.waitForFunction(() => {
-      return (window as any).__EVERLOOM_TEST__?.snapshot?.()?.worldFlags?.tutorial_started !== undefined;
-    }, { timeout: 5000 });
-
-    // Get the initial state
-    const initialSnapshot = await page.evaluate(() => {
-      return (window as any).__EVERLOOM_TEST__?.snapshot?.();
-    });
-    const initialInventory = initialSnapshot?.inventory?.["worn_hatchet"] ?? 0;
-
-    // Verify the Hatchet ground target exists
-    const hatchetPosition = await page.evaluate(() => {
-      return (window as any).__EVERLOOM_TEST__?.targetPosition?.("worn_hatchet");
-    });
-    expect(hatchetPosition).not.toBeNull();
-    expect(hatchetPosition?.x).toBeDefined();
-    expect(hatchetPosition?.y).toBeDefined();
-
-    // Verify inventory is empty
-    expect(initialInventory).toBe(0);
-
-    // Click the hatchet at its projected position
-    await page.mouse.click(hatchetPosition!.x, hatchetPosition!.y);
-
-    // Wait for the animation and collection sequence to complete
-    await page.waitForTimeout(1000);
-
-    // Check inventory increased by 1
-    const finalSnapshot = await page.evaluate(() => {
-      return (window as any).__EVERLOOM_TEST__?.snapshot?.();
-    });
-    const finalInventory = finalSnapshot?.inventory?.["worn_hatchet"] ?? 0;
-    expect(finalInventory).toBe(initialInventory + 1);
-
-    // Verify the ground target no longer exists
-    const hatchetAfterCollection = await page.evaluate(() => {
-      return (window as any).__EVERLOOM_TEST__?.targetPosition?.("worn_hatchet");
-    });
-    expect(hatchetAfterCollection).toBeNull();
-  });
-
-  test("desktop adjacent-miss: click outside the hatchet hitbox", async ({ page }) => {
-    // Wait for the game to be ready
-    await page.waitForLoadState("networkidle");
-
-    // Fill character creation form
-    const nameInput = page.locator('input[aria-label="Character name"]');
-    await nameInput.fill("TestMiss");
-
-    // Select an appearance
-    const appearanceButtons = page.locator('button[aria-pressed]');
-    await appearanceButtons.first().click();
-
-    // Click "Enter Meadowrest"
-    const enterButton = page.getByRole("button", { name: /Enter Meadowrest/ });
-    await enterButton.click();
-
-    // Wait for world ready
-    await page.waitForFunction(() => {
-      return (window as any).__EVERLOOM_TEST__?.snapshot?.()?.worldFlags?.tutorial_started !== undefined;
-    }, { timeout: 5000 });
-
-    // Get hatchet position
-    const hatchetPosition = await page.evaluate(() => {
-      return (window as any).__EVERLOOM_TEST__?.targetPosition?.("worn_hatchet");
-    });
-    expect(hatchetPosition).not.toBeNull();
-
-    // Get initial inventory
-    const initialSnapshot = await page.evaluate(() => {
-      return (window as any).__EVERLOOM_TEST__?.snapshot?.();
-    });
-    const initialInventory = initialSnapshot?.inventory?.["worn_hatchet"] ?? 0;
-
-    // Click outside the hitbox (offset by 50 pixels in a safe direction)
-    const missX = hatchetPosition!.x + 50;
-    const missY = hatchetPosition!.y;
-    await page.mouse.click(missX, missY);
-
-    // Wait a moment
+    await page.mouse.click(before.outsidePoint!.x, before.outsidePoint!.y);
+    // No state-changing event to poll for on a miss; give the pointer
+    // handler and any resulting route/activity a moment to settle instead
+    // of asserting on frame zero.
     await page.waitForTimeout(500);
 
-    // Verify inventory unchanged
-    const afterSnapshot = await page.evaluate(() => {
-      return (window as any).__EVERLOOM_TEST__?.snapshot?.();
-    });
-    const afterInventory = afterSnapshot?.inventory?.["worn_hatchet"] ?? 0;
-    expect(afterInventory).toBe(initialInventory);
-
-    // Verify the ground target still exists
-    const hatchetStillExists = await page.evaluate(() => {
-      return (window as any).__EVERLOOM_TEST__?.targetPosition?.("worn_hatchet");
-    });
-    expect(hatchetStillExists).not.toBeNull();
+    expect(await readInventoryQuantity(page, HATCHET_ITEM_ID)).toBe(0);
+    const after = await readTarget(page, HATCHET_TARGET_ID);
+    expect(after.available).toBe(true);
+    const selected = await page.evaluate(() => window.__EVERLOOM_READONLY_TEST__!.selectedTargetId());
+    expect(selected).not.toBe(HATCHET_TARGET_ID);
   });
 
-  test("mobile landscape collection: tap the hatchet", async ({ page }) => {
-    // Set mobile landscape viewport
-    await page.setViewportSize({ width: 1024, height: 600 });
+  test("mobile landscape collection: tapping the real hatchet coordinate collects it", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== "landscape-mobile", "Mobile-only touch scenario.");
+    await enterFreshWorld(page);
 
-    // Wait for the game to be ready
-    await page.waitForLoadState("networkidle");
+    const before = await readTarget(page, HATCHET_TARGET_ID);
+    expect(before.exists).toBe(true);
+    expect(before.available).toBe(true);
+    expect(before.centre).not.toBeNull();
+    expect(await readInventoryQuantity(page, HATCHET_ITEM_ID)).toBe(0);
 
-    // Fill character creation form
-    const nameInput = page.locator('input[aria-label="Character name"]');
-    await nameInput.fill("TestMobile");
+    await page.touchscreen.tap(before.centre!.x, before.centre!.y);
 
-    // Select an appearance
-    const appearanceButtons = page.locator('button[aria-pressed]');
-    await appearanceButtons.first().click();
+    await expect
+      .poll(() => readInventoryQuantity(page, HATCHET_ITEM_ID), { timeout: 15_000 })
+      .toBe(1);
 
-    // Click "Enter Meadowrest"
-    const enterButton = page.getByRole("button", { name: /Enter Meadowrest/ });
-    await enterButton.click();
-
-    // Wait for world ready
-    await page.waitForFunction(() => {
-      return (window as any).__EVERLOOM_TEST__?.snapshot?.()?.worldFlags?.tutorial_started !== undefined;
-    }, { timeout: 5000 });
-
-    // Get hatchet position
-    const hatchetPosition = await page.evaluate(() => {
-      return (window as any).__EVERLOOM_TEST__?.targetPosition?.("worn_hatchet");
-    });
-    expect(hatchetPosition).not.toBeNull();
-
-    // Get initial inventory
-    const initialSnapshot = await page.evaluate(() => {
-      return (window as any).__EVERLOOM_TEST__?.snapshot?.();
-    });
-    const initialInventory = initialSnapshot?.inventory?.["worn_hatchet"] ?? 0;
-
-    // Tap the hatchet using touchscreen
-    await page.touchscreen.tap(hatchetPosition!.x, hatchetPosition!.y);
-
-    // Wait for the interaction sequence
-    await page.waitForTimeout(1000);
-
-    // Verify inventory increased
-    const finalSnapshot = await page.evaluate(() => {
-      return (window as any).__EVERLOOM_TEST__?.snapshot?.();
-    });
-    const finalInventory = finalSnapshot?.inventory?.["worn_hatchet"] ?? 0;
-    expect(finalInventory).toBe(initialInventory + 1);
-
-    // Verify the ground target no longer exists
-    const hatchetAfterCollection = await page.evaluate(() => {
-      return (window as any).__EVERLOOM_TEST__?.targetPosition?.("worn_hatchet");
-    });
-    expect(hatchetAfterCollection).toBeNull();
+    const after = await readTarget(page, HATCHET_TARGET_ID);
+    expect(after.available).toBe(false);
   });
-
 });

@@ -189,12 +189,12 @@ export function VisualQAGallery() {
     <div className={styles.controls}>
       <div className={styles.items}>
         {QA_GALLERY_ITEM_IDS.map((id, index) => <button key={id} type="button"
-          className={index === itemIndex ? "selected" : ""}
+          className={index === itemIndex ? styles.selected : undefined}
           onClick={() => setItemIndex(index)}>{CONTENT.items[id]?.name ?? id}</button>)}
       </div>
       <div className={styles.appearance}>
         {(["meadow", "ember", "tide", "dusk"] as const).map((id) =>
-          <button key={id} type="button" className={id === appearanceId ? "selected" : ""} onClick={() => setAppearanceId(id)}>{id}</button>)}
+          <button key={id} type="button" className={id === appearanceId ? styles.selected : undefined} onClick={() => setAppearanceId(id)}>{id}</button>)}
       </div>
       <button type="button" className={styles.pose} onClick={() => setPosed((value) => !value)}>
         {posed ? `Showing action pose (${transform?.actionClip ?? "?"})` : "Showing idle pose"}

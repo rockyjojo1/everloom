@@ -520,7 +520,7 @@ export function GameWorld() {
         object.add(fishingHitArea);
       }
       if (interactive && kind === "ground_item") {
-        addInteractionHitbox(object, kind);
+        addInteractionHitbox(object, kind, id);
       }
       object.userData.targetId = id;
       object.traverse((child) => { child.userData.targetId = id; });
@@ -701,6 +701,51 @@ export function GameWorld() {
           if (!target || !save || !targetAvailable(target, save)) return false;
           setRoute(pathToTarget(zone, save.position, target), null);
           return true;
+        },
+      };
+    }
+    // Read-only diagnostic bridge for Playwright, compiled only in the
+    // dedicated E2E "test" Vite mode (never plain `DEV`, and never present
+    // in a production build). Unlike __EVERLOOM_TEST__ above, every method
+    // here only reads live scene/save state; none of them can pick up an
+    // item, move the player, or otherwise mutate the save. Real pointer
+    // input (page.mouse.click / page.touchscreen.tap) is what a test must
+    // use to actually collect an item — this bridge only tells the test
+    // where to click and what happened as a result.
+    if (import.meta.env.MODE === "test") {
+      (window as Window & { __EVERLOOM_READONLY_TEST__?: unknown }).__EVERLOOM_READONLY_TEST__ = {
+        worldReady: () => element.dataset.ready === "true",
+        selectedTargetId: () => useGameStore.getState().selectedTargetId,
+        inventoryQuantity: (itemId: string) =>
+          useGameStore.getState().save?.inventory.find((stack) => stack.itemId === itemId)?.quantity ?? 0,
+        target(targetId: string) {
+          const definition = zone.interactables.find((entry) => entry.id === targetId);
+          const liveObject = targets.get(targetId);
+          const save = useGameStore.getState().save;
+          const available = Boolean(definition && save && targetAvailable(definition, save));
+          const visible = liveObject?.visible ?? false;
+          const hitboxMesh = liveObject?.children.find(
+            (child) => child.userData.interactionHitArea === true,
+          ) as THREE.Mesh | undefined;
+          let centre: { x: number; y: number } | null = null;
+          let outsidePoint: { x: number; y: number } | null = null;
+          if (liveObject && hitboxMesh) {
+            const rect = renderer.domElement.getBoundingClientRect();
+            const toScreen = (point: THREE.Vector3) => {
+              const projected = point.clone().project(camera);
+              return { x: rect.left + (projected.x + 1) * rect.width / 2, y: rect.top + (1 - projected.y) * rect.height / 2 };
+            };
+            const worldCentre = hitboxMesh.getWorldPosition(new THREE.Vector3());
+            centre = toScreen(worldCentre);
+            const worldScale = hitboxMesh.getWorldScale(new THREE.Vector3());
+            const worldRadius = (hitboxMesh.geometry as THREE.SphereGeometry).parameters.radius * worldScale.x;
+            const edgeScreen = toScreen(worldCentre.clone().add(new THREE.Vector3(worldRadius, 0, 0)));
+            const radiusPx = Math.hypot(edgeScreen.x - centre.x, edgeScreen.y - centre.y);
+            // Deterministic point well clear of the hitbox, derived from its
+            // own projected radius rather than an arbitrary pixel offset.
+            outsidePoint = { x: centre.x + radiusPx * 3 + 24, y: centre.y };
+          }
+          return { exists: Boolean(liveObject), available, visible, centre, outsidePoint };
         },
       };
     }
@@ -968,6 +1013,9 @@ export function GameWorld() {
       objectiveRouteMaterial.dispose();
       renderer.dispose();
       delete (window as Window & { __EVERLOOM_TEST__?: unknown }).__EVERLOOM_TEST__;
+      if (import.meta.env.MODE === "test") {
+        delete (window as Window & { __EVERLOOM_READONLY_TEST__?: unknown }).__EVERLOOM_READONLY_TEST__;
+      }
       element.replaceChildren();
     };
   }, []);

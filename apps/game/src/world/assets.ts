@@ -285,7 +285,21 @@ export async function instantiateAsset(assetId: string, tint?: string | null): P
 const INTERACTION_HITBOX_MIN_RADIUS = 0.3;
 const INTERACTION_HITBOX_MAX_RADIUS = 1.2;
 
-export function addInteractionHitbox(object: THREE.Object3D, kind: string): void {
+/**
+ * Adds an invisible, raycastable sphere hitbox to a ground-item object so
+ * small tools remain clickable and large props don't swallow nearby clicks.
+ *
+ * `addAsset` in GameWorld already applies position/rotation/scale to
+ * `object` before calling this, so `Box3.setFromObject(object)` would
+ * measure world-space bounds with that transform baked in — then adding the
+ * hitbox as a *child* of `object` would apply the same transform a second
+ * time. To stay correct regardless of call order, bounds are measured with
+ * the object's own transform temporarily zeroed (i.e. in its local space),
+ * then restored; the hitbox's local position/radius are therefore already
+ * relative to the parent and inherit its later translation/rotation/scale
+ * exactly once, like any other child mesh.
+ */
+export function addInteractionHitbox(object: THREE.Object3D, kind: string, targetId?: string): void {
   if (kind !== "ground_item") {
     return;
   }
@@ -294,16 +308,27 @@ export function addInteractionHitbox(object: THREE.Object3D, kind: string): void
     return;
   }
 
-  // Calculate bounding box to derive radius and centre from actual geometry.
+  const savedPosition = object.position.clone();
+  const savedQuaternion = object.quaternion.clone();
+  const savedScale = object.scale.clone();
+  object.position.set(0, 0, 0);
+  object.quaternion.identity();
+  object.scale.set(1, 1, 1);
+  object.updateMatrixWorld(true);
   const bbox = new THREE.Box3().setFromObject(object);
+  object.position.copy(savedPosition);
+  object.quaternion.copy(savedQuaternion);
+  object.scale.copy(savedScale);
+  object.updateMatrixWorld(true);
+
   if (bbox.isEmpty()) {
     // Object has no visible geometry; skip hitbox.
     return;
   }
 
-  // Derive radius from the largest dimension of the bounding box.
-  // This ensures small objects get clickable hitboxes and large objects
-  // don't accidentally swallow distant clicks.
+  // Derive radius from the largest local-space dimension of the bounding
+  // box. This ensures small objects get clickable hitboxes and large
+  // objects don't accidentally swallow distant clicks.
   const size = bbox.getSize(new THREE.Vector3());
   const maxDimension = Math.max(size.x, size.y, size.z);
   const radiusFromBounds = maxDimension / 2;
@@ -314,7 +339,7 @@ export function addInteractionHitbox(object: THREE.Object3D, kind: string): void
     Math.min(INTERACTION_HITBOX_MAX_RADIUS, radiusFromBounds),
   );
 
-  // Calculate centre from the bounding box (not hardcoded position.y).
+  // Calculate centre from the local-space bounding box (not hardcoded position.y).
   const centre = bbox.getCenter(new THREE.Vector3());
 
   const hitArea = new THREE.Mesh(
@@ -329,6 +354,7 @@ export function addInteractionHitbox(object: THREE.Object3D, kind: string): void
   );
   hitArea.position.copy(centre);
   hitArea.userData.interactionHitArea = true;
+  hitArea.userData.targetId = targetId ?? object.userData.targetId ?? null;
   hitArea.name = "interaction-hitbox";
   object.add(hitArea);
 }
