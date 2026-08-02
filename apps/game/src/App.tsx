@@ -35,6 +35,14 @@ const VisualQAGallery = import.meta.env.DEV
     })
   : (() => null as never);
 
+// Development-only visual production workbench: asset pipeline status and debugging.
+const VisualProductionWorkbench = import.meta.env.DEV
+  ? lazy(async () => {
+      const module = await import("./components/VisualProductionWorkbench");
+      return { default: module.VisualProductionWorkbench };
+    })
+  : (() => null as never);
+
 export default function App() {
   const [characterName, setCharacterName] = useState("Wanderer");
   const [appearanceId, setAppearanceId] = useState<PlayerAppearanceId>("meadow");
@@ -62,8 +70,14 @@ export default function App() {
   }, []);
 
   if (new URLSearchParams(location.search).has("asset-browser")) return <Suspense fallback={<main className="loading"><div className="loom-mark" /><span>Opening the asset archive…</span></main>}><AssetBrowser /></Suspense>;
-  if (import.meta.env.DEV && new URLSearchParams(location.search).has("qa") && new URLSearchParams(location.search).get("qa") === "gallery" && VisualQAGallery) {
-    return <Suspense fallback={<main className="loading"><div className="loom-mark" /><span>Opening the QA gallery…</span></main>}><VisualQAGallery /></Suspense>;
+  if (import.meta.env.DEV && new URLSearchParams(location.search).has("qa")) {
+    const qaMode = new URLSearchParams(location.search).get("qa");
+    if (qaMode === "gallery" && VisualQAGallery) {
+      return <Suspense fallback={<main className="loading"><div className="loom-mark" /><span>Opening the QA gallery…</span></main>}><VisualQAGallery /></Suspense>;
+    }
+    if (qaMode === "visual-production" && VisualProductionWorkbench) {
+      return <Suspense fallback={<main className="loading"><div className="loom-mark" /><span>Opening production workbench…</span></main>}><VisualProductionWorkbench /></Suspense>;
+    }
   }
   if (status === "error") return <main className="fatal"><h1>The thread snagged.</h1><p>{error}</p><button onClick={() => location.reload()}>Try again</button></main>;
   if (status !== "ready" || !save) return <main className="loading"><div className="loom-mark" /><span>Weaving Meadowrest…</span></main>;

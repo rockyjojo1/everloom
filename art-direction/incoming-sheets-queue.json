@@ -1,0 +1,285 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-08-02T00:00:00Z",
+  "description": "Incoming reference sheet queue for sections 11-20. Tracks submissions, review status, and blockers for future production phases.",
+  "processingRules": {
+    "submissionDeadline": "2026-12-31",
+    "reviewCycle": "bi-weekly",
+    "maxSectionBatch": 3,
+    "blockingStatusReasons": ["incomplete-reference", "conflicting-style", "scale-mismatch"]
+  },
+  "queue": [
+    {
+      "section": "11",
+      "name": "Potions and consumables",
+      "priority": "phase-two",
+      "submissionStatus": "awaiting-submission",
+      "received": false,
+      "receivedDate": null,
+      "estimatedArrival": "2026-09-15",
+      "assignedTo": "artist-team",
+      "requirements": {
+        "assetCount": { "min": 15, "max": 30 },
+        "categories": ["healing-potions", "buff-potions", "ingredient-plants"],
+        "referenceStyle": "consistent-with-sections-01-10",
+        "resolutions": ["512x512", "1024x1024"]
+      },
+      "reviewNotes": [],
+      "blockers": [],
+      "expectedEntries": [
+        "item.potion-health-minor",
+        "item.potion-health-major",
+        "item.potion-mana-minor",
+        "item.potion-mana-major",
+        "item.potion-stamina-minor",
+        "item.potion-stamina-major",
+        "ingredient.mandrake-root",
+        "ingredient.moonflower-petals",
+        "ingredient.thread-wisps"
+      ]
+    },
+    {
+      "section": "12",
+      "name": "Secondary locations and dungeons",
+      "priority": "phase-two",
+      "submissionStatus": "awaiting-submission",
+      "received": false,
+      "receivedDate": null,
+      "estimatedArrival": "2026-10-01",
+      "assignedTo": "environment-team",
+      "requirements": {
+        "assetCount": { "min": 20, "max": 50 },
+        "categories": ["dungeon-architecture", "underground-terrain", "settlement-variations"],
+        "referenceStyle": "consistent-with-sections-01-10",
+        "resolutions": ["2048x1024"]
+      },
+      "reviewNotes": [],
+      "blockers": [],
+      "expectedEntries": [
+        "architecture.dungeon-entrance",
+        "architecture.deep-cavern",
+        "architecture.abandoned-temple",
+        "terrain.stone-cavern",
+        "terrain.underground-water",
+        "settlement.trading-post"
+      ]
+    },
+    {
+      "section": "13",
+      "name": "Seasonal variations and weather",
+      "priority": "phase-two",
+      "submissionStatus": "awaiting-submission",
+      "received": false,
+      "receivedDate": null,
+      "estimatedArrival": "2026-10-15",
+      "assignedTo": "environment-team",
+      "requirements": {
+        "assetCount": { "min": 12, "max": 24 },
+        "categories": ["seasonal-foliage", "weather-effects", "lighting-variations"],
+        "referenceStyle": "consistent-with-sections-01-10",
+        "resolutions": ["2048x2048"]
+      },
+      "reviewNotes": [],
+      "blockers": [],
+      "expectedEntries": [
+        "terrain.grass-autumn",
+        "terrain.grass-winter",
+        "weather.rain-effect",
+        "weather.snow-effect",
+        "lighting.twilight-environment",
+        "lighting.night-environment"
+      ]
+    },
+    {
+      "section": "14",
+      "name": "Magic and spell effects",
+      "priority": "phase-two",
+      "submissionStatus": "awaiting-submission",
+      "received": false,
+      "receivedDate": null,
+      "estimatedArrival": "2026-11-01",
+      "assignedTo": "vfx-team",
+      "requirements": {
+        "assetCount": { "min": 20, "max": 40 },
+        "categories": ["spell-projectiles", "impact-effects", "aura-effects"],
+        "referenceStyle": "bright-energetic-clean-lines",
+        "resolutions": ["1024x1024"]
+      },
+      "reviewNotes": [],
+      "blockers": [],
+      "expectedEntries": [
+        "effect.fireball-projectile",
+        "effect.frost-projectile",
+        "effect.impact-fire",
+        "effect.impact-frost",
+        "effect.healing-aura",
+        "effect.mana-shield"
+      ]
+    },
+    {
+      "section": "15",
+      "name": "Boss enemies and variants",
+      "priority": "phase-two",
+      "submissionStatus": "awaiting-submission",
+      "received": false,
+      "receivedDate": null,
+      "estimatedArrival": "2026-11-15",
+      "assignedTo": "character-team",
+      "requirements": {
+        "assetCount": { "min": 8, "max": 15 },
+        "categories": ["boss-enemies", "phase-variants", "defeated-states"],
+        "referenceStyle": "intimidating-dynamic-poses",
+        "resolutions": ["2048x2048"]
+      },
+      "reviewNotes": [],
+      "blockers": [],
+      "expectedEntries": [
+        "enemy.shadowlord-phase1",
+        "enemy.shadowlord-phase2",
+        "enemy.corrupted-guardian",
+        "enemy.fallen-knight"
+      ]
+    },
+    {
+      "section": "16",
+      "name": "Interactive objects and furniture",
+      "priority": "phase-two",
+      "submissionStatus": "awaiting-submission",
+      "received": false,
+      "receivedDate": null,
+      "estimatedArrival": "2026-12-01",
+      "assignedTo": "environment-team",
+      "requirements": {
+        "assetCount": { "min": 25, "max": 50 },
+        "categories": ["doors-and-gates", "crafting-stations", "storage-containers", "decorative-furniture"],
+        "referenceStyle": "detailed-functional-design",
+        "resolutions": ["1024x1024"]
+      },
+      "reviewNotes": [],
+      "blockers": [],
+      "expectedEntries": [
+        "interaction.door-wooden",
+        "interaction.chest-ornate",
+        "interaction.loom-workstation",
+        "interaction.forge-anvil",
+        "prop.barrel",
+        "prop.bookshelf"
+      ]
+    },
+    {
+      "section": "17",
+      "name": "Character customization and cosmetics",
+      "priority": "phase-three",
+      "submissionStatus": "awaiting-submission",
+      "received": false,
+      "receivedDate": null,
+      "estimatedArrival": "2027-01-15",
+      "assignedTo": "character-team",
+      "requirements": {
+        "assetCount": { "min": 30, "max": 60 },
+        "categories": ["alternative-appearances", "cosmetic-armor", "haircuts", "special-effects"],
+        "referenceStyle": "consistent-with-sections-01-10",
+        "resolutions": ["2048x2048"]
+      },
+      "reviewNotes": [],
+      "blockers": [],
+      "expectedEntries": [
+        "player.appearance.ember-variant2",
+        "player.appearance.tide-variant2",
+        "cosmetic.regal-crown",
+        "cosmetic.scholar-robes"
+      ]
+    },
+    {
+      "section": "18",
+      "name": "Ambient creatures and wildlife",
+      "priority": "phase-three",
+      "submissionStatus": "awaiting-submission",
+      "received": false,
+      "receivedDate": null,
+      "estimatedArrival": "2027-02-01",
+      "assignedTo": "character-team",
+      "requirements": {
+        "assetCount": { "min": 15, "max": 30 },
+        "categories": ["passive-animals", "flocking-birds", "ambient-insects"],
+        "referenceStyle": "naturalistic-varied-sizes",
+        "resolutions": ["1024x1024"]
+      },
+      "reviewNotes": [],
+      "blockers": [],
+      "expectedEntries": [
+        "ambient.butterfly-red",
+        "ambient.butterfly-blue",
+        "ambient.bird-finch",
+        "ambient.bird-thrush",
+        "ambient.rabbit"
+      ]
+    },
+    {
+      "section": "19",
+      "name": "RESERVED - Future expansion",
+      "priority": "future",
+      "submissionStatus": "awaiting-definition",
+      "received": false,
+      "receivedDate": null,
+      "estimatedArrival": null,
+      "assignedTo": null,
+      "requirements": {
+        "assetCount": { "min": 0, "max": 0 },
+        "categories": [],
+        "referenceStyle": "TBD",
+        "resolutions": []
+      },
+      "reviewNotes": ["Reserved for future production phases beyond phase-three"],
+      "blockers": ["not-yet-defined"],
+      "expectedEntries": []
+    },
+    {
+      "section": "20",
+      "name": "RESERVED - Future expansion",
+      "priority": "future",
+      "submissionStatus": "awaiting-definition",
+      "received": false,
+      "receivedDate": null,
+      "estimatedArrival": null,
+      "assignedTo": null,
+      "requirements": {
+        "assetCount": { "min": 0, "max": 0 },
+        "categories": [],
+        "referenceStyle": "TBD",
+        "resolutions": []
+      },
+      "reviewNotes": ["Reserved for future production phases beyond phase-three"],
+      "blockers": ["not-yet-defined"],
+      "expectedEntries": []
+    }
+  ],
+  "summary": {
+    "totalSections": 10,
+    "definedSections": 8,
+    "reservedSections": 2,
+    "submittedSections": 0,
+    "inReviewSections": 0,
+    "approvedSections": 0,
+    "blockedSections": 0,
+    "expectedTotalAssets": 165,
+    "processingDeadline": "2026-12-31"
+  },
+  "timeline": {
+    "phase-two": {
+      "sections": ["11", "12", "13", "14", "15", "16"],
+      "deadline": "2026-12-31",
+      "estimatedAssets": 120
+    },
+    "phase-three": {
+      "sections": ["17", "18"],
+      "deadline": "2027-02-28",
+      "estimatedAssets": 45
+    },
+    "future": {
+      "sections": ["19", "20"],
+      "deadline": null,
+      "estimatedAssets": 0
+    }
+  }
+}

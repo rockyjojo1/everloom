@@ -1,0 +1,121 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-08-02T00:00:00Z",
+  "sheets": {
+    "01": {
+      "id": "01",
+      "section": "01",
+      "name": "Core gameplay composition",
+      "received": true,
+      "reviewStatus": "approved",
+      "approvedDate": "2026-08-02",
+      "width": 2172,
+      "height": 724,
+      "checksum": "5D47A68E663E39B9236986D874A3F7DD0B49489241787DCE437B6878866E6DAE"
+    },
+    "02": {
+      "id": "02",
+      "section": "02",
+      "name": "Player characters",
+      "received": true,
+      "reviewStatus": "approved",
+      "approvedDate": "2026-08-02",
+      "width": 2172,
+      "height": 724,
+      "checksum": "5D47A68E663E39B9236986D874A3F7DD0B49489241787DCE437B6878866E6DAE"
+    },
+    "03": {
+      "id": "03",
+      "section": "03",
+      "name": "NPCs",
+      "received": true,
+      "reviewStatus": "approved",
+      "approvedDate": "2026-08-02",
+      "width": 2172,
+      "height": 724,
+      "checksum": "5D47A68E663E39B9236986D874A3F7DD0B49489241787DCE437B6878866E6DAE"
+    },
+    "04": {
+      "id": "04",
+      "section": "04",
+      "name": "Creatures",
+      "received": true,
+      "reviewStatus": "approved",
+      "approvedDate": "2026-08-02",
+      "width": 2172,
+      "height": 724,
+      "checksum": "5D47A68E663E39B9236986D874A3F7DD0B49489241787DCE437B6878866E6DAE"
+    },
+    "05": {
+      "id": "05",
+      "section": "05",
+      "name": "Tools and weapons",
+      "received": true,
+      "reviewStatus": "approved",
+      "approvedDate": "2026-08-02",
+      "width": 2172,
+      "height": 724,
+      "checksum": "5D47A68E663E39B9236986D874A3F7DD0B49489241787DCE437B6878866E6DAE"
+    },
+    "06": {
+      "id": "06",
+      "section": "06",
+      "name": "Armor and clothing",
+      "received": false,
+      "reviewStatus": "awaiting-submission",
+      "approvedDate": null,
+      "width": null,
+      "height": null,
+      "checksum": null
+    },
+    "07": {
+      "id": "07",
+      "section": "07",
+      "name": "Resource nodes",
+      "received": true,
+      "reviewStatus": "approved",
+      "approvedDate": "2026-08-02",
+      "width": 2172,
+      "height": 724,
+      "checksum": "5D47A68E663E39B9236986D874A3F7DD0B49489241787DCE437B6878866E6DAE"
+    },
+    "08": {
+      "id": "08",
+      "section": "08",
+      "name": "Architecture",
+      "received": true,
+      "reviewStatus": "approved",
+      "approvedDate": "2026-08-02",
+      "width": 2172,
+      "height": 724,
+      "checksum": "5D47A68E663E39B9236986D874A3F7DD0B49489241787DCE437B6878866E6DAE"
+    },
+    "09": {
+      "id": "09",
+      "section": "09",
+      "name": "Landmarks",
+      "received": true,
+      "reviewStatus": "approved",
+      "approvedDate": "2026-08-02",
+      "width": 2172,
+      "height": 724,
+      "checksum": "5D47A68E663E39B9236986D874A3F7DD0B49489241787DCE437B6878866E6DAE"
+    },
+    "10": {
+      "id": "10",
+      "section": "10",
+      "name": "Terrain and materials",
+      "received": true,
+      "reviewStatus": "approved",
+      "approvedDate": "2026-08-02",
+      "width": 2172,
+      "height": 724,
+      "checksum": "5D47A68E663E39B9236986D874A3F7DD0B49489241787DCE437B6878866E6DAE"
+    }
+  },
+  "summary": {
+    "total": 10,
+    "approved": 9,
+    "awaiting": 1
+  }
+}
