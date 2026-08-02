@@ -27,10 +27,13 @@ const CloudAccount = lazy(async () => {
   return { default: module.CloudAccount };
 });
 
-const VisualQAGallery = lazy(async () => {
-  const module = await import("./components/VisualQAGallery");
-  return { default: module.VisualQAGallery };
-});
+// Development-only QA gallery: import and lazy load only in dev, completely tree-shaken from production.
+const VisualQAGallery = import.meta.env.DEV
+  ? lazy(async () => {
+      const module = await import("./components/VisualQAGallery");
+      return { default: module.VisualQAGallery };
+    })
+  : (() => null as never);
 
 export default function App() {
   const [characterName, setCharacterName] = useState("Wanderer");
@@ -59,7 +62,7 @@ export default function App() {
   }, []);
 
   if (new URLSearchParams(location.search).has("asset-browser")) return <Suspense fallback={<main className="loading"><div className="loom-mark" /><span>Opening the asset archive…</span></main>}><AssetBrowser /></Suspense>;
-  if (new URLSearchParams(location.search).has("qa") && new URLSearchParams(location.search).get("qa") === "gallery") {
+  if (import.meta.env.DEV && new URLSearchParams(location.search).has("qa") && new URLSearchParams(location.search).get("qa") === "gallery" && VisualQAGallery) {
     return <Suspense fallback={<main className="loading"><div className="loom-mark" /><span>Opening the QA gallery…</span></main>}><VisualQAGallery /></Suspense>;
   }
   if (status === "error") return <main className="fatal"><h1>The thread snagged.</h1><p>{error}</p><button onClick={() => location.reload()}>Try again</button></main>;
