@@ -63,10 +63,14 @@ for (const check of checks) {
   }
 }
 
-// Report Gate 0
+// Report Gate 0 (run with shell for pnpm)
 console.log(`\n⏳ Gate 0 verification (prerequisite)`);
-const gate0 = run("Gate 0", "pnpm", ["run", "verify:gate0"], { cwd: appRoot });
-if (gate0.status === 0) {
+const gate0Result = spawnSync("pnpm", ["run", "verify:gate0"], {
+  cwd: appRoot,
+  stdio: "pipe",
+  shell: true
+});
+if (gate0Result.status === 0) {
   console.log(`   ✅ PASSED`);
 } else {
   console.log(`   ❌ FAILED`);
@@ -85,21 +89,22 @@ console.log(`${severityLevels.info}: ${results.info}`);
 
 // Load manifest for statistics
 const manifestPath = resolve(appRoot, "../../art-direction/visual-production-manifest.json");
-let manifest;
 try {
-  manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
 
   const verticalSlice = manifest.entries.filter(e => e.productionPriority === "vertical-slice").length;
   const phaseTwo = manifest.entries.filter(e => e.productionPriority === "phase-two").length;
-  const withBlockers = manifest.entries.filter(e => e.currentStatus === "licensed-placeholder" && e.currentSource.includes("kaykit-") || e.currentSource.includes("kenney-")).length;
+  const approvedExisting = manifest.entries.filter(e => e.currentStatus === "approved-existing").length;
+  const procedural = manifest.entries.filter(e => e.currentStatus === "procedural-placeholder").length;
 
   console.log(`\n📋 Asset Inventory:`);
   console.log(`   Total entries: ${manifest.entries.length}`);
   console.log(`   Vertical-slice: ${verticalSlice}`);
   console.log(`   Phase-two: ${phaseTwo}`);
-  console.log(`   With missing dependencies: ${withBlockers}`);
+  console.log(`   Approved-existing: ${approvedExisting}`);
+  console.log(`   Procedural placeholders: ${procedural}`);
 } catch (e) {
-  console.log(`\n⚠️  Could not load manifest for statistics`);
+  console.log(`\n⚠️  Could not load manifest for statistics: ${e.message}`);
 }
 
 console.log("\n" + "=".repeat(70));
