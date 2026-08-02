@@ -279,3 +279,21 @@ export async function instantiateAsset(assetId: string, tint?: string | null): P
   });
   return { object, animations: gltf.animations };
 }
+
+export function addInteractionHitbox(object: THREE.Object3D, kind: string): void {
+  if (kind === "ground_item") {
+    const hitArea = new THREE.Mesh(
+      new THREE.SphereGeometry(0.5, 16, 16),
+      new THREE.MeshBasicMaterial({
+        transparent: true,
+        opacity: 0,
+        depthWrite: false,
+        colorWrite: false,
+        side: THREE.DoubleSide,
+      }),
+    );
+    hitArea.position.y = 0.3;
+    hitArea.userData.interactionHitArea = true;
+    object.add(hitArea);
+  }
+}

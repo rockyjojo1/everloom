@@ -9,7 +9,7 @@ import {
 } from "../game/objectiveGuidance";
 import { blockedSet, findPath, pathToTarget } from "../game/pathfinding";
 import { useGameStore } from "../game/store";
-import { instantiateAsset } from "./assets";
+import { addInteractionHitbox, instantiateAsset } from "./assets";
 import { buildEnvironment, terrainHeight, updateEnvironment } from "./environment";
 
 const zone = CONTENT.zones.meadowrest!;
@@ -444,6 +444,7 @@ export function GameWorld() {
       elevation: number,
       tint?: string | null,
       interactive = false,
+      kind?: string,
     ) => {
       let object: THREE.Object3D;
       let animations: THREE.AnimationClip[];
@@ -503,6 +504,9 @@ export function GameWorld() {
         fishingHitArea.userData.interactionHitArea = true;
         object.add(fishingHitArea);
       }
+      if (interactive && kind === "ground_item") {
+        addInteractionHitbox(object, kind);
+      }
       object.userData.targetId = id;
       object.traverse((child) => { child.userData.targetId = id; });
       scene.add(object);
@@ -517,7 +521,7 @@ export function GameWorld() {
     for (const item of zone.scenery) sceneryAssetJobs.push(addAsset(item.id, item.assetId, item.x, item.z, item.rotation, item.scale, item.elevation, item.tint));
     for (const item of zone.interactables) {
       const resolvedTint = (npcTints as Record<string, string>)[item.id] ?? item.tint ?? null;
-      criticalAssetJobs.push(addAsset(item.id, item.assetId, item.x, item.z, 0, 1, item.kind === "ground_item" ? 0.14 : 0, resolvedTint, true));
+      criticalAssetJobs.push(addAsset(item.id, item.assetId, item.x, item.z, 0, 1, item.kind === "ground_item" ? 0.14 : 0, resolvedTint, true, item.kind));
       const isFishingSpot = item.kind === "resource" && item.assetId === "custom.fishing-ripples";
       if (item.kind === "ground_item" || item.kind === "npc" || isFishingSpot) {
         const label = document.createElement("span");
