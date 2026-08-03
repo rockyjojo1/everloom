@@ -2,6 +2,58 @@ import path from "path";
 import fs from "fs";
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
+import { MODEL_ROOT } from "../../packages/assets/paths.mjs";
+
+// packages/assets owns the canonical tracked model-binary root. This legacy
+// app consumes it — it does not own a second copy under its own public/.
+// See packages/assets/paths.mjs.
+const modelRoot = MODEL_ROOT;
+
+function assertCanonicalModelRootPopulated(): void {
+  if (!fs.existsSync(modelRoot) || !fs.statSync(modelRoot).isDirectory()) {
+    throw new Error(
+      `everloom-shared-model-library (client3d): canonical model root not found at ${modelRoot}.`,
+    );
+  }
+  if (fs.readdirSync(modelRoot).length === 0) {
+    throw new Error(
+      `everloom-shared-model-library (client3d): canonical model root ${modelRoot} is empty.`,
+    );
+  }
+}
+
+function sharedModelLibrary(): Plugin {
+  return {
+    name: "everloom-shared-model-library-client3d",
+    configureServer(server) {
+      assertCanonicalModelRootPopulated();
+      server.middlewares.use("/models", (request, response, next) => {
+        try {
+          const relativePath = decodeURIComponent(new URL(request.url ?? "/", "http://localhost").pathname)
+            .replace(/^\/+/, "");
+          const file = path.resolve(modelRoot, relativePath);
+          if (!file.startsWith(modelRoot) || !fs.existsSync(file) || !fs.statSync(file).isFile()) return next();
+          const type = path.extname(file) === ".glb" ? "model/gltf-binary" : "model/gltf+json";
+          response.writeHead(200, { "content-type": type, "cache-control": "public, max-age=3600" });
+          fs.createReadStream(file).pipe(response);
+        } catch {
+          next();
+        }
+      });
+    },
+    writeBundle(options) {
+      assertCanonicalModelRootPopulated();
+      const outputDirectory = typeof options.dir === "string" ? options.dir : path.resolve(__dirname, "dist");
+      const destination = path.resolve(outputDirectory, "models");
+      fs.cpSync(modelRoot, destination, { recursive: true });
+      if (!fs.existsSync(destination) || fs.readdirSync(destination).length === 0) {
+        throw new Error(
+          `everloom-shared-model-library (client3d): copy to ${destination} produced an empty directory.`,
+        );
+      }
+    },
+  };
+}
 
 /**
  * Screenshot sink (DEV ONLY).
@@ -55,7 +107,7 @@ function screenshotSink(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), screenshotSink()],
+  plugins: [react(), screenshotSink(), sharedModelLibrary()],
   resolve: {
     alias: {
       "@everloom/engine": path.resolve(__dirname, "../../packages/engine/src/index.ts"),

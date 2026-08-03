@@ -20,11 +20,20 @@ Related: [`PRODUCT.md`](PRODUCT.md) · [`TECHNICAL_ARCHITECTURE.md`](TECHNICAL_A
 - Authoritative application: `apps/game` (React + Three.js browser/PWA client).
 - Authoritative domain package: `packages/core`.
 - Authoritative content package: `packages/content`.
-- Authoritative asset package: `packages/assets`.
+- Authoritative asset package: `packages/assets`, which now also owns the
+  canonical tracked binary model library at `packages/assets/models` (moved
+  there from `apps/client3d/public/models` in the Gate 3
+  canonical-asset-foundation pass — see
+  `docs/audits/2026-08-04-canonical-asset-foundation/GATE3_IMPLEMENTATION_REPORT.md`).
+  `apps/game` and `apps/client3d` both consume this root through a shared
+  path contract (`packages/assets/paths.mjs`); neither app owns a private
+  copy.
 - `apps/client3d`, `apps/web`, `packages/engine` and `packages/gamedata` exist,
   build, and may still contain reusable ideas or assets, but they are legacy
   or alternate paths, not implementation authority. Do not merge them
-  wholesale.
+  wholesale. As of Gate 3, `apps/client3d` no longer owns any binary asset
+  data of its own — it consumes the authoritative package's model root, the
+  same as `apps/game`.
 - Save version: 6 (`packages/core/src/types.ts`, `SAVE_VERSION`).
 - Local persistence is IndexedDB via `idb`, through
   `apps/game/src/game/saveDb.ts`, called from the `apps/game` store
@@ -72,6 +81,36 @@ At commit `a53e75201b6d1a60890d3a5adfa50e6f57548945`:
 None of the above proves Verdant Grove, or any specific player-facing
 feature, is complete or runtime reachable. A passing build or test proves
 only what it directly exercises.
+
+## Gate 3: canonical asset foundation (built on top of Gate 2 `8b812f8`)
+
+- `packages/assets/models` is now the sole canonical tracked binary model
+  root (569 files, migrated with `git mv` — 100% Git rename detection, every
+  file's SHA-256 and byte size verified identical before/after).
+- `apps/game/vite.config.ts` and `apps/client3d/vite.config.ts` both import
+  `MODEL_ROOT` from `packages/assets/paths.mjs`; neither hardcodes its own
+  model path any more.
+- `art-direction/visual-production-manifest.json`'s file-backed
+  `currentSource`/`currentSourceCanonical` fields no longer point at the
+  gitignored `apps/client3d/dist/models` build-output path (previously
+  Blocker B1) or the legacy `apps/client3d/public/models` source path
+  (previously Blocker B2); they point at the committed
+  `packages/assets/models/...` tree. No `currentStatus`, priority, role,
+  scale, or acceptance-criteria field was changed.
+- `pnpm --filter @everloom/game verify:visual-foundation`'s source-path
+  validation stage now passes on a genuinely fresh worktree, before
+  `apps/client3d` has ever been built — this was independently proven in a
+  disposable worktree; see the Gate 3 report for the exact commands and
+  output.
+- Durable, committed Node-only validators now exist for GLB/glTF structure,
+  geometry/rig/animation metadata, required-animation-clip presence,
+  duplicate-vs-semantic-reuse binary detection, and source/licence evidence
+  structure (`packages/assets/scripts/validate-models.mjs`,
+  `validate-sources.mjs`), with 65 passing unit/integration tests. None of
+  this constitutes commercial-release legal approval.
+- Full detail, exact commands, and fresh-worktree proof:
+  `docs/audits/2026-08-04-canonical-asset-foundation/GATE3_IMPLEMENTATION_REPORT.md`
+  and the accompanying `VERIFICATION_LOG.md`.
 
 ## Superseded / non-authoritative for current state
 

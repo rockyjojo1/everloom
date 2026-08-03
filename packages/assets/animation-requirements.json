@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "note": "Runtime asset IDs whose game code depends on specific named animation clips existing on the rig. Required clip names are cross-checked against packages/assets/src/registry.json's referenced GLB file by validate-models.mjs. A missing required clip fails validation before it can fail at runtime.",
+  "sourceOfTruth": "apps/game/src/world/GameWorld.tsx string-literal clip references, confirmed present in both rigs by the 2026-08-04 Gate 2 audit (docs/audits/2026-08-04-existing-asset-provenance/ASSET_PROVENANCE_AUDIT.md).",
+  "requirements": [
+    {
+      "runtimeAssetId": "player.adventurer",
+      "requiredClips": [
+        "Idle",
+        "Walking_A",
+        "1H_Melee_Attack_Chop",
+        "1H_Melee_Attack_Stab",
+        "Sit_Floor_Down",
+        "Sit_Floor_Idle",
+        "Sit_Floor_StandUp"
+      ]
+    },
+    {
+      "runtimeAssetId": "enemy.skeleton-warrior",
+      "requiredClips": [
+        "Idle",
+        "Walking_A",
+        "1H_Melee_Attack_Chop",
+        "1H_Melee_Attack_Stab",
+        "Sit_Floor_Down",
+        "Sit_Floor_Idle",
+        "Sit_Floor_StandUp"
+      ]
+    }
+  ]
+}

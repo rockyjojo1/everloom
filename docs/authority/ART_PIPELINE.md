@@ -39,24 +39,50 @@ Related: [`ASSET_SOURCES.md`](ASSET_SOURCES.md) · [`PRODUCT.md`](PRODUCT.md) ·
 
 ## Validation coverage
 
-Asset validation (existing scripts under `art-direction/scripts/` and
-`packages/assets/scripts/`) should cover, and does substantially cover today:
+The 2026-08-04 Gate 2 audit found the previous wording here — that
+validation "substantially covers" naming, scale, origin, material count,
+texture use, rig, animation clips and attachment points — **was too
+strong**: most of those areas were not checked by any committed script at
+all at that time. Gate 3 (`packages/assets/scripts/validate-models.mjs`,
+`validate-sources.mjs`) closed the highest-value gaps. As of Gate 3,
+committed, durable validation actually covers:
 
-- naming;
-- scale;
-- origin/provenance;
-- material count;
-- texture use;
-- rig;
-- animation clips;
-- attachment points;
-- provenance and licence fields.
+- **fully checked**: registry ID uniqueness; GLB/glTF container and JSON
+  structural validity; scene/node/mesh presence; external buffer/texture
+  companion existence within the canonical root; path-traversal rejection;
+  exact-duplicate binary detection versus intentional semantic reuse;
+  required-animation-clip presence for rigged assets with a declared
+  requirement (`packages/assets/animation-requirements.json`); licence-field
+  presence for every externally-sourced pack; manifest `currentAssetId` ↔
+  registry consistency; manifest file-backed `currentSource` ↔ tracked-file
+  consistency (including rejecting any path into a `dist` build-output
+  directory); source-evidence record structure (evidence kind, commit
+  resolution, path existence).
+- **partially checked / metadata only, not a quality judgement**: material
+  count, texture count, embedded-texture dimensions (decoded where the
+  format is PNG/JPEG and the bytes are reachable), exact triangle counts
+  (from accessor metadata, not visual inspection), joint counts. None of
+  this is a claim about visual quality, art direction fit, or mobile
+  performance.
+- **still not checked by any committed script**: naming convention/pattern
+  for registry IDs; object origin/pivot placement; texture *compression*
+  format suitability; source URL reachability (no network calls are made);
+  polygon/triangle *budget* enforcement (counts are reported, not capped);
+  actual external licence-archive evidence (only local, repository-internal
+  evidence is checked — see [`ASSET_SOURCES.md`](ASSET_SOURCES.md)).
 
-`pnpm --filter @everloom/game verify:visual-foundation` runs this validation
-alongside build and test stages. Passing it proves the manifest and registry
-are internally consistent — it does not by itself prove any asset is
-finished production art. See the baseline-pending distinction in
-[`CURRENT_STATE.md`](CURRENT_STATE.md).
+`pnpm --filter @everloom/assets run verify` runs the durable technical and
+source-evidence validators together with their test suites.
+`pnpm --filter @everloom/game verify:visual-foundation` runs the
+manifest/registry consistency checks alongside build and test stages.
+Passing either proves what it directly checks — it does not by itself prove
+any asset is finished production art, and it is not commercial-release
+licence approval. See the baseline-pending distinction in
+[`CURRENT_STATE.md`](CURRENT_STATE.md) and the full coverage matrix in
+`docs/audits/2026-08-04-existing-asset-provenance/ASSET_PROVENANCE_AUDIT.md`
+(historical, pre-Gate-3 baseline) and
+`docs/audits/2026-08-04-canonical-asset-foundation/GATE3_IMPLEMENTATION_REPORT.md`
+(current).
 
 ## Sourcing constraint
 

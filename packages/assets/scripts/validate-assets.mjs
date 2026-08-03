@@ -1,10 +1,10 @@
 import { access, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { MODEL_ROOT } from "../paths.mjs";
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
-const repositoryRoot = resolve(scriptDirectory, "../../..");
-const modelRoot = resolve(repositoryRoot, "apps/client3d/public/models");
+const modelRoot = MODEL_ROOT;
 const registry = JSON.parse(await readFile(resolve(scriptDirectory, "../src/registry.json"), "utf8"));
 const catalog = JSON.parse(await readFile(resolve(scriptDirectory, "../src/catalog.generated.json"), "utf8"));
 const errors = [];

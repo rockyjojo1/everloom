@@ -11,7 +11,7 @@
       ],
       "boardSection": "03",
       "currentAssetId": null,
-      "currentSource": "packages/assets/src/kaykit-adventurers/Character.glb",
+      "currentSource": "packages/assets/models/kaykit-adventurers/Character.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "needs-audit",
       "productionPriority": "vertical-slice",
@@ -53,7 +53,7 @@
       ],
       "boardSection": "13",
       "currentAssetId": null,
-      "currentSource": "packages/assets/src/kaykit-adventurers/Character.glb",
+      "currentSource": "packages/assets/models/kaykit-adventurers/Character.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "licensed-placeholder",
       "productionPriority": "vertical-slice",
@@ -94,7 +94,7 @@
       ],
       "boardSection": "13",
       "currentAssetId": null,
-      "currentSource": "packages/assets/src/kaykit-adventurers/Character.glb",
+      "currentSource": "packages/assets/models/kaykit-adventurers/Character.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "licensed-placeholder",
       "productionPriority": "vertical-slice",
@@ -136,7 +136,7 @@
       ],
       "boardSection": "13",
       "currentAssetId": null,
-      "currentSource": "packages/assets/src/kaykit-adventurers/Character.glb",
+      "currentSource": "packages/assets/models/kaykit-adventurers/Character.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "licensed-placeholder",
       "productionPriority": "vertical-slice",
@@ -225,7 +225,7 @@
       ],
       "boardSection": "08",
       "currentAssetId": "town.wall",
-      "currentSource": "apps/client3d/dist/models/kenney-fantasy/wall.glb",
+      "currentSource": "packages/assets/models/kenney-fantasy/wall.glb",
       "currentLicense": "unknown",
       "currentStatus": "approved-existing",
       "productionPriority": "vertical-slice",
@@ -256,7 +256,7 @@
       ],
       "status": "reference-approved",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-fantasy/wall.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-fantasy/wall.glb"
     },
     {
       "id": "architecture.loom-hall",
@@ -738,7 +738,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "dungeon.barrel",
-      "currentSource": "apps/client3d/dist/models/kaykit-dungeon/barrel_large.gltf.glb",
+      "currentSource": "packages/assets/models/kaykit-dungeon/barrel_large.gltf.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -765,7 +765,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kaykit-dungeon/barrel_large.gltf.glb"
+      "currentSourceCanonical": "packages/assets/models/kaykit-dungeon/barrel_large.gltf.glb"
     },
     {
       "id": "dungeon.crates",
@@ -777,7 +777,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "dungeon.crates",
-      "currentSource": "apps/client3d/dist/models/kaykit-dungeon/crates_stacked.gltf.glb",
+      "currentSource": "packages/assets/models/kaykit-dungeon/crates_stacked.gltf.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -804,7 +804,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kaykit-dungeon/crates_stacked.gltf.glb"
+      "currentSourceCanonical": "packages/assets/models/kaykit-dungeon/crates_stacked.gltf.glb"
     },
     {
       "id": "enemy.skeleton-warrior",
@@ -817,7 +817,7 @@
       ],
       "boardSection": "04",
       "currentAssetId": "enemy.skeleton-warrior",
-      "currentSource": "apps/client3d/dist/models/kaykit-skeletons/Skeleton_Warrior.glb",
+      "currentSource": "packages/assets/models/kaykit-skeletons/Skeleton_Warrior.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "vertical-slice",
@@ -849,7 +849,7 @@
       ],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kaykit-skeletons/Skeleton_Warrior.glb"
+      "currentSourceCanonical": "packages/assets/models/kaykit-skeletons/Skeleton_Warrior.glb"
     },
     {
       "id": "equipment.worn-hatchet",
@@ -1670,7 +1670,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "landmark.verdant-loomstone",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/stone_tallA.glb",
+      "currentSource": "packages/assets/models/kenney-nature/stone_tallA.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "vertical-slice",
@@ -1702,7 +1702,7 @@
       ],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/stone_tallA.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/stone_tallA.glb"
     },
     {
       "id": "nature.bridge",
@@ -1714,7 +1714,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.bridge",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/bridge_wood.glb",
+      "currentSource": "packages/assets/models/kenney-nature/bridge_wood.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -1741,7 +1741,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/bridge_wood.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/bridge_wood.glb"
     },
     {
       "id": "nature.bush",
@@ -1753,7 +1753,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.bush",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/plant_bush.glb",
+      "currentSource": "packages/assets/models/kenney-nature/plant_bush.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -1780,7 +1780,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/plant_bush.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/plant_bush.glb"
     },
     {
       "id": "nature.bush-detailed",
@@ -1792,7 +1792,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.bush-detailed",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/plant_bushDetailed.glb",
+      "currentSource": "packages/assets/models/kenney-nature/plant_bushDetailed.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -1819,7 +1819,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/plant_bushDetailed.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/plant_bushDetailed.glb"
     },
     {
       "id": "nature.campfire",
@@ -1832,7 +1832,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.campfire",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/campfire_stones.glb",
+      "currentSource": "packages/assets/models/kenney-nature/campfire_stones.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "vertical-slice",
@@ -1864,7 +1864,7 @@
       ],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/campfire_stones.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/campfire_stones.glb"
     },
     {
       "id": "nature.cliff-block",
@@ -1876,7 +1876,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.cliff-block",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/cliff_block_rock.glb",
+      "currentSource": "packages/assets/models/kenney-nature/cliff_block_rock.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -1903,7 +1903,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/cliff_block_rock.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/cliff_block_rock.glb"
     },
     {
       "id": "nature.cliff-large",
@@ -1915,7 +1915,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.cliff-large",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/cliff_large_rock.glb",
+      "currentSource": "packages/assets/models/kenney-nature/cliff_large_rock.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -1942,7 +1942,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/cliff_large_rock.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/cliff_large_rock.glb"
     },
     {
       "id": "nature.cliff-rock",
@@ -1954,7 +1954,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.cliff-rock",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/cliff_rock.glb",
+      "currentSource": "packages/assets/models/kenney-nature/cliff_rock.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -1981,7 +1981,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/cliff_rock.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/cliff_rock.glb"
     },
     {
       "id": "nature.flower-purple",
@@ -1993,7 +1993,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.flower-purple",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/flower_purpleB.glb",
+      "currentSource": "packages/assets/models/kenney-nature/flower_purpleB.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -2020,7 +2020,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/flower_purpleB.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/flower_purpleB.glb"
     },
     {
       "id": "nature.flower-yellow",
@@ -2032,7 +2032,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.flower-yellow",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/flower_yellowB.glb",
+      "currentSource": "packages/assets/models/kenney-nature/flower_yellowB.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -2059,7 +2059,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/flower_yellowB.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/flower_yellowB.glb"
     },
     {
       "id": "nature.hanging-moss",
@@ -2071,7 +2071,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.hanging-moss",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/hanging_moss.glb",
+      "currentSource": "packages/assets/models/kenney-nature/hanging_moss.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -2098,7 +2098,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/hanging_moss.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/hanging_moss.glb"
     },
     {
       "id": "nature.lily-pad",
@@ -2110,7 +2110,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.lily-pad",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/lily_large.glb",
+      "currentSource": "packages/assets/models/kenney-nature/lily_large.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -2137,7 +2137,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/lily_large.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/lily_large.glb"
     },
     {
       "id": "nature.log",
@@ -2149,7 +2149,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.log",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/log.glb",
+      "currentSource": "packages/assets/models/kenney-nature/log.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -2176,7 +2176,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/log.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/log.glb"
     },
     {
       "id": "nature.mushroom-red",
@@ -2188,7 +2188,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.mushroom-red",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/mushroom_redGroup.glb",
+      "currentSource": "packages/assets/models/kenney-nature/mushroom_redGroup.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -2215,7 +2215,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/mushroom_redGroup.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/mushroom_redGroup.glb"
     },
     {
       "id": "nature.mushroom-tan",
@@ -2227,7 +2227,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.mushroom-tan",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/mushroom_tanGroup.glb",
+      "currentSource": "packages/assets/models/kenney-nature/mushroom_tanGroup.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -2254,7 +2254,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/mushroom_tanGroup.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/mushroom_tanGroup.glb"
     },
     {
       "id": "nature.oak",
@@ -2267,7 +2267,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.oak",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/tree_oak.glb",
+      "currentSource": "packages/assets/models/kenney-nature/tree_oak.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "vertical-slice",
@@ -2299,7 +2299,7 @@
       ],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/tree_oak.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/tree_oak.glb"
     },
     {
       "id": "nature.oak-fall",
@@ -2312,7 +2312,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.oak-fall",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/tree_oak_fall.glb",
+      "currentSource": "packages/assets/models/kenney-nature/tree_oak_fall.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "vertical-slice",
@@ -2344,7 +2344,7 @@
       ],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/tree_oak_fall.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/tree_oak_fall.glb"
     },
     {
       "id": "nature.path-rocks",
@@ -2356,7 +2356,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.path-rocks",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/ground_pathRocks.glb",
+      "currentSource": "packages/assets/models/kenney-nature/ground_pathRocks.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -2383,7 +2383,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/ground_pathRocks.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/ground_pathRocks.glb"
     },
     {
       "id": "nature.pine",
@@ -2395,7 +2395,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.pine",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/tree_pineDefaultA.glb",
+      "currentSource": "packages/assets/models/kenney-nature/tree_pineDefaultA.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -2422,7 +2422,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/tree_pineDefaultA.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/tree_pineDefaultA.glb"
     },
     {
       "id": "nature.rock-flat",
@@ -2434,7 +2434,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.rock-flat",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/rock_smallFlatA.glb",
+      "currentSource": "packages/assets/models/kenney-nature/rock_smallFlatA.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -2461,7 +2461,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/rock_smallFlatA.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/rock_smallFlatA.glb"
     },
     {
       "id": "nature.rock-large",
@@ -2474,7 +2474,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.rock-large",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/rock_largeC.glb",
+      "currentSource": "packages/assets/models/kenney-nature/rock_largeC.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "vertical-slice",
@@ -2506,7 +2506,7 @@
       ],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/rock_largeC.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/rock_largeC.glb"
     },
     {
       "id": "nature.rock-small",
@@ -2518,7 +2518,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.rock-small",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/rock_smallB.glb",
+      "currentSource": "packages/assets/models/kenney-nature/rock_smallB.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -2545,7 +2545,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/rock_smallB.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/rock_smallB.glb"
     },
     {
       "id": "nature.rock-tall",
@@ -2557,7 +2557,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.rock-tall",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/rock_tallC.glb",
+      "currentSource": "packages/assets/models/kenney-nature/rock_tallC.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -2584,7 +2584,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/rock_tallC.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/rock_tallC.glb"
     },
     {
       "id": "nature.rock-tall-b",
@@ -2596,7 +2596,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.rock-tall-b",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/rock_tallF.glb",
+      "currentSource": "packages/assets/models/kenney-nature/rock_tallF.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -2623,7 +2623,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/rock_tallF.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/rock_tallF.glb"
     },
     {
       "id": "nature.stone-ring",
@@ -2635,7 +2635,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.stone-ring",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/statue_ring.glb",
+      "currentSource": "packages/assets/models/kenney-nature/statue_ring.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -2662,7 +2662,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/statue_ring.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/statue_ring.glb"
     },
     {
       "id": "nature.stone-tall",
@@ -2675,7 +2675,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.stone-tall",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/stone_tallA.glb",
+      "currentSource": "packages/assets/models/kenney-nature/stone_tallA.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "vertical-slice",
@@ -2707,7 +2707,7 @@
       ],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/stone_tallA.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/stone_tallA.glb"
     },
     {
       "id": "nature.stump-old",
@@ -2719,7 +2719,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.stump-old",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/stump_old.glb",
+      "currentSource": "packages/assets/models/kenney-nature/stump_old.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -2746,7 +2746,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/stump_old.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/stump_old.glb"
     },
     {
       "id": "nature.stump-round",
@@ -2758,7 +2758,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.stump-round",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/stump_round.glb",
+      "currentSource": "packages/assets/models/kenney-nature/stump_round.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -2785,7 +2785,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/stump_round.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/stump_round.glb"
     },
     {
       "id": "nature.tree-detailed",
@@ -2797,7 +2797,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.tree-detailed",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/tree_detailed.glb",
+      "currentSource": "packages/assets/models/kenney-nature/tree_detailed.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -2824,7 +2824,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/tree_detailed.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/tree_detailed.glb"
     },
     {
       "id": "nature.tree-round",
@@ -2836,7 +2836,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.tree-round",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/tree_pineRoundC.glb",
+      "currentSource": "packages/assets/models/kenney-nature/tree_pineRoundC.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -2863,7 +2863,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-nature/tree_pineRoundC.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-nature/tree_pineRoundC.glb"
     },
     {
       "id": "npc.mara",
@@ -2876,7 +2876,7 @@
       ],
       "boardSection": "03",
       "currentAssetId": "player.adventurer",
-      "currentSource": "apps/client3d/dist/models/kaykit-adventurers/Character.glb",
+      "currentSource": "packages/assets/models/kaykit-adventurers/Character.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "vertical-slice",
@@ -2913,7 +2913,7 @@
       ],
       "status": "reference-approved",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kaykit-adventurers/Character.glb"
+      "currentSourceCanonical": "packages/assets/models/kaykit-adventurers/Character.glb"
     },
     {
       "id": "player.adventurer",
@@ -2926,7 +2926,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "player.adventurer",
-      "currentSource": "apps/client3d/dist/models/kaykit-adventurers/Character.glb",
+      "currentSource": "packages/assets/models/kaykit-adventurers/Character.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "vertical-slice",
@@ -2963,7 +2963,7 @@
         "canonicalEntryId": "npc.mara",
         "reason": "shared asset - secondary reference"
       },
-      "currentSourceCanonical": "packages/assets/src/kaykit-adventurers/Character.glb"
+      "currentSourceCanonical": "packages/assets/models/kaykit-adventurers/Character.glb"
     },
     {
       "id": "player.appearance.dusk",
@@ -3137,7 +3137,7 @@
       ],
       "boardSection": "02",
       "currentAssetId": "player.adventurer",
-      "currentSource": "apps/client3d/dist/models/kaykit-adventurers/Character.glb",
+      "currentSource": "packages/assets/models/kaykit-adventurers/Character.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "vertical-slice",
@@ -3188,7 +3188,7 @@
         "canonicalEntryId": "npc.mara",
         "reason": "shared asset - secondary reference"
       },
-      "currentSourceCanonical": "packages/assets/src/kaykit-adventurers/Character.glb"
+      "currentSourceCanonical": "packages/assets/models/kaykit-adventurers/Character.glb"
     },
     {
       "id": "prop.banner-cloth",
@@ -3615,7 +3615,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "town.banner",
-      "currentSource": "apps/client3d/dist/models/kenney-fantasy/banner-green.glb",
+      "currentSource": "packages/assets/models/kenney-fantasy/banner-green.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -3642,7 +3642,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-fantasy/banner-green.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-fantasy/banner-green.glb"
     },
     {
       "id": "town.cart",
@@ -3654,7 +3654,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "town.cart",
-      "currentSource": "apps/client3d/dist/models/kenney-fantasy/cart.glb",
+      "currentSource": "packages/assets/models/kenney-fantasy/cart.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -3681,7 +3681,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-fantasy/cart.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-fantasy/cart.glb"
     },
     {
       "id": "town.chimney",
@@ -3693,7 +3693,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "town.chimney",
-      "currentSource": "apps/client3d/dist/models/kenney-fantasy/chimney.glb",
+      "currentSource": "packages/assets/models/kenney-fantasy/chimney.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -3720,7 +3720,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-fantasy/chimney.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-fantasy/chimney.glb"
     },
     {
       "id": "town.cottage",
@@ -3775,7 +3775,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "town.fence",
-      "currentSource": "apps/client3d/dist/models/kenney-fantasy/fence.glb",
+      "currentSource": "packages/assets/models/kenney-fantasy/fence.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -3802,7 +3802,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-fantasy/fence.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-fantasy/fence.glb"
     },
     {
       "id": "town.hedge",
@@ -3814,7 +3814,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "town.hedge",
-      "currentSource": "apps/client3d/dist/models/kenney-fantasy/hedge.glb",
+      "currentSource": "packages/assets/models/kenney-fantasy/hedge.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -3841,7 +3841,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-fantasy/hedge.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-fantasy/hedge.glb"
     },
     {
       "id": "town.lantern",
@@ -3853,7 +3853,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "town.lantern",
-      "currentSource": "apps/client3d/dist/models/kenney-fantasy/lantern.glb",
+      "currentSource": "packages/assets/models/kenney-fantasy/lantern.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -3880,7 +3880,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-fantasy/lantern.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-fantasy/lantern.glb"
     },
     {
       "id": "town.roof",
@@ -3892,7 +3892,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "town.roof",
-      "currentSource": "apps/client3d/dist/models/kenney-fantasy/roof-gable.glb",
+      "currentSource": "packages/assets/models/kenney-fantasy/roof-gable.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -3919,7 +3919,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-fantasy/roof-gable.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-fantasy/roof-gable.glb"
     },
     {
       "id": "town.roof-end",
@@ -3931,7 +3931,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "town.roof-end",
-      "currentSource": "apps/client3d/dist/models/kenney-fantasy/roof-gable-end.glb",
+      "currentSource": "packages/assets/models/kenney-fantasy/roof-gable-end.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -3958,7 +3958,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-fantasy/roof-gable-end.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-fantasy/roof-gable-end.glb"
     },
     {
       "id": "town.stall",
@@ -3970,7 +3970,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "town.stall",
-      "currentSource": "apps/client3d/dist/models/kenney-fantasy/stall-green.glb",
+      "currentSource": "packages/assets/models/kenney-fantasy/stall-green.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -3997,7 +3997,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-fantasy/stall-green.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-fantasy/stall-green.glb"
     },
     {
       "id": "town.wall",
@@ -4009,7 +4009,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "town.wall",
-      "currentSource": "apps/client3d/dist/models/kenney-fantasy/wall.glb",
+      "currentSource": "packages/assets/models/kenney-fantasy/wall.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -4041,7 +4041,7 @@
         "canonicalEntryId": "architecture.fence",
         "reason": "shared asset - secondary reference"
       },
-      "currentSourceCanonical": "packages/assets/src/kenney-fantasy/wall.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-fantasy/wall.glb"
     },
     {
       "id": "town.wall-door",
@@ -4053,7 +4053,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "town.wall-door",
-      "currentSource": "apps/client3d/dist/models/kenney-fantasy/wall-door.glb",
+      "currentSource": "packages/assets/models/kenney-fantasy/wall-door.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -4080,7 +4080,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-fantasy/wall-door.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-fantasy/wall-door.glb"
     },
     {
       "id": "town.wall-window",
@@ -4092,7 +4092,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "town.wall-window",
-      "currentSource": "apps/client3d/dist/models/kenney-fantasy/wall-window-shutters.glb",
+      "currentSource": "packages/assets/models/kenney-fantasy/wall-window-shutters.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -4119,7 +4119,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-fantasy/wall-window-shutters.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-fantasy/wall-window-shutters.glb"
     },
     {
       "id": "town.watermill",
@@ -4131,7 +4131,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "town.watermill",
-      "currentSource": "apps/client3d/dist/models/kenney-fantasy/watermill.glb",
+      "currentSource": "packages/assets/models/kenney-fantasy/watermill.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "approved-existing",
       "productionPriority": "phase-two",
@@ -4158,7 +4158,7 @@
       "acceptanceCriteria": [],
       "status": "awaiting-reference",
       "role": "runtime-asset",
-      "currentSourceCanonical": "packages/assets/src/kenney-fantasy/watermill.glb"
+      "currentSourceCanonical": "packages/assets/models/kenney-fantasy/watermill.glb"
     },
     {
       "id": "vegetation.grass-tuft",
@@ -4384,7 +4384,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.tree-detailed",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/tree_detailed.glb",
+      "currentSource": "packages/assets/models/kenney-nature/tree_detailed.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
@@ -4431,7 +4431,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "enemy.skeleton-warrior",
-      "currentSource": "apps/client3d/dist/models/kaykit-skeletons/Skeleton_Warrior.glb",
+      "currentSource": "packages/assets/models/kaykit-skeletons/Skeleton_Warrior.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",
@@ -4478,7 +4478,7 @@
       ],
       "boardSection": null,
       "currentAssetId": "nature.log",
-      "currentSource": "apps/client3d/dist/models/kenney-nature/log.glb",
+      "currentSource": "packages/assets/models/kenney-nature/log.glb",
       "currentLicense": "CC0-1.0",
       "currentStatus": "licensed-placeholder",
       "productionPriority": "phase-two",

@@ -1,10 +1,10 @@
 import { readdir, stat, writeFile } from "node:fs/promises";
 import { dirname, extname, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { MODEL_ROOT } from "../paths.mjs";
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
-const repositoryRoot = resolve(scriptDirectory, "../../..");
-const modelRoot = resolve(repositoryRoot, "apps/client3d/public/models");
+const modelRoot = MODEL_ROOT;
 const outputFile = resolve(scriptDirectory, "../src/catalog.generated.json");
 
 function categoryFor(filename) {

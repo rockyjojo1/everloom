@@ -29,8 +29,11 @@ passing the bake-off gates below.
   concerns.
 - `packages/content` owns authored content definitions and their schema
   validation.
-- `packages/assets` owns runtime asset IDs, provenance metadata and the
-  asset registry.
+- `packages/assets` owns runtime asset IDs, provenance metadata, the asset
+  registry, and (as of Gate 3) the canonical tracked binary model library at
+  `packages/assets/models`. Both `apps/game` and the legacy `apps/client3d`
+  consume this root through the shared path contract
+  `packages/assets/paths.mjs` — neither app owns a private copy.
 - `apps/game` owns presentation, input, browser lifecycle and local
   persistence, and consumes the three packages above.
 

@@ -11,9 +11,13 @@
   "scripts": {
     "catalog": "node scripts/build-catalog.mjs",
     "validate": "node scripts/validate-assets.mjs",
+    "validate:models": "node scripts/validate-models.mjs",
+    "validate:sources": "node scripts/validate-sources.mjs",
+    "inspect": "node scripts/inspect.mjs",
+    "test": "node --test \"**/*.test.mjs\"",
+    "verify": "pnpm run catalog && pnpm run validate && pnpm run validate:models && pnpm run validate:sources && pnpm run test && tsc --noEmit",
     "build": "pnpm run catalog && pnpm run validate && tsc --noEmit",
-    "typecheck": "tsc --noEmit",
-    "test": "pnpm run validate"
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
     "typescript": "^5.7.3"

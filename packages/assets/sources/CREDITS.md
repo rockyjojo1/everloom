@@ -46,21 +46,26 @@ All assets in this project are licensed under CC0 (Creative Commons Zero) or equ
 - All assets are verified CC0/public domain as of P0
 - Models are expected in GLTF 2.0 (.glb or .gltf + .bin) format
 - No Jagex/OSRS game assets, no scraped game data, no pixel art
-- Asset packs are organized in `public/models/<pack-name>/` subdirectories
+- Asset packs are organized in `packages/assets/models/<pack-name>/` subdirectories
 
 ---
 
 ## Verified installed packs (supervisor-installed, see ASSET_INVENTORY.md)
 
 - **KayKit Character Pack: Adventurers** — Kay Lousberg — CC0 —
+  official: https://kaylousberg.itch.io/kaykit — mirror:
   https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0
 - **KayKit Character Pack: Skeletons** — Kay Lousberg — CC0 —
+  official: https://kaylousberg.itch.io/kaykit-skeletons — mirror:
   https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Skeletons-1.0
 - **KayKit Dungeon Remastered** — Kay Lousberg — CC0 —
+  official: https://kaylousberg.itch.io/kaykit-dungeon-remastered — mirror:
   https://github.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0
-- **Kenney Nature Kit** (330 assets) — Kenney.nl — CC0 —
+- **Kenney Nature Kit** (329 assets, measured on disk 2026-08-04; this
+  entry previously read "330 assets") — Kenney.nl — CC0 —
   https://kenney.nl/assets/nature-kit
-- **Kenney Fantasy Town Kit 2.0** (160 assets) — Kenney.nl — CC0 —
+- **Kenney Fantasy Town Kit 2.0** (168 assets, measured on disk 2026-08-04;
+  this entry previously read "160 assets") — Kenney.nl — CC0 —
   https://kenney.nl/assets/fantasy-town-kit
 
 All CC0 (public domain). No Jagex/RuneScape or other proprietary game assets are
