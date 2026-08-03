@@ -189,9 +189,44 @@ Explicit deterministic sequence:
 
 ## Implementation Status
 
-**COMPLETE**: Phases 0-8 implemented and tested
+**CURRENT STATUS: DOMAIN PROTOTYPE, NOT A PLAYABLE VERTICAL SLICE**
 
-### Completed Work
+The deterministic expedition engine, save-format migration, forecasting logic, and
+Vitest coverage described below exist and pass. None of it is reachable by a player
+in the running game. See [`VERDANT_GROVE_STATUS.md`](VERDANT_GROVE_STATUS.md) for the
+machine-readable status record and [`VERDANT_GROVE_HANDOFF.md`](VERDANT_GROVE_HANDOFF.md)
+for the full limitations list. In short:
+
+- `ExpeditionPanel` is not mounted anywhere — it has no runtime caller, no parent
+  renders it, and there is no lifecycle to verify.
+- Clicking the Ironbark world object in Meadowrest does not launch the expedition
+  workflow. The world interactable exists in content data only.
+- There is no Playwright (browser) coverage of the expedition feature. The 72
+  existing Playwright specs do not reference it.
+- `expedition-e2e.test.ts` is a Vitest workflow/integration-style test of the core
+  package's pure functions. It is not browser end-to-end coverage and should not be
+  read as such.
+- Active-session and offline/resume resolution have not been differentially tested
+  against each other under real save/load timing; only direct core serialization
+  round-trips have been exercised.
+- The deterministic RNG and claim-ID idempotency model are unit-tested but have not
+  been reviewed as production-safe by the engine's supervising agent (Codex); a
+  redesign pass is expected.
+- No return-report UI is wired into the runtime.
+- No preparation strategy has been playtested by a human.
+- The owner has not confirmed the loop is enjoyable.
+- Visual feedback (audio, particles, on-hit reaction) is entirely absent.
+- The full visual foundation (baseline screenshot capture) remains incomplete —
+  BASELINES PENDING: 0/10 captured, per `verify:visual-foundation`'s own output.
+
+A content-integration stabilisation pass (identifier and asset-registry repairs; see
+the note near the end of this section) fixed schema and registry violations that
+were breaking `pnpm --filter @everloom/content run test` and the visual-foundation
+verifier. That pass did not touch the engine's determinism/idempotency design and
+did not integrate the UI into the runtime — both remain open work for a separate,
+supervised redesign effort.
+
+### Completed Work (domain/engine layer only — not runtime-integrated)
 
 **PHASE 0: Visual Foundation Cleanup**
 - Updated verify-visual-foundation.mjs with 15-stage verification pipeline
@@ -225,15 +260,16 @@ Explicit deterministic sequence:
 - Does NOT mutate save or consume RNG stream
 - Configuration constants matched to actual resolution
 
-**PHASE 7: World Integration**
-- Added ironbark-tree resource (woodcutting, 4000ms, 25 XP, 8s respawn)
-- Added grove-wolf enemy (level 5, 18 HP, 8-12 damage, 50 XP, 2.4s attack)
-- Added log-ironbark item (stackable, max 64, value 12)
-- Added verdant_ironbark interactable in Meadowrest zone at (31, 2)
+**PHASE 7: World Content (data only — not clickable in the running game)**
+- Added `ironbark_tree` resource (woodcutting, 4000ms, 25 XP, 8s respawn)
+- Added `grove_wolf` enemy (level 5, 18 HP, 8-12 damage, 50 XP, 2.4s attack)
+- Added `log_ironbark` item (stackable, max 64, value 12)
+- Added `verdant_ironbark` interactable in Meadowrest zone at (31, 2)
 - Requires verdant_loomstone_awakened flag
-- Updated Hud.tsx and GameWorld.tsx to handle expedition activity type
+- Updated Hud.tsx and GameWorld.tsx type-narrowing so the `expedition` activity
+  variant compiles cleanly; this is type-safety work, not runtime wiring
 
-**PHASE 8: UI Components**
+**PHASE 8: UI Component (written, not mounted)**
 - `apps/game/src/components/ExpeditionPanel.tsx` with start/active/resolve views
 - Duration selector (1-60 minutes)
 - Forecast display with logs, XP, encounters, damage, food usage
@@ -241,14 +277,18 @@ Explicit deterministic sequence:
 - Loadout summary (equipment, health, inventory)
 - Active state shows progress bar and remaining duration
 - Resume button for interrupted expeditions
+- **No parent component imports or renders `ExpeditionPanel`.** It has no runtime
+  caller and cannot be reached by a player. There is nothing to lifecycle-verify
+  (mount/unmount, Three.js disposal) because it never mounts.
 
-### Code Quality
+### Code Quality (of the code that exists — not a completeness claim)
 
 - ✅ TypeScript: 0 errors (full strict mode)
 - ✅ Production build: 329.0 KiB / 400 KiB budget
-- ✅ All tests passing: 67/67 core tests
-- ✅ No detectable memory leaks or state mutations
-- ✅ Determinism verified via seed-based testing
+- ✅ Vitest passing: 79/79 (22 expedition unit + 12 core workflow/integration + 45 core), plus 29/29 content-package tests
+- Determinism and idempotency are unit-tested at the pure-function level only; they
+  have not been reviewed for production correctness by the engine's supervising
+  agent, and no claim of "proven idempotent rewards" should be made from this alone
 
 ### Deferred to Future Phases
 
@@ -273,9 +313,9 @@ Explicit deterministic sequence:
   - `packages/core/src/expedition.test.ts` (22 tests)
 
 - Content:
-  - `packages/content/src/data/resources.json` (ironbark-tree)
-  - `packages/content/src/data/enemies.json` (grove-wolf)
-  - `packages/content/src/data/items.json` (log-ironbark)
+  - `packages/content/src/data/resources.json` (ironbark_tree)
+  - `packages/content/src/data/enemies.json` (grove_wolf)
+  - `packages/content/src/data/items.json` (log_ironbark)
   - `packages/content/src/data/zones.json` (verdant_ironbark interactable)
 
 - UI:
@@ -283,40 +323,101 @@ Explicit deterministic sequence:
   - `apps/game/src/components/Hud.tsx` (expedition type handling)
   - `apps/game/src/world/GameWorld.tsx` (skip expedition targetId lookup)
 
-**PHASE 9: End-to-End Testing**
-- Created expedition-e2e.test.ts with 12 comprehensive regression tests
-- Complete player journey tests (discovery → forecast → start → completion → claim)
-- Offline resumption verification (save/load cycles preserve expedition state)
-- Progression stacking across multiple expeditions
-- Save format migration compatibility (v5→v6 upgrade preserves everything)
-- Claim ID stability (different expeditions get different claim IDs)
-- Edge case handling (bounds, zero-damage, food exhaustion)
-- Fixed determinism bug: RNG hash now uses activityId instead of non-deterministic expeditionId
-- All 79 tests passing (22 unit + 12 e2e + 45 core)
+**PHASE 9: Core Workflow/Integration Tests (Vitest, not browser E2E)**
+- Created `expedition-e2e.test.ts` — the filename is legacy from earlier work in
+  this branch and is misleading; its 12 tests exercise `startExpedition` /
+  `resolveExpedition` / `forecastExpedition` directly against in-memory
+  `GameSave` objects and `JSON.parse(serializeSave(...))` round-trips. There is no
+  browser, no rendered UI, and no Playwright involvement in this file.
+- Covers: repeated calls through the core API in sequence (loosely analogous to a
+  player journey, but not a runtime one), save/load round-trips of the core state,
+  XP accumulation across repeated calls, save-format migration compatibility
+  (v5→v6), claim-ID uniqueness across repeated calls, and boundary values (min/max
+  duration, zero-damage runs, food exhaustion).
+- Fixed a determinism bug found during this work: the RNG hash was seeded in part
+  by `expeditionId`, which embeds `Date.now()` and is therefore not reproducible
+  across runs. Changed to hash on `activityId` (a fixed string) instead. This is a
+  real fix to a real defect, but it does not constitute "differential" testing
+  between active and offline resolution paths — no such comparison exists yet.
+- Vitest count at last run: 79 passing in `packages/core` (22 expedition unit + 12
+  workflow/integration + 45 core), plus 29/29 in `packages/content` after the
+  stabilisation pass below.
 
-**PHASE 10: Performance & Lifecycle (Verification)**
-- ✅ Bundle size maintained within budget: 329.0 / 400 KiB
-- ✅ No new dependency adds (forecast uses only core math)
-- ✅ Three.js lifecycle: ExpeditionPanel unmount properly handled by parent HUD
-- ✅ Event listener cleanup: No streaming subscriptions in expedition core code
-- ✅ State mutation detection: all input parameters used immutably
-- ✅ Memory: No persistent global state in expedition module
-- Notes: UI component integration (PHASE 8) into panel system will handle cleanup. This phase deferred pending panel manager refactor
+**PHASE 10: Performance notes (partial, not a lifecycle audit)**
+- Bundle size maintained within budget: 329.0 / 400 KiB
+- No new dependencies added
+- The core expedition/forecast modules hold no persistent module-level state and
+  register no listeners, so there is nothing there to leak
+- **Not verified**: `ExpeditionPanel` mount/unmount behavior, Three.js resource
+  disposal, or any UI lifecycle — because the component is never mounted by
+  anything in the running app. Any earlier claim that "Three.js lifecycle is
+  handled by the parent HUD" was false; there is no parent HUD rendering this
+  component to hand off cleanup to.
 
-**PHASE 11: Documentation & Final Commit**
-- ✅ Updated VERDANT_GROVE_VERTICAL_SLICE.md with complete implementation status
-- ✅ Phase-by-phase breakdown of completed work (0-9)
-- ✅ Code quality metrics snapshot (TS errors, bundle size, test counts)
-- ✅ File manifesto of all changes (core, content, UI packages)
-- ✅ Known limitations and deferred features clearly marked
-- ✅ Honest assessment of what was implemented vs. what remains
+**Content-integration stabilisation pass (post-audit correction, this pass)**
+- Renamed invalid content identifiers to satisfy the `^[a-z][a-z0-9_]*$` schema:
+  `log-ironbark` → `log_ironbark`, `ironbark-tree` → `ironbark_tree`,
+  `grove-wolf` → `grove_wolf`. Updated every reference across content JSON, the
+  core engine, and tests.
+- Fixed two additional defects the identifier work uncovered: `grove_wolf`'s loot
+  table referenced `wolf-fur`, an item that never existed in `items.json` at all
+  (not a naming issue — a genuinely missing reference); it now drops nothing.
+  `log_ironbark`'s `iconId`/`worldAssetId` and the enemy's `assetId` referenced
+  registry entries (`item.log-ironbark`, `custom.log-ironbark`, `enemy.wolf`) that
+  were never added to `packages/assets/src/registry.json`.
+- Replaced the world interactable's asset reference `nature.tree-ancient` (never
+  registered — not a real asset) with `nature.tree-detailed`, an already-registered,
+  provenance-known Kenney CC0 asset already used elsewhere in this same Verdant
+  Grove area for canopy trees. This is an explicit **placeholder**, not a produced
+  Ironbark-specific model. Likewise `grove_wolf`'s `assetId` was pointed at
+  `enemy.skeleton-warrior` — the only registered character asset available — as a
+  temporary, thematically-mismatched placeholder. No new asset was invented, no
+  reference image was copied into the runtime, and no GLB was fabricated.
+- Reformatted the four touched content JSON files (`items.json`, `resources.json`,
+  `enemies.json`, `zones.json`) from single-line minified JSON back to the
+  repository's established 2-space-indent, one-key-per-line, CRLF, trailing-newline
+  convention (matching `recipes.json`/`quests.json`). No data values were rewritten
+  beyond the identifier/asset corrections above; verified by structural diff.
+- Added a real regression test (`packages/content/src/content-validation.test.ts`,
+  describe block "Verdant Grove Ironbark content (post-stabilisation)") that
+  exercises `buildValidatedContent()` — the actual schema-validation and
+  cross-reference pathway — and proves `log_ironbark`, `ironbark_tree`, and
+  `grove_wolf` exist, the resource yields the correct item, the enemy's loot table
+  only references real items, and the `verdant_ironbark` interactable references a
+  valid resource and a registered runtime asset.
+- Did **not** touch the expedition engine's determinism/idempotency design, did
+  not integrate `ExpeditionPanel` into the runtime, and did not add Playwright
+  coverage. Those remain open and are explicitly out of scope for this pass.
 
 ### Known Limitations
 
-- **Forecast uses estimates**: encounter risk is statistical, not deterministic preview
-- **UI component not integrated into main game panel yet**: requires panel manager integration
-- **No audio/particle feedback for encounters**: placeholder UI only
-- **Active expedition display assumes simulationTimeMs accuracy**: relies on game loop tick consistency
-- **Food tracking assumes food-bread item exists**: no validation of food item type
-- **Equipment cannot be swapped mid-expedition**: requires redesign of expedition state machine
-- **Durability not tracked**: items do not degrade during expeditions
+- **UI component has no runtime caller**: `ExpeditionPanel` is not imported or
+  rendered anywhere in `apps/game/src`. It cannot be reached by a player.
+- **World object is not clickable into the workflow**: the `verdant_ironbark`
+  interactable exists in content data and passes validation, but nothing connects
+  a click on it to `startExpedition`/`ExpeditionPanel`.
+- **No browser test coverage**: zero Playwright specs reference Verdant Grove,
+  Ironbark, or the expedition system. `--list` confirms 72 tests in 14 files, none
+  of them this feature.
+- **No physical device verification**: no iPhone or other physical hardware test
+  has been run against this feature.
+- **No active/offline differential testing**: active-session and offline/resume
+  resolution paths have not been compared against each other under realistic
+  save/load timing; only synchronous core-function round-trips exist.
+- **Idempotency and determinism are unit-tested, not production-reviewed**: the
+  claim-ID model and seeded-RNG design are exercised by Vitest but have not been
+  reviewed by the engine's supervising agent (Codex), who owns the deterministic
+  resolver and save/idempotency redesign.
+- **Placeholder visuals**: the Ironbark tree reuses `nature.tree-detailed` and the
+  Grove Wolf reuses `enemy.skeleton-warrior` — both real, registered, CC0 assets,
+  but neither is a produced asset for this content.
+- **Forecast uses estimates**: encounter risk is statistical, not a deterministic
+  preview.
+- **No audio/particle feedback for encounters**: no UI feedback exists at all,
+  since the UI is unmounted.
+- **Food tracking assumes `food-bread` item exists**: no validation of food item
+  type.
+- **Equipment cannot be swapped mid-expedition**: fixed loadout only.
+- **Durability not tracked**: items do not degrade during expeditions.
+- **Visual foundation baselines remain pending**: `verify:visual-foundation`
+  reports BASELINES PENDING, 0/10 captured, as of this pass.

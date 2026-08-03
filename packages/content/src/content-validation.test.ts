@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { ASSET_REGISTRY } from "@everloom/assets/runtime";
 import { addItem, ATTUNEMENT_SKILL_COUNT, ATTUNEMENT_SKILLS, createNewSave, equipItem, PROBABILITY_SCALE, playerCombatStats } from "@everloom/core";
 import { CONTENT, buildValidatedContent, questSchema, recipeSchema, resourceSchema } from "./index";
 
@@ -222,6 +223,39 @@ describe("The Forge's Trade chapter", () => {
   it("does not add Smithing to the five-skill Verdant attunement gate", () => {
     expect(ATTUNEMENT_SKILLS).not.toContain("smithing");
     expect(ATTUNEMENT_SKILL_COUNT).toBe(5);
+  });
+});
+
+describe("Verdant Grove Ironbark content (post-stabilisation)", () => {
+  it("builds the full validated content bundle with the Ironbark identifiers present", () => {
+    // Exercises the real schema-validation and cross-reference pathway
+    // (buildValidatedContent), not a standalone regex or file-existence check.
+    const rebuilt = buildValidatedContent();
+    expect(rebuilt).toStrictEqual(CONTENT);
+    expect(CONTENT.items.log_ironbark).toBeDefined();
+    expect(CONTENT.resources.ironbark_tree).toBeDefined();
+    expect(CONTENT.enemies.grove_wolf).toBeDefined();
+  });
+
+  it("has the Ironbark resource yield the log_ironbark item", () => {
+    const resource = CONTENT.resources.ironbark_tree!;
+    expect(resource.yield.itemId).toBe("log_ironbark");
+    expect(CONTENT.items[resource.yield.itemId]).toBeDefined();
+  });
+
+  it("has the Grove Wolf reference only valid item IDs in its loot table", () => {
+    const wolf = CONTENT.enemies.grove_wolf!;
+    for (const drop of wolf.loot) {
+      expect(CONTENT.items[drop.itemId]).toBeDefined();
+    }
+  });
+
+  it("has the Meadowrest verdant_ironbark interactable reference the valid resource and a registered runtime asset", () => {
+    const interactable = CONTENT.zones.meadowrest?.interactables.find((entry) => entry.id === "verdant_ironbark");
+    expect(interactable).toBeDefined();
+    expect(interactable?.resourceId).toBe("ironbark_tree");
+    expect(CONTENT.resources[interactable!.resourceId!]).toBeDefined();
+    expect(ASSET_REGISTRY[interactable!.assetId]).toBeDefined();
   });
 });
 

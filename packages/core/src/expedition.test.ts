@@ -290,7 +290,7 @@ describe("Expedition system: save migration and idempotency", () => {
       const result = resolveExpedition(active, 30000);
 
       if (result!.result.resourcesObtained > 0) {
-        const logs = result!.state.inventory.find((s) => s.itemId === "log-ironbark");
+        const logs = result!.state.inventory.find((s) => s.itemId === "log_ironbark");
         expect(logs).toBeDefined();
         expect(logs!.quantity).toBeGreaterThan(0);
       }

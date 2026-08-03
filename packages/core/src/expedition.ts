@@ -144,7 +144,7 @@ export function resolveExpedition(
     foodConsumed,
     endingHealth: currentHealth,
     stopReason,
-    itemsGained: logsObtained > 0 ? [{ itemId: "log-ironbark", quantity: logsObtained }] : [],
+    itemsGained: logsObtained > 0 ? [{ itemId: "log_ironbark", quantity: logsObtained }] : [],
     xpGained: {
       [WOODCUTTING_SKILL]: woodcuttingXpGained,
       [MELEE_COMBAT_SKILL]: combatXpGained,
@@ -153,16 +153,16 @@ export function resolveExpedition(
 
   let newState = { ...save, player: { ...save.player, hp: currentHealth }, activeExpedition: null };
   if (logsObtained > 0) {
-    const existing = newState.inventory.find((s) => s.itemId === "log-ironbark");
+    const existing = newState.inventory.find((s) => s.itemId === "log_ironbark");
     if (existing) {
       newState = {
         ...newState,
         inventory: newState.inventory.map((s) =>
-          s.itemId === "log-ironbark" ? { ...s, quantity: s.quantity + logsObtained } : s
+          s.itemId === "log_ironbark" ? { ...s, quantity: s.quantity + logsObtained } : s
         ),
       };
     } else {
-      newState = { ...newState, inventory: [...newState.inventory, { itemId: "log-ironbark", quantity: logsObtained }] };
+      newState = { ...newState, inventory: [...newState.inventory, { itemId: "log_ironbark", quantity: logsObtained }] };
     }
   }
   if (woodcuttingXpGained > 0) {
