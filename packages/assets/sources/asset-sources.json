@@ -1,0 +1,231 @@
+{
+  "schemaVersion": 1,
+  "lastAuditedAt": "2026-08-04",
+  "repositorySha": "22d2ffc002b0b3bbed988e8d698bd00c265f0b98",
+  "sources": [
+    {
+      "sourceId": "everloom-composite",
+      "sourceName": "Everloom runtime composition of Kenney Fantasy Town Kit pieces",
+      "creator": "Everloom project (composing unmodified Kenney assets at runtime)",
+      "officialSourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+      "claimedLicence": "CC0-1.0",
+      "evidenceStatus": "verified_local_evidence",
+      "licenceEvidencePaths": [
+        "apps/client3d/CREDITS.md",
+        "apps/game/src/world/assets.ts#L258 (buildCottage composition of unmodified kenney-fantasy modules)"
+      ],
+      "retrievalDate": null,
+      "archiveHashes": [],
+      "canonicalLocalRoots": [],
+      "legacyOrDuplicateRoots": [],
+      "runtimeAssetIds": ["town.cottage"],
+      "modificationSummary": [
+        "No new geometry authored; assembles unmodified kenney-fantasy wall/roof/door/window/chimney/stair modules into one runtime group."
+      ],
+      "intendedUses": ["Village cottage silhouette in Meadowrest"],
+      "manifestStatusesObserved": [],
+      "notes": [
+        "The composed pieces themselves belong to the kenney-fantasy source record; this record covers only the composition scheme."
+      ]
+    },
+    {
+      "sourceId": "everloom-original",
+      "sourceName": "Everloom original procedural and component-native assets",
+      "creator": "Everloom project",
+      "officialSourceUrl": null,
+      "claimedLicence": "Project original",
+      "evidenceStatus": "verified_local_evidence",
+      "licenceEvidencePaths": [
+        "apps/game/src/world/assets.ts#L13-L181 (proceduralTool, proceduralSmelter, proceduralAnvil, proceduralBoneguardVest, proceduralMaraShawl, proceduralRipples — runtime THREE.js primitive construction, no external file loaded)",
+        "apps/game/src/components/ItemIcon.tsx (code-native icon rendering for component:// entries)",
+        "packages/assets/src/registry.json (24 entries with pack=\"everloom-original\", sourceFile using procedural:// or component:// schemes)"
+      ],
+      "retrievalDate": null,
+      "archiveHashes": [],
+      "canonicalLocalRoots": [
+        "apps/game/src/world/assets.ts",
+        "apps/game/src/components/ItemIcon.tsx"
+      ],
+      "legacyOrDuplicateRoots": [],
+      "runtimeAssetIds": [
+        "custom.tool-hatchet", "custom.tool-pickaxe", "custom.tool-rod",
+        "custom.weapon-sword", "custom.weapon-battleaxe", "custom.facility-smelter",
+        "custom.facility-anvil", "custom.armor-boneguard-vest", "custom.npc-mara-shawl",
+        "custom.fishing-ripples", "icon.hatchet", "icon.pickaxe", "icon.fishing-rod",
+        "icon.sword", "icon.log", "icon.ore", "icon.fish", "icon.food", "icon.bone",
+        "icon.amber", "icon.heartwood", "icon.tonic", "icon.ingot", "icon.battleaxe"
+      ],
+      "modificationSummary": [
+        "Not applicable — first-party runtime-generated geometry and UI components, not derived from an external file."
+      ],
+      "intendedUses": [
+        "Tools, weapons, facilities and armour with no suitable model in the installed CC0 packs; interface item icons."
+      ],
+      "manifestStatusesObserved": ["procedural-placeholder", "approved-existing"],
+      "notes": [
+        "There is no external licence to verify for first-party code; evidence here consists of the actual generating source files, confirmed present and functioning by direct code inspection, not an assumption from registry text alone."
+      ]
+    },
+    {
+      "sourceId": "kaykit-adventurers",
+      "sourceName": "KayKit — Character Pack: Adventurers",
+      "creator": "Kay Lousberg",
+      "officialSourceUrl": "https://kaylousberg.itch.io/kaykit",
+      "claimedLicence": "CC0-1.0",
+      "evidenceStatus": "verified_local_evidence",
+      "licenceEvidencePaths": [
+        "apps/client3d/CREDITS.md (\"Verified installed packs\" section: creator, licence, and GitHub mirror URL https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Adventures-1.0)",
+        "apps/client3d/ASSET_INVENTORY.md (file count 1, size 3.5 MB — matches measured 1 file / 3.49 MB exactly)",
+        "apps/client3d/ANIMATION_CLIPS.md (76 animation clips claimed — matches this audit's independent GLB parse of 76 clips exactly)",
+        "git commit 29d817c \"Install all CC0 asset packs (569 files, 32MB) — unblocks P1\" (installation record, repository-claim tier on its own but corroborates the above)"
+      ],
+      "retrievalDate": null,
+      "archiveHashes": [],
+      "canonicalLocalRoots": ["apps/client3d/public/models/kaykit-adventurers"],
+      "legacyOrDuplicateRoots": [],
+      "runtimeAssetIds": ["player.adventurer"],
+      "modificationSummary": [],
+      "intendedUses": ["Player and general NPC rig (Mara Threadkeeper reuses this model with procedural accessory overlays)."],
+      "manifestStatusesObserved": ["approved-existing", "licensed-placeholder"],
+      "notes": [
+        "registry.json records the itch.io page as sourceUrl; CREDITS.md additionally names a GitHub mirror for the same CC0 pack. Both are recorded; this is treated as corroborating evidence, not a conflict, because CC0 content is legitimately re-hostable.",
+        "No downloaded LICENSE.txt or archive from the original pack is checked into the repository — evidence is markdown claims plus measured file/animation counts matching those claims exactly, not an embedded licence file inside the pack itself."
+      ]
+    },
+    {
+      "sourceId": "kaykit-dungeon",
+      "sourceName": "KayKit — Dungeon Remastered",
+      "creator": "Kay Lousberg",
+      "officialSourceUrl": "https://kaylousberg.itch.io/kaykit-dungeon-remastered",
+      "claimedLicence": "CC0-1.0",
+      "evidenceStatus": "verified_local_evidence",
+      "licenceEvidencePaths": [
+        "apps/client3d/CREDITS.md (\"Verified installed packs\": GitHub mirror https://github.com/KayKit-Game-Assets/KayKit-Dungeon-Remastered-1.0)",
+        "apps/client3d/ASSET_INVENTORY.md (file count 40, size 2.4 MB — matches measured 40 files / 2.25 MB)"
+      ],
+      "retrievalDate": null,
+      "archiveHashes": [],
+      "canonicalLocalRoots": ["apps/client3d/public/models/kaykit-dungeon"],
+      "legacyOrDuplicateRoots": [],
+      "runtimeAssetIds": ["dungeon.crates", "dungeon.barrel"],
+      "modificationSummary": [],
+      "intendedUses": ["Town/quarry storage props; only 2 of 40 installed files are referenced by the authoritative registry."],
+      "manifestStatusesObserved": ["approved-existing"],
+      "notes": [
+        "38 of the 40 installed files in this pack have no runtime registry entry at all — see the audit report's orphan findings."
+      ]
+    },
+    {
+      "sourceId": "kaykit-skeletons",
+      "sourceName": "KayKit — Character Pack: Skeletons",
+      "creator": "Kay Lousberg",
+      "officialSourceUrl": "https://kaylousberg.itch.io/kaykit-skeletons",
+      "claimedLicence": "CC0-1.0",
+      "evidenceStatus": "verified_local_evidence",
+      "licenceEvidencePaths": [
+        "apps/client3d/CREDITS.md (\"Verified installed packs\": GitHub mirror https://github.com/KayKit-Game-Assets/KayKit-Character-Pack-Skeletons-1.0)",
+        "apps/client3d/ASSET_INVENTORY.md (file count 31, size 19 MB — matches measured 31 files / 18.69 MB)"
+      ],
+      "retrievalDate": null,
+      "archiveHashes": [],
+      "canonicalLocalRoots": ["apps/client3d/public/models/kaykit-skeletons"],
+      "legacyOrDuplicateRoots": [],
+      "runtimeAssetIds": ["enemy.skeleton-warrior"],
+      "modificationSummary": [],
+      "intendedUses": [
+        "Combat enemy character. Also currently reused as a temporary, thematically-mismatched placeholder for the Verdant Grove wolf (creature.grove-wolf in the visual manifest) — this pack contains no quadruped model."
+      ],
+      "manifestStatusesObserved": ["approved-existing", "licensed-placeholder"],
+      "notes": [
+        "Only Skeleton_Warrior.glb (1 of 4 installed skeleton variants) is registered in packages/assets/src/registry.json. Skeleton_Minion.glb, Skeleton_Rogue.glb and Skeleton_Mage.glb are installed and documented in ASSET_INVENTORY.md but have no runtime registry entry.",
+        "This pack has a humanoid rig only; it cannot represent a wolf without misleading substitution, and the visual manifest already records that substitution truthfully as licensed-placeholder (see docs/authority/VERDANT_GROVE.md)."
+      ]
+    },
+    {
+      "sourceId": "kenney-fantasy",
+      "sourceName": "Kenney — Fantasy Town Kit",
+      "creator": "Kenney (kenney.nl)",
+      "officialSourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+      "claimedLicence": "CC0-1.0",
+      "evidenceStatus": "verified_local_evidence",
+      "licenceEvidencePaths": [
+        "apps/client3d/CREDITS.md (\"Verified installed packs\": \"Kenney Fantasy Town Kit 2.0 (160 assets) — Kenney.nl — CC0\")",
+        "apps/client3d/ASSET_INVENTORY.md (file count 168, size 2.9 MB — matches measured 168 files / 2.39 MB)"
+      ],
+      "retrievalDate": null,
+      "archiveHashes": [],
+      "canonicalLocalRoots": ["apps/client3d/public/models/kenney-fantasy"],
+      "legacyOrDuplicateRoots": [],
+      "runtimeAssetIds": [
+        "town.wall", "town.wall-door", "town.wall-window", "town.roof", "town.roof-end",
+        "town.chimney", "town.stall", "town.watermill", "town.cart", "town.fence",
+        "town.lantern", "town.hedge", "town.banner"
+      ],
+      "modificationSummary": [],
+      "intendedUses": ["Modular village architecture and props in Meadowrest."],
+      "manifestStatusesObserved": ["approved-existing"],
+      "notes": [
+        "CREDITS.md's stated file count (160) and ASSET_INVENTORY.md's stated file count (168) disagree with each other by 8; the measured on-disk count (168) matches ASSET_INVENTORY.md exactly. Recorded as a minor internal documentation inconsistency, not a licence problem.",
+        "13 of 168 installed files are referenced by the runtime registry; the rest are unused-but-installed (see orphan findings)."
+      ]
+    },
+    {
+      "sourceId": "kenney-nature",
+      "sourceName": "Kenney — Nature Kit",
+      "creator": "Kenney (kenney.nl)",
+      "officialSourceUrl": "https://kenney.nl/assets/nature-kit",
+      "claimedLicence": "CC0-1.0",
+      "evidenceStatus": "verified_local_evidence",
+      "licenceEvidencePaths": [
+        "apps/client3d/CREDITS.md (\"Verified installed packs\": \"Kenney Nature Kit (330 assets) — Kenney.nl — CC0\")",
+        "apps/client3d/ASSET_INVENTORY.md (file count 329, size 3.7 MB — matches measured 329 files / 2.89 MB)"
+      ],
+      "retrievalDate": null,
+      "archiveHashes": [],
+      "canonicalLocalRoots": ["apps/client3d/public/models/kenney-nature"],
+      "legacyOrDuplicateRoots": [],
+      "runtimeAssetIds": [
+        "nature.oak", "nature.oak-fall", "nature.pine", "nature.bush", "nature.rock-large",
+        "nature.rock-small", "nature.stone-tall", "landmark.verdant-loomstone", "nature.campfire",
+        "nature.bridge", "nature.tree-detailed", "nature.tree-round", "nature.bush-detailed",
+        "nature.flower-yellow", "nature.cliff-rock", "nature.path-rocks", "nature.stump-round",
+        "nature.stump-old", "nature.log", "nature.mushroom-red", "nature.mushroom-tan",
+        "nature.lily-pad", "nature.rock-flat", "nature.rock-tall", "nature.rock-tall-b",
+        "nature.stone-ring", "nature.flower-purple", "nature.hanging-moss", "nature.cliff-block",
+        "nature.cliff-large"
+      ],
+      "modificationSummary": [],
+      "intendedUses": ["Trees, rocks, foliage, landmark stones, campfire and bridge across all Meadowrest and Verdant Grove content."],
+      "manifestStatusesObserved": ["approved-existing", "licensed-placeholder"],
+      "notes": [
+        "CREDITS.md (330) and ASSET_INVENTORY.md (329) disagree by 1; the measured on-disk count (329) matches ASSET_INVENTORY.md.",
+        "30 of 329 installed files are referenced by the runtime registry.",
+        "nature.tree-detailed is also currently reused as a temporary placeholder for the Verdant Grove Ironbark tree (vegetation.ironbark-tree in the visual manifest); no Ironbark-specific model exists in this pack."
+      ]
+    },
+    {
+      "sourceId": "lpc-legacy-sprites",
+      "sourceName": "Legacy apps/web 2D LPC/OpenGameArt sprite pipeline",
+      "creator": "Multiple OpenGameArt/LPC contributors (see CREDITS.md)",
+      "officialSourceUrl": "https://opengameart.org/content/lpc-terrains",
+      "claimedLicence": "CC-BY-SA 3.0 / CC-BY 3.0 / CC-BY-SA 4.0 / CC0 / GPL 3.0 (varies by file — see CREDITS.md)",
+      "evidenceStatus": "repository_claim_only",
+      "licenceEvidencePaths": ["CREDITS.md"],
+      "retrievalDate": null,
+      "archiveHashes": [],
+      "canonicalLocalRoots": ["apps/web/public/sprites"],
+      "legacyOrDuplicateRoots": [],
+      "runtimeAssetIds": [],
+      "modificationSummary": [],
+      "intendedUses": [
+        "Legacy, non-authoritative apps/web 2D presentation. Not used by packages/assets, packages/content or apps/game."
+      ],
+      "manifestStatusesObserved": [],
+      "notes": [
+        "apps/web is explicitly legacy per docs/authority/CURRENT_STATE.md and is out of the authoritative registry scope. Recorded here per the audit's requirement to record legacy-path assets separately, not to imply authority.",
+        "499 PNG files under apps/web/public/sprites at audit time; no per-file licence subdivision was attempted in this pass — CREDITS.md attributes different licences to different file groups (terrain.png, trees.png, water_anim.png, rocks.png, per-character sheets, item icons) but no archive-level or per-file evidence was independently verified.",
+        "No source-code reference from the authoritative apps/game runtime to this root was found during this audit."
+      ]
+    }
+  ]
+}

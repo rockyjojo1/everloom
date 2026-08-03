@@ -1,0 +1,3551 @@
+[
+  {
+    "runtimeAssetId": "player.adventurer",
+    "category": "character",
+    "packSourceId": "kaykit-adventurers",
+    "registrySourcePath": "kaykit-adventurers/Character.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kaykit-adventurers/Character.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 3659532,
+    "sha256": "60428e3abc09ba83e595d256e3af8c5c976b46cdae599f0802fc82b4a3445168",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kaylousberg.itch.io/kaykit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "npc.mara",
+      "player.adventurer",
+      "player.base-body"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "npc.mara",
+        "currentStatus": "approved-existing",
+        "status": "reference-approved"
+      },
+      {
+        "manifestId": "player.adventurer",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      },
+      {
+        "manifestId": "player.base-body",
+        "currentStatus": "approved-existing",
+        "status": "integrated"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "Khronos glTF Blender I/O v1.7.33",
+      "sceneCount": 1,
+      "nodeCount": 57,
+      "meshCount": 15,
+      "primitiveCount": 15,
+      "materialCount": 1,
+      "textureCount": 1,
+      "imageCount": 1,
+      "externalImageCount": 0,
+      "embeddedImageCount": 1,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 1,
+      "jointCounts": [
+        41
+      ],
+      "animationCount": 76,
+      "animationNames": [
+        "1H_Melee_Attack_Chop",
+        "1H_Melee_Attack_Slice_Diagonal",
+        "1H_Melee_Attack_Slice_Horizontal",
+        "1H_Melee_Attack_Stab",
+        "1H_Ranged_Aiming",
+        "1H_Ranged_Reload",
+        "1H_Ranged_Shoot",
+        "1H_Ranged_Shooting",
+        "2H_Melee_Attack_Chop",
+        "2H_Melee_Attack_Slice",
+        "2H_Melee_Attack_Spin",
+        "2H_Melee_Attack_Spinning",
+        "2H_Melee_Attack_Stab",
+        "2H_Melee_Idle",
+        "2H_Ranged_Aiming",
+        "2H_Ranged_Reload",
+        "2H_Ranged_Shoot",
+        "2H_Ranged_Shooting",
+        "Block",
+        "Block_Attack",
+        "Block_Hit",
+        "Blocking",
+        "Cheer",
+        "Death_A",
+        "Death_A_Pose",
+        "Death_B",
+        "Death_B_Pose",
+        "Dodge_Backward",
+        "Dodge_Forward",
+        "Dodge_Left",
+        "Dodge_Right",
+        "Dualwield_Melee_Attack_Chop",
+        "Dualwield_Melee_Attack_Slice",
+        "Dualwield_Melee_Attack_Stab",
+        "Hit_A",
+        "Hit_B",
+        "Idle",
+        "Interact",
+        "Jump_Full_Long",
+        "Jump_Full_Short",
+        "Jump_Idle",
+        "Jump_Land",
+        "Jump_Start",
+        "Lie_Down",
+        "Lie_Idle",
+        "Lie_Pose",
+        "Lie_StandUp",
+        "PickUp",
+        "Running_A",
+        "Running_B",
+        "Running_Strafe_Left",
+        "Running_Strafe_Right",
+        "Sit_Chair_Down",
+        "Sit_Chair_Idle",
+        "Sit_Chair_Pose",
+        "Sit_Chair_StandUp",
+        "Sit_Floor_Down",
+        "Sit_Floor_Idle",
+        "Sit_Floor_Pose",
+        "Sit_Floor_StandUp",
+        "Spellcast_Long",
+        "Spellcast_Raise",
+        "Spellcast_Shoot",
+        "Spellcasting",
+        "T-Pose",
+        "Throw",
+        "Unarmed_Idle",
+        "Unarmed_Melee_Attack_Kick",
+        "Unarmed_Melee_Attack_Punch_A",
+        "Unarmed_Melee_Attack_Punch_B",
+        "Unarmed_Pose",
+        "Use_Item",
+        "Walking_A",
+        "Walking_B",
+        "Walking_Backwards",
+        "Walking_C"
+      ],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [],
+      "declaredLength": 3659532,
+      "actualLength": 3659532,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "enemy.skeleton-warrior",
+    "category": "character",
+    "packSourceId": "kaykit-skeletons",
+    "registrySourcePath": "kaykit-skeletons/Skeleton_Warrior.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kaykit-skeletons/Skeleton_Warrior.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 4863620,
+    "sha256": "178b6fda810b814c250d8a2010c24dfd9b458b9006dd323353e620b7ff118bbe",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kaylousberg.itch.io/kaykit-skeletons",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "enemy.skeleton-warrior",
+      "creature.grove-wolf"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "enemy.skeleton-warrior",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      },
+      {
+        "manifestId": "creature.grove-wolf",
+        "currentStatus": "licensed-placeholder",
+        "status": "integrated"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "Khronos glTF Blender I/O v1.7.33",
+      "sceneCount": 1,
+      "nodeCount": 52,
+      "meshCount": 10,
+      "primitiveCount": 10,
+      "materialCount": 2,
+      "textureCount": 1,
+      "imageCount": 1,
+      "externalImageCount": 0,
+      "embeddedImageCount": 1,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 1,
+      "jointCounts": [
+        41
+      ],
+      "animationCount": 95,
+      "animationNames": [
+        "1H_Melee_Attack_Chop",
+        "1H_Melee_Attack_Jump_Chop",
+        "1H_Melee_Attack_Slice_Diagonal",
+        "1H_Melee_Attack_Slice_Horizontal",
+        "1H_Melee_Attack_Stab",
+        "1H_Ranged_Aiming",
+        "1H_Ranged_Reload",
+        "1H_Ranged_Shoot",
+        "1H_Ranged_Shooting",
+        "2H_Melee_Attack_Chop",
+        "2H_Melee_Attack_Slice",
+        "2H_Melee_Attack_Spin",
+        "2H_Melee_Attack_Spinning",
+        "2H_Melee_Attack_Stab",
+        "2H_Melee_Idle",
+        "2H_Ranged_Aiming",
+        "2H_Ranged_Reload",
+        "2H_Ranged_Shoot",
+        "2H_Ranged_Shooting",
+        "Block",
+        "Block_Attack",
+        "Block_Hit",
+        "Blocking",
+        "Cheer",
+        "Death_A",
+        "Death_A_Pose",
+        "Death_B",
+        "Death_B_Pose",
+        "Death_C_Pose",
+        "Death_C_Skeletons",
+        "Death_C_Skeletons_Resurrect",
+        "Dodge_Backward",
+        "Dodge_Forward",
+        "Dodge_Left",
+        "Dodge_Right",
+        "Dualwield_Melee_Attack_Chop",
+        "Dualwield_Melee_Attack_Slice",
+        "Dualwield_Melee_Attack_Stab",
+        "Hit_A",
+        "Hit_B",
+        "Idle",
+        "Idle_B",
+        "Idle_Combat",
+        "Interact",
+        "Jump_Full_Long",
+        "Jump_Full_Short",
+        "Jump_Idle",
+        "Jump_Land",
+        "Jump_Start",
+        "Lie_Down",
+        "Lie_Idle",
+        "Lie_Pose",
+        "Lie_StandUp",
+        "PickUp",
+        "Running_A",
+        "Running_B",
+        "Running_C",
+        "Running_Strafe_Left",
+        "Running_Strafe_Right",
+        "Sit_Chair_Down",
+        "Sit_Chair_Idle",
+        "Sit_Chair_Pose",
+        "Sit_Chair_StandUp",
+        "Sit_Floor_Down",
+        "Sit_Floor_Idle",
+        "Sit_Floor_Pose",
+        "Sit_Floor_StandUp",
+        "Skeleton_Inactive_Standing_Pose",
+        "Skeletons_Awaken_Floor",
+        "Skeletons_Awaken_Floor_Long",
+        "Skeletons_Awaken_Standing",
+        "Skeletons_Inactive_Floor_Pose",
+        "Spawn_Air",
+        "Spawn_Ground",
+        "Spawn_Ground_Skeletons",
+        "Spellcast_Long",
+        "Spellcast_Raise",
+        "Spellcast_Shoot",
+        "Spellcast_Summon",
+        "Spellcasting",
+        "T-Pose",
+        "Taunt",
+        "Taunt_Longer",
+        "Throw",
+        "Unarmed_Idle",
+        "Unarmed_Melee_Attack_Kick",
+        "Unarmed_Melee_Attack_Punch_A",
+        "Unarmed_Melee_Attack_Punch_B",
+        "Unarmed_Pose",
+        "Use_Item",
+        "Walking_A",
+        "Walking_B",
+        "Walking_Backwards",
+        "Walking_C",
+        "Walking_D_Skeletons"
+      ],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [],
+      "declaredLength": 4863620,
+      "actualLength": 4863620,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.oak",
+    "category": "tree",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/tree_oak.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/tree_oak.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 14644,
+    "sha256": "d7fd8773674928c50c11b66d12c636d49bdcc15a8b1c7fbb98e6f63a3439a3f3",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.oak"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.oak",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 2,
+      "materialCount": 2,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 14644,
+      "actualLength": 14644,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.oak-fall",
+    "category": "tree",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/tree_oak_fall.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/tree_oak_fall.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 14640,
+    "sha256": "43a258d17b5428d8ef525a19e30e667caeeb330b6f3cb367a07da12093ff97a1",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.oak-fall"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.oak-fall",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 2,
+      "materialCount": 2,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 14640,
+      "actualLength": 14640,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.pine",
+    "category": "tree",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/tree_pineDefaultA.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/tree_pineDefaultA.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 17220,
+    "sha256": "60d8f352fa3659ed275e06cbddfecf8f92c8effe2977c2f2d7b29b6c9b582e46",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.pine"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.pine",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 2,
+      "materialCount": 2,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 17220,
+      "actualLength": 17220,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.bush",
+    "category": "foliage",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/plant_bush.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/plant_bush.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 4396,
+    "sha256": "ae7b1beb39e242b13f5f29e3ec23ef21034b814f82297b8aa00a9bf4e1b09590",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.bush"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.bush",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 1,
+      "materialCount": 1,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 4396,
+      "actualLength": 4396,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.rock-large",
+    "category": "rock",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/rock_largeC.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/rock_largeC.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 7004,
+    "sha256": "23aee8b727adeaf260207af3e0615dc69aa766c6d87de1d44cbc8c2711d74dd1",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.rock-large"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.rock-large",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 2,
+      "materialCount": 2,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 7004,
+      "actualLength": 7004,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.rock-small",
+    "category": "rock",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/rock_smallB.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/rock_smallB.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 3528,
+    "sha256": "11b26bc0a12e971a3b69df1401e530e24432d528c262df94b99c412e7f372763",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.rock-small"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.rock-small",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 2,
+      "materialCount": 2,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 3528,
+      "actualLength": 3528,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.stone-tall",
+    "category": "landmark",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/stone_tallA.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/stone_tallA.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 11644,
+    "sha256": "3070bd574104abce19f5e3c82c917cb7f52801720377beba7aad76058408d5db",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.stone-tall"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.stone-tall",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 2,
+      "materialCount": 2,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 11644,
+      "actualLength": 11644,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "landmark.verdant-loomstone",
+    "category": "landmark",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/stone_tallA.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/stone_tallA.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 11644,
+    "sha256": "3070bd574104abce19f5e3c82c917cb7f52801720377beba7aad76058408d5db",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "landmark.verdant-loomstone"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "landmark.verdant-loomstone",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 2,
+      "materialCount": 2,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 11644,
+      "actualLength": 11644,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.campfire",
+    "category": "facility",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/campfire_stones.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/campfire_stones.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 17344,
+    "sha256": "54869db23243a3f4905bc00bd4cd93b1037b28556ab3ef93e7a893a093791e35",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.campfire"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.campfire",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 1,
+      "materialCount": 1,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 17344,
+      "actualLength": 17344,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.bridge",
+    "category": "structure",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/bridge_wood.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/bridge_wood.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 15692,
+    "sha256": "3da4c208b0f72b7f2ba42db521b62ec4b0278050c75256a6982c40d21aab5701",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.bridge"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.bridge",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 3,
+      "materialCount": 3,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 15692,
+      "actualLength": 15692,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "town.wall",
+    "category": "building",
+    "packSourceId": "kenney-fantasy",
+    "registrySourcePath": "kenney-fantasy/wall.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-fantasy/wall.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 4792,
+    "sha256": "cab1dff37610e2a214237cc62ec0b1506e8fd76bb66c29f6c585b4b643b569c4",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "architecture.fence",
+      "town.wall"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "architecture.fence",
+        "currentStatus": "approved-existing",
+        "status": "reference-approved"
+      },
+      {
+        "manifestId": "town.wall",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UnityGLTF",
+      "sceneCount": 1,
+      "nodeCount": 1,
+      "meshCount": 1,
+      "primitiveCount": 1,
+      "materialCount": 1,
+      "textureCount": 1,
+      "imageCount": 1,
+      "externalImageCount": 1,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_texture_transform"
+      ],
+      "declaredLength": 4792,
+      "actualLength": 4792,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "town.wall-door",
+    "category": "building",
+    "packSourceId": "kenney-fantasy",
+    "registrySourcePath": "kenney-fantasy/wall-door.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-fantasy/wall-door.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 29276,
+    "sha256": "79b2d40db110ca96a6e77d4261da665fdf8c68f4c20c2afef5bce1c28ad72857",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "town.wall-door"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "town.wall-door",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UnityGLTF",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 2,
+      "primitiveCount": 2,
+      "materialCount": 1,
+      "textureCount": 1,
+      "imageCount": 1,
+      "externalImageCount": 1,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_texture_transform"
+      ],
+      "declaredLength": 29276,
+      "actualLength": 29276,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "town.wall-window",
+    "category": "building",
+    "packSourceId": "kenney-fantasy",
+    "registrySourcePath": "kenney-fantasy/wall-window-shutters.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-fantasy/wall-window-shutters.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 23892,
+    "sha256": "58a641a03fc4a5a225663969cc257fcf4f2fc63c199b4aca16b612142ff9eed0",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "town.wall-window"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "town.wall-window",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UnityGLTF",
+      "sceneCount": 1,
+      "nodeCount": 1,
+      "meshCount": 1,
+      "primitiveCount": 1,
+      "materialCount": 1,
+      "textureCount": 1,
+      "imageCount": 1,
+      "externalImageCount": 1,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_texture_transform"
+      ],
+      "declaredLength": 23892,
+      "actualLength": 23892,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "town.roof",
+    "category": "building",
+    "packSourceId": "kenney-fantasy",
+    "registrySourcePath": "kenney-fantasy/roof-gable.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-fantasy/roof-gable.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 7632,
+    "sha256": "4bb6bdbcadbb8ebeb69d720e29f6c2e57c99d98966baa41fd86914d3c13d6039",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "town.roof"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "town.roof",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UnityGLTF",
+      "sceneCount": 1,
+      "nodeCount": 1,
+      "meshCount": 1,
+      "primitiveCount": 1,
+      "materialCount": 1,
+      "textureCount": 1,
+      "imageCount": 1,
+      "externalImageCount": 1,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_texture_transform"
+      ],
+      "declaredLength": 7632,
+      "actualLength": 7632,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "town.roof-end",
+    "category": "building",
+    "packSourceId": "kenney-fantasy",
+    "registrySourcePath": "kenney-fantasy/roof-gable-end.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-fantasy/roof-gable-end.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 6056,
+    "sha256": "2ee635e8550180bb7840f7fdfff0b0835a34a425ffb903f19657cde65c261704",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "town.roof-end"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "town.roof-end",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UnityGLTF",
+      "sceneCount": 1,
+      "nodeCount": 1,
+      "meshCount": 1,
+      "primitiveCount": 1,
+      "materialCount": 1,
+      "textureCount": 1,
+      "imageCount": 1,
+      "externalImageCount": 1,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_texture_transform"
+      ],
+      "declaredLength": 6056,
+      "actualLength": 6056,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "town.chimney",
+    "category": "building",
+    "packSourceId": "kenney-fantasy",
+    "registrySourcePath": "kenney-fantasy/chimney.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-fantasy/chimney.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 4656,
+    "sha256": "a15cdbd13860092f6d793e5b785043eb90a49cdaa725bb71df9fd154ca68dac6",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "town.chimney"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "town.chimney",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UnityGLTF",
+      "sceneCount": 1,
+      "nodeCount": 1,
+      "meshCount": 1,
+      "primitiveCount": 1,
+      "materialCount": 1,
+      "textureCount": 1,
+      "imageCount": 1,
+      "externalImageCount": 1,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_texture_transform"
+      ],
+      "declaredLength": 4656,
+      "actualLength": 4656,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "town.stall",
+    "category": "building",
+    "packSourceId": "kenney-fantasy",
+    "registrySourcePath": "kenney-fantasy/stall-green.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-fantasy/stall-green.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 27120,
+    "sha256": "2da2f7b31cde5d943d7c08c457bbb39797ef0a607921fde0b8455f338ce40205",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "town.stall"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "town.stall",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UnityGLTF",
+      "sceneCount": 1,
+      "nodeCount": 1,
+      "meshCount": 1,
+      "primitiveCount": 1,
+      "materialCount": 1,
+      "textureCount": 1,
+      "imageCount": 1,
+      "externalImageCount": 1,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_texture_transform"
+      ],
+      "declaredLength": 27120,
+      "actualLength": 27120,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "town.watermill",
+    "category": "building",
+    "packSourceId": "kenney-fantasy",
+    "registrySourcePath": "kenney-fantasy/watermill.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-fantasy/watermill.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 53856,
+    "sha256": "177e76c12f43845303638d1375c323675c3937b053b8762042fe19d3d7d27c5d",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "town.watermill"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "town.watermill",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UnityGLTF",
+      "sceneCount": 1,
+      "nodeCount": 1,
+      "meshCount": 1,
+      "primitiveCount": 1,
+      "materialCount": 1,
+      "textureCount": 1,
+      "imageCount": 1,
+      "externalImageCount": 1,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_texture_transform"
+      ],
+      "declaredLength": 53856,
+      "actualLength": 53856,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "town.cottage",
+    "category": "building",
+    "packSourceId": "everloom-composite",
+    "registrySourcePath": "composite://kenney-fantasy/cottage",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "composite",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "architecture.cottage",
+      "town.cottage"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "architecture.cottage",
+        "currentStatus": "licensed-placeholder",
+        "status": "reference-approved"
+      },
+      {
+        "manifestId": "town.cottage",
+        "currentStatus": "licensed-placeholder",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "town.cart",
+    "category": "prop",
+    "packSourceId": "kenney-fantasy",
+    "registrySourcePath": "kenney-fantasy/cart.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-fantasy/cart.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 52920,
+    "sha256": "63503cd0a7398310e01aabc8e3663f711a7517394d23d179d0695157fee99d40",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "town.cart"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "town.cart",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UnityGLTF",
+      "sceneCount": 1,
+      "nodeCount": 3,
+      "meshCount": 3,
+      "primitiveCount": 3,
+      "materialCount": 1,
+      "textureCount": 1,
+      "imageCount": 1,
+      "externalImageCount": 1,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_texture_transform"
+      ],
+      "declaredLength": 52920,
+      "actualLength": 52920,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "town.fence",
+    "category": "prop",
+    "packSourceId": "kenney-fantasy",
+    "registrySourcePath": "kenney-fantasy/fence.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-fantasy/fence.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 7672,
+    "sha256": "92261b9419108d84f3db0def5eadeffa783032029897562b1f512e4a7570ef48",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "town.fence"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "town.fence",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UnityGLTF",
+      "sceneCount": 1,
+      "nodeCount": 1,
+      "meshCount": 1,
+      "primitiveCount": 1,
+      "materialCount": 1,
+      "textureCount": 1,
+      "imageCount": 1,
+      "externalImageCount": 1,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_texture_transform"
+      ],
+      "declaredLength": 7672,
+      "actualLength": 7672,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "town.lantern",
+    "category": "prop",
+    "packSourceId": "kenney-fantasy",
+    "registrySourcePath": "kenney-fantasy/lantern.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-fantasy/lantern.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 14984,
+    "sha256": "f270637e3083d6e84a30626ee05df2b09597a642985a7f5c3e4ab5bb1c7a8d55",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "town.lantern"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "town.lantern",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UnityGLTF",
+      "sceneCount": 1,
+      "nodeCount": 1,
+      "meshCount": 1,
+      "primitiveCount": 1,
+      "materialCount": 1,
+      "textureCount": 1,
+      "imageCount": 1,
+      "externalImageCount": 1,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_texture_transform"
+      ],
+      "declaredLength": 14984,
+      "actualLength": 14984,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.tree-detailed",
+    "category": "tree",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/tree_detailed.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/tree_detailed.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 31412,
+    "sha256": "c041daf2f0fb1d49e4325227cbcd58667adbe51e9b55e8c1f0a94b74cc521b3b",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.tree-detailed",
+      "vegetation.ironbark-tree"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.tree-detailed",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      },
+      {
+        "manifestId": "vegetation.ironbark-tree",
+        "currentStatus": "licensed-placeholder",
+        "status": "integrated"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 3,
+      "materialCount": 3,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 31412,
+      "actualLength": 31412,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.tree-round",
+    "category": "tree",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/tree_pineRoundC.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/tree_pineRoundC.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 15332,
+    "sha256": "29080a4935bae6b4ab29066f22c99c58f88b23ce4e2f79b4dcbb5e76de73f69d",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.tree-round"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.tree-round",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 2,
+      "materialCount": 2,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 15332,
+      "actualLength": 15332,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.bush-detailed",
+    "category": "foliage",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/plant_bushDetailed.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/plant_bushDetailed.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 10172,
+    "sha256": "2e0487020d68ccf664435db9d829c78ae00e6d2785ee3ec10b9f89cc70a10406",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.bush-detailed"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.bush-detailed",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 1,
+      "materialCount": 1,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 10172,
+      "actualLength": 10172,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.flower-yellow",
+    "category": "foliage",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/flower_yellowB.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/flower_yellowB.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 11256,
+    "sha256": "aaa8707779a5de59f881f80185bc507b35ec3fd5f23a39d6447ef61141dcd4f5",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.flower-yellow"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.flower-yellow",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 2,
+      "materialCount": 2,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 11256,
+      "actualLength": 11256,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.cliff-rock",
+    "category": "rock",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/cliff_rock.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/cliff_rock.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 3556,
+    "sha256": "64b555b394b4312938ccd389862d5c01beb3fc417100aa41bb1e5e96a9889de0",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.cliff-rock"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.cliff-rock",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 1,
+      "materialCount": 1,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 3556,
+      "actualLength": 3556,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.path-rocks",
+    "category": "ground-detail",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/ground_pathRocks.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/ground_pathRocks.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 8036,
+    "sha256": "2447aca8c95d4d3583111e696056b024cb42c43290f8b0e7731b6486fc85f234",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.path-rocks"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.path-rocks",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 3,
+      "materialCount": 3,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 8036,
+      "actualLength": 8036,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "dungeon.crates",
+    "category": "prop",
+    "packSourceId": "kaykit-dungeon",
+    "registrySourcePath": "kaykit-dungeon/crates_stacked.gltf.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kaykit-dungeon/crates_stacked.gltf.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 103704,
+    "sha256": "43182b077ead9b033804300ef453b7402bdc979f00cfce2d7f0c91dcf6bb5d3c",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kaylousberg.itch.io/kaykit-dungeon-remastered",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "dungeon.crates"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "dungeon.crates",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "Khronos glTF Blender I/O v0.9.36",
+      "sceneCount": 1,
+      "nodeCount": 1,
+      "meshCount": 1,
+      "primitiveCount": 1,
+      "materialCount": 1,
+      "textureCount": 1,
+      "imageCount": 1,
+      "externalImageCount": 0,
+      "embeddedImageCount": 1,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [],
+      "declaredLength": 103704,
+      "actualLength": 103704,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "dungeon.barrel",
+    "category": "prop",
+    "packSourceId": "kaykit-dungeon",
+    "registrySourcePath": "kaykit-dungeon/barrel_large.gltf.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kaykit-dungeon/barrel_large.gltf.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 44292,
+    "sha256": "9fae6a79056241baf253fe9272dc7a7ddb174e1caf153eb5013c58a596722148",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kaylousberg.itch.io/kaykit-dungeon-remastered",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "dungeon.barrel"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "dungeon.barrel",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "Khronos glTF Blender I/O v0.9.36",
+      "sceneCount": 1,
+      "nodeCount": 1,
+      "meshCount": 1,
+      "primitiveCount": 1,
+      "materialCount": 1,
+      "textureCount": 1,
+      "imageCount": 1,
+      "externalImageCount": 0,
+      "embeddedImageCount": 1,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [],
+      "declaredLength": 44292,
+      "actualLength": 44292,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "custom.tool-hatchet",
+    "category": "ground-item",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "procedural://tool/hatchet",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "procedural",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "custom.tool-hatchet",
+      "equipment.worn-hatchet"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "custom.tool-hatchet",
+        "currentStatus": "procedural-placeholder",
+        "status": "awaiting-reference"
+      },
+      {
+        "manifestId": "equipment.worn-hatchet",
+        "currentStatus": "procedural-placeholder",
+        "status": "reference-approved"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "custom.tool-pickaxe",
+    "category": "ground-item",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "procedural://tool/pickaxe",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "procedural",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "custom.tool-pickaxe"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "custom.tool-pickaxe",
+        "currentStatus": "procedural-placeholder",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "custom.tool-rod",
+    "category": "ground-item",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "procedural://tool/fishing-rod",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "procedural",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "custom.tool-rod"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "custom.tool-rod",
+        "currentStatus": "procedural-placeholder",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "custom.weapon-sword",
+    "category": "ground-item",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "procedural://weapon/sword",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "procedural",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "custom.weapon-sword"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "custom.weapon-sword",
+        "currentStatus": "procedural-placeholder",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "custom.weapon-battleaxe",
+    "category": "ground-item",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "procedural://weapon/battleaxe",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "procedural",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "custom.weapon-battleaxe"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "custom.weapon-battleaxe",
+        "currentStatus": "procedural-placeholder",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "custom.facility-smelter",
+    "category": "facility",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "procedural://facility/smelter",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "procedural",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "custom.facility-smelter"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "custom.facility-smelter",
+        "currentStatus": "procedural-placeholder",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "custom.facility-anvil",
+    "category": "facility",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "procedural://facility/anvil",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "procedural",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "custom.facility-anvil"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "custom.facility-anvil",
+        "currentStatus": "procedural-placeholder",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "custom.armor-boneguard-vest",
+    "category": "armor",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "procedural://armor/boneguard-vest",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "procedural",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "custom.armor-boneguard-vest"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "custom.armor-boneguard-vest",
+        "currentStatus": "procedural-placeholder",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "custom.npc-mara-shawl",
+    "category": "npc-accessory",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "procedural://npc/mara-shawl",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "procedural",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "custom.npc-mara-shawl"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "custom.npc-mara-shawl",
+        "currentStatus": "procedural-placeholder",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "custom.fishing-ripples",
+    "category": "effect",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "procedural://world/fishing-ripples",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "procedural",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "custom.fishing-ripples"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "custom.fishing-ripples",
+        "currentStatus": "procedural-placeholder",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "icon.hatchet",
+    "category": "icon",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "component://icon/hatchet",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "component",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "icon.hatchet"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "icon.hatchet",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "icon.pickaxe",
+    "category": "icon",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "component://icon/pickaxe",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "component",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "icon.pickaxe"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "icon.pickaxe",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "icon.fishing-rod",
+    "category": "icon",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "component://icon/fishing-rod",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "component",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "icon.fishing-rod"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "icon.fishing-rod",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "icon.sword",
+    "category": "icon",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "component://icon/sword",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "component",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "icon.sword"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "icon.sword",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "icon.log",
+    "category": "icon",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "component://icon/log",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "component",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "icon.log"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "icon.log",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "icon.ore",
+    "category": "icon",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "component://icon/ore",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "component",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "icon.ore"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "icon.ore",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "icon.fish",
+    "category": "icon",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "component://icon/fish",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "component",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "icon.fish"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "icon.fish",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "icon.food",
+    "category": "icon",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "component://icon/food",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "component",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "icon.food"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "icon.food",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "icon.bone",
+    "category": "icon",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "component://icon/bone",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "component",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "icon.bone"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "icon.bone",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "icon.amber",
+    "category": "icon",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "component://icon/amber",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "component",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "icon.amber"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "icon.amber",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "icon.heartwood",
+    "category": "icon",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "component://icon/heartwood",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "component",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "icon.heartwood"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "icon.heartwood",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "icon.tonic",
+    "category": "icon",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "component://icon/tonic",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "component",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "icon.tonic"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "icon.tonic",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "icon.ingot",
+    "category": "icon",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "component://icon/ingot",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "component",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "icon.ingot"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "icon.ingot",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "icon.battleaxe",
+    "category": "icon",
+    "packSourceId": "everloom-original",
+    "registrySourcePath": "component://icon/battleaxe",
+    "resolvedCanonicalFilesystemPath": null,
+    "pathExists": null,
+    "formatOrScheme": "component",
+    "byteSize": null,
+    "sha256": null,
+    "claimedLicence": "Project original",
+    "sourceUrl": null,
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "icon.battleaxe"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "icon.battleaxe",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": null,
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.stump-round",
+    "category": "prop",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/stump_round.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/stump_round.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 5644,
+    "sha256": "e9b0f385f0ef98493ef716a055aa51e0b99efb8445279be7bb8bd83329a4c4af",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.stump-round"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.stump-round",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 2,
+      "materialCount": 2,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 5644,
+      "actualLength": 5644,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.stump-old",
+    "category": "prop",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/stump_old.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/stump_old.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 9564,
+    "sha256": "4c2d2da34804c1662c6a776a9d60fe4449e6f6fdd50914bfec7d5cca3e9ceddb",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.stump-old"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.stump-old",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 1,
+      "materialCount": 1,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 9564,
+      "actualLength": 9564,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.log",
+    "category": "prop",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/log.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/log.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 14288,
+    "sha256": "8c8fe8f6adfc03a3c0cd6cb24961ff74be96c2da284d70322f05797d049972d6",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.log",
+      "resource.ironbark-log"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.log",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      },
+      {
+        "manifestId": "resource.ironbark-log",
+        "currentStatus": "licensed-placeholder",
+        "status": "integrated"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 2,
+      "materialCount": 2,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 14288,
+      "actualLength": 14288,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.mushroom-red",
+    "category": "foliage",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/mushroom_redGroup.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/mushroom_redGroup.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 14960,
+    "sha256": "29f02df0589dd2b09e8d2aff6a4662394dac5cfcf1fec701640dcbd6127e0802",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.mushroom-red"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.mushroom-red",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 2,
+      "materialCount": 2,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 14960,
+      "actualLength": 14960,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.mushroom-tan",
+    "category": "foliage",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/mushroom_tanGroup.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/mushroom_tanGroup.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 14956,
+    "sha256": "2dc979485f164d7dce34329096271f44e0c9ea329c104251d94bcfbc8f8fe05e",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.mushroom-tan"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.mushroom-tan",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 2,
+      "materialCount": 2,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 14956,
+      "actualLength": 14956,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.lily-pad",
+    "category": "foliage",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/lily_large.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/lily_large.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 8044,
+    "sha256": "c8f7080df0ae3166e9d33f523b66360c2ac7556dff36cc9c8ee78b6a676c7db2",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.lily-pad"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.lily-pad",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 3,
+      "materialCount": 3,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 8044,
+      "actualLength": 8044,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.rock-flat",
+    "category": "rock",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/rock_smallFlatA.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/rock_smallFlatA.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 3300,
+    "sha256": "40ceafacfaabb0f04f93688fd8696c1464c65512bef219e1459c1f238cbbbe21",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.rock-flat"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.rock-flat",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 2,
+      "materialCount": 2,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 3300,
+      "actualLength": 3300,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.rock-tall",
+    "category": "rock",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/rock_tallC.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/rock_tallC.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 5184,
+    "sha256": "87943b8b0d244ec9832d5dca9bf3cee2ab62aaa81797749f21a972f85c1f3be4",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.rock-tall"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.rock-tall",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 3,
+      "materialCount": 3,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 5184,
+      "actualLength": 5184,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.rock-tall-b",
+    "category": "rock",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/rock_tallF.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/rock_tallF.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 5608,
+    "sha256": "823cecdfa45e9b23c608a4b3ade9e699e0dea0e0141dde4e757fe97ad5850c10",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.rock-tall-b"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.rock-tall-b",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 3,
+      "materialCount": 3,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 5608,
+      "actualLength": 5608,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.stone-ring",
+    "category": "landmark",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/statue_ring.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/statue_ring.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 6568,
+    "sha256": "5c62e4165f7a76436faa0b20e98b47d0a9e5021dcbf2a0eef0cdf0912180f02c",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.stone-ring"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.stone-ring",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 2,
+      "materialCount": 2,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 6568,
+      "actualLength": 6568,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.flower-purple",
+    "category": "foliage",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/flower_purpleB.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/flower_purpleB.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 8084,
+    "sha256": "2afb10cd68a9a7b185fc46110be0da550ea2aef86ef9ac6b7339f217eb4b636a",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.flower-purple"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.flower-purple",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 2,
+      "materialCount": 2,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 8084,
+      "actualLength": 8084,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.hanging-moss",
+    "category": "foliage",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/hanging_moss.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/hanging_moss.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 4776,
+    "sha256": "2124c2d038054f1ea89d470a6095d35c2fbdb2674916db93400ea6ed5f499cb0",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.hanging-moss"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.hanging-moss",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 1,
+      "materialCount": 1,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 4776,
+      "actualLength": 4776,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.cliff-block",
+    "category": "rock",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/cliff_block_rock.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/cliff_block_rock.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 2776,
+    "sha256": "2f31de8502288d6adcdae4d5605cfe65d4bcd4369dd0decd116c2615b9d3d01f",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.cliff-block"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.cliff-block",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 2,
+      "materialCount": 2,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 2776,
+      "actualLength": 2776,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "nature.cliff-large",
+    "category": "rock",
+    "packSourceId": "kenney-nature",
+    "registrySourcePath": "kenney-nature/cliff_large_rock.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-nature/cliff_large_rock.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 3560,
+    "sha256": "f9bf79cd3a76bbe11f4887053655585e467e14f2528678215a820896669e4e8e",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/nature-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "nature.cliff-large"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "nature.cliff-large",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UniGLTF-1.27",
+      "sceneCount": 1,
+      "nodeCount": 2,
+      "meshCount": 1,
+      "primitiveCount": 1,
+      "materialCount": 1,
+      "textureCount": 0,
+      "imageCount": 0,
+      "externalImageCount": 0,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_materials_unlit"
+      ],
+      "declaredLength": 3560,
+      "actualLength": 3560,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "town.hedge",
+    "category": "prop",
+    "packSourceId": "kenney-fantasy",
+    "registrySourcePath": "kenney-fantasy/hedge.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-fantasy/hedge.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 6524,
+    "sha256": "12001b57dbd3ccaddd217c49e541620137d3e835d873ce0bcedc0e01180a08a9",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "town.hedge"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "town.hedge",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UnityGLTF",
+      "sceneCount": 1,
+      "nodeCount": 1,
+      "meshCount": 1,
+      "primitiveCount": 1,
+      "materialCount": 1,
+      "textureCount": 1,
+      "imageCount": 1,
+      "externalImageCount": 1,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_texture_transform"
+      ],
+      "declaredLength": 6524,
+      "actualLength": 6524,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  },
+  {
+    "runtimeAssetId": "town.banner",
+    "category": "prop",
+    "packSourceId": "kenney-fantasy",
+    "registrySourcePath": "kenney-fantasy/banner-green.glb",
+    "resolvedCanonicalFilesystemPath": "apps/client3d/public/models/kenney-fantasy/banner-green.glb",
+    "pathExists": true,
+    "formatOrScheme": "glb",
+    "byteSize": 10200,
+    "sha256": "5c9a1bb7d564270306fe438fd4a141fc6de0d102b355bbd1d2710249c489868a",
+    "claimedLicence": "CC0-1.0",
+    "sourceUrl": "https://kenney.nl/assets/fantasy-town-kit",
+    "sourceRegistryEvidenceStatus": "verified_local_evidence",
+    "visualManifestReferences": [
+      "town.banner"
+    ],
+    "manifestStatusesObserved": [
+      {
+        "manifestId": "town.banner",
+        "currentStatus": "approved-existing",
+        "status": "awaiting-reference"
+      }
+    ],
+    "duplicateFilePathsWithSameHash": [],
+    "glbMetadata": {
+      "parseError": null,
+      "assetVersion": "2.0",
+      "generator": "UnityGLTF",
+      "sceneCount": 1,
+      "nodeCount": 1,
+      "meshCount": 1,
+      "primitiveCount": 1,
+      "materialCount": 1,
+      "textureCount": 1,
+      "imageCount": 1,
+      "externalImageCount": 1,
+      "embeddedImageCount": 0,
+      "bufferCount": 1,
+      "externalBufferCount": 0,
+      "embeddedBufferCount": 1,
+      "skinCount": 0,
+      "jointCounts": [],
+      "animationCount": 0,
+      "animationNames": [],
+      "morphTargetsPresent": false,
+      "extensionsUsed": [
+        "KHR_texture_transform"
+      ],
+      "declaredLength": 10200,
+      "actualLength": 10200,
+      "lengthMismatch": false,
+      "chunkCount": 2
+    },
+    "auditFindings": [],
+    "severity": "none"
+  }
+]
