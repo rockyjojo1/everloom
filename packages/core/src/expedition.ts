@@ -67,12 +67,12 @@ export function resolveExpedition(
     const remainingMs = maxDurationMs - timeMs;
     const nextWindowMs = Math.min(GATHERING_WINDOW_MS, remainingMs);
 
-    // Attempt encounter with deterministic RNG
+    // Attempt encounter with deterministic RNG (use activityId for deterministic hash)
     const encounterRoll = deterministicRollPpm(
       exp.expeditionSeed,
       actionSeq,
       "expedition_encounter",
-      exp.expeditionId,
+      exp.activityId,
       ENCOUNTER_CHANCE_PPM,
     );
 
@@ -83,7 +83,7 @@ export function resolveExpedition(
         exp.expeditionSeed,
         actionSeq,
         "wolf_damage",
-        exp.expeditionId,
+        exp.activityId,
         WOLF_DAMAGE_MIN,
         WOLF_DAMAGE_MAX,
       );
