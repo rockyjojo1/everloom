@@ -2,7 +2,18 @@
 
 ## Scope
 
-The Verdant Grove vertical slice demonstrates the first complete, deterministic AFK-first gameplay loop. It proves:
+**This document is the target contract for an eventual complete, deterministic
+AFK-first gameplay loop. It is not a description of the current implementation.**
+The current implementation is a domain prototype (see
+[`VERDANT_GROVE_STATUS.md`](VERDANT_GROVE_STATUS.md) and the Implementation
+Status section below): the engine, save migration, and forecasting logic exist
+and pass Vitest, but the loop below is not reachable by a player, has no browser
+coverage, and its determinism/idempotency design has known gaps (see
+Determinism Contract). Read every requirement in this contract as **target**,
+not as **achieved**, unless the Implementation Status section explicitly says
+otherwise.
+
+Once complete, this slice is intended to prove:
 - Shared domain logic for active and offline resolution
 - Deterministic seeded random generation
 - Proper idempotent reward handling
@@ -108,15 +119,59 @@ Explicit deterministic sequence:
 
 ### Determinism Contract
 
-- ✅ No Math.random() inside resolution
-- ✅ No real time calls inside pure resolution  
-- ✅ Seeded RNG must be stable and tested
-- ✅ Same input must produce deeply equal output
-- ✅ Chunked and one-shot resolution must agree
-- ✅ Re-loading expedition must not change seed
-- ✅ Forecasting must not mutate state or RNG stream
-- ✅ Re-opening must not reroll encounters
-- ✅ Completion rewards must be idempotent
+Legend: **IMPLEMENTED AND UNIT-TESTED** = code exists, Vitest covers it, no known
+contradiction. **REQUIRED / NOT YET VERIFIED** = target requirement; either
+untested, or the current code contradicts it. **FULLY VERIFIED** = reserved for
+requirements confirmed end-to-end (browser + production-safety review) — not
+used anywhere below, because none qualify yet.
+
+- IMPLEMENTED AND UNIT-TESTED — No `Math.random()` used for gameplay RNG rolls
+  inside `resolveExpedition`'s event loop (rolls use `deterministicRollPpm`/
+  `deterministicRange`, seeded from the save).
+- REQUIRED / NOT YET VERIFIED — No real-time calls inside resolution. **Contradicted
+  by current code**: `resolveExpedition` builds `claimId` using
+  `` `claim-${exp.expeditionId}-${Date.now()}` `` (`packages/core/src/expedition.ts`,
+  ~line 128) — a real-time call inside the function that performs resolution.
+- REQUIRED / NOT YET VERIFIED — Stable expedition identity. **Contradicted by
+  current code**: `startExpedition` builds `expeditionId` using
+  `` `exp-${Date.now()}-${Math.random().toString(36).slice(2)}` `` (~line 23) —
+  not a stable, input-derived identity; two expeditions started with identical
+  inputs at different wall-clock moments get different IDs.
+- IMPLEMENTED AND UNIT-TESTED — Seeded RNG is stable across repeated direct
+  calls with the same seed (`expedition.test.ts` "produces identical results
+  for identical input").
+- IMPLEMENTED AND UNIT-TESTED — Same input produces deeply equal *gameplay*
+  output (resources, XP, encounters) for the same seed — verified for
+  synchronous, single-call resolution only.
+- REQUIRED / NOT YET VERIFIED — Chunked and one-shot resolution must agree. No
+  test calls `resolveExpedition` more than once against progressively larger
+  `elapsedMs` for the same expedition and compares the result to a single
+  one-shot call. This equivalence has not been written or verified.
+- REQUIRED / NOT YET VERIFIED — Re-loading (reopening) an expedition must not
+  reroll or change its seed. Save/reload round-trips of `activeExpedition` are
+  tested; browser reopen behavior (closing and reopening the actual running
+  game against a persisted save) is not.
+- IMPLEMENTED AND UNIT-TESTED — Forecasting does not mutate save state (unit-
+  tested directly: the input save object is compared before/after calling
+  `forecastExpedition`).
+- REQUIRED / NOT YET VERIFIED — Re-opening must not reroll encounters. No test
+  exercises a real reopen (new process, reloaded save) against an in-progress
+  expedition; only the same in-memory object is reused across calls.
+- REQUIRED / NOT YET VERIFIED — Completion rewards must be idempotent in
+  production. Unit tests confirm a `claimId` is recorded in
+  `claimedExpeditions` and that resolving twice on the *same in-memory save*
+  is a no-op (no active expedition to resolve). This has not been reviewed
+  against real-world races (two tabs, a retried network write, a crash between
+  save-write and claim-record) — see Known Issue 5 in
+  [`VERDANT_GROVE_HANDOFF.md`](VERDANT_GROVE_HANDOFF.md).
+- REQUIRED / NOT YET VERIFIED — Active/offline differential equivalence: no
+  test compares the result of "resolve while active" against "resolve after a
+  save/reload simulating an offline gap" for equivalent elapsed time. Only
+  save/reload round-trips of the *data*, not a behavioral diff of the two code
+  paths, have been performed.
+- REQUIRED / NOT YET VERIFIED — Browser behavior. No Playwright coverage exists
+  for any part of the expedition loop (confirmed via
+  `playwright test --list`: 72 tests, 14 files, none of them this feature).
 
 ### Save Integration
 
@@ -158,23 +213,42 @@ Explicit deterministic sequence:
 
 ## Acceptance Tests
 
-1. ✅ Same seed produces identical expedition result
-2. ✅ Different seeds produce different encounter sequences
-3. ✅ No wolves encountered in some runs
-4. ✅ One or more wolves encountered in some runs
-5. ✅ Food consumed correctly per time
-6. ✅ Retreat occurs at configured health threshold
-7. ✅ Inventory-full termination works
-8. ✅ Duration termination works
-9. ✅ Cannot start without unlocking
-10. ✅ Invalid duration rejected or clamped
-11. ✅ Insufficient loadout rejected or warned
-12. ✅ Completion cannot be claimed twice
-13. ✅ Save/reload preserves result
-14. ✅ Chunked and one-shot resolution agree
-15. ✅ Forecasting does not mutate state
-16. ✅ Negative values impossible
-17. ✅ Event log remains ordered and bounded
+Same legend as the Determinism Contract above.
+
+1. IMPLEMENTED AND UNIT-TESTED — Same seed produces identical expedition result
+   (direct synchronous calls only)
+2. IMPLEMENTED AND UNIT-TESTED — Different seeds produce different encounter
+   sequences over a long enough duration
+3. IMPLEMENTED AND UNIT-TESTED — No wolves encountered in some runs
+4. IMPLEMENTED AND UNIT-TESTED — One or more wolves encountered in some runs
+5. IMPLEMENTED AND UNIT-TESTED — Food consumed correctly per time
+6. IMPLEMENTED AND UNIT-TESTED — Retreat occurs at configured health threshold
+7. IMPLEMENTED AND UNIT-TESTED — Inventory-full termination works
+8. IMPLEMENTED AND UNIT-TESTED — Duration termination works
+9. REQUIRED / NOT YET VERIFIED — Cannot start without unlocking. No test drives
+   `startExpedition` through the actual `verdant_loomstone_awakened` flag gate;
+   the gate exists in content data (`requiredFlag` on the interactable) but
+   nothing connects world-interaction gating to `startExpedition` at runtime.
+10. IMPLEMENTED AND UNIT-TESTED — Invalid duration rejected or clamped
+11. REQUIRED / NOT YET VERIFIED — Insufficient loadout rejected or warned.
+    `forecastExpedition` produces warnings for missing food/low health/tight
+    inventory, but nothing *rejects* a start on insufficient loadout — a
+    player (or a direct `startExpedition` call) can proceed regardless.
+12. IMPLEMENTED AND UNIT-TESTED — Completion cannot be claimed twice, for the
+    specific call pattern the tests exercise (see the idempotency caveat in
+    the Determinism Contract above — production-safety not yet reviewed)
+13. IMPLEMENTED AND UNIT-TESTED — Save/reload preserves result (via
+    `JSON.parse(serializeSave(...))` round-trips)
+14. REQUIRED / NOT YET VERIFIED — Chunked and one-shot resolution agree — no
+    such test exists (see Determinism Contract above)
+15. IMPLEMENTED AND UNIT-TESTED — Forecasting does not mutate state
+16. IMPLEMENTED AND UNIT-TESTED — Negative values impossible (health/food/
+    quantities clamped in the tested code paths)
+17. REQUIRED / NOT YET VERIFIED — Event log remains ordered and bounded. No
+    `eventLog` field is populated or asserted on by any current test; the
+    `ExpeditionResult` type in this contract's Minimum State Output includes
+    `eventLog`, but the implemented `ExpeditionResult` does not currently
+    produce one.
 
 ## Deferred Features
 
@@ -244,7 +318,9 @@ supervised redesign effort.
 - 30s gathering windows, 15% encounter chance per window
 - 8-12 wolf damage, 25 woodcutting XP per log, 50 melee XP per combat
 - Stop conditions: duration_reached, food_exhausted, health_critical, inventory_full
-- Event log with ordered and deterministic sequence
+- **No `eventLog` field exists on the implemented `ExpeditionResult`**, despite
+  being listed in this contract's Minimum State Output above — see Acceptance
+  Test 17
 
 **PHASE 5: Save Migration & Idempotency**
 - `packages/core/src/save.ts` migrateV5ToV6() function

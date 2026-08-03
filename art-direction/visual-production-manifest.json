@@ -4373,6 +4373,147 @@
       ],
       "status": "reference-approved",
       "role": "production-concept"
+    },
+    {
+      "id": "vegetation.ironbark-tree",
+      "displayName": "Ironbark Tree (Verdant Grove, placeholder)",
+      "category": "vegetation",
+      "gameReferences": [
+        "packages/content/src/data/resources.json",
+        "packages/content/src/data/zones.json"
+      ],
+      "boardSection": null,
+      "currentAssetId": "nature.tree-detailed",
+      "currentSource": "apps/client3d/dist/models/kenney-nature/tree_detailed.glb",
+      "currentLicense": "CC0-1.0",
+      "currentStatus": "licensed-placeholder",
+      "productionPriority": "phase-two",
+      "requiredViews": [
+        "gameplay-three-quarter"
+      ],
+      "requiredStates": [
+        "default"
+      ],
+      "scaleReference": {
+        "heightOrSize": 2.15,
+        "unit": "world-unit",
+        "authority": "source-declared"
+      },
+      "rigRequirement": "none",
+      "attachmentPoints": [],
+      "collisionRequirement": "resource",
+      "lodRequirement": "single",
+      "targetFormat": "glb",
+      "productionNotes": [
+        "No Ironbark-specific model has been produced.",
+        "Reuses nature.tree-detailed (the same asset already used for canopy trees elsewhere in Verdant Grove) as an explicit temporary substitute for the ironbark_tree resource's verdant_ironbark interactable.",
+        "Visually renders in the world today via generic interactable rendering; the click-to-expedition gameplay workflow is not yet runtime-integrated (see docs/VERDANT_GROVE_STATUS.md)."
+      ],
+      "acceptanceCriteria": [
+        "A produced Ironbark-specific tree model exists",
+        "Visually distinguishable from the generic canopy tree it currently substitutes for"
+      ],
+      "status": "integrated",
+      "role": "runtime-asset",
+      "canonicalMapping": {
+        "runtimeAssetId": "nature.tree-detailed",
+        "canonicalEntryId": "nature.tree-detailed",
+        "reason": "shared asset - secondary reference (temporary placeholder, not a produced Ironbark asset)"
+      }
+    },
+    {
+      "id": "creature.grove-wolf",
+      "displayName": "Grove Wolf (Verdant Grove, placeholder)",
+      "category": "character",
+      "gameReferences": [
+        "packages/content/src/data/enemies.json",
+        "packages/content/src/data/zones.json"
+      ],
+      "boardSection": null,
+      "currentAssetId": "enemy.skeleton-warrior",
+      "currentSource": "apps/client3d/dist/models/kaykit-skeletons/Skeleton_Warrior.glb",
+      "currentLicense": "CC0-1.0",
+      "currentStatus": "licensed-placeholder",
+      "productionPriority": "phase-two",
+      "requiredViews": [
+        "gameplay-three-quarter"
+      ],
+      "requiredStates": [
+        "idle",
+        "attacking"
+      ],
+      "scaleReference": {
+        "heightOrSize": null,
+        "unit": "world-unit",
+        "authority": "unconfirmed"
+      },
+      "rigRequirement": "humanoid",
+      "attachmentPoints": [],
+      "collisionRequirement": "enemy",
+      "lodRequirement": "single",
+      "targetFormat": "glb",
+      "productionNotes": [
+        "No wolf (or other quadruped creature) model exists in the registry; enemy.skeleton-warrior is the only registered character asset.",
+        "Reuses enemy.skeleton-warrior as an explicit, thematically-mismatched temporary substitute for the grove_wolf enemy definition.",
+        "Not runtime-reachable in combat yet: the expedition workflow that would spawn this encounter is not wired into the running game (see docs/VERDANT_GROVE_STATUS.md)."
+      ],
+      "acceptanceCriteria": [
+        "A produced wolf/quadruped creature model exists",
+        "Visually distinguishable from the skeleton enemy it currently substitutes for"
+      ],
+      "status": "integrated",
+      "role": "runtime-asset",
+      "canonicalMapping": {
+        "runtimeAssetId": "enemy.skeleton-warrior",
+        "canonicalEntryId": "enemy.skeleton-warrior",
+        "reason": "shared asset - secondary reference (temporary placeholder, not a produced wolf asset)"
+      }
+    },
+    {
+      "id": "resource.ironbark-log",
+      "displayName": "Ironbark Log (item, placeholder)",
+      "category": "resource",
+      "gameReferences": [
+        "packages/content/src/data/items.json"
+      ],
+      "boardSection": null,
+      "currentAssetId": "nature.log",
+      "currentSource": "apps/client3d/dist/models/kenney-nature/log.glb",
+      "currentLicense": "CC0-1.0",
+      "currentStatus": "licensed-placeholder",
+      "productionPriority": "phase-two",
+      "requiredViews": [
+        "gameplay-three-quarter"
+      ],
+      "requiredStates": [
+        "default"
+      ],
+      "scaleReference": {
+        "heightOrSize": null,
+        "unit": "world-unit",
+        "authority": "unconfirmed"
+      },
+      "rigRequirement": "none",
+      "attachmentPoints": [],
+      "collisionRequirement": "none",
+      "lodRequirement": "single",
+      "targetFormat": "glb",
+      "productionNotes": [
+        "No Ironbark-specific log model or icon exists.",
+        "Item icon reuses icon.log (the generic log icon also used by meadow_log); world/inventory presentation reuses nature.log (a generic fallen-log prop).",
+        "Both are real, registered, CC0 assets, used as explicit temporary substitutes."
+      ],
+      "acceptanceCriteria": [
+        "A produced Ironbark-specific log icon and/or model exists",
+        "Visually distinguishable from the generic Meadowrest log it currently shares an icon with"
+      ],
+      "status": "integrated",
+      "role": "runtime-asset",
+      "canonicalMapping": {
+        "runtimeAssetId": "nature.log",
+        "canonicalEntryId": "nature.log",
+        "reason": "shared asset - secondary reference (temporary placeholder, not a produced Ironbark asset); icon also reuses icon.log"
+      }
     }
   ]
 }

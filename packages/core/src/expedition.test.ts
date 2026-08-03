@@ -85,8 +85,8 @@ describe("Expedition system: save migration and idempotency", () => {
       expect(migrated.inventory).toHaveLength(2);
       expect(migrated.inventory[0]).toEqual({ itemId: "hatchet-bronze", quantity: 1 });
       expect(migrated.skills.woodcutting.xp).toBe(5000);
-      expect(migrated.mastery["hatchet-bronze"].xp).toBe(500);
-      expect(migrated.quests.first_thread.status).toBe("active");
+      expect(migrated.mastery).toMatchObject({ "hatchet-bronze": { xp: 500 } });
+      expect(migrated.quests).toMatchObject({ first_thread: { status: "active" } });
       expect(migrated.worldFlags.tutorial_complete).toBe(true);
       expect(migrated.collections).toContain("item-rare-1");
       expect(migrated.simulationTimeMs).toBe(100000);
