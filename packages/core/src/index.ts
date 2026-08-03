@@ -7,3 +7,4 @@ export * from "./quests";
 export * from "./save";
 export * from "./simulation";
 export * from "./expedition";
+export * from "./forecast";
