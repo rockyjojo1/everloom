@@ -126,7 +126,12 @@ try {
       if (msg.type() === "error") consoleErrors.push(msg.text());
     });
     page.on("response", (res) => {
-      if (res.status() === 404 && res.url().includes(".glb")) failed404s.push(res.url());
+      if (res.status() === 404) {
+        const url = res.url();
+        if (url.includes("/models/")) {
+          failed404s.push(url);
+        }
+      }
     });
 
     const url = `${SERVER_URL}/?bakeoff=meadowrest&profile=${config.profile}`;
@@ -168,7 +173,8 @@ try {
       config: config.name,
       profile: config.profile,
       viewport: config.viewport,
-      deviceScaleFactor: config.mobile ? 3 : 1,
+      configuredDeviceScaleFactor: 1,
+      browserDevicePixelRatio: metrics.viewport.devicePixelRatio,
       readyMs,
       measurementWindowMs: WARMUP_MS + MEASUREMENT_MS,
       webgl: glInfo,
@@ -256,6 +262,10 @@ try {
       result.passed = false;
       result.issues.push(`Page errors: ${capture.pageErrors.length}`);
     }
+    if (capture.consoleErrors.length > 0) {
+      result.passed = false;
+      result.issues.push(`Console errors: ${capture.consoleErrors.length}`);
+    }
     if (capture.failed404s.length > 0) {
       result.passed = false;
       result.issues.push(`Model 404s: ${capture.failed404s.length}`);
@@ -285,21 +295,45 @@ try {
     if (capture.metrics.p95FrameMs !== null && capture.metrics.p95FrameMs > target.p95FrameMs) {
       result.issues.push(`Target P95 ${target.p95FrameMs}ms not met: ${capture.metrics.p95FrameMs}ms (soft target, not a hard failure)`);
     }
+    if (capture.metrics.loadMs !== null && capture.metrics.loadMs > target.loadMs) {
+      result.issues.push(`Target load time ${target.loadMs}ms not met: ${capture.metrics.loadMs}ms (soft target, not a hard failure)`);
+    }
 
     metricsData.results[capture.config] = result;
   }
 
   const allHardsPassed = Object.values(metricsData.results).every((r) => r.passed);
-  const balancedTargetsMet = captures
-    .filter((c) => c.profile === "balanced")
-    .every((c) => {
-      const target = c.config.includes("iphone") ? metricsData.targets.balanced_mobile : metricsData.targets.balanced_desktop;
-      return c.metrics.averageFps !== null && c.metrics.averageFps >= target.averageFps;
-    });
+
+  const balancedDesktopMetrics = captures.find((c) => c.config === "desktop-balanced")?.metrics;
+  const balancedMobileMetrics = captures.find((c) => c.config === "iphone-landscape-balanced")?.metrics;
+
+  const balancedDesktopTargets = metricsData.targets.balanced_desktop;
+  const balancedMobileTargets = metricsData.targets.balanced_mobile;
+
+  const balancedDesktopFpsMet = balancedDesktopMetrics?.averageFps !== null && balancedDesktopMetrics?.averageFps >= balancedDesktopTargets.averageFps;
+  const balancedDesktopP95Met = balancedDesktopMetrics?.p95FrameMs !== null && balancedDesktopMetrics?.p95FrameMs <= balancedDesktopTargets.p95FrameMs;
+  const balancedDesktopLoadMet = balancedDesktopMetrics?.loadMs !== null && balancedDesktopMetrics?.loadMs <= balancedDesktopTargets.loadMs;
+
+  const balancedMobileFpsMet = balancedMobileMetrics?.averageFps !== null && balancedMobileMetrics?.averageFps >= balancedMobileTargets.averageFps;
+  const balancedMobileP95Met = balancedMobileMetrics?.p95FrameMs !== null && balancedMobileMetrics?.p95FrameMs <= balancedMobileTargets.p95FrameMs;
+  const balancedMobileLoadMet = balancedMobileMetrics?.loadMs !== null && balancedMobileMetrics?.loadMs <= balancedMobileTargets.loadMs;
+
+  const generalTargetsMet = captures.every((c) => {
+    const target = metricsData.targets.general;
+    const framesOver50 = c.metrics.longFramesOver50Ms > 0 ? c.metrics.longFramesOver50Ms / Math.max(1, c.metrics.frameSamples) : 0;
+    return c.metrics.drawCalls <= target.drawCalls &&
+           c.metrics.triangles <= target.triangles &&
+           framesOver50 <= target.framesOver50Ms;
+  });
 
   let recommendation = "BLOCKED";
-  if (allHardsPassed) {
-    recommendation = balancedTargetsMet ? "PROCEED_TO_CAPACITOR_BAKEOFF" : "PROCEED_WITH_BROWSER_OPTIMISATION";
+  if (allHardsPassed &&
+      balancedDesktopFpsMet && balancedDesktopP95Met && balancedDesktopLoadMet &&
+      balancedMobileFpsMet && balancedMobileP95Met && balancedMobileLoadMet &&
+      generalTargetsMet) {
+    recommendation = "PROCEED_TO_CAPACITOR_BAKEOFF";
+  } else if (allHardsPassed) {
+    recommendation = "PROCEED_WITH_BROWSER_OPTIMISATION";
   }
   metricsData.recommendation = recommendation;
 
