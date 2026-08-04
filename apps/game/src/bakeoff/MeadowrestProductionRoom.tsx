@@ -14,7 +14,17 @@ export function MeadowrestProductionRoom() {
   const clockRef = useRef(new THREE.Clock());
   const animationFrameRef = useRef<number | null>(null);
 
-  const [profile, setProfile] = useState<ProductionRoomProfile>("balanced");
+  // Read profile from URL params, default to "balanced"
+  const [profile, setProfile] = useState<ProductionRoomProfile>(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const profileParam = params.get("profile");
+      if (profileParam === "quality" || profileParam === "balanced") {
+        return profileParam;
+      }
+    }
+    return "balanced";
+  });
   const [ready, setReady] = useState(false);
   const [loadedAssets, setLoadedAssets] = useState<string[]>([]);
   const [failedAssets, setFailedAssets] = useState<string[]>([]);
