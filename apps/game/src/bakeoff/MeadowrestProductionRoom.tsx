@@ -31,6 +31,7 @@ export function MeadowrestProductionRoom() {
   const [metrics, setMetrics] = useState<any>(null);
 
   const metricsRef = useRef<ProductionRoomMetricsCollector | null>(null);
+  const lastUiMetricsUpdateRef = useRef(0);
   const playerRef = useRef<THREE.Object3D | null>(null);
   const playerAnimationMixerRef = useRef<THREE.AnimationMixer | null>(null);
   const playerAnimationActionRef = useRef<THREE.AnimationAction | null>(null);
@@ -95,6 +96,7 @@ export function MeadowrestProductionRoom() {
         const expectedAssets = [
           ...layout.placements.map((p) => p.runtimeAssetId),
           ...characters.map((c) => c.runtimeAssetId),
+          ...characters.filter((c) => c.accessory).map((c) => c.accessory as string),
         ];
         const uniqueAssets = [...new Set(expectedAssets)];
         metricsRef.current = new ProductionRoomMetricsCollector(profile, uniqueAssets);
@@ -232,11 +234,16 @@ export function MeadowrestProductionRoom() {
             obj.position.fromArray(char.position);
             obj.rotation.y = char.rotationY;
 
-            // Apply tint
+            // Apply tint. GLTFLoader produces MeshStandardMaterial for these
+            // rigs (confirmed via the same pattern in ../world/assets.ts),
+            // not MeshPhongMaterial -- the previous check against
+            // MeshPhongMaterial silently matched nothing, so player, Mara
+            // and the skeleton all rendered in their untinted source colour.
             obj.traverse((child: THREE.Object3D) => {
-              if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshPhongMaterial) {
-                const color = new THREE.Color(char.tint);
-                child.material.color = color;
+              if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
+                const next = child.material.clone();
+                next.color.multiply(new THREE.Color(char.tint));
+                child.material = next;
                 child.castShadow = true;
                 child.receiveShadow = true;
               }
@@ -299,6 +306,20 @@ export function MeadowrestProductionRoom() {
 
         await Promise.all(characters.map((c, i) => loadCharacter(c, i)));
 
+        // React 18 StrictMode double-invokes this effect in development:
+        // mount, cleanup, mount again, synchronously, before any of the
+        // asset-loading awaits above resolve. The cleanup already flips
+        // `mounted` to false for the first (discarded) invocation. Without
+        // this guard, that discarded invocation would still create a full
+        // WebGLRenderer and append its canvas to the shared container --
+        // an orphaned second GPU context and DOM element that never renders
+        // (its animate() loop self-cancels) but sits alive for the rest of
+        // the session, contending for GPU resources with the real one and
+        // roughly halving measured FPS. Individual asset loads already
+        // check `mounted` (see loadPlacement/loadCharacter above); this is
+        // the equivalent guard for renderer creation itself.
+        if (!mounted) return;
+
         // Initialize camera
         const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 500);
         camera.position.copy(playerRef.current ? new THREE.Vector3(...ROOM_DIMENSIONS.cameraFollowOffset) : new THREE.Vector3(0, 13, 20));
@@ -356,6 +377,15 @@ export function MeadowrestProductionRoom() {
               playerAnimationActionRef.current = walkAction;
             }
           }
+
+          // metricsRef.currentPlayerAnimation was previously never written
+          // anywhere outside the constructor default -- window.__EVERLOOM_
+          // BAKEOFF__.currentPlayerAnimation stayed "Idle" forever regardless
+          // of real animation state, which is why Walking_A assertions failed
+          // even though the mixer itself was crossfading correctly.
+          if (metricsRef.current) {
+            metricsRef.current.currentPlayerAnimation = "Walking_A";
+          }
         };
 
         renderer.domElement.addEventListener("pointerdown", handlePointerDown);
@@ -396,13 +426,7 @@ export function MeadowrestProductionRoom() {
               playerRef.current.position.x += (dx / distance) * moveDistance;
               playerRef.current.position.z += (dz / distance) * moveDistance;
 
-              // Update metrics
               if (metricsRef.current) {
-                metricsRef.current.playerPosition = {
-                  x: playerRef.current.position.x,
-                  y: playerRef.current.position.y,
-                  z: playerRef.current.position.z,
-                };
                 metricsRef.current.movementTarget = { x: targetX, y: 0, z: targetZ };
               }
             } else {
@@ -418,7 +442,28 @@ export function MeadowrestProductionRoom() {
                   playerAnimationActionRef.current = idleAction;
                 }
               }
+
+              // movementTarget/currentPlayerAnimation were previously left
+              // at their last in-motion values on arrival (movementTarget
+              // never cleared; currentPlayerAnimation never written at all --
+              // see handlePointerDown). Both are now the authoritative
+              // per-frame state Playwright reads from window.__EVERLOOM_
+              // BAKEOFF__, so they must reach "arrived" state here.
+              if (metricsRef.current) {
+                metricsRef.current.movementTarget = null;
+                metricsRef.current.currentPlayerAnimation = "Idle";
+              }
             }
+          }
+
+          // Keep reported position authoritative every frame (not only while
+          // actively moving) so it never goes stale after e.g. Reset view.
+          if (playerRef.current && metricsRef.current) {
+            metricsRef.current.playerPosition = {
+              x: playerRef.current.position.x,
+              y: playerRef.current.position.y,
+              z: playerRef.current.position.z,
+            };
           }
 
           // Update camera
@@ -437,7 +482,13 @@ export function MeadowrestProductionRoom() {
             uniforms.time.value += delta;
           }
 
-          // Update metrics
+          // Update metrics. updateMetrics() writes window.__EVERLOOM_BAKEOFF__
+          // synchronously every frame (cheap: array math on <=600 samples), so
+          // Playwright always observes fresh state. The React setMetrics()
+          // call below is throttled because it triggers a full component
+          // re-render for the debug overlay only — calling it 60x/sec was
+          // adding a render-loop-blocking React commit on every frame and
+          // cratering FPS from ~50 to ~12 with no scene-cost change.
           if (metricsRef.current) {
             const rendererInfo = (renderer.info as any).render;
             const newMetrics = metricsRef.current.updateMetrics(
@@ -454,7 +505,11 @@ export function MeadowrestProductionRoom() {
               window.devicePixelRatio,
               Math.min(window.devicePixelRatio, profileSettings.pixelRatioCap)
             );
-            setMetrics(newMetrics);
+            const now = performance.now();
+            if (now - lastUiMetricsUpdateRef.current >= 250) {
+              lastUiMetricsUpdateRef.current = now;
+              setMetrics(newMetrics);
+            }
           }
 
           renderer.render(scene, camera);
@@ -517,6 +572,14 @@ export function MeadowrestProductionRoom() {
           playerAnimationActionRef.current = idleAction;
           idleAction.play();
         }
+      }
+      // Write metrics synchronously so a test reading window.__EVERLOOM_
+      // BAKEOFF__ immediately after the click (before the next rAF tick)
+      // observes the reset state rather than stale in-flight values.
+      if (metricsRef.current) {
+        metricsRef.current.playerPosition = { x: 0, y: 0, z: -5 };
+        metricsRef.current.movementTarget = null;
+        metricsRef.current.currentPlayerAnimation = "Idle";
       }
     }
   };

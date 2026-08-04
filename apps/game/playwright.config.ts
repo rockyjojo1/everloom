@@ -15,6 +15,15 @@ export default defineConfig({
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
+    // Headless Chromium defaults to SwiftShader (software WebGL), which
+    // measured ~12 FPS for this scene versus ~60 FPS with real GPU access
+    // via ANGLE/D3D11 below — a measurement-environment artifact, not a
+    // scene-cost regression. These flags are required for the FPS/frame-time
+    // assertions in meadowrest-production-room.spec.ts to reflect real
+    // rendering cost rather than the software-rasterizer floor.
+    launchOptions: {
+      args: ["--use-gl=angle", "--use-angle=d3d11", "--ignore-gpu-blocklist", "--enable-gpu-rasterization"],
+    },
   },
   projects: [
     { name: "landscape-mobile", use: { ...devices["iPhone 13"], browserName: "chromium", viewport: { width: 844, height: 390 }, isMobile: true } },

@@ -1,0 +1,275 @@
+{
+  "auditDate": "2026-08-04T10:54:29.660Z",
+  "gitSha": "b205dec223c9cc49ba1630dc3651b4d7ab49a427",
+  "testEnvironment": {
+    "browserName": "chromium",
+    "browserVersion": "151.0.7922.34",
+    "gpuArgs": [
+      "--use-gl=angle",
+      "--use-angle=d3d11",
+      "--ignore-gpu-blocklist",
+      "--enable-gpu-rasterization"
+    ],
+    "port": 4180,
+    "warmupMs": 2000,
+    "measurementMs": 8000
+  },
+  "captures": [
+    {
+      "config": "desktop-balanced",
+      "profile": "balanced",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "readyMs": 57,
+      "measurementWindowMs": 10000,
+      "webgl": {
+        "renderer": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009A60) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "vendor": "Google Inc. (Intel)"
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failed404s": [],
+      "metrics": {
+        "loadMs": 220,
+        "averageFps": 60,
+        "p95FrameMs": 18,
+        "worstFrameMs": 20,
+        "longFramesOver50Ms": 0,
+        "frameSamples": 512,
+        "drawCalls": 126,
+        "triangles": 19327,
+        "textures": 29,
+        "failedAssets": 0,
+        "failedAssetIds": [],
+        "effectivePixelRatio": 1,
+        "devicePixelRatio": 1,
+        "contextLost": false
+      }
+    },
+    {
+      "config": "desktop-quality",
+      "profile": "quality",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "readyMs": 24,
+      "measurementWindowMs": 10000,
+      "webgl": {
+        "renderer": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009A60) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "vendor": "Google Inc. (Intel)"
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failed404s": [],
+      "metrics": {
+        "loadMs": 312,
+        "averageFps": 60,
+        "p95FrameMs": 18,
+        "worstFrameMs": 19,
+        "longFramesOver50Ms": 0,
+        "frameSamples": 505,
+        "drawCalls": 152,
+        "triangles": 20841,
+        "textures": 29,
+        "failedAssets": 0,
+        "failedAssetIds": [],
+        "effectivePixelRatio": 1,
+        "devicePixelRatio": 1,
+        "contextLost": false
+      }
+    },
+    {
+      "config": "iphone-landscape-balanced",
+      "profile": "balanced",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "deviceScaleFactor": 3,
+      "readyMs": 20,
+      "measurementWindowMs": 10000,
+      "webgl": {
+        "renderer": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009A60) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "vendor": "Google Inc. (Intel)"
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failed404s": [],
+      "metrics": {
+        "loadMs": 226,
+        "averageFps": 60,
+        "p95FrameMs": 18,
+        "worstFrameMs": 28,
+        "longFramesOver50Ms": 0,
+        "frameSamples": 510,
+        "drawCalls": 132,
+        "triangles": 19775,
+        "textures": 29,
+        "failedAssets": 0,
+        "failedAssetIds": [],
+        "effectivePixelRatio": 1,
+        "devicePixelRatio": 1,
+        "contextLost": false
+      }
+    },
+    {
+      "config": "iphone-landscape-quality",
+      "profile": "quality",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "deviceScaleFactor": 3,
+      "readyMs": 16,
+      "measurementWindowMs": 10000,
+      "webgl": {
+        "renderer": "ANGLE (Intel, Intel(R) UHD Graphics (0x00009A60) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+        "vendor": "Google Inc. (Intel)"
+      },
+      "pageErrors": [],
+      "consoleErrors": [],
+      "failed404s": [],
+      "metrics": {
+        "loadMs": 226,
+        "averageFps": 60,
+        "p95FrameMs": 18,
+        "worstFrameMs": 18,
+        "longFramesOver50Ms": 0,
+        "frameSamples": 508,
+        "drawCalls": 160,
+        "triangles": 21361,
+        "textures": 29,
+        "failedAssets": 0,
+        "failedAssetIds": [],
+        "effectivePixelRatio": 1,
+        "devicePixelRatio": 1,
+        "contextLost": false
+      }
+    }
+  ],
+  "targets": {
+    "hard": {
+      "routeReadyMs": 12000,
+      "requiredAssetFailures": 0,
+      "model404Count": 0,
+      "pageErrorCount": 0,
+      "consoleErrorCount": 0,
+      "webglContextLoss": false,
+      "hardFpsMinimum": 15,
+      "worstFrameMs": 500
+    },
+    "balanced_desktop": {
+      "averageFps": 50,
+      "p95FrameMs": 35,
+      "loadMs": 6000
+    },
+    "quality_desktop": {
+      "averageFps": 40,
+      "p95FrameMs": 50,
+      "loadMs": 8000
+    },
+    "balanced_mobile": {
+      "averageFps": 30,
+      "p95FrameMs": 66,
+      "loadMs": 8000
+    },
+    "quality_mobile": {
+      "averageFps": 24,
+      "p95FrameMs": 80,
+      "loadMs": 10000
+    },
+    "general": {
+      "drawCalls": 180,
+      "triangles": 350000,
+      "framesOver50Ms": 0.05
+    }
+  },
+  "results": {
+    "desktop-balanced": {
+      "passed": true,
+      "issues": [],
+      "metrics": {
+        "loadMs": 220,
+        "averageFps": 60,
+        "p95FrameMs": 18,
+        "worstFrameMs": 20,
+        "longFramesOver50Ms": 0,
+        "frameSamples": 512,
+        "drawCalls": 126,
+        "triangles": 19327,
+        "textures": 29,
+        "failedAssets": 0,
+        "failedAssetIds": [],
+        "effectivePixelRatio": 1,
+        "devicePixelRatio": 1,
+        "contextLost": false
+      }
+    },
+    "desktop-quality": {
+      "passed": true,
+      "issues": [],
+      "metrics": {
+        "loadMs": 312,
+        "averageFps": 60,
+        "p95FrameMs": 18,
+        "worstFrameMs": 19,
+        "longFramesOver50Ms": 0,
+        "frameSamples": 505,
+        "drawCalls": 152,
+        "triangles": 20841,
+        "textures": 29,
+        "failedAssets": 0,
+        "failedAssetIds": [],
+        "effectivePixelRatio": 1,
+        "devicePixelRatio": 1,
+        "contextLost": false
+      }
+    },
+    "iphone-landscape-balanced": {
+      "passed": true,
+      "issues": [],
+      "metrics": {
+        "loadMs": 226,
+        "averageFps": 60,
+        "p95FrameMs": 18,
+        "worstFrameMs": 28,
+        "longFramesOver50Ms": 0,
+        "frameSamples": 510,
+        "drawCalls": 132,
+        "triangles": 19775,
+        "textures": 29,
+        "failedAssets": 0,
+        "failedAssetIds": [],
+        "effectivePixelRatio": 1,
+        "devicePixelRatio": 1,
+        "contextLost": false
+      }
+    },
+    "iphone-landscape-quality": {
+      "passed": true,
+      "issues": [],
+      "metrics": {
+        "loadMs": 226,
+        "averageFps": 60,
+        "p95FrameMs": 18,
+        "worstFrameMs": 18,
+        "longFramesOver50Ms": 0,
+        "frameSamples": 508,
+        "drawCalls": 160,
+        "triangles": 21361,
+        "textures": 29,
+        "failedAssets": 0,
+        "failedAssetIds": [],
+        "effectivePixelRatio": 1,
+        "devicePixelRatio": 1,
+        "contextLost": false
+      }
+    }
+  },
+  "recommendation": "PROCEED_TO_CAPACITOR_BAKEOFF"
+}

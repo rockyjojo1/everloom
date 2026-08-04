@@ -508,7 +508,7 @@ function getAdditionalTrees(profile: ProductionRoomProfile): AssetPlacement[] {
 function getAdditionalRocks(profile: ProductionRoomProfile): AssetPlacement[] {
   const count = profile === "balanced" ? 10 : 20;
   const rocks: AssetPlacement[] = [];
-  const rockAssets: string[] = ["nature.rock-small", "nature.rock-small-b"];
+  const rockAssets: string[] = ["nature.rock-small", "nature.rock-large"];
 
   for (let i = 0; i < count; i++) {
     const h1 = deterministicHash(i, 2001);
