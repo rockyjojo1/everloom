@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 
 import { spawn, execSync } from "child_process";
-import { chromium } from "playwright";
+import { chromium } from "@playwright/test";
 import { writeFileSync, mkdirSync, existsSync } from "fs";
 import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
 
-const SCRIPT_DIR = dirname(new URL(import.meta.url).pathname);
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const DIST_DIR = resolve(SCRIPT_DIR, "../dist");
 const SCREENSHOTS_DIR = resolve(SCRIPT_DIR, "../../docs/audits/2026-08-04-meadowrest-production-room/screenshots");
 const METRICS_FILE = resolve(SCRIPT_DIR, "../../docs/audits/2026-08-04-meadowrest-production-room/METRICS.json");
@@ -43,6 +44,7 @@ console.log("Starting preview server...");
 const server = spawn("pnpm", ["exec", "vite", "preview", "--port", String(PORT)], {
   cwd: resolve(SCRIPT_DIR, ".."),
   stdio: "pipe",
+  shell: true,
 });
 
 let serverReady = false;

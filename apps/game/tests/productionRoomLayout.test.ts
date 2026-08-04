@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import { strict as assert } from "node:assert";
-import { getProductionRoomLayout, getProfileSettings, ROOM_DIMENSIONS } from "../src/bakeoff/productionRoomLayout.ts";
+import { getProductionRoomLayout, getProfileSettings, ROOM_DIMENSIONS } from "../src/bakeoff/productionRoomLayout";
 
 test("balanced profile generates expected placement count", () => {
   const layout = getProductionRoomLayout("balanced");

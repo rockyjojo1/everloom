@@ -1,17 +1,12 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Meadowrest Production Room", () => {
-  test("desktop balanced profile", async ({ page, browserName }, testInfo) => {
-    test.skip(testInfo.project.name === "landscape-mobile", "Desktop test");
-
+  test("desktop balanced profile", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto(`/?bakeoff=meadowrest&profile=balanced`);
 
     // Wait for ready
     await page.waitForFunction(() => (window as any).__EVERLOOM_BAKEOFF__?.ready === true, { timeout: 15000 });
-
-    // Wait for warm-up period (2 seconds after first frame)
-    await page.waitForTimeout(3000);
 
     const metrics = await page.evaluate(() => (window as any).__EVERLOOM_BAKEOFF__);
 
@@ -22,8 +17,8 @@ test.describe("Meadowrest Production Room", () => {
     // Verify profile
     expect(metrics.profile).toBe("balanced");
 
-    // Verify assets (allow 1 failure during bakeoff testing)
-    expect(metrics.failedAssets.length).toBeLessThanOrEqual(1);
+    // Verify assets - ZERO failures required
+    expect(metrics.failedAssets.length).toBe(0);
     expect(metrics.assetsLoaded.length).toBeGreaterThan(0);
 
     // Verify no page errors
@@ -39,15 +34,34 @@ test.describe("Meadowrest Production Room", () => {
     // Verify no context loss
     expect(metrics.contextLost).toBe(false);
 
-    // Test player movement (smoke test - just verify canvas exists and player can see their position)
+    // Test player movement
     const canvas = page.locator("canvas").first();
     const box = await canvas.boundingBox();
     expect(box).not.toBeNull();
     if (box) {
-      expect(metrics.playerPosition).toBeDefined();
-      expect(typeof metrics.playerPosition.x).toBe("number");
+      await page.mouse.click(box.x + box.width / 2 + 50, box.y + box.height / 2 + 50);
+      await page.waitForTimeout(1000);
+
+      const metricsAfterMove = await page.evaluate(() => (window as any).__EVERLOOM_BAKEOFF__);
+      const startPos = { x: 0, y: 0, z: -5 };
+      const distance = Math.sqrt(
+        Math.pow(metricsAfterMove.playerPosition.x - startPos.x, 2) +
+          Math.pow(metricsAfterMove.playerPosition.z - startPos.z, 2)
+      );
+      expect(distance).toBeGreaterThan(1.5);
+      expect(metricsAfterMove.currentPlayerAnimation).toBe("Walking_A");
     }
 
+    // Test reset button
+    const resetButton = page.locator("button:has-text('Reset view')");
+    if (await resetButton.isVisible()) {
+      await resetButton.click();
+      await page.waitForTimeout(500);
+      const resetMetrics = await page.evaluate(() => (window as any).__EVERLOOM_BAKEOFF__);
+      expect(Math.abs(resetMetrics.playerPosition.x)).toBeLessThan(0.5);
+      expect(Math.abs(resetMetrics.playerPosition.z + 5)).toBeLessThan(0.5);
+      expect(resetMetrics.currentPlayerAnimation).toBe("Idle");
+    }
 
     // Check overflow
     const html = await page.evaluate(() => document.documentElement.scrollWidth);
@@ -56,26 +70,25 @@ test.describe("Meadowrest Production Room", () => {
     expect(body).toBeLessThanOrEqual(1440);
   });
 
-  test("desktop quality profile", async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name === "landscape-mobile", "Desktop test");
+  test("desktop quality profile", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto(`/?bakeoff=meadowrest&profile=quality`);
 
     await page.waitForFunction(() => (window as any).__EVERLOOM_BAKEOFF__?.ready === true, { timeout: 15000 });
-    await page.waitForTimeout(3000);
 
     const metrics = await page.evaluate(() => (window as any).__EVERLOOM_BAKEOFF__);
 
     expect(metrics.profile).toBe("quality");
-    expect(metrics.failedAssets.length).toBeLessThanOrEqual(1);
+    expect(metrics.failedAssets.length).toBe(0);
     expect(metrics.viewport.effectivePixelRatio).toBeLessThanOrEqual(2);
 
     // Quality should have more detail
     expect(metrics.renderer.geometries).toBeGreaterThanOrEqual(metrics.renderer.geometries);
   });
 
-  test("iPhone landscape balanced", async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name === "desktop", "Mobile-only test");
+  test("iPhone landscape balanced", async ({ page }) => {
+    await page.setViewportSize({ width: 844, height: 390 });
+    await page.emulateMedia({ colorScheme: "light", media: "screen" });
 
     await page.goto(`/?bakeoff=meadowrest&profile=balanced`);
 
@@ -88,7 +101,7 @@ test.describe("Meadowrest Production Room", () => {
     expect(await rotateOverlay.count()).toBe(0);
 
     // Verify metrics
-    expect(metrics.failedAssets.length).toBeLessThanOrEqual(1);
+    expect(metrics.failedAssets.length).toBe(0);
     expect(metrics.viewport.effectivePixelRatio).toBeLessThanOrEqual(1.5);
 
     // Check overflow
@@ -98,16 +111,31 @@ test.describe("Meadowrest Production Room", () => {
     // Verify touch/pointer works
     const canvas = page.locator("canvas").first();
     const box = await canvas.boundingBox();
+    expect(box).not.toBeNull();
     if (box) {
       await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
       await page.waitForTimeout(500);
       const afterTouch = await page.evaluate(() => (window as any).__EVERLOOM_BAKEOFF__);
-      expect(afterTouch.failedAssets.length).toBeLessThanOrEqual(1);
+      expect(afterTouch.failedAssets.length).toBe(0);
     }
   });
 
-  test("iPhone portrait orientation shows rotate message", async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name === "desktop", "Mobile-only test");
+  test("iPhone landscape quality", async ({ page }) => {
+    await page.setViewportSize({ width: 844, height: 390 });
+    await page.emulateMedia({ colorScheme: "light", media: "screen" });
+
+    await page.goto(`/?bakeoff=meadowrest&profile=quality`);
+
+    await page.waitForFunction(() => (window as any).__EVERLOOM_BAKEOFF__?.ready === true, { timeout: 15000 });
+
+    const metrics = await page.evaluate(() => (window as any).__EVERLOOM_BAKEOFF__);
+
+    expect(metrics.profile).toBe("quality");
+    expect(metrics.failedAssets.length).toBe(0);
+    expect(metrics.viewport.effectivePixelRatio).toBeLessThanOrEqual(2);
+  });
+
+  test("iPhone portrait orientation shows rotate message", async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
 
     await page.goto(`/?bakeoff=meadowrest&profile=balanced`);
@@ -124,8 +152,7 @@ test.describe("Meadowrest Production Room", () => {
     expect(errors.length).toBe(0);
   });
 
-  test("profile switching preserves route", async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name === "landscape-mobile", "Desktop test");
+  test("profile switching preserves route", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto(`/?bakeoff=meadowrest&profile=balanced`);
 
@@ -135,10 +162,9 @@ test.describe("Meadowrest Production Room", () => {
     const metricsInitial = await page.evaluate(() => (window as any).__EVERLOOM_BAKEOFF__);
     expect(metricsInitial.profile).toBe("balanced");
 
-    // Navigate to quality profile via URL instead of button click
+    // Navigate to quality profile via URL
     await page.goto(`/?bakeoff=meadowrest&profile=quality`, { waitUntil: "load" });
     await page.waitForFunction(() => (window as any).__EVERLOOM_BAKEOFF__?.ready === true, { timeout: 15000 });
-    await page.waitForTimeout(3000);
     const metricsQuality = await page.evaluate(() => (window as any).__EVERLOOM_BAKEOFF__);
     expect(metricsQuality.profile).toBe("quality");
     expect(page.url()).toContain("profile=quality");
@@ -175,16 +201,34 @@ test.describe("Meadowrest Production Room", () => {
     expect(failedRequests.length).toBe(0);
   });
 
-  test("player animation transitions work", async ({ page }, testInfo) => {
-    test.skip(testInfo.project.name === "landscape-mobile", "Desktop test");
+  test("player animation transitions work", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto(`/?bakeoff=meadowrest&profile=balanced`);
 
     await page.waitForFunction(() => (window as any).__EVERLOOM_BAKEOFF__?.ready === true, { timeout: 15000 });
-    await page.waitForTimeout(3000);
 
-    const metrics = await page.evaluate(() => (window as any).__EVERLOOM_BAKEOFF__);
-    expect(metrics.currentPlayerAnimation).toBeDefined();
-    expect(["Idle", "Walking_A"].includes(metrics.currentPlayerAnimation)).toBe(true);
+    const metrics1 = await page.evaluate(() => (window as any).__EVERLOOM_BAKEOFF__);
+    expect(metrics1.currentPlayerAnimation).toBe("Idle");
+
+    // Click to move
+    const canvas = page.locator("canvas").first();
+    const box = await canvas.boundingBox();
+    expect(box).not.toBeNull();
+    if (box) {
+      await page.mouse.click(box.x + box.width / 2 + 100, box.y + box.height / 2 + 50);
+      await page.waitForTimeout(500);
+
+      const metrics2 = await page.evaluate(() => (window as any).__EVERLOOM_BAKEOFF__);
+      expect(metrics2.currentPlayerAnimation).toBe("Walking_A");
+
+      // Wait for movement to complete and return to Idle
+      await page.waitForFunction(() => {
+        const m = (window as any).__EVERLOOM_BAKEOFF__;
+        return m.currentPlayerAnimation === "Idle";
+      }, { timeout: 10000 });
+
+      const metricsAfter = await page.evaluate(() => (window as any).__EVERLOOM_BAKEOFF__);
+      expect(metricsAfter.currentPlayerAnimation).toBe("Idle");
+    }
   });
 });

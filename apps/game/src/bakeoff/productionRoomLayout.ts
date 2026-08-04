@@ -23,8 +23,8 @@ function deterministicHash(index: number, seed: number): number {
 function getCoreplacements(): AssetPlacement[] {
   return [
     {
-      instance: "oak-shelter",
-      runtimeAssetId: "nature.oak",
+      instance: "cottage-main",
+      runtimeAssetId: "town.cottage",
       position: [-10, 0, -4],
       rotationY: 0.25,
       scale: 1.15,

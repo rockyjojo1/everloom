@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import { strict as assert } from "node:assert";
-import { calculateAverageFps, calculateP95FrameMs, calculateWorstFrameMs } from "../src/bakeoff/productionRoomMetrics.ts";
+import { calculateAverageFps, calculateP95FrameMs, calculateWorstFrameMs } from "../src/bakeoff/productionRoomMetrics";
 
 test("calculateAverageFps returns null for empty array", () => {
   assert.equal(calculateAverageFps([]), null);
