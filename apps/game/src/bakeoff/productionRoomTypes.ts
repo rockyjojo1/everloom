@@ -82,7 +82,10 @@ export interface BakeoffMetrics {
   additionalTrees: number;
   additionalRocks: number;
   shadowCastingMeshes: number;
-  shadowCasterInstanceIds?: string[];
+  shadowCasterInstanceIds: string[];
   maraShawlAttached: boolean;
   maraShawlParentBone: string | null;
+  expectedInstanceIds: string[];
+  loadedInstanceIds: string[];
+  failedInstanceIds: string[];
 }

@@ -181,6 +181,16 @@ try {
       pageErrors,
       consoleErrors,
       failed404s,
+      assetReadiness: {
+        assetsExpected: metrics.assetsExpected,
+        assetsLoaded: metrics.assetsLoaded,
+        failedAssets: metrics.failedAssets,
+      },
+      instanceReadiness: {
+        expectedInstanceIds: metrics.expectedInstanceIds,
+        loadedInstanceIds: metrics.loadedInstanceIds,
+        failedInstanceIds: metrics.failedInstanceIds,
+      },
       metrics: {
         loadMs: metrics.loadMs,
         averageFps: metrics.averageFps,
@@ -191,11 +201,15 @@ try {
         drawCalls: metrics.renderer.calls,
         triangles: metrics.renderer.triangles,
         textures: metrics.renderer.textures,
+        grassInstances: metrics.grassInstances,
+        shadowCastingMeshes: metrics.shadowCastingMeshes,
+        shadowCasterInstanceIds: metrics.shadowCasterInstanceIds,
         failedAssets: metrics.failedAssets.length,
         failedAssetIds: metrics.failedAssets,
         effectivePixelRatio: metrics.viewport.effectivePixelRatio,
         devicePixelRatio: metrics.viewport.devicePixelRatio,
         contextLost: metrics.contextLost,
+        firstCompleteFrameRendered: metrics.firstCompleteFrameRendered,
       },
     });
 
@@ -254,27 +268,46 @@ try {
   for (const capture of captures) {
     const result = { passed: true, issues: [], metrics: capture.metrics };
 
-    // Hard check: ready time
-    if (capture.metrics.loadMs > 12000) {
+    // Hard check: ready time (12-second hard limit)
+    if (capture.readyMs > 12000) {
       result.passed = false;
-      result.issues.push(`Load time ${capture.metrics.loadMs}ms exceeds 12s hard limit`);
+      result.issues.push(`Ready time ${capture.readyMs}ms exceeds 12s hard limit`);
     }
 
-    // Hard check: asset set equality
-    const expectedSet = new Set(capture.metrics.assetsExpected);
-    const loadedSet = new Set(capture.metrics.assetsLoaded);
-    if (expectedSet.size !== loadedSet.size ||
-        ![...expectedSet].every(id => loadedSet.has(id))) {
+    // Hard check: asset set equality (asset-level readiness)
+    const assetExpectedSet = new Set(capture.assetReadiness.assetsExpected);
+    const assetLoadedSet = new Set(capture.assetReadiness.assetsLoaded);
+    if (assetExpectedSet.size !== assetLoadedSet.size ||
+        ![...assetExpectedSet].every(id => assetLoadedSet.has(id))) {
       result.passed = false;
-      const missing = [...expectedSet].filter(id => !loadedSet.has(id));
-      const extra = [...loadedSet].filter(id => !expectedSet.has(id));
+      const missing = [...assetExpectedSet].filter(id => !assetLoadedSet.has(id));
+      const extra = [...assetLoadedSet].filter(id => !assetExpectedSet.has(id));
       if (missing.length) result.issues.push(`Missing assets: ${missing.join(", ")}`);
       if (extra.length) result.issues.push(`Extra assets loaded: ${extra.join(", ")}`);
     }
 
-    if (capture.metrics.failedAssets > 0) {
+    // Hard check: instance-level readiness
+    const expectedInstances = new Set(capture.instanceReadiness.expectedInstanceIds);
+    const loadedInstances = new Set(capture.instanceReadiness.loadedInstanceIds);
+    const failedInstances = new Set(capture.instanceReadiness.failedInstanceIds);
+
+    if (expectedInstances.size !== loadedInstances.size ||
+        ![...expectedInstances].every(id => loadedInstances.has(id))) {
       result.passed = false;
-      result.issues.push(`Required assets failed to load: ${capture.metrics.failedAssetIds.join(", ")}`);
+      const missing = [...expectedInstances].filter(id => !loadedInstances.has(id));
+      const extra = [...loadedInstances].filter(id => !expectedInstances.has(id));
+      if (missing.length) result.issues.push(`Missing instances: ${missing.join(", ")}`);
+      if (extra.length) result.issues.push(`Extra instances loaded: ${extra.join(", ")}`);
+    }
+
+    if (failedInstances.size > 0) {
+      result.passed = false;
+      result.issues.push(`Required instances failed to load: ${[...failedInstances].join(", ")}`);
+    }
+
+    if (capture.assetReadiness.failedAssets.length > 0) {
+      result.passed = false;
+      result.issues.push(`Required assets failed to load: ${capture.assetReadiness.failedAssets.join(", ")}`);
     }
     if (capture.pageErrors.length > 0) {
       result.passed = false;

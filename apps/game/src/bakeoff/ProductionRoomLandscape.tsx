@@ -35,23 +35,71 @@ function createGrassInstancedMesh(count: number, profileSettings: any): { mesh: 
 
   const quat = new THREE.Quaternion();
   const scale3 = new THREE.Vector3();
-  for (let i = 0; i < count; i++) {
-    const x = (deterministicHash(i, 1001) * 44) - 22;
-    const z = (deterministicHash(i, 1002) * 28) - 14;
 
-    // Avoid river
-    if (Math.abs(z - ROOM_DIMENSIONS.riverCentreZ) < 4) continue;
+  // Core placements to avoid (approximate centeroids)
+  const corePlacements = [
+    { x: 0, z: 0, clearance: 1.5 }, // player
+    { x: 0, z: -8, clearance: 1.5 }, // mara
+    { x: 5, z: -5, clearance: 2 }, // skeleton
+    { x: 7, z: -5, clearance: 2 }, // campfire
+    { x: -10, z: 5, clearance: 2 }, // cottage
+    { x: -8, z: -8, clearance: 3 }, // bridge
+  ];
 
-    const scale = 0.8 + deterministicHash(i, 1003) * 0.4;
-    const rotY = deterministicHash(i, 1004) * Math.PI * 2;
+  const isClearOfPlacements = (x: number, z: number): boolean => {
+    return corePlacements.every((place) => {
+      const dx = x - place.x;
+      const dz = z - place.z;
+      return Math.sqrt(dx * dx + dz * dz) >= place.clearance;
+    });
+  };
 
-    quat.setFromAxisAngle(new THREE.Vector3(0, 1, 0), rotY);
-    scale3.set(scale, scale, scale);
+  const isClearOfRiver = (z: number): boolean => {
+    return Math.abs(z - ROOM_DIMENSIONS.riverCentreZ) >= 4;
+  };
 
-    matrix.identity();
-    matrix.compose(new THREE.Vector3(x, 0, z), quat, scale3);
+  const isClearOfPath = (x: number): boolean => {
+    // Central path is approximately -2 to 2 in x
+    return Math.abs(x) > 2;
+  };
 
-    mesh.setMatrixAt(i, matrix);
+  const isValidPosition = (x: number, z: number): boolean => {
+    return (
+      x >= -22 && x <= 22 && // room bounds
+      z >= -14 && z <= 14 && // room bounds
+      isClearOfRiver(z) &&
+      isClearOfPlacements(x, z) &&
+      isClearOfPath(x)
+    );
+  };
+
+  let assigned = 0;
+  let attempt = 0;
+  const maxAttempts = count * 50; // Generous attempt limit
+
+  while (assigned < count && attempt < maxAttempts) {
+    const x = (deterministicHash(attempt, 1001) * 44) - 22;
+    const z = (deterministicHash(attempt, 1002) * 28) - 14;
+
+    if (isValidPosition(x, z)) {
+      const scale = 0.8 + deterministicHash(attempt, 1003) * 0.4;
+      const rotY = deterministicHash(attempt, 1004) * Math.PI * 2;
+
+      quat.setFromAxisAngle(new THREE.Vector3(0, 1, 0), rotY);
+      scale3.set(scale, scale, scale);
+
+      matrix.identity();
+      matrix.compose(new THREE.Vector3(x, 0, z), quat, scale3);
+
+      mesh.setMatrixAt(assigned, matrix);
+      assigned++;
+    }
+
+    attempt++;
+  }
+
+  if (assigned < count) {
+    throw new Error(`Failed to generate ${count} grass instances: only generated ${assigned} after ${maxAttempts} attempts`);
   }
 
   mesh.receiveShadow = true;
@@ -136,6 +184,23 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
         const uniqueAssets = [...new Set(expectedAssets)];
         metricsRef.current = new ProductionRoomMetricsCollector(profile, uniqueAssets);
 
+        // Expected instance IDs: all layout placements, characters, actions, and core assets
+        const expectedInstanceIds = [
+          ...layout.placements.map((p) => p.instance),
+          "player",
+          "mara",
+          "skeleton",
+          "mara-shawl",
+          "player-idle-action",
+          "player-walking-a-action",
+          "mara-idle-action",
+          "skeleton-idle-action",
+          "grass",
+          "ground",
+          "water",
+        ];
+        metricsRef.current.expectedInstanceIds = expectedInstanceIds.sort();
+
         container.setAttribute("data-bakeoff-ready", "false");
 
         const scene = new THREE.Scene();
@@ -168,6 +233,9 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
         ground.rotation.x = -Math.PI / 2;
         ground.receiveShadow = true;
         scene.add(ground);
+        if (metricsRef.current && !metricsRef.current.loadedInstanceIds.includes("ground")) {
+          metricsRef.current.loadedInstanceIds.push("ground");
+        }
 
         ownedGeometriesRef.current.add(groundGeometry);
         ownedMaterialsRef.current.add(groundMaterial);
@@ -202,6 +270,9 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
         water.position.y = 0.01;
         water.rotation.x = -Math.PI / 2;
         scene.add(water);
+        if (metricsRef.current && !metricsRef.current.loadedInstanceIds.includes("water")) {
+          metricsRef.current.loadedInstanceIds.push("water");
+        }
 
         ownedGeometriesRef.current.add(waterGeometry);
         ownedMaterialsRef.current.add(waterMaterial);
@@ -215,6 +286,9 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
 
         if (metricsRef.current) {
           metricsRef.current.grassInstances = grassCount;
+          if (!metricsRef.current.loadedInstanceIds.includes("grass")) {
+            metricsRef.current.loadedInstanceIds.push("grass");
+          }
         }
 
         let placementLoaded = 0;
@@ -243,10 +317,16 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
             scene.add(obj);
             assetInstancesRef.current.set(placement.instance, obj);
             metricsRef.current?.assetLoaded(placement.runtimeAssetId);
+            if (metricsRef.current && !metricsRef.current.loadedInstanceIds.includes(placement.instance)) {
+              metricsRef.current.loadedInstanceIds.push(placement.instance);
+            }
             placementLoaded++;
           } catch (err) {
             console.error(`Failed to load ${placement.runtimeAssetId}:`, err);
             metricsRef.current?.assetFailed(placement.runtimeAssetId);
+            if (metricsRef.current && !metricsRef.current.failedInstanceIds.includes(placement.instance)) {
+              metricsRef.current.failedInstanceIds.push(placement.instance);
+            }
             placementLoaded++;
           }
         };
@@ -299,6 +379,9 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
             if (index === 0) {
               playerRef.current = obj;
               playerAnimationMixerRef.current = mixer;
+              if (metricsRef.current && !metricsRef.current.loadedInstanceIds.includes("player")) {
+                metricsRef.current.loadedInstanceIds.push("player");
+              }
 
               const idleClip = clips.find((c: any) => c.name === "Idle");
               const walkClip = clips.find((c: any) => c.name === "Walking_A");
@@ -310,17 +393,34 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
               playerIdleActionRef.current = mixer.clipAction(idleClip);
               playerWalkActionRef.current = mixer.clipAction(walkClip);
               playerIdleActionRef.current.play();
+
+              if (metricsRef.current) {
+                metricsRef.current.loadedInstanceIds.push("player-idle-action");
+                metricsRef.current.loadedInstanceIds.push("player-walking-a-action");
+              }
             } else if (index === 1) {
               // Mara
+              if (metricsRef.current && !metricsRef.current.loadedInstanceIds.includes("mara")) {
+                metricsRef.current.loadedInstanceIds.push("mara");
+              }
               const idleClip = clips.find((c: any) => c.name === "Idle");
               if (idleClip) {
                 mixer.clipAction(idleClip).play();
+                if (metricsRef.current) {
+                  metricsRef.current.loadedInstanceIds.push("mara-idle-action");
+                }
               }
             } else {
               // Skeleton
+              if (metricsRef.current && !metricsRef.current.loadedInstanceIds.includes("skeleton")) {
+                metricsRef.current.loadedInstanceIds.push("skeleton");
+              }
               const idleClip = clips.find((c: any) => c.name === "Idle");
               if (idleClip) {
                 mixer.clipAction(idleClip).play();
+                if (metricsRef.current) {
+                  metricsRef.current.loadedInstanceIds.push("skeleton-idle-action");
+                }
               }
             }
 
@@ -347,6 +447,9 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
                   if (metricsRef.current) {
                     metricsRef.current.maraShawlAttached = true;
                     metricsRef.current.maraShawlParentBone = attachedBone;
+                    if (!metricsRef.current.loadedInstanceIds.includes("mara-shawl")) {
+                      metricsRef.current.loadedInstanceIds.push("mara-shawl");
+                    }
                   }
 
                   metricsRef.current?.assetLoaded(char.accessory);
@@ -362,6 +465,11 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
           } catch (err) {
             console.error(`Failed to load character:`, err);
             metricsRef.current?.assetFailed(char.runtimeAssetId);
+            const charIds = ["player", "mara", "skeleton"];
+            const charId = charIds[index];
+            if (charId && metricsRef.current && !metricsRef.current.failedInstanceIds.includes(charId)) {
+              metricsRef.current.failedInstanceIds.push(charId);
+            }
             charLoaded++;
           }
         };
@@ -369,6 +477,41 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
         await Promise.all(characters.map((c, i) => loadCharacter(c, i)));
 
         if (!mounted) return;
+
+        // Track shadow casters: count meshes with castShadow=true and record their instance IDs
+        const shadowCasterIds = new Set<string>();
+        let shadowMeshCount = 0;
+        assetInstancesRef.current.forEach((obj, instanceId) => {
+          obj.traverse((child) => {
+            if (child instanceof THREE.Mesh && child.castShadow) {
+              shadowMeshCount++;
+              shadowCasterIds.add(instanceId);
+            }
+          });
+        });
+
+        // Also check characters for shadow meshes
+        const characterIds = ["player", "mara", "skeleton"];
+        const shawlPlacement = assetInstancesRef.current.get("mara-shawl");
+        characterIds.forEach((charId) => {
+          const charObj = assetInstancesRef.current.get(charId);
+          if (charObj) {
+            let hasShadow = false;
+            charObj.traverse((child) => {
+              if (child instanceof THREE.Mesh && child.castShadow) {
+                hasShadow = true;
+              }
+            });
+            if (hasShadow) {
+              shadowCasterIds.add(charId);
+            }
+          }
+        });
+
+        if (metricsRef.current) {
+          metricsRef.current.shadowCastingMeshes = shadowMeshCount;
+          metricsRef.current.shadowCasterInstanceIds = Array.from(shadowCasterIds).sort();
+        }
 
         const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 500);
         camera.position.copy(playerRef.current ? new THREE.Vector3(...ROOM_DIMENSIONS.cameraFollowOffset) : new THREE.Vector3(0, 13, 20));
@@ -579,7 +722,17 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
               allAssets.every((a) => loadedAssets.includes(a)) &&
               failed.length === 0;
 
-            if (assetsMatch) {
+            // Placement-level readiness check
+            const expectedSet = new Set(metricsRef.current.expectedInstanceIds);
+            const loadedSet = new Set(metricsRef.current.loadedInstanceIds);
+            const failedSet = new Set(metricsRef.current.failedInstanceIds);
+
+            const instancesReady =
+              expectedSet.size === loadedSet.size &&
+              Array.from(expectedSet).every((id) => loadedSet.has(id)) &&
+              failedSet.size === 0;
+
+            if (assetsMatch && instancesReady) {
               metricsRef.current.markReady();
               setReady(true);
               container.setAttribute("data-bakeoff-ready", "true");

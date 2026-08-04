@@ -31,6 +31,9 @@ export class ProductionRoomMetricsCollector {
   shadowCasterInstanceIds: string[] = [];
   maraShawlAttached = false;
   maraShawlParentBone: string | null = null;
+  expectedInstanceIds: string[] = [];
+  loadedInstanceIds: string[] = [];
+  failedInstanceIds: string[] = [];
 
   constructor(
     private profile: ProductionRoomProfile,
@@ -147,6 +150,9 @@ export class ProductionRoomMetricsCollector {
       shadowCasterInstanceIds: this.shadowCasterInstanceIds,
       maraShawlAttached: this.maraShawlAttached,
       maraShawlParentBone: this.maraShawlParentBone,
+      expectedInstanceIds: this.expectedInstanceIds,
+      loadedInstanceIds: this.loadedInstanceIds,
+      failedInstanceIds: this.failedInstanceIds,
     };
 
     // Expose globally for Playwright and monitoring
