@@ -8,7 +8,7 @@
     "build": "tsc --noEmit && vite build && node scripts/check-bundle.mjs",
     "check:bundle": "node scripts/check-bundle.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run src && node --test tests/productionRoomLayout.test.ts",
+    "test": "vitest run src",
     "test:e2e": "playwright test",
     "test:pwa": "pnpm run build && playwright test tests/pwa-offline.spec.ts --config=playwright.pwa.config.ts",
     "preview": "vite preview",

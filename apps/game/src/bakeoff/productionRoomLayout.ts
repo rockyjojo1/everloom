@@ -19,6 +19,49 @@ function deterministicHash(index: number, seed: number): number {
   return x - Math.floor(x);
 }
 
+const CORE_CLEARANCE = 1.5;
+
+/**
+ * Deterministically pushes (x, z) directly away from any core placement
+ * closer than CORE_CLEARANCE, until clear of all of them. Purely a function
+ * of the input position and the fixed core-placement list -- no randomness,
+ * so layouts stay reproducible. A fixed iteration cap prevents runaway
+ * looping if placements were ever dense enough to require repeated pushes.
+ */
+function enforceCoreClearance(x: number, z: number, corePlacements: AssetPlacement[]): [number, number] {
+  let px = x;
+  let pz = z;
+  // A small epsilon on top of the exact deficit avoids floating-point
+  // boundary sticking (landing at exactly CORE_CLEARANCE only to round back
+  // under it after the next core's push). Bounds are re-clamped every pass
+  // -- clamping only at the end could shove a just-cleared point straight
+  // back into another core's clearance zone.
+  const epsilon = 0.01;
+  for (let pass = 0; pass < 30; pass++) {
+    let adjusted = false;
+    for (const core of corePlacements) {
+      const dx = px - core.position[0];
+      const dz = pz - core.position[2];
+      const distance = Math.sqrt(dx * dx + dz * dz);
+      if (distance < CORE_CLEARANCE) {
+        const deficit = CORE_CLEARANCE - distance + epsilon;
+        if (distance > 0.0001) {
+          px += (dx / distance) * deficit;
+          pz += (dz / distance) * deficit;
+        } else {
+          // Degenerate case: identical position. Push along a fixed axis.
+          px += CORE_CLEARANCE + epsilon;
+        }
+        adjusted = true;
+      }
+    }
+    px = Math.max(-22, Math.min(22, px));
+    pz = Math.max(-14, Math.min(14, pz));
+    if (!adjusted) break;
+  }
+  return [px, pz];
+}
+
 /** Get core placements common to all profiles. */
 function getCoreplacements(): AssetPlacement[] {
   return [
@@ -461,7 +504,7 @@ function getCoreplacements(): AssetPlacement[] {
 }
 
 /** Generate additional deterministic tree placements based on profile. */
-function getAdditionalTrees(profile: ProductionRoomProfile): AssetPlacement[] {
+function getAdditionalTrees(profile: ProductionRoomProfile, corePlacements: AssetPlacement[]): AssetPlacement[] {
   const count = profile === "balanced" ? 6 : 12;
   const trees: AssetPlacement[] = [];
   const treeAssets: string[] = ["nature.tree-round", "nature.pine", "nature.oak-fall"];
@@ -487,6 +530,8 @@ function getAdditionalTrees(profile: ProductionRoomProfile): AssetPlacement[] {
     x = Math.max(-22, Math.min(22, x));
     z = Math.max(-14, Math.min(14, z));
 
+    [x, z] = enforceCoreClearance(x, z, corePlacements);
+
     const assetIdx = Math.floor(h3 * treeAssets.length) % treeAssets.length;
     const assetId = treeAssets[assetIdx] ?? "nature.tree-round";
     trees.push({
@@ -505,7 +550,7 @@ function getAdditionalTrees(profile: ProductionRoomProfile): AssetPlacement[] {
 }
 
 /** Generate additional deterministic rock placements based on profile. */
-function getAdditionalRocks(profile: ProductionRoomProfile): AssetPlacement[] {
+function getAdditionalRocks(profile: ProductionRoomProfile, corePlacements: AssetPlacement[]): AssetPlacement[] {
   const count = profile === "balanced" ? 10 : 20;
   const rocks: AssetPlacement[] = [];
   const rockAssets: string[] = ["nature.rock-small", "nature.rock-large"];
@@ -527,6 +572,8 @@ function getAdditionalRocks(profile: ProductionRoomProfile): AssetPlacement[] {
     x = Math.max(-22, Math.min(22, x));
     z = Math.max(-14, Math.min(14, z));
 
+    [x, z] = enforceCoreClearance(x, z, corePlacements);
+
     const assetIdx = Math.floor(h3 * rockAssets.length) % rockAssets.length;
     const assetId = rockAssets[assetIdx] ?? "nature.rock-small";
     rocks.push({
@@ -546,8 +593,8 @@ function getAdditionalRocks(profile: ProductionRoomProfile): AssetPlacement[] {
 
 export function getProductionRoomLayout(profile: ProductionRoomProfile): ProductionRoomLayout {
   const corePlacements = getCoreplacements();
-  const additionalTrees = getAdditionalTrees(profile);
-  const additionalRocks = getAdditionalRocks(profile);
+  const additionalTrees = getAdditionalTrees(profile, corePlacements);
+  const additionalRocks = getAdditionalRocks(profile, corePlacements);
 
   return {
     profile,
