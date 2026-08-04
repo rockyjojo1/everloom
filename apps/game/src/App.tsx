@@ -43,6 +43,11 @@ const VisualProductionWorkbench = import.meta.env.DEV
     })
   : (() => null as never);
 
+const MeadowrestProductionRoom = lazy(async () => {
+  const module = await import("./bakeoff/MeadowrestProductionRoom");
+  return { default: module.MeadowrestProductionRoom };
+});
+
 export default function App() {
   const [characterName, setCharacterName] = useState("Wanderer");
   const [appearanceId, setAppearanceId] = useState<PlayerAppearanceId>("meadow");
@@ -77,6 +82,12 @@ export default function App() {
     }
     if (qaMode === "visual-production" && VisualProductionWorkbench) {
       return <Suspense fallback={<main className="loading"><div className="loom-mark" /><span>Opening production workbench…</span></main>}><VisualProductionWorkbench /></Suspense>;
+    }
+  }
+  if (new URLSearchParams(location.search).has("bakeoff")) {
+    const bakeoffMode = new URLSearchParams(location.search).get("bakeoff");
+    if (bakeoffMode === "meadowrest") {
+      return <Suspense fallback={<main className="loading"><div className="loom-mark" /><span>Preparing Meadowrest production room…</span></main>}><div data-everloom-authoritative-app="apps-game" data-everloom-bakeoff="meadowrest"><MeadowrestProductionRoom /></div></Suspense>;
     }
   }
   if (status === "error") return <main className="fatal"><h1>The thread snagged.</h1><p>{error}</p><button onClick={() => location.reload()}>Try again</button></main>;
