@@ -8,6 +8,7 @@
     "jsx": "react-jsx",
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
+    "allowImportingTsExtensions": true,
     "noEmit": true,
     "declaration": false,
     "declarationMap": false,

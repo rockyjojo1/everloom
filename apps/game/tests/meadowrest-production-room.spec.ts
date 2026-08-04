@@ -1,11 +1,11 @@
 import { test, expect } from "@playwright/test";
 
-const BASE_URL = "http://localhost:5173";
-
 test.describe("Meadowrest Production Room", () => {
-  test("desktop balanced profile", async ({ page }) => {
+  test("desktop balanced profile", async ({ page, browserName }, testInfo) => {
+    test.skip(testInfo.project.name === "landscape-mobile", "Desktop test");
+
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto(`${BASE_URL}/?bakeoff=meadowrest&profile=balanced`);
+    await page.goto(`/?bakeoff=meadowrest&profile=balanced`);
 
     // Wait for ready
     await page.waitForFunction(() => (window as any).__EVERLOOM_BAKEOFF__?.ready === true, { timeout: 15000 });
@@ -71,9 +71,10 @@ test.describe("Meadowrest Production Room", () => {
     expect(body).toBeLessThanOrEqual(1440);
   });
 
-  test("desktop quality profile", async ({ page }) => {
+  test("desktop quality profile", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name === "landscape-mobile", "Desktop test");
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto(`${BASE_URL}/?bakeoff=meadowrest&profile=quality`);
+    await page.goto(`/?bakeoff=meadowrest&profile=quality`);
 
     await page.waitForFunction(() => (window as any).__EVERLOOM_BAKEOFF__?.ready === true, { timeout: 15000 });
 
@@ -87,19 +88,10 @@ test.describe("Meadowrest Production Room", () => {
     expect(metrics.renderer.geometries).toBeGreaterThanOrEqual(metrics.renderer.geometries);
   });
 
-  test("iPhone landscape balanced", async ({ page }) => {
-    await page.setViewportSize({ width: 844, height: 390 });
-    await page.emulateMedia({ colorScheme: "light", media: "screen" });
+  test("iPhone landscape balanced", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name === "desktop", "Mobile-only test");
 
-    // Emulate mobile
-    await page.context().browser()?.newContext({
-      viewport: { width: 844, height: 390 },
-      isMobile: true,
-      hasTouch: true,
-      deviceScaleFactor: 3,
-    });
-
-    await page.goto(`${BASE_URL}/?bakeoff=meadowrest&profile=balanced`);
+    await page.goto(`/?bakeoff=meadowrest&profile=balanced`);
 
     await page.waitForFunction(() => (window as any).__EVERLOOM_BAKEOFF__?.ready === true, { timeout: 15000 });
 
@@ -128,10 +120,11 @@ test.describe("Meadowrest Production Room", () => {
     }
   });
 
-  test("iPhone portrait orientation shows rotate message", async ({ page }) => {
+  test("iPhone portrait orientation shows rotate message", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name === "desktop", "Mobile-only test");
     await page.setViewportSize({ width: 390, height: 844 });
 
-    await page.goto(`${BASE_URL}/?bakeoff=meadowrest&profile=balanced`);
+    await page.goto(`/?bakeoff=meadowrest&profile=balanced`);
 
     // Should show rotate message
     await expect(page.locator("text=Rotate to landscape")).toBeVisible();
@@ -145,9 +138,10 @@ test.describe("Meadowrest Production Room", () => {
     expect(errors.length).toBe(0);
   });
 
-  test("profile switching preserves route", async ({ page }) => {
+  test("profile switching preserves route", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name === "landscape-mobile", "Desktop test");
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto(`${BASE_URL}/?bakeoff=meadowrest&profile=balanced`);
+    await page.goto(`/?bakeoff=meadowrest&profile=balanced`);
 
     await page.waitForFunction(() => (window as any).__EVERLOOM_BAKEOFF__?.ready === true, { timeout: 15000 });
 
@@ -165,7 +159,7 @@ test.describe("Meadowrest Production Room", () => {
 
   test("normal app without bakeoff param loads normally", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto(`${BASE_URL}/`);
+    await page.goto(`/`);
 
     // Should not show production room heading
     expect(await page.locator("text=Meadowrest Production Room").count()).toBe(0);
@@ -188,15 +182,16 @@ test.describe("Meadowrest Production Room", () => {
       }
     });
 
-    await page.goto(`${BASE_URL}/?bakeoff=meadowrest&profile=balanced`);
+    await page.goto(`/?bakeoff=meadowrest&profile=balanced`);
     await page.waitForFunction(() => (window as any).__EVERLOOM_BAKEOFF__?.ready === true, { timeout: 15000 });
 
     expect(failedRequests.length).toBe(0);
   });
 
-  test("player animation transitions work", async ({ page }) => {
+  test("player animation transitions work", async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name === "landscape-mobile", "Desktop test");
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto(`${BASE_URL}/?bakeoff=meadowrest&profile=balanced`);
+    await page.goto(`/?bakeoff=meadowrest&profile=balanced`);
 
     await page.waitForFunction(() => (window as any).__EVERLOOM_BAKEOFF__?.ready === true, { timeout: 15000 });
 
