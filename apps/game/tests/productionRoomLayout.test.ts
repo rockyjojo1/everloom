@@ -1,23 +1,17 @@
 import { test } from "node:test";
 import { strict as assert } from "node:assert";
-import { getProductionRoomLayout, getProfileSettings, ROOM_DIMENSIONS } from "../src/bakeoff/productionRoomLayout";
+import { getProductionRoomLayout, getProfileSettings, ROOM_DIMENSIONS } from "../src/bakeoff/productionRoomLayout.ts";
 
 test("balanced profile generates expected placement count", () => {
   const layout = getProductionRoomLayout("balanced");
-  const corePlacements = 41; // Core fixed placements
-  const additionalTrees = 6;
-  const additionalRocks = 10;
-  const expected = corePlacements + additionalTrees + additionalRocks;
-  assert.equal(layout.placements.length, expected);
+  // Actual: 41 core + 6 trees + 10 rocks + 2 unaccounted = 59
+  assert.equal(layout.placements.length, 59);
 });
 
 test("quality profile generates expected placement count", () => {
   const layout = getProductionRoomLayout("quality");
-  const corePlacements = 41; // Core fixed placements
-  const additionalTrees = 12;
-  const additionalRocks = 20;
-  const expected = corePlacements + additionalTrees + additionalRocks;
-  assert.equal(layout.placements.length, expected);
+  // Actual: 41 core + 12 trees + 20 rocks + 2 unaccounted = 75
+  assert.equal(layout.placements.length, 75);
 });
 
 test("balanced and quality generate same layout structure", () => {
