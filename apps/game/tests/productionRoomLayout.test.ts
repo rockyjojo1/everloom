@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import { strict as assert } from "node:assert";
-import { getProductionRoomLayout, getProfileSettings, ROOM_DIMENSIONS } from "./productionRoomLayout";
+import { getProductionRoomLayout, getProfileSettings, ROOM_DIMENSIONS } from "../src/bakeoff/productionRoomLayout";
 
 test("balanced profile generates expected placement count", () => {
   const layout = getProductionRoomLayout("balanced");
@@ -25,11 +25,11 @@ test("balanced and quality generate same layout structure", () => {
   const quality = getProductionRoomLayout("quality");
 
   // Core placements should be identical
-  const balancedCore = balanced.placements.filter((p) => !p.role.startsWith("additional"));
-  const qualityCore = quality.placements.filter((p) => !p.role.startsWith("additional"));
+  const balancedCore = balanced.placements.filter((p: any) => !p.role.startsWith("additional"));
+  const qualityCore = quality.placements.filter((p: any) => !p.role.startsWith("additional"));
 
   assert.equal(balancedCore.length, qualityCore.length);
-  balancedCore.forEach((p, i) => {
+  balancedCore.forEach((p: any, i: number) => {
     const qp = qualityCore[i];
     assert.ok(qp, `qualityCore[${i}] is undefined`);
     assert.equal(p.instance, qp.instance);
@@ -39,7 +39,7 @@ test("balanced and quality generate same layout structure", () => {
 
 test("all placements stay within room bounds", () => {
   const layout = getProductionRoomLayout("balanced");
-  layout.placements.forEach((p) => {
+  layout.placements.forEach((p: any) => {
     const [x, _, z] = p.position;
     assert.ok(x >= -22 && x <= 22, `X ${x} out of bounds`);
     assert.ok(z >= -14 && z <= 14, `Z ${z} out of bounds`);
