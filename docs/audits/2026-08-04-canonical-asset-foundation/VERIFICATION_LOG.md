@@ -266,3 +266,55 @@ git status --short | grep -iE "artifacts/phase|reference-sheets/.*\.png|\.(glb|g
      explicitly by name against artifacts/phase-* and reference-sheets/ and
      confirmed zero matches in either protected path.
 ```
+
+## 11. Shallow-repository correction (follow-up for Vercel CI compatibility)
+
+Initial commit `0766ec6f4f7bdf03cfa8779e7ab2b80584f64b33` passed local
+verification but failed in Vercel due to shallow-repository limitations.
+
+**Code changes**:
+- Expanded abbreviated commit SHA `29d817c` → full 40-character
+  `29d817c14c9cef44115a692d03898b6a23fe9866` in
+  `packages/assets/sources/asset-sources.json`
+- Modified `packages/assets/scripts/validate-sources.mjs`:
+  - Detect shallow repository via `git rev-parse --is-shallow-repository`
+  - Require 40-character lowercase hexadecimal SHA format (reject abbreviated)
+  - In complete repo: commit must resolve (error if not)
+  - In shallow repo: commit SHA format validated, but unresolved historical
+    commits reported as warning (not error)
+
+**Test coverage** (10 new cases in `validate-sources.test.mjs`):
+```
+✔ full 40-character SHA resolves in complete repository: no error/warning
+✔ full 40-character SHA does not resolve in complete repository: error
+✔ full 40-character SHA resolves in shallow repository: no error/warning
+✔ full 40-character SHA does not resolve in shallow repository: warning
+✔ seven-character abbreviated SHA: error (both complete and shallow)
+✔ non-hexadecimal 40-character value: error
+✔ missing commit field in git_commit evidence: error
+✔ git_commit evidence containing both path and commit: error
+✔ real asset-sources.json validated: zero errors
+✔ simulated shallow validation of real registry: zero errors, unresolved
+   historical commit as warning
+```
+
+**Local verification** (all commands exit 0):
+```
+pnpm --filter @everloom/assets run test
+  -> tests 104, pass 104, fail 0
+
+pnpm --filter @everloom/assets run build
+  -> catalog built, validate-sources exit 0 with 1 expected warning
+  -> validate-models exit 0 with 0 warnings
+  -> root tsc exit 0
+
+pnpm --filter @everloom/assets run verify
+  -> all test, validate, and typecheck stages exit 0
+```
+
+**Exact final commit for Phase 10 fresh-worktree proof**:
+SHA `<to-be-recorded-after-Step-9>`
+
+This correction enables Vercel shallow-clone builds to proceed with
+appropriate warnings instead of errors, while maintaining complete
+backward compatibility with full-history local and CI checkouts.

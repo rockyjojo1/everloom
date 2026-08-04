@@ -182,13 +182,13 @@ test("errors when a git_commit evidence record does not resolve", () => withTemp
   const sources = baseSources({
     sources: [{
       sourceId: "test-pack", evidenceStatus: "verified_local_evidence", claimedLicence: "CC0-1.0",
-      licenceEvidence: [{ kind: "git_commit", commit: "0000000" }], canonicalLocalRoots: [], runtimeAssetIds: ["a"],
+      licenceEvidence: [{ kind: "git_commit", commit: "0000000000000000000000000000000000000000" }], canonicalLocalRoots: [], runtimeAssetIds: ["a"],
     }],
   });
   const registry = [{ id: "a", pack: "test-pack", sourceFile: "x.glb" }];
   const result = await validateSources({
     sources, registry, manifest: EMPTY_MANIFEST, repoRoot,
-    resolvers: { commitResolver: () => false },
+    resolvers: { isShallowRepository: false, commitResolver: () => false },
   });
   assert.ok(result.errors.some((e) => /does not resolve in this repository/.test(e)));
 }));
@@ -197,7 +197,7 @@ test("passes when a git_commit evidence record resolves", () => withTempRepoRoot
   const sources = baseSources({
     sources: [{
       sourceId: "test-pack", evidenceStatus: "verified_local_evidence", claimedLicence: "CC0-1.0",
-      licenceEvidence: [{ kind: "git_commit", commit: "abc1234" }], canonicalLocalRoots: [], runtimeAssetIds: ["a"],
+      licenceEvidence: [{ kind: "git_commit", commit: "abc1234567890abcdef0123456789abcdef01234" }], canonicalLocalRoots: [], runtimeAssetIds: ["a"],
     }],
   });
   const registry = [{ id: "a", pack: "test-pack", sourceFile: "x.glb" }];
@@ -378,4 +378,158 @@ test("validates the real asset-sources.json against the real registry and manife
   const manifest = JSON.parse(await readFile(resolve(REPOSITORY_ROOT, "art-direction/visual-production-manifest.json"), "utf8"));
   const result = await validateSources({ sources, registry, manifest, repoRoot: REPOSITORY_ROOT });
   assert.deepEqual(result.errors, []);
+});
+
+// --- Tests for shallow-repository commit evidence handling ---
+
+test("full 40-character SHA resolves in complete repository: no error, no warning", () => withTempRepoRoot(async (repoRoot) => {
+  const fullSha = "0123456789abcdef0123456789abcdef01234567";
+  const sources = baseSources({
+    sources: [{
+      sourceId: "test-pack", evidenceStatus: "verified_local_evidence", claimedLicence: "CC0-1.0",
+      licenceEvidence: [{ kind: "git_commit", commit: fullSha }], canonicalLocalRoots: [], runtimeAssetIds: [],
+    }],
+  });
+  const result = await validateSources({
+    sources, registry: [], manifest: EMPTY_MANIFEST, repoRoot,
+    resolvers: { isShallowRepository: false, commitResolver: () => true },
+  });
+  assert.deepEqual(result.errors, []);
+  assert.deepEqual(result.warnings, []);
+}));
+
+test("full 40-character SHA does not resolve in complete repository: error", () => withTempRepoRoot(async (repoRoot) => {
+  const fullSha = "ffffffffffffffffffffffffffffffffffffffff";
+  const sources = baseSources({
+    sources: [{
+      sourceId: "test-pack", evidenceStatus: "verified_local_evidence", claimedLicence: "CC0-1.0",
+      licenceEvidence: [{ kind: "git_commit", commit: fullSha }], canonicalLocalRoots: [], runtimeAssetIds: [],
+    }],
+  });
+  const result = await validateSources({
+    sources, registry: [], manifest: EMPTY_MANIFEST, repoRoot,
+    resolvers: { isShallowRepository: false, commitResolver: () => false },
+  });
+  assert.ok(result.errors.some((e) => /does not resolve/.test(e)));
+}));
+
+test("full 40-character SHA resolves in shallow repository: no error, no warning", () => withTempRepoRoot(async (repoRoot) => {
+  const fullSha = "0123456789abcdef0123456789abcdef01234567";
+  const sources = baseSources({
+    sources: [{
+      sourceId: "test-pack", evidenceStatus: "verified_local_evidence", claimedLicence: "CC0-1.0",
+      licenceEvidence: [{ kind: "git_commit", commit: fullSha }], canonicalLocalRoots: [], runtimeAssetIds: [],
+    }],
+  });
+  const result = await validateSources({
+    sources, registry: [], manifest: EMPTY_MANIFEST, repoRoot,
+    resolvers: { isShallowRepository: true, commitResolver: () => true },
+  });
+  assert.deepEqual(result.errors, []);
+  assert.deepEqual(result.warnings, []);
+}));
+
+test("full 40-character SHA does not resolve in shallow repository: warning, not error", () => withTempRepoRoot(async (repoRoot) => {
+  const fullSha = "ffffffffffffffffffffffffffffffffffffffff";
+  const sources = baseSources({
+    sources: [{
+      sourceId: "test-pack", evidenceStatus: "verified_local_evidence", claimedLicence: "CC0-1.0",
+      licenceEvidence: [{ kind: "git_commit", commit: fullSha }], canonicalLocalRoots: [], runtimeAssetIds: [],
+    }],
+  });
+  const result = await validateSources({
+    sources, registry: [], manifest: EMPTY_MANIFEST, repoRoot,
+    resolvers: { isShallowRepository: true, commitResolver: () => false },
+  });
+  assert.deepEqual(result.errors, []);
+  assert.ok(result.warnings.some((w) => /could not be verified in this shallow repository/.test(w)));
+}));
+
+test("seven-character abbreviated SHA: error in complete repository", () => withTempRepoRoot(async (repoRoot) => {
+  const sources = baseSources({
+    sources: [{
+      sourceId: "test-pack", evidenceStatus: "verified_local_evidence", claimedLicence: "CC0-1.0",
+      licenceEvidence: [{ kind: "git_commit", commit: "abcdef0" }], canonicalLocalRoots: [], runtimeAssetIds: [],
+    }],
+  });
+  const result = await validateSources({
+    sources, registry: [], manifest: EMPTY_MANIFEST, repoRoot,
+    resolvers: { isShallowRepository: false, commitResolver: () => true },
+  });
+  assert.ok(result.errors.some((e) => /must be 40 lowercase hexadecimal/.test(e)));
+}));
+
+test("seven-character abbreviated SHA: error in shallow repository", () => withTempRepoRoot(async (repoRoot) => {
+  const sources = baseSources({
+    sources: [{
+      sourceId: "test-pack", evidenceStatus: "verified_local_evidence", claimedLicence: "CC0-1.0",
+      licenceEvidence: [{ kind: "git_commit", commit: "abcdef0" }], canonicalLocalRoots: [], runtimeAssetIds: [],
+    }],
+  });
+  const result = await validateSources({
+    sources, registry: [], manifest: EMPTY_MANIFEST, repoRoot,
+    resolvers: { isShallowRepository: true, commitResolver: () => true },
+  });
+  assert.ok(result.errors.some((e) => /must be 40 lowercase hexadecimal/.test(e)));
+}));
+
+test("non-hexadecimal 40-character value: error", () => withTempRepoRoot(async (repoRoot) => {
+  const sources = baseSources({
+    sources: [{
+      sourceId: "test-pack", evidenceStatus: "verified_local_evidence", claimedLicence: "CC0-1.0",
+      licenceEvidence: [{ kind: "git_commit", commit: "gggggggggggggggggggggggggggggggggggggg" }], canonicalLocalRoots: [], runtimeAssetIds: [],
+    }],
+  });
+  const result = await validateSources({
+    sources, registry: [], manifest: EMPTY_MANIFEST, repoRoot,
+    resolvers: { isShallowRepository: false, commitResolver: () => false },
+  });
+  assert.ok(result.errors.some((e) => /must be 40 lowercase hexadecimal/.test(e)));
+}));
+
+test("missing commit field in git_commit evidence: error", () => withTempRepoRoot(async (repoRoot) => {
+  const sources = baseSources({
+    sources: [{
+      sourceId: "test-pack", evidenceStatus: "verified_local_evidence", claimedLicence: "CC0-1.0",
+      licenceEvidence: [{ kind: "git_commit" }], canonicalLocalRoots: [], runtimeAssetIds: [],
+    }],
+  });
+  const result = await validateSources({
+    sources, registry: [], manifest: EMPTY_MANIFEST, repoRoot,
+    resolvers: { commitResolver: () => true },
+  });
+  assert.ok(result.errors.some((e) => /missing "commit" field/.test(e)));
+}));
+
+test("git_commit evidence containing both path and commit: error", () => withTempRepoRoot(async (repoRoot) => {
+  const sources = baseSources({
+    sources: [{
+      sourceId: "test-pack", evidenceStatus: "verified_local_evidence", claimedLicence: "CC0-1.0",
+      licenceEvidence: [{ kind: "git_commit", path: "some/file.md", commit: "0123456789abcdef0123456789abcdef01234567" }],
+      canonicalLocalRoots: [], runtimeAssetIds: [],
+    }],
+  });
+  const result = await validateSources({
+    sources, registry: [], manifest: EMPTY_MANIFEST, repoRoot,
+    resolvers: { commitResolver: () => true },
+  });
+  assert.ok(result.errors.some((e) => /both "path" and "commit"/.test(e)));
+}));
+
+test("simulated shallow validation of real registry: zero errors, unresolved historical commit as warning", async () => {
+  const { readFile } = await import("node:fs/promises");
+  const { REPOSITORY_ROOT } = await import("../paths.mjs");
+  const { resolve } = await import("node:path");
+  const sources = JSON.parse(await readFile(resolve(REPOSITORY_ROOT, "packages/assets/sources/asset-sources.json"), "utf8"));
+  const registry = JSON.parse(await readFile(resolve(REPOSITORY_ROOT, "packages/assets/src/registry.json"), "utf8"));
+  const manifest = JSON.parse(await readFile(resolve(REPOSITORY_ROOT, "art-direction/visual-production-manifest.json"), "utf8"));
+  const result = await validateSources({
+    sources, registry, manifest, repoRoot: REPOSITORY_ROOT,
+    resolvers: {
+      isShallowRepository: true,
+      commitResolver: () => false, // Simulate that no historical commits resolve
+    },
+  });
+  assert.deepEqual(result.errors, []);
+  assert.ok(result.warnings.some((w) => /could not be verified in this shallow repository/.test(w)));
 });

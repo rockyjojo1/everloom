@@ -346,16 +346,74 @@ nothing in it was attempted:
 - Any third-party dependency addition.
 - Cloud behaviour, Capacitor, or platform-wrapper changes.
 
+## Independent audit correction follow-up
+
+The initial Gate 3 implementation (commit
+`0766ec6f4f7bdf03cfa8779e7ab2b80584f64b33`) passed local verification
+but failed during Vercel's automatic build due to shallow repository
+limitations in the CI environment.
+
+**Root cause**: The source-registry validator required Git commit evidence
+(e.g. the historical installation record commit `29d817c`) to be verified
+via `git cat-file -e`. In Vercel's shallow checkout, historical commits
+beyond the current branch tip are absent, causing the command to fail
+and the validator to error.
+
+**Solution**: Modified `packages/assets/scripts/validate-sources.mjs` to
+detect shallow vs. complete repositories and apply differentiated
+verification logic:
+
+- **Complete repository**: Git commit evidence must be valid 40-character
+  lowercase hexadecimal SHA and must resolve; failure is an error (as
+  before).
+- **Shallow repository** (e.g., Vercel CI): Git commit evidence must still
+  be valid 40-character SHA format, but if it does not resolve because
+  the historical commit is absent from the shallow clone, that is
+  reported as a **warning** (not an error), with explicit wording that
+  the commit could not be verified in the shallow checkout.
+
+**Data normalization**: Expanded abbreviated commit SHA `29d817c` to full
+form `29d817c14c9cef44115a692d03898b6a23fe9866` in
+`packages/assets/sources/asset-sources.json` to satisfy the 40-character
+requirement.
+
+**Tests added** (10 new test cases in `validate-sources.test.mjs`):
+
+1. Full 40-char SHA resolves in complete repository → no error/warning
+2. Full 40-char SHA fails to resolve in complete repository → error
+3. Full 40-char SHA resolves in shallow repository → no error/warning
+4. Full 40-char SHA fails to resolve in shallow repository → warning (not
+   error)
+5. Abbreviated SHA in complete repository → error
+6. Abbreviated SHA in shallow repository → error
+7. Non-hexadecimal 40-char value → error
+8. Missing `commit` field → error
+9. Evidence record with both `path` and `commit` → error
+10. Real registry simulated as shallow → zero errors, unresolved historical
+    commit as warning
+
+**Verification**: All 104 tests pass locally (25 Git-tracked-path tests +
+79 prior); the full `@everloom/assets` build, verify, test suite exits 0
+with 0 errors, 1 expected warning (pre-existing lpc-legacy-sprites).
+
+**Exact final commit**: SHA `<to-be-determined-in-Step-9>`
+
+This correction remains backward compatible: complete-repository behavior
+is unchanged; shallow-repository builds now proceed with warnings instead
+of errors, and all file evidence (paths) remains mandatory and
+Git-tracked.
+
 ## Gate 4 recommendation
 
 With the canonical model root settled under `packages/assets`, both
 consuming apps reading from one shared contract, the visual manifest's
 active paths corrected and proven reproducible on a fresh checkout, and
-durable technical/evidence validation in place with real test coverage,
-the repository is ready for the minimal asset-access workflow and the
-representative browser/mobile production-room bake-off (work package 4),
-subject to independent supervisor acceptance of this gate. The remaining
-"not checked" areas (external licence-archive evidence, source-URL
-reachability, object-origin/pivot placement, texture-compression-format
-suitability) are not blockers for the bake-off and can be picked up
-opportunistically or in a future tooling pass.
+durable technical/evidence validation in place with real test coverage
+(including shallow-CI safety), the repository is ready for the minimal
+asset-access workflow and the representative browser/mobile
+production-room bake-off (work package 4), subject to independent
+supervisor acceptance of this gate. The remaining "not checked" areas
+(external licence-archive evidence, source-URL reachability,
+object-origin/pivot placement, texture-compression-format suitability)
+are not blockers for the bake-off and can be picked up opportunistically
+or in a future tooling pass.

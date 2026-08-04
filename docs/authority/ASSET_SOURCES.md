@@ -155,10 +155,21 @@ Detailed report:
   inspect -- <query>` — one command surfaces registry, source-evidence,
   manifest-status, file, and GLB-metadata detail for a runtime asset ID
   without manually cross-referencing multiple files.
+- **Shallow-repository (CI) compatibility**: Historical Git commit evidence
+  (e.g. installation records) is fully verified in complete-history local
+  and development checkouts (`git cat-file -e <SHA>` must resolve). In
+  shallow CI checkouts (e.g. Vercel), the commit SHA must still be 40
+  lowercase-hexadecimal characters, but unresolved historical commits are
+  reported as explicit **warnings** rather than errors — because shallow
+  clones by definition lack deep history. This enables CI builds to proceed
+  while maintaining full validation for source repositories with complete
+  history. Repository-file evidence (paths to tracked files) remains
+  mandatory and is Git-tracked in both cases.
 - **This remains not commercial-release legal approval.** Evidence-status
   classifications, the no-wolf finding, and every other Gate 2 provenance
   caveat are preserved unchanged — Gate 3 fixed structural/tooling
   problems, not licence-evidence strength.
-- **Next gate recommendation**: with the canonical root settled and durable
-  validation in place, the minimal asset-access workflow / production-room
-  bake-off (work packages 3–4) may proceed on this foundation.
+- **Next gate recommendation**: with the canonical root settled, durable
+  validation in place, and shallow-CI compatibility enabled, the minimal
+  asset-access workflow / production-room bake-off (work packages 3–4) may
+  proceed on this foundation.

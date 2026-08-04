@@ -151,7 +151,7 @@
         },
         {
           "kind": "git_commit",
-          "commit": "29d817c",
+          "commit": "29d817c14c9cef44115a692d03898b6a23fe9866",
           "detail": "Install all CC0 asset packs (569 files, 32MB) — unblocks P1 (installation record, repository-claim tier on its own but corroborates the above)"
         }
       ],

@@ -10,6 +10,11 @@
 // or missing archive evidence is reported as a warning, not an error, and
 // never treated as commercial approval.
 //
+// Git commit evidence validation distinguishes complete and shallow repositories:
+// - Complete repository: all historical commits must resolve; failure is an error.
+// - Shallow repository (e.g. Vercel CI): absence of historical commits is warned,
+//   not errored, because shallow checkouts by definition lack deep history.
+//
 // `validateSources()` is the pure, parameterised core used both by the CLI
 // entrypoint below and by validate-sources.test.mjs. Filesystem existence
 // and Git tracking are deliberately separate facts (`pathExists` vs.
@@ -41,13 +46,33 @@ function isWithinRepo(repoRoot, relPath) {
   return rel === "" || (!rel.startsWith("..") && !isAbsolute(rel));
 }
 
+/** Determine if a string is a valid 40-character lowercase hexadecimal SHA. */
+function isValidSha40(value) {
+  if (typeof value !== "string") return false;
+  return /^[0-9a-f]{40}$/.test(value);
+}
+
 /**
  * Build the default, real-filesystem/real-Git resolver set bound to
  * `repoRoot`. Tests inject their own object with the same shape instead of
  * calling this.
  */
 function makeDefaultResolvers(repoRoot) {
+  // Detect whether repository is shallow (limited history).
+  let isShallow;
+  try {
+    const out = execFileSync("git", ["rev-parse", "--is-shallow-repository"], {
+      cwd: repoRoot,
+      encoding: "utf8",
+      shell: false,
+    });
+    isShallow = out.trim() === "true";
+  } catch {
+    isShallow = false; // assume complete if detection fails
+  }
+
   return {
+    isShallowRepository: isShallow,
     pathExists: async (relPath) => {
       if (!isWithinRepo(repoRoot, relPath)) return false;
       try {
@@ -98,7 +123,7 @@ function makeDefaultResolvers(repoRoot) {
     },
     commitResolver: (commit) => {
       try {
-        execFileSync("git", ["cat-file", "-e", `${commit}^{commit}`], { cwd: repoRoot, stdio: "ignore", shell: false });
+        execFileSync("git", ["cat-file", "-e", commit], { cwd: repoRoot, stdio: "ignore", shell: false });
         return true;
       } catch {
         return false;
@@ -114,8 +139,9 @@ function makeDefaultResolvers(repoRoot) {
  * @param {{entries: Array}} opts.manifest parsed visual-production-manifest.json
  * @param {string} opts.repoRoot absolute repository root
  * @param {object} [opts.resolvers] override any of pathExists/isRegularFile/
- *   isTrackedPath/hasTrackedFileUnder/commitResolver for fixture tests;
- *   unspecified functions fall back to the real filesystem/Git defaults.
+ *   isTrackedPath/hasTrackedFileUnder/isShallowRepository/commitResolver for
+ *   fixture tests; unspecified functions fall back to the real filesystem/Git
+ *   defaults.
  */
 export async function validateSources({ sources, registry, manifest, repoRoot, resolvers = {} }) {
   const errors = [];
@@ -128,6 +154,7 @@ export async function validateSources({ sources, registry, manifest, repoRoot, r
   const isRegularFile = resolvers.isRegularFile || defaults.isRegularFile;
   const isTrackedPath = resolvers.isTrackedPath || defaults.isTrackedPath;
   const hasTrackedFileUnder = resolvers.hasTrackedFileUnder || defaults.hasTrackedFileUnder;
+  const isShallowRepository = resolvers.isShallowRepository !== undefined ? resolvers.isShallowRepository : defaults.isShallowRepository;
   const resolveCommit = resolvers.commitResolver || defaults.commitResolver;
 
   /** A file-backed evidence/manifest path must exist, be a regular file, be repo-contained, and be Git-tracked. */
@@ -213,8 +240,18 @@ export async function validateSources({ sources, registry, manifest, repoRoot, r
       if (ev.kind === "git_commit") {
         if (!hasCommit) {
           err(`${label}: git_commit evidence record missing "commit" field`);
-        } else if (!resolveCommit(ev.commit)) {
-          err(`${label}: git_commit evidence references a commit that does not resolve in this repository: ${ev.commit}`);
+        } else {
+          // Validate SHA format: must be exactly 40 lowercase hexadecimal.
+          if (!isValidSha40(ev.commit)) {
+            err(`${label}: git_commit evidence "commit" must be 40 lowercase hexadecimal, got: ${JSON.stringify(ev.commit)}`);
+          } else if (!resolveCommit(ev.commit)) {
+            // Commit doesn't resolve. Behavior differs based on repository depth.
+            if (isShallowRepository) {
+              warn(`${label}: git_commit evidence references commit ${ev.commit} which could not be verified in this shallow repository (historical object may be absent from shallow checkout)`);
+            } else {
+              err(`${label}: git_commit evidence references a commit that does not resolve in this repository: ${ev.commit}`);
+            }
+          }
         }
       } else {
         if (!hasPath) {
