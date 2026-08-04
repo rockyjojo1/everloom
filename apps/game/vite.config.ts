@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
-import { MODEL_ROOT } from "../../packages/assets/paths.mjs";
+import { MODEL_ROOT, resolvePathWithinRoot } from "../../packages/assets/paths.mjs";
 
 const appDirectory = fileURLToPath(new URL(".", import.meta.url));
 
@@ -36,8 +36,13 @@ function sharedModelLibrary(): Plugin {
         try {
           const relativePath = decodeURIComponent(new URL(request.url ?? "/", "http://localhost").pathname)
             .replace(/^\/+/, "");
-          const file = resolve(modelRoot, relativePath);
-          if (!file.startsWith(modelRoot) || !existsSync(file) || !statSync(file).isFile()) return next();
+          let file: string;
+          try {
+            file = resolvePathWithinRoot(modelRoot, relativePath, { allowRoot: false });
+          } catch {
+            return next(); // invalid or escaping path: fall through, never serve it
+          }
+          if (!existsSync(file) || !statSync(file).isFile()) return next();
           const type = extname(file) === ".glb" ? "model/gltf-binary" : "model/gltf+json";
           response.writeHead(200, { "content-type": type, "cache-control": "public, max-age=3600" });
           createReadStream(file).pipe(response);

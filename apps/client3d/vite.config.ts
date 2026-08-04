@@ -2,7 +2,7 @@ import path from "path";
 import fs from "fs";
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
-import { MODEL_ROOT } from "../../packages/assets/paths.mjs";
+import { MODEL_ROOT, resolvePathWithinRoot } from "../../packages/assets/paths.mjs";
 
 // packages/assets owns the canonical tracked model-binary root. This legacy
 // app consumes it — it does not own a second copy under its own public/.
@@ -31,8 +31,13 @@ function sharedModelLibrary(): Plugin {
         try {
           const relativePath = decodeURIComponent(new URL(request.url ?? "/", "http://localhost").pathname)
             .replace(/^\/+/, "");
-          const file = path.resolve(modelRoot, relativePath);
-          if (!file.startsWith(modelRoot) || !fs.existsSync(file) || !fs.statSync(file).isFile()) return next();
+          let file: string;
+          try {
+            file = resolvePathWithinRoot(modelRoot, relativePath, { allowRoot: false });
+          } catch {
+            return next(); // invalid or escaping path: fall through, never serve it
+          }
+          if (!fs.existsSync(file) || !fs.statSync(file).isFile()) return next();
           const type = path.extname(file) === ".glb" ? "model/gltf-binary" : "model/gltf+json";
           response.writeHead(200, { "content-type": type, "cache-control": "public, max-age=3600" });
           fs.createReadStream(file).pipe(response);

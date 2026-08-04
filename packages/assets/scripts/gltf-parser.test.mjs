@@ -19,13 +19,22 @@ test("rejects a buffer too small for a header", () => {
   assert.match(result.error, /too small/);
 });
 
-test("reports declared length mismatch without failing the parse", () => {
+test("rejects a GLB with declared length not matching actual file size (Phase 3)", () => {
   const glb = buildGlb(minimalValidGltfJson());
   // Corrupt the declared total length field only.
   glb.writeUInt32LE(glb.length + 100, 8);
   const result = parseGlbContainer(glb);
-  assert.equal(result.ok, true);
-  assert.equal(result.lengthMismatch, true);
+  assert.equal(result.ok, false);
+  assert.match(result.error, /does not match actual/);
+});
+
+test("rejects a GLB with version != 2 (Phase 3)", () => {
+  const glb = buildGlb(minimalValidGltfJson());
+  // Corrupt the version field to 1 or 3.
+  glb.writeUInt32LE(1, 4);
+  const result = parseGlbContainer(glb);
+  assert.equal(result.ok, false);
+  assert.match(result.error, /version unsupported/);
 });
 
 test("rejects a chunk whose declared length overruns the buffer", () => {

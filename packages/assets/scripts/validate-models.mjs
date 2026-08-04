@@ -16,13 +16,20 @@
 // `validateModels()` is the pure, parameterised core (no process I/O beyond
 // reading the given modelRoot) used both by the CLI entrypoint below and by
 // validate-models.test.mjs against temporary fixture roots.
+//
+// Phase 3: GLB version 2 enforced, declared-length mismatch is an error.
+// Phase 4: loose .gltf files are now fully parsed and validated.
+// Phase 5: external textures are checked for PNG/JPEG magic, embedded images
+// must decode to valid dimensions, malformed textures are errors.
+// Phase 6: required animation clips are checked outside the skinCount gate,
+// and unknown requirement asset IDs are errors (not warnings).
 
 import { createHash } from "node:crypto";
 import { readdir, readFile, stat } from "node:fs/promises";
 import { dirname, extname, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { MODEL_ROOT, resolveModelPath } from "../paths.mjs";
-import { parseGlbContainer, summariseGltf } from "./gltf-parser.mjs";
+import { parseGlbContainer, parseGltfJsonText, summariseGltf, imageDimensions } from "./gltf-parser.mjs";
 
 async function walk(dir) {
   const out = [];
@@ -68,6 +75,10 @@ export async function validateModels({ modelRoot, registry, requirements, resolv
   }
 
   const requirementsByAssetId = new Map((requirements.requirements || []).map((r) => [r.runtimeAssetId, r.requiredClips]));
+  const dedupedRequirements = new Set((requirements.requirements || []).map((r) => r.runtimeAssetId));
+  if (dedupedRequirements.size !== (requirements.requirements || []).length) {
+    err(`animation-requirements.json contains duplicate requirement entries`);
+  }
 
   const allFiles = await walk(modelRoot);
   const hashByPath = new Map();
@@ -102,6 +113,8 @@ export async function validateModels({ modelRoot, registry, requirements, resolv
   }
 
   const modelResults = [];
+  const sep = modelRoot.includes("\\") ? "\\" : "/";
+  const withinRoot = (full) => full === modelRoot || full.startsWith(modelRoot + sep);
 
   for (const asset of registry) {
     if (asset.sourceFile.includes("://")) continue;
@@ -128,11 +141,118 @@ export async function validateModels({ modelRoot, registry, requirements, resolv
     if (info.size === 0) err(`${asset.id}: source file is zero bytes: ${relPath}`);
 
     const ext = extname(relPath).toLowerCase();
+    const modelDir = dirname(absPath);
+
+    // --- Phase 4: loose .gltf files are now fully parsed and validated ---
+    if (ext === ".gltf") {
+      result.format = "gltf";
+      const buf = await readFile(absPath);
+      const textResult = parseGltfJsonText(buf.toString("utf8"));
+      if (!textResult.ok) {
+        err(`${asset.id}: glTF JSON parse failed for ${relPath}: ${textResult.error}`);
+        modelResults.push(result);
+        continue;
+      }
+
+      const summary = summariseGltf(textResult.json);
+      result.glf = {
+        sceneCount: summary.sceneCount,
+        nodeCount: summary.nodeCount,
+        meshCount: summary.meshCount,
+        materialCount: summary.materialCount,
+        textureCount: summary.textureCount,
+        imageCount: summary.imageCount,
+        skinCount: summary.skinCount,
+        joints: summary.skins.map((s) => s.jointCount),
+        animationCount: summary.animationCount,
+        animationNames: summary.animationNames,
+        totalTriangles: summary.totalTriangles,
+        malformedPrimitiveCount: summary.malformedPrimitiveCount,
+        extensionsUsed: summary.extensionsUsed,
+      };
+
+      if (summary.sceneCount === 0 && textResult.json.scene === undefined) {
+        err(`${asset.id}: no scene present in ${relPath}`);
+      }
+      if (summary.meshCount === 0) {
+        warn(`${asset.id}: no meshes found in ${relPath} (renders nothing)`);
+      }
+      if (summary.nodeCount === 0) {
+        err(`${asset.id}: no nodes present in ${relPath}`);
+      }
+      if (summary.malformedPrimitiveCount > 0) {
+        err(`${asset.id}: ${summary.malformedPrimitiveCount} primitive(s) with a TRIANGLES mode index/vertex count not divisible by 3 in ${relPath}`);
+      }
+
+      for (const uri of summary.externalBufferUris) {
+        const full = resolve(modelDir, decodeURIComponent(uri));
+        if (!withinRoot(full)) {
+          err(`${asset.id}: external buffer URI escapes canonical model root: ${uri}`);
+          continue;
+        }
+        try {
+          await stat(full);
+        } catch {
+          err(`${asset.id}: missing external buffer companion for ${relPath}: ${uri}`);
+        }
+      }
+
+      for (const img of summary.images) {
+        if (img.source === "external-uri") {
+          const full = resolve(modelDir, decodeURIComponent(img.uri));
+          if (!withinRoot(full)) {
+            err(`${asset.id}: external image URI escapes canonical model root: ${img.uri}`);
+            continue;
+          }
+          try {
+            const texBuf = await readFile(full);
+            if (texBuf.length === 0) {
+              err(`${asset.id}: external image companion is empty: ${img.uri}`);
+            } else if (!imageDimensions(texBuf)) {
+              err(`${asset.id}: external image companion is not a valid PNG/JPEG: ${img.uri}`);
+            }
+          } catch {
+            err(`${asset.id}: missing external image companion for ${relPath}: ${img.uri}`);
+          }
+        } else if (img.source === "embedded-data-uri") {
+          if (!img.dimensions) {
+            err(`${asset.id}: embedded data-URI image is not valid PNG/JPEG in ${relPath}`);
+          }
+        } else if (img.source === "embedded-bufferview") {
+          if (!img.dimensions) {
+            err(`${asset.id}: embedded bufferView image is not valid PNG/JPEG in ${relPath}`);
+          }
+        }
+      }
+
+      // Phase 6: animation requirements are checked outside the skinCount gate.
+      const required = requirementsByAssetId.get(asset.id);
+      if (required) {
+        const have = new Set(summary.animationNames);
+        const missing = required.filter((clip) => !have.has(clip));
+        const duplicates = required.length > new Set(required).size;
+        if (duplicates) {
+          err(`${asset.id}: animation-requirements.json requirement list has duplicate clip names`);
+        }
+        if (missing.length > 0) {
+          err(`${asset.id}: missing required animation clip(s): ${missing.join(", ")}`);
+        }
+        result.requiredClipsChecked = required;
+        result.requiredClipsMissing = missing;
+      }
+
+      result.duplicateOf = duplicateGroups.find((g) => g.paths.includes(relPath))?.paths.filter((p) => p !== relPath) ?? [];
+      modelResults.push(result);
+      continue;
+    }
+
     if (ext !== ".glb") {
+      err(`${asset.id}: registry sourceFile has unsupported extension ${ext}: ${relPath}`);
       result.format = ext.slice(1);
       modelResults.push(result);
       continue;
     }
+
     result.format = "glb";
 
     const buf = await readFile(absPath);
@@ -142,13 +262,7 @@ export async function validateModels({ modelRoot, registry, requirements, resolv
       modelResults.push(result);
       continue;
     }
-    if (container.lengthMismatch) {
-      warn(`${asset.id}: declared GLB length (${container.declaredLength}) != actual file length (${container.actualLength}) for ${relPath}`);
-    }
 
-    const modelDir = dirname(absPath);
-    const sep = modelRoot.includes("\\") ? "\\" : "/";
-    const withinRoot = (full) => full === modelRoot || full.startsWith(modelRoot + sep);
     const summary = summariseGltf(container.json, { binChunk: container.binChunk });
     result.glb = {
       sceneCount: summary.sceneCount,
@@ -191,6 +305,8 @@ export async function validateModels({ modelRoot, registry, requirements, resolv
         err(`${asset.id}: missing external buffer companion for ${relPath}: ${uri}`);
       }
     }
+
+    // Phase 5: external textures must have valid PNG/JPEG magic; embedded images must decode successfully.
     for (const img of summary.images) {
       if (img.source === "external-uri") {
         const full = resolve(modelDir, decodeURIComponent(img.uri));
@@ -200,37 +316,49 @@ export async function validateModels({ modelRoot, registry, requirements, resolv
         }
         try {
           const texBuf = await readFile(full);
-          if (texBuf.length === 0) err(`${asset.id}: external image companion is empty: ${img.uri}`);
+          if (texBuf.length === 0) {
+            err(`${asset.id}: external image companion is empty: ${img.uri}`);
+          } else if (!imageDimensions(texBuf)) {
+            err(`${asset.id}: external image companion is not a valid PNG/JPEG: ${img.uri}`);
+          }
         } catch {
           err(`${asset.id}: missing external image companion for ${relPath}: ${img.uri}`);
         }
-      } else if (img.source === "embedded-bufferview" || img.source === "embedded-data-uri") {
+      } else if (img.source === "embedded-data-uri") {
         if (!img.dimensions) {
-          warn(`${asset.id}: embedded image in ${relPath} could not be dimension-decoded (unsupported/unrecognised format, or corrupt)`);
+          err(`${asset.id}: embedded data-URI image is not valid PNG/JPEG in ${relPath}`);
+        }
+      } else if (img.source === "embedded-bufferview") {
+        if (!img.dimensions) {
+          err(`${asset.id}: embedded bufferView image is not valid PNG/JPEG in ${relPath}`);
         }
       }
     }
 
-    if (summary.skinCount > 0) {
-      const required = requirementsByAssetId.get(asset.id);
-      if (required) {
-        const have = new Set(summary.animationNames);
-        const missing = required.filter((clip) => !have.has(clip));
-        if (missing.length > 0) {
-          err(`${asset.id}: missing required animation clip(s): ${missing.join(", ")}`);
-        }
-        result.requiredClipsChecked = required;
-        result.requiredClipsMissing = missing;
+    // Phase 6: required animation clips are checked outside the skinCount gate.
+    const required = requirementsByAssetId.get(asset.id);
+    if (required) {
+      const have = new Set(summary.animationNames);
+      const missing = required.filter((clip) => !have.has(clip));
+      const duplicates = required.length > new Set(required).size;
+      if (duplicates) {
+        err(`${asset.id}: animation-requirements.json requirement list has duplicate clip names`);
       }
+      if (missing.length > 0) {
+        err(`${asset.id}: missing required animation clip(s): ${missing.join(", ")}`);
+      }
+      result.requiredClipsChecked = required;
+      result.requiredClipsMissing = missing;
     }
 
     result.duplicateOf = duplicateGroups.find((g) => g.paths.includes(relPath))?.paths.filter((p) => p !== relPath) ?? [];
     modelResults.push(result);
   }
 
+  // Phase 6: unknown requirement asset IDs are now errors, not warnings.
   for (const req of requirements.requirements || []) {
     if (!registry.some((a) => a.id === req.runtimeAssetId)) {
-      warn(`animation-requirements.json references unknown runtime asset ID: ${req.runtimeAssetId}`);
+      err(`animation-requirements.json references unknown runtime asset ID: ${req.runtimeAssetId}`);
     }
   }
 
@@ -274,7 +402,7 @@ async function runCli() {
       result.warnings.forEach((w) => console.log(`  - ${w}`));
     }
     if (result.errors.length === 0) {
-      const modelCount = result.modelResults.filter((r) => r.format === "glb").length;
+      const modelCount = result.modelResults.filter((r) => r.format === "glb" || r.format === "gltf").length;
       console.log(`\n✅ Validated ${modelCount} file-backed registered models across ${result.totalLibraryFiles} files in the canonical library.`);
       console.log(`   ${result.warnings.length} warning(s). This does not constitute commercial-release licence approval.`);
     }

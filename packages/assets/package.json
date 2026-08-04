@@ -16,7 +16,7 @@
     "inspect": "node scripts/inspect.mjs",
     "test": "node --test \"**/*.test.mjs\"",
     "verify": "pnpm run catalog && pnpm run validate && pnpm run validate:models && pnpm run validate:sources && pnpm run test && tsc --noEmit",
-    "build": "pnpm run catalog && pnpm run validate && tsc --noEmit",
+    "build": "pnpm run catalog && pnpm run validate && pnpm run validate:models && pnpm run validate:sources && tsc --noEmit",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

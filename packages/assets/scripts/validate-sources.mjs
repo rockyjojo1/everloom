@@ -4,20 +4,23 @@
 // manifest. Node built-ins only.
 //
 // This validator checks that evidence records are internally well-formed
-// and that referenced paths/commits exist. It does NOT and cannot verify
-// external legal licence approval — see docs/authority/ASSET_SOURCES.md.
-// A `repository_claim_only` evidenceStatus or missing archive evidence is
-// reported as a warning, not an error, and never treated as commercial
-// approval.
+// and that referenced paths/commits exist AND are tracked by Git. It does
+// NOT and cannot verify external legal licence approval — see
+// docs/authority/ASSET_SOURCES.md. A `repository_claim_only` evidenceStatus
+// or missing archive evidence is reported as a warning, not an error, and
+// never treated as commercial approval.
 //
 // `validateSources()` is the pure, parameterised core used both by the CLI
-// entrypoint below and by validate-sources.test.mjs.
+// entrypoint below and by validate-sources.test.mjs. Filesystem existence
+// and Git tracking are deliberately separate facts (`pathExists` vs.
+// `isTrackedPath`) — a file that merely exists on disk (untracked, or
+// .gitignore'd) is not proof it is part of the committed repository.
 
 import { execFileSync } from "node:child_process";
 import { readFile, stat } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
+import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { REPOSITORY_ROOT } from "../paths.mjs";
+import { REPOSITORY_ROOT, MODEL_ROOT_RELATIVE } from "../paths.mjs";
 
 const EVIDENCE_KINDS = new Set(["repository_file", "source_code", "git_commit"]);
 const EVIDENCE_STATUSES = new Set([
@@ -27,36 +30,123 @@ const EVIDENCE_STATUSES = new Set([
   "missing",
   "conflicting",
 ]);
+const STRONG_EVIDENCE_STATUSES = new Set(["verified_local_evidence", "verified_embedded_metadata"]);
+
+/** True if `relPath`, resolved against `repoRoot`, stays within `repoRoot`. */
+function isWithinRepo(repoRoot, relPath) {
+  if (typeof relPath !== "string" || relPath.length === 0) return false;
+  if (isAbsolute(relPath)) return false;
+  const full = resolve(repoRoot, relPath);
+  const rel = relative(repoRoot, full);
+  return rel === "" || (!rel.startsWith("..") && !isAbsolute(rel));
+}
+
+/**
+ * Build the default, real-filesystem/real-Git resolver set bound to
+ * `repoRoot`. Tests inject their own object with the same shape instead of
+ * calling this.
+ */
+function makeDefaultResolvers(repoRoot) {
+  return {
+    pathExists: async (relPath) => {
+      if (!isWithinRepo(repoRoot, relPath)) return false;
+      try {
+        await stat(resolve(repoRoot, relPath));
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    isRegularFile: async (relPath) => {
+      if (!isWithinRepo(repoRoot, relPath)) return false;
+      try {
+        const s = await stat(resolve(repoRoot, relPath));
+        return s.isFile();
+      } catch {
+        return false;
+      }
+    },
+    // Git ls-files --error-unmatch reports success only for a path that is
+    // actually tracked in the index — untracked files, ignored files, and
+    // files that merely exist on disk all fail this, unlike a bare stat().
+    isTrackedPath: (relPath) => {
+      if (!isWithinRepo(repoRoot, relPath)) return false;
+      try {
+        execFileSync("git", ["ls-files", "--error-unmatch", "--", relPath], {
+          cwd: repoRoot,
+          stdio: "ignore",
+          shell: false,
+        });
+        return true;
+      } catch {
+        return false;
+      }
+    },
+    // At least one tracked file exists at or beneath relDir.
+    hasTrackedFileUnder: (relDir) => {
+      if (!isWithinRepo(repoRoot, relDir)) return false;
+      try {
+        const out = execFileSync("git", ["ls-files", "--", relDir], {
+          cwd: repoRoot,
+          encoding: "utf8",
+          shell: false,
+        });
+        return out.trim().length > 0;
+      } catch {
+        return false;
+      }
+    },
+    commitResolver: (commit) => {
+      try {
+        execFileSync("git", ["cat-file", "-e", `${commit}^{commit}`], { cwd: repoRoot, stdio: "ignore", shell: false });
+        return true;
+      } catch {
+        return false;
+      }
+    },
+  };
+}
 
 /**
  * @param {object} opts
  * @param {object} opts.sources parsed asset-sources.json
  * @param {Array} opts.registry parsed registry.json
  * @param {{entries: Array}} opts.manifest parsed visual-production-manifest.json
- * @param {string} opts.repoRoot absolute repository root, for resolving repository_file/source_code paths and canonicalLocalRoots
- * @param {(commit: string) => boolean} [opts.commitResolver] override for git commit resolution (defaults to a real `git cat-file` check against repoRoot)
+ * @param {string} opts.repoRoot absolute repository root
+ * @param {object} [opts.resolvers] override any of pathExists/isRegularFile/
+ *   isTrackedPath/hasTrackedFileUnder/commitResolver for fixture tests;
+ *   unspecified functions fall back to the real filesystem/Git defaults.
  */
-export async function validateSources({ sources, registry, manifest, repoRoot, commitResolver }) {
+export async function validateSources({ sources, registry, manifest, repoRoot, resolvers = {} }) {
   const errors = [];
   const warnings = [];
   const err = (msg) => errors.push(msg);
   const warn = (msg) => warnings.push(msg);
 
-  const resolveCommit = commitResolver || ((commit) => {
-    try {
-      execFileSync("git", ["cat-file", "-e", `${commit}^{commit}`], { cwd: repoRoot, stdio: "ignore" });
-      return true;
-    } catch {
-      return false;
-    }
-  });
+  const defaults = makeDefaultResolvers(repoRoot);
+  const pathExists = resolvers.pathExists || defaults.pathExists;
+  const isRegularFile = resolvers.isRegularFile || defaults.isRegularFile;
+  const isTrackedPath = resolvers.isTrackedPath || defaults.isTrackedPath;
+  const hasTrackedFileUnder = resolvers.hasTrackedFileUnder || defaults.hasTrackedFileUnder;
+  const resolveCommit = resolvers.commitResolver || defaults.commitResolver;
 
-  async function pathExists(relPath) {
-    try {
-      await stat(resolve(repoRoot, relPath));
-      return true;
-    } catch {
-      return false;
+  /** A file-backed evidence/manifest path must exist, be a regular file, be repo-contained, and be Git-tracked. */
+  async function requireTrackedFile(relPath, label) {
+    if (!isWithinRepo(repoRoot, relPath)) {
+      err(`${label}: path is not contained within the repository: ${relPath}`);
+      return;
+    }
+    if (!(await pathExists(relPath))) {
+      err(`${label}: path does not exist: ${relPath}`);
+      return;
+    }
+    if (!(await isRegularFile(relPath))) {
+      err(`${label}: path exists but is not a regular file: ${relPath}`);
+      return;
+    }
+    if (!(await isTrackedPath(relPath))) {
+      err(`${label}: path exists on disk but is not tracked by Git (untracked or ignored): ${relPath}`);
+      return;
     }
   }
 
@@ -76,6 +166,16 @@ export async function validateSources({ sources, registry, manifest, repoRoot, c
     if (!idSet.has(pack)) err(`Registry pack "${pack}" has no matching source record in asset-sources.json`);
   }
 
+  // Registry IDs grouped by their declared pack, for the source<->registry
+  // cross-checks below.
+  const registryIdsByPack = new Map();
+  const registryById = new Map();
+  for (const asset of registry) {
+    registryById.set(asset.id, asset);
+    if (!registryIdsByPack.has(asset.pack)) registryIdsByPack.set(asset.pack, new Set());
+    registryIdsByPack.get(asset.pack).add(asset.id);
+  }
+
   for (const source of sources.sources) {
     const label = source.sourceId;
 
@@ -91,6 +191,9 @@ export async function validateSources({ sources, registry, manifest, repoRoot, c
     if (source.evidenceStatus === "conflicting") {
       warn(`${label}: evidenceStatus is conflicting — local records disagree; see notes.`);
     }
+    if (STRONG_EVIDENCE_STATUSES.has(source.evidenceStatus) && (source.licenceEvidence || []).length === 0) {
+      err(`${label}: evidenceStatus is "${source.evidenceStatus}" but licenceEvidence is empty — a strong evidence status requires at least one evidence record`);
+    }
 
     if (registryPacks.has(label) && !source.claimedLicence) {
       err(`${label}: is referenced by the runtime registry but has no claimedLicence`);
@@ -101,15 +204,20 @@ export async function validateSources({ sources, registry, manifest, repoRoot, c
         err(`${label}: licenceEvidence has invalid kind "${ev.kind}"`);
         continue;
       }
+      const hasPath = Object.prototype.hasOwnProperty.call(ev, "path") && ev.path != null;
+      const hasCommit = Object.prototype.hasOwnProperty.call(ev, "commit") && ev.commit != null;
+      if (hasPath && hasCommit) {
+        err(`${label}: evidence record has both "path" and "commit" — an evidence record must use exactly one (found path=${JSON.stringify(ev.path)}, commit=${JSON.stringify(ev.commit)})`);
+        continue;
+      }
       if (ev.kind === "git_commit") {
-        if (!ev.commit) {
+        if (!hasCommit) {
           err(`${label}: git_commit evidence record missing "commit" field`);
         } else if (!resolveCommit(ev.commit)) {
           err(`${label}: git_commit evidence references a commit that does not resolve in this repository: ${ev.commit}`);
         }
-        if (ev.path) err(`${label}: git_commit evidence record must not have a "path" field (found ${JSON.stringify(ev.path)}) — use "commit" only`);
       } else {
-        if (!ev.path) {
+        if (!hasPath) {
           err(`${label}: ${ev.kind} evidence record missing "path" field`);
           continue;
         }
@@ -117,9 +225,7 @@ export async function validateSources({ sources, registry, manifest, repoRoot, c
           err(`${label}: ${ev.kind} evidence "path" field looks like prose, not a path: ${JSON.stringify(ev.path)}`);
           continue;
         }
-        if (!(await pathExists(ev.path))) {
-          err(`${label}: ${ev.kind} evidence path does not exist: ${ev.path}`);
-        }
+        await requireTrackedFile(ev.path, `${label}: ${ev.kind} evidence`);
       }
     }
 
@@ -127,8 +233,41 @@ export async function validateSources({ sources, registry, manifest, repoRoot, c
       if (root.startsWith("apps/client3d/")) {
         err(`${label}: canonicalLocalRoots still points at legacy apps/client3d path: ${root}`);
       }
-      if (!(await pathExists(root))) {
-        warn(`${label}: canonicalLocalRoots entry does not exist on disk: ${root}`);
+      if (!isWithinRepo(repoRoot, root)) {
+        err(`${label}: canonicalLocalRoots entry is not contained within the repository: ${root}`);
+        continue;
+      }
+      const hasFileBackedAssets = [...(registryIdsByPack.get(label) || [])]
+        .some((id) => !registryById.get(id).sourceFile.includes("://"));
+      if (hasFileBackedAssets && !root.startsWith(`${MODEL_ROOT_RELATIVE}/`) && root !== MODEL_ROOT_RELATIVE) {
+        err(`${label}: canonicalLocalRoots entry for a file-backed pack must resolve beneath ${MODEL_ROOT_RELATIVE}: ${root}`);
+        continue;
+      }
+      if (!(await hasTrackedFileUnder(root))) {
+        warn(`${label}: canonicalLocalRoots entry has no tracked file beneath it: ${root}`);
+      }
+    }
+
+    // Source <-> registry cross-checks (Phase 7).
+    const declaredRuntimeIds = source.runtimeAssetIds || [];
+    const dedupedRuntimeIds = new Set(declaredRuntimeIds);
+    if (dedupedRuntimeIds.size !== declaredRuntimeIds.length) {
+      err(`${label}: runtimeAssetIds contains duplicate entries`);
+    }
+    for (const rid of declaredRuntimeIds) {
+      const asset = registryById.get(rid);
+      if (!asset) {
+        err(`${label}: runtimeAssetIds lists "${rid}", which does not exist in the runtime registry`);
+        continue;
+      }
+      if (asset.pack !== label) {
+        err(`${label}: runtimeAssetIds lists "${rid}", which belongs to pack "${asset.pack}", not "${label}"`);
+      }
+    }
+    const actualIdsForPack = registryIdsByPack.get(label) || new Set();
+    for (const rid of actualIdsForPack) {
+      if (!dedupedRuntimeIds.has(rid)) {
+        err(`${label}: registry asset "${rid}" belongs to this pack but is missing from runtimeAssetIds`);
       }
     }
   }
@@ -149,12 +288,10 @@ export async function validateSources({ sources, registry, manifest, repoRoot, c
       manifestSourcePathChecked++;
       if (entry.currentSource.includes("/dist/")) {
         err(`Manifest entry ${entry.id}: currentSource points at a build-output (dist) path: ${entry.currentSource}`);
-      }
-      if (!(await pathExists(entry.currentSource))) {
-        err(`Manifest entry ${entry.id}: currentSource does not resolve to a tracked file: ${entry.currentSource}`);
-      }
-      if (entry.currentSource.startsWith("apps/client3d/")) {
+      } else if (entry.currentSource.startsWith("apps/client3d/")) {
         err(`Manifest entry ${entry.id}: currentSource still points at a legacy path: ${entry.currentSource}`);
+      } else {
+        await requireTrackedFile(entry.currentSource, `Manifest entry ${entry.id}: currentSource`);
       }
     }
     if (entry.currentStatus === "procedural-placeholder" &&
@@ -193,7 +330,7 @@ async function runCli() {
     result.warnings.forEach((w) => console.log(`  - ${w}`));
   }
   if (result.errors.length === 0) {
-    console.log(`\n✅ Source and manifest evidence structurally valid. ${result.warnings.length} warning(s).`);
+    console.log(`\n✅ Source and manifest evidence structurally valid, and every checked path is Git-tracked. ${result.warnings.length} warning(s).`);
     console.log(`   This is not commercial-release legal approval — see docs/authority/ASSET_SOURCES.md.`);
   }
   process.exit(result.errors.length > 0 ? 1 : 0);

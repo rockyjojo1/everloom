@@ -154,12 +154,12 @@ test("passes when all required animation clips are present", () => withFixtureRo
   assert.deepEqual(result.errors, []);
 }));
 
-test("warns (does not error) when animation-requirements.json references an unknown asset ID", () => withFixtureRoot(async (root) => {
+test("errors (Phase 6) when animation-requirements.json references an unknown asset ID", () => withFixtureRoot(async (root) => {
   const registry = [];
   const requirements = { requirements: [{ runtimeAssetId: "no.such.asset", requiredClips: ["Idle"] }] };
   const result = await validateModels({ modelRoot: root, registry, requirements });
-  assert.deepEqual(result.errors, []);
-  assert.ok(result.warnings.some((w) => /references unknown runtime asset ID/.test(w)));
+  assert.ok(result.errors.some((e) => /references unknown runtime asset ID/.test(e)));
+  assert.deepEqual(result.warnings, []);
 }));
 
 test("validates the real player.adventurer and enemy.skeleton-warrior against the actual canonical library", async () => {
