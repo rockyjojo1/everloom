@@ -77,4 +77,12 @@ export interface BakeoffMetrics {
   viewport: ViewportMetrics;
   contextLost: boolean;
   lastUpdatedAtMs: number;
+  firstCompleteFrameRendered: boolean;
+  grassInstances: number;
+  additionalTrees: number;
+  additionalRocks: number;
+  shadowCastingMeshes: number;
+  shadowCasterInstanceIds?: string[];
+  maraShawlAttached: boolean;
+  maraShawlParentBone: string | null;
 }

@@ -6,79 +6,15 @@ import { getProductionRoomLayout, getCharacterPlacements, getProfileSettings, RO
 import { instantiateAsset } from "../world/assets";
 import "./production-room.css";
 
-function attachAccessoryToBone(root: THREE.Object3D, accessory: THREE.Object3D, boneCandidates: string[]): string | null {
+function attachAccessoryToBone(root: THREE.Object3D, accessory: THREE.Object3D, boneCandidates: string[]): boolean {
   for (const boneName of boneCandidates) {
     const bone = root.getObjectByName(boneName);
     if (bone) {
       bone.add(accessory);
-      return boneName;
+      return true;
     }
   }
-  return null;
-}
-
-function deterministicHash(index: number, seed: number): number {
-  let x = Math.sin(index * 12.9898 + seed * 78.233) * 43758.5453;
-  return x - Math.floor(x);
-}
-
-function createGrassInstancedMesh(count: number, profileSettings: any): { mesh: THREE.InstancedMesh; geometry: THREE.BufferGeometry; material: THREE.Material } {
-  const geometry = new THREE.PlaneGeometry(0.15, 0.15, 1, 1);
-  const material = new THREE.MeshStandardMaterial({
-    color: 0x3d8f2a,
-    roughness: 0.8,
-    metalness: 0,
-  });
-
-  const mesh = new THREE.InstancedMesh(geometry, material, count);
-  const matrix = new THREE.Matrix4();
-
-  const quat = new THREE.Quaternion();
-  const scale3 = new THREE.Vector3();
-  for (let i = 0; i < count; i++) {
-    const x = (deterministicHash(i, 1001) * 44) - 22;
-    const z = (deterministicHash(i, 1002) * 28) - 14;
-
-    // Avoid river
-    if (Math.abs(z - ROOM_DIMENSIONS.riverCentreZ) < 4) continue;
-
-    const scale = 0.8 + deterministicHash(i, 1003) * 0.4;
-    const rotY = deterministicHash(i, 1004) * Math.PI * 2;
-
-    quat.setFromAxisAngle(new THREE.Vector3(0, 1, 0), rotY);
-    scale3.set(scale, scale, scale);
-
-    matrix.identity();
-    matrix.compose(new THREE.Vector3(x, 0, z), quat, scale3);
-
-    mesh.setMatrixAt(i, matrix);
-  }
-
-  mesh.receiveShadow = true;
-  mesh.castShadow = false;
-
-  return { mesh, geometry, material };
-}
-
-function shouldCastShadow(instanceId: string, profile: ProductionRoomProfile): boolean {
-  const balancedShadowCasters = [
-    "player",
-    "mara",
-    "skeleton",
-    "cottage-main",
-    "bridge-main",
-    "campfire-main",
-    "oak-a",
-    "oak-b",
-    "oak-c",
-    "canopy-northwest",
-  ];
-
-  if (profile === "quality") {
-    return !instanceId.startsWith("additional-") && !instanceId.startsWith("water-") && !instanceId.startsWith("cliff-");
-  }
-
-  return balancedShadowCasters.includes(instanceId);
+  return false;
 }
 
 interface ProductionRoomLandscapeProps {
@@ -93,8 +29,11 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
   const clockRef = useRef(new THREE.Clock());
   const animationFrameRef = useRef<number | null>(null);
+  const contextLostHandlerRef = useRef<((event: Event) => void) | null>(null);
 
   const [ready, setReady] = useState(false);
+  const [loadedAssets, setLoadedAssets] = useState<string[]>([]);
+  const [failedAssets, setFailedAssets] = useState<string[]>([]);
   const [metrics, setMetrics] = useState<any>(null);
 
   const metricsRef = useRef<ProductionRoomMetricsCollector | null>(null);
@@ -110,9 +49,12 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
   const listenersRef = useRef<{ target: any; event: string; handler: (e: any) => void }[]>([]);
   const cameraFollowVectorRef = useRef(new THREE.Vector3());
 
-  const ownedGeometriesRef = useRef<Set<THREE.BufferGeometry>>(new Set());
-  const ownedMaterialsRef = useRef<Set<THREE.Material>>(new Set());
-  const firstFrameRenderedRef = useRef(false);
+  const handleProfileChange = (newProfile: ProductionRoomProfile) => {
+    const params = new URLSearchParams(location.search);
+    params.set("profile", newProfile);
+    params.set("bakeoff", "meadowrest");
+    location.replace(`${location.pathname}?${params.toString()}`);
+  };
 
   useEffect(() => {
     if (!containerRef.current || ready) return;
@@ -169,9 +111,6 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
         ground.receiveShadow = true;
         scene.add(ground);
 
-        ownedGeometriesRef.current.add(groundGeometry);
-        ownedMaterialsRef.current.add(groundMaterial);
-
         const waterGeometry = new THREE.PlaneGeometry(ROOM_DIMENSIONS.riverWidth, ROOM_DIMENSIONS.riverDepth);
         const waterMaterial = new THREE.ShaderMaterial({
           uniforms: {
@@ -201,21 +140,8 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
         water.position.z = ROOM_DIMENSIONS.riverCentreZ;
         water.position.y = 0.01;
         water.rotation.x = -Math.PI / 2;
+        water.receiveShadow = false;
         scene.add(water);
-
-        ownedGeometriesRef.current.add(waterGeometry);
-        ownedMaterialsRef.current.add(waterMaterial);
-
-        // Add grass
-        const grassCount = profile === "balanced" ? 100 : 220;
-        const grassMesh = createGrassInstancedMesh(grassCount, profileSettings);
-        scene.add(grassMesh.mesh);
-        ownedGeometriesRef.current.add(grassMesh.geometry);
-        ownedMaterialsRef.current.add(grassMesh.material);
-
-        if (metricsRef.current) {
-          metricsRef.current.grassInstances = grassCount;
-        }
 
         let placementLoaded = 0;
         const loadPlacement = async (placement: any) => {
@@ -232,31 +158,37 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
             obj.rotation.y = placement.rotationY;
             obj.scale.multiplyScalar(placement.scale);
 
-            const castShadow = shouldCastShadow(placement.instance, profile);
             obj.traverse((child: THREE.Object3D) => {
               if (child instanceof THREE.Mesh) {
-                child.castShadow = castShadow;
-                child.receiveShadow = true;
+                if (placement.castShadow) child.castShadow = true;
+                if (placement.receiveShadow) child.receiveShadow = true;
               }
             });
 
             scene.add(obj);
             assetInstancesRef.current.set(placement.instance, obj);
             metricsRef.current?.assetLoaded(placement.runtimeAssetId);
+            setLoadedAssets((prev) => {
+              if (!prev.includes(placement.runtimeAssetId)) {
+                return [...prev, placement.runtimeAssetId];
+              }
+              return prev;
+            });
             placementLoaded++;
           } catch (err) {
             console.error(`Failed to load ${placement.runtimeAssetId}:`, err);
             metricsRef.current?.assetFailed(placement.runtimeAssetId);
+            setFailedAssets((prev) => {
+              if (!prev.includes(placement.runtimeAssetId)) {
+                return [...prev, placement.runtimeAssetId];
+              }
+              return prev;
+            });
             placementLoaded++;
           }
         };
 
         await Promise.all(layout.placements.map(loadPlacement));
-
-        if (metricsRef.current) {
-          metricsRef.current.additionalTrees = layout.placements.filter((p) => p.role.startsWith("additional-tree")).length;
-          metricsRef.current.additionalRocks = layout.placements.filter((p) => p.role.startsWith("additional-rock")).length;
-        }
 
         let charLoaded = 0;
         const loadCharacter = async (char: any, index: number) => {
@@ -285,7 +217,6 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
                 const next = child.material.clone();
                 next.color.multiply(new THREE.Color(char.tint));
                 child.material = next;
-                ownedMaterialsRef.current.add(next);
                 child.castShadow = true;
                 child.receiveShadow = true;
               }
@@ -310,14 +241,7 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
               playerIdleActionRef.current = mixer.clipAction(idleClip);
               playerWalkActionRef.current = mixer.clipAction(walkClip);
               playerIdleActionRef.current.play();
-            } else if (index === 1) {
-              // Mara
-              const idleClip = clips.find((c: any) => c.name === "Idle");
-              if (idleClip) {
-                mixer.clipAction(idleClip).play();
-              }
             } else {
-              // Skeleton
               const idleClip = clips.find((c: any) => c.name === "Idle");
               if (idleClip) {
                 mixer.clipAction(idleClip).play();
@@ -329,26 +253,16 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
                 const accessoryResult = await instantiateAsset(char.accessory);
                 if (mounted && accessoryResult && "object" in accessoryResult) {
                   const accessory = accessoryResult.object as THREE.Object3D;
-                  accessory.name = "mara-shawl-accessory";
                   accessory.traverse((child: THREE.Object3D) => {
                     if (child instanceof THREE.Mesh) {
                       child.castShadow = true;
                       child.receiveShadow = true;
                     }
                   });
-
-                  const chestBoneCandidates = ["chest", "spine"];
-                  const attachedBone = attachAccessoryToBone(obj, accessory, chestBoneCandidates);
-
-                  if (!attachedBone) {
-                    throw new Error(`Shawl attachment failed: no approved bone found (tried: ${chestBoneCandidates.join(", ")})`);
+                  const chestBoneCandidates = ["chest", "spine", "torso"];
+                  if (!attachAccessoryToBone(obj, accessory, chestBoneCandidates)) {
+                    obj.add(accessory);
                   }
-
-                  if (metricsRef.current) {
-                    metricsRef.current.maraShawlAttached = true;
-                    metricsRef.current.maraShawlParentBone = attachedBone;
-                  }
-
                   metricsRef.current?.assetLoaded(char.accessory);
                 }
               } catch (err) {
@@ -390,6 +304,7 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
             metricsRef.current.contextLost = true;
           }
         };
+        contextLostHandlerRef.current = handleContextLoss;
         renderer.domElement.addEventListener("webglcontextlost", handleContextLoss);
         listenersRef.current.push({ target: renderer.domElement, event: "webglcontextlost", handler: handleContextLoss });
 
@@ -457,7 +372,15 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
         window.addEventListener("keydown", handleKeyDown);
         listenersRef.current.push({ target: window, event: "keydown", handler: handleKeyDown });
 
-        let frameCount = 0;
+        const checkReady = () => {
+          if (!metricsRef.current) return false;
+          const allAssets = metricsRef.current.assetsExpected;
+          const allLoaded = metricsRef.current.assetsLoaded;
+          const failed = metricsRef.current.failedAssets;
+          return allAssets.length > 0 && allLoaded.length === allAssets.length && failed.length === 0;
+        };
+
+        let readyMarked = false;
         const animate = () => {
           if (!mounted) return;
           animationFrameRef.current = requestAnimationFrame(animate);
@@ -529,7 +452,7 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
 
           if (metricsRef.current) {
             const rendererInfo = (renderer.info as any).render;
-            metricsRef.current.updateMetrics(
+            const newMetrics = metricsRef.current.updateMetrics(
               {
                 calls: rendererInfo.calls,
                 triangles: rendererInfo.triangles,
@@ -543,49 +466,28 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
               window.devicePixelRatio,
               Math.min(window.devicePixelRatio, profileSettings.pixelRatioCap)
             );
-
             const now = performance.now();
             if (now - lastUiMetricsUpdateRef.current >= 250) {
               lastUiMetricsUpdateRef.current = now;
-              setMetrics(metricsRef.current.updateMetrics(
-                {
-                  calls: rendererInfo.calls,
-                  triangles: rendererInfo.triangles,
-                  points: rendererInfo.points,
-                  lines: rendererInfo.lines,
-                  geometries: (renderer.info as any).memory.geometries,
-                  textures: (renderer.info as any).memory.textures,
-                },
-                window.innerWidth,
-                window.innerHeight,
-                window.devicePixelRatio,
-                Math.min(window.devicePixelRatio, profileSettings.pixelRatioCap)
-              ));
+              setMetrics(newMetrics);
             }
-          }
 
-          renderer.render(scene, camera);
-
-          frameCount++;
-          if (frameCount === 1 && metricsRef.current && !ready) {
-            firstFrameRenderedRef.current = true;
-            metricsRef.current.firstCompleteFrameRendered = true;
-
-            const allAssets = metricsRef.current.assetsExpected;
-            const loadedAssets = metricsRef.current.assetsLoaded;
-            const failed = metricsRef.current.failedAssets;
-
-            const assetsMatch = new Set(allAssets).size === new Set(loadedAssets).size &&
-              allAssets.every((a) => loadedAssets.includes(a)) &&
-              failed.length === 0;
-
-            if (assetsMatch) {
-              metricsRef.current.markReady();
+            if (!readyMarked && checkReady() && metricsRef.current.readyAtMs) {
+              readyMarked = true;
               setReady(true);
               container.setAttribute("data-bakeoff-ready", "true");
             }
           }
+
+          renderer.render(scene, camera);
         };
+
+        if (checkReady() && !readyMarked) {
+          metricsRef.current?.markReady();
+          readyMarked = true;
+          setReady(true);
+          container.setAttribute("data-bakeoff-ready", "true");
+        }
 
         animate();
 
@@ -600,9 +502,8 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
         listenersRef.current.push({ target: window, event: "resize", handler: handleResize });
       } catch (err) {
         console.error("Failed to initialize production room:", err);
-        if (metricsRef.current) {
-          metricsRef.current.assetFailed("initialization-error");
-        }
+        metricsRef.current?.assetFailed("initialization-error");
+        setFailedAssets((prev) => [...new Set([...prev, "initialization-error"])]);
       }
     }
 
@@ -622,8 +523,20 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
         rendererRef.current.domElement.remove();
       }
 
-      ownedGeometriesRef.current.forEach((geom) => geom.dispose());
-      ownedMaterialsRef.current.forEach((mat) => mat.dispose());
+      if (sceneRef.current) {
+        sceneRef.current.traverse((obj) => {
+          if (obj instanceof THREE.Mesh) {
+            obj.geometry.dispose();
+            if (obj.material instanceof THREE.Material) {
+              if (Array.isArray(obj.material)) {
+                obj.material.forEach((m) => m.dispose());
+              } else {
+                obj.material.dispose();
+              }
+            }
+          }
+        });
+      }
 
       animationMixersRef.current.forEach((mixer) => mixer.uncacheRoot(mixer.getRoot()));
     };
@@ -644,13 +557,6 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
         metricsRef.current.currentPlayerAnimation = "Idle";
       }
     }
-  };
-
-  const handleProfileChange = (newProfile: ProductionRoomProfile) => {
-    const params = new URLSearchParams(location.search);
-    params.set("profile", newProfile);
-    params.set("bakeoff", "meadowrest");
-    location.replace(`${location.pathname}?${params.toString()}`);
   };
 
   return (
@@ -697,8 +603,24 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
                 <span className="value">{metrics.p95FrameMs?.toFixed(0) ?? "-"}</span>
               </div>
               <div className="metric">
-                <span className="label">Grass</span>
-                <span className="value">{metrics.grassInstances}</span>
+                <span className="label">Calls</span>
+                <span className="value">{metrics.renderer.calls}</span>
+              </div>
+              <div className="metric">
+                <span className="label">Triangles</span>
+                <span className="value">{(metrics.renderer.triangles / 1000).toFixed(0)}K</span>
+              </div>
+              <div className="metric">
+                <span className="label">Textures</span>
+                <span className="value">{metrics.renderer.textures}</span>
+              </div>
+              <div className="metric">
+                <span className="label">Load</span>
+                <span className="value">{metrics.loadMs}ms</span>
+              </div>
+              <div className="metric">
+                <span className="label">Anim</span>
+                <span className="value">{metrics.currentPlayerAnimation}</span>
               </div>
             </div>
           )}

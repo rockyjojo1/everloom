@@ -23,6 +23,14 @@ export class ProductionRoomMetricsCollector {
   playerPosition = { x: 0, y: 0, z: 0 };
   movementTarget: { x: number; y: number; z: number } | null = null;
   contextLost = false;
+  firstCompleteFrameRendered = false;
+  grassInstances = 0;
+  additionalTrees = 0;
+  additionalRocks = 0;
+  shadowCastingMeshes = 0;
+  shadowCasterInstanceIds: string[] = [];
+  maraShawlAttached = false;
+  maraShawlParentBone: string | null = null;
 
   constructor(
     private profile: ProductionRoomProfile,
@@ -131,6 +139,14 @@ export class ProductionRoomMetricsCollector {
       },
       contextLost: this.contextLost,
       lastUpdatedAtMs: Date.now(),
+      firstCompleteFrameRendered: this.firstCompleteFrameRendered,
+      grassInstances: this.grassInstances,
+      additionalTrees: this.additionalTrees,
+      additionalRocks: this.additionalRocks,
+      shadowCastingMeshes: this.shadowCastingMeshes,
+      shadowCasterInstanceIds: this.shadowCasterInstanceIds,
+      maraShawlAttached: this.maraShawlAttached,
+      maraShawlParentBone: this.maraShawlParentBone,
     };
 
     // Expose globally for Playwright and monitoring
