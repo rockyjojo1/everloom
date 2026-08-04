@@ -16,7 +16,7 @@
     "validate:visual-production": "node ../../art-direction/scripts/validate-visual-production-manifest.mjs",
     "test:visual-production": "node ../../art-direction/scripts/validate-visual-production-manifest.test.mjs && node ../../art-direction/scripts/validate-visual-production-integration.test.mjs",
     "verify:visual-foundation": "node scripts/verify-visual-foundation.mjs",
-    "test:bakeoff": "playwright test tests/meadowrest-production-room.spec.ts",
+    "test:bakeoff": "playwright test tests/meadowrest-production-room.spec.ts tests/meadowrest-production-room-audit.spec.ts",
     "capture:bakeoff": "node scripts/capture-production-room.mjs"
   },
   "dependencies": {

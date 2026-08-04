@@ -254,6 +254,24 @@ try {
   for (const capture of captures) {
     const result = { passed: true, issues: [], metrics: capture.metrics };
 
+    // Hard check: ready time
+    if (capture.metrics.loadMs > 12000) {
+      result.passed = false;
+      result.issues.push(`Load time ${capture.metrics.loadMs}ms exceeds 12s hard limit`);
+    }
+
+    // Hard check: asset set equality
+    const expectedSet = new Set(capture.metrics.assetsExpected);
+    const loadedSet = new Set(capture.metrics.assetsLoaded);
+    if (expectedSet.size !== loadedSet.size ||
+        ![...expectedSet].every(id => loadedSet.has(id))) {
+      result.passed = false;
+      const missing = [...expectedSet].filter(id => !loadedSet.has(id));
+      const extra = [...loadedSet].filter(id => !expectedSet.has(id));
+      if (missing.length) result.issues.push(`Missing assets: ${missing.join(", ")}`);
+      if (extra.length) result.issues.push(`Extra assets loaded: ${extra.join(", ")}`);
+    }
+
     if (capture.metrics.failedAssets > 0) {
       result.passed = false;
       result.issues.push(`Required assets failed to load: ${capture.metrics.failedAssetIds.join(", ")}`);
