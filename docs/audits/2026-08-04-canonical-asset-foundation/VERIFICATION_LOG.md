@@ -313,8 +313,12 @@ pnpm --filter @everloom/assets run verify
 ```
 
 **Exact final commit for Phase 10 fresh-worktree proof**:
-SHA `<to-be-recorded-after-Step-9>`
+SHA `f38b670f435c059edee91a47876c78c5004adce6`
 
 This correction enables Vercel shallow-clone builds to proceed with
 appropriate warnings instead of errors, while maintaining complete
 backward compatibility with full-history local and CI checkouts.
+
+The supervisor independently verified Vercel deployment success for this exact
+SHA. Gate 3 was accepted on 2026-08-04. This does not prove physical-iPhone
+behaviour.

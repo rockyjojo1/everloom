@@ -533,3 +533,78 @@ test("simulated shallow validation of real registry: zero errors, unresolved his
   assert.deepEqual(result.errors, []);
   assert.ok(result.warnings.some((w) => /could not be verified in this shallow repository/.test(w)));
 });
+
+// --- Real Git object type verification (Phase 3A) ---
+
+test("commit object passes git_commit evidence verification", () => withRealGitRepo(async (repoRoot) => {
+  // Create a test file and commit it to get a real commit SHA.
+  await mkdir(join(repoRoot, "test-dir"), { recursive: true });
+  await writeFile(join(repoRoot, "test-dir/file.txt"), "test content");
+  git(repoRoot, ["add", "test-dir/file.txt"]);
+  const commitOutput = git(repoRoot, ["commit", "-m", "test commit"]);
+  // Extract the commit SHA from the first line of commit output.
+  const commitSha = git(repoRoot, ["rev-parse", "HEAD"]).trim();
+
+  const sources = baseSources({
+    sources: [{
+      sourceId: "test-pack", evidenceStatus: "verified_local_evidence", claimedLicence: "CC0-1.0",
+      licenceEvidence: [{ kind: "git_commit", commit: commitSha }], canonicalLocalRoots: [], runtimeAssetIds: [],
+    }],
+  });
+
+  const result = await validateSources({
+    sources, registry: [], manifest: EMPTY_MANIFEST, repoRoot,
+  });
+
+  assert.deepEqual(result.errors, [], `Expected no errors for commit object, got: ${result.errors.join("; ")}`);
+}));
+
+test("blob object fails git_commit evidence verification", () => withRealGitRepo(async (repoRoot) => {
+  // Create a test file and commit it.
+  await mkdir(join(repoRoot, "test-dir"), { recursive: true });
+  await writeFile(join(repoRoot, "test-dir/file.txt"), "test content");
+  git(repoRoot, ["add", "test-dir/file.txt"]);
+  git(repoRoot, ["commit", "-q", "-m", "test commit"]);
+
+  // Get the blob SHA of the file.
+  const blobSha = git(repoRoot, ["hash-object", "test-dir/file.txt"]).trim();
+
+  const sources = baseSources({
+    sources: [{
+      sourceId: "test-pack", evidenceStatus: "verified_local_evidence", claimedLicence: "CC0-1.0",
+      licenceEvidence: [{ kind: "git_commit", commit: blobSha }], canonicalLocalRoots: [], runtimeAssetIds: [],
+    }],
+  });
+
+  const result = await validateSources({
+    sources, registry: [], manifest: EMPTY_MANIFEST, repoRoot,
+  });
+
+  // Should fail because the blob is not a commit object.
+  assert.ok(result.errors.some((e) => /does not resolve/.test(e)), `Expected commit resolution error, got: ${result.errors.join("; ")}`);
+}));
+
+test("tree object fails git_commit evidence verification", () => withRealGitRepo(async (repoRoot) => {
+  // Create a test file and commit it.
+  await mkdir(join(repoRoot, "test-dir"), { recursive: true });
+  await writeFile(join(repoRoot, "test-dir/file.txt"), "test content");
+  git(repoRoot, ["add", "test-dir/file.txt"]);
+  git(repoRoot, ["commit", "-q", "-m", "test commit"]);
+
+  // Get the tree SHA of the commit.
+  const treeSha = git(repoRoot, ["rev-parse", "HEAD^{tree}"]).trim();
+
+  const sources = baseSources({
+    sources: [{
+      sourceId: "test-pack", evidenceStatus: "verified_local_evidence", claimedLicence: "CC0-1.0",
+      licenceEvidence: [{ kind: "git_commit", commit: treeSha }], canonicalLocalRoots: [], runtimeAssetIds: [],
+    }],
+  });
+
+  const result = await validateSources({
+    sources, registry: [], manifest: EMPTY_MANIFEST, repoRoot,
+  });
+
+  // Should fail because the tree is not a commit object.
+  assert.ok(result.errors.some((e) => /does not resolve/.test(e)), `Expected commit resolution error, got: ${result.errors.join("; ")}`);
+}));
