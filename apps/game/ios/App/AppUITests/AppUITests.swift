@@ -71,6 +71,23 @@ final class AppUITests: XCTestCase {
         XCTAssertTrue(el.waitForExistence(timeout: timeout ?? shortTimeout), message)
     }
 
+    /// The character-creation form is taller than the landscape viewport
+    /// (confirmed directly in Gate 5B CI: the accessibility Window frame
+    /// was {874, 402} while 'Enter Meadowrest' sat at y=456, entirely
+    /// below it) and is genuinely scrollable, matching real mobile UX for
+    /// a tall form on a short landscape screen. `isHittable == false` for
+    /// an off-screen-below element is *correct*, not a WKWebView quirk --
+    /// coordinate-tapping it anyway (as `tap()` alone would) targets a
+    /// point that was never actually on screen. Swiping up scrolls the
+    /// real content, the same gesture a real user would perform.
+    private func scrollUntilHittable(_ el: XCUIElement, maxAttempts: Int = 6) {
+        var remaining = maxAttempts
+        while !el.isHittable && remaining > 0 {
+            app.swipeUp()
+            remaining -= 1
+        }
+    }
+
     /// WKWebView-hosted elements frequently report `isHittable == false`
     /// even when they are visually rendered and genuinely tappable -- a
     /// known WebKit/XCUITest accessibility-frame quirk, confirmed directly
@@ -162,6 +179,10 @@ final class AppUITests: XCTestCase {
         tap(washedAshore)
         _ = app.keyboards.firstMatch.waitForNonExistence(timeout: shortTimeout)
 
+        // 'Enter Meadowrest' sits below the fold on this landscape
+        // viewport (see scrollUntilHittable()'s doc comment) -- scroll it
+        // into view before tapping, the same as a real user would.
+        scrollUntilHittable(enterButton)
         tap(enterButton)
 
         // `Hud` (Pack/Skills/Thread/Options/HP/etc.) renders unconditionally
@@ -174,6 +195,7 @@ final class AppUITests: XCTestCase {
         // unambiguous signal that entry actually completed is the
         // character creator itself disappearing.
         if !washedAshore.waitForNonExistence(timeout: shortTimeout) {
+            scrollUntilHittable(enterButton)
             tap(enterButton)
         }
         XCTAssertTrue(
