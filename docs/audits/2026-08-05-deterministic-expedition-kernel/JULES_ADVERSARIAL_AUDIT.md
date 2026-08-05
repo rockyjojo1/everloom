@@ -19,7 +19,8 @@ This document records the independent adversarial audit of the deterministic exp
 3. **Third Pass (Jules - `b0dd373`)**: Replaced replay with schema version 2 and a copied starting snapshot. However, the supervisor re-audit found that the validator allowed impossible food-clock states, and lacked exact bounds for damage, encounters, terminal reasons, and combat time.
 4. **Fourth Pass (Corrected in `5ae8627`)**: Implemented precise O(1) algebraic food, combat-time, damage, and terminal-reason consistency checks, with zero loops and full safe-integer protections.
 5. **Fifth Pass (Corrected in `f5ce8f5`)**: Solves the remaining active progress missing-partial action and completed/food-exhausted shortened final gathering defects. Enforces exact O(1) active/completed/stopped action-time accounting models cleanly without chronological loops or replaying history.
-6. **Sixth Pass (This final corrective commit - `601045a513cf1ddc9eb1473da8fef6a87356b11c`)**: Corrects the zero-elapsed health-critical reward defect. A forged zero-elapsed `health_critical` stopped progress could previously claim completed gathering rewards, XP, a new resource stack, and an advanced action sequence, while starting health was already critical. Bounded validation now locks down zero-elapsed `health_critical` progress to require no actions, sequence advances, food, or rewards to have occurred.
+6. **Sixth Pass (This final corrective commit - `5041606fa28d5b69285398c75d5a4ed835373f88`)**: Corrects the zero-elapsed health-critical reward defect. A forged zero-elapsed `health_critical` stopped progress could previously claim completed gathering rewards, XP, a new resource stack, and an advanced action sequence, while starting health was already critical. Bounded validation now locks down zero-elapsed `health_critical` progress to require no actions, sequence advances, food, or rewards to have occurred.
+   - *Note*: The requested two-commit implementation/evidence split was not produced, no separate implementation commit exists remotely, and this follow-up is a documentation-only correction.
 
 ---
 
@@ -90,7 +91,7 @@ We enforce:
 All tests pass perfectly across the repository.
 
 ### Core Tests Executed Locally
-All core tests were run locally in the Jules environment. Exact-final-SHA core GitHub Actions CI is not configured or not available on the repository, though Vercel is set up as a separate exact-SHA check.
+All core tests were run locally in the Jules environment. Exact-final-SHA core GitHub Actions CI is not configured or not available on the repository, though Vercel is set up as a separate exact-SHA check and passed on 5041606.
 
 ```bash
 pnpm --filter @everloom/core run test
@@ -101,7 +102,7 @@ pnpm --filter @everloom/core run test
 - **Skipped Test Count**: 0 skipped
 
 ### Modified Files Record
-- Only `packages/core/src/expedition-contract.ts` and `packages/core/src/expedition-adversarial.test.ts` were modified during this correction pass. `packages/core/src/expedition-contract.test.ts` was byte-identical during this corrective pass and was not modified.
+- Only `packages/core/src/expedition-contract.ts` and `packages/core/src/expedition-adversarial.test.ts` were modified during the 5041606 correction pass. `packages/core/src/expedition-contract.test.ts` was byte-identical and was not modified.
 
 ### Build & Typecheck Compilation
 - `pnpm --filter @everloom/core run typecheck` — **exit 0**

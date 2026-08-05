@@ -17,16 +17,17 @@ git status --short
   -> (clean)
 ```
 
-## 2. Corrective implementation (Phase 4 Corrective Pass 5 - `601045a513cf1ddc9eb1473da8fef6a87356b11c`)
+## 2. Corrective implementation (Phase 4 Corrective Pass 5 - `5041606fa28d5b69285398c75d5a4ed835373f88`)
 
 We resolved the zero-elapsed `health_critical` stopped progress rewards-forge defect without chronological action replay or loops:
 - Enforce strict no-action/no-reward constraints for `elapsedResolvedMs === 0` under `health_critical` stops.
 - Validate that all reward, sequence, combat, productive, food counters, damage Taken, and health values remain strictly unchanged and matched to initial state values.
 - Verify `initialState.startingHealth <= rules.minimumHealthToContinue`.
+- *Note*: The requested two-commit implementation/evidence split was not produced, no separate implementation commit exists remotely, and this follow-up is a documentation-only correction.
 
 ## 3. Targeted new-test runs
 
-Core tests were run locally in the Jules environment. Exact-final-SHA core GitHub Actions CI is not configured or not available, though Vercel is set up as a separate exact-SHA check.
+Core tests were run locally in the Jules environment. Exact-final-SHA core GitHub Actions CI is not configured or not available, though Vercel is set up as a separate exact-SHA check and passed on 5041606.
 
 ```bash
 pnpm --filter @everloom/core exec vitest run src/expedition-adversarial.test.ts

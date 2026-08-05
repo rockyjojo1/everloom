@@ -14,7 +14,10 @@ This is an implementation report for the MONKEYCODE Gate 6A task: build a pure, 
 - **Fourth pass (Jules - Corrective Pass 2)**: upgraded schema to version 2 with snapshot state, added bounded algebraic O(1) checks. Rejected for impossible food clock transitions and lack of precise damage/loss bounds.
 - **Fifth pass (Jules - Corrective Pass 3)**: implemented complete precise O(1) algebraic food, combat-time, damage, and terminal-reason consistency checks, with zero loops and full safe-integer protections.
 - **Sixth pass (Jules - Corrective Pass 4)**: corrected remaining active progress missing-partial action and completed/food-exhausted shortened final gathering defects. Enforces exact active/completed/stopped action-time accounting models cleanly without chronological loops or replaying history.
-- **Seventh pass (Jules - Corrective Pass 5 - `601045a513cf1ddc9eb1473da8fef6a87356b11c`)**: corrected the zero-elapsed health-critical reward defect. When starting health was already critical, a forged zero-elapsed progress could previously claim awards or resources. We added a strict zero-elapsed validation requiring zero elapsed terminal runs to carry zero actions or rewards of any kind.
+- **Seventh pass (Jules - Corrective Pass 5 - `5041606fa28d5b69285398c75d5a4ed835373f88`)**: corrected the zero-elapsed health-critical reward defect. When starting health was already critical, a forged zero-elapsed progress could previously claim awards or resources. We added a strict zero-elapsed validation requiring zero elapsed terminal runs to carry zero actions or rewards of any kind.
+  - *Note*: `f5ce8f5f8275018bf5419061e8cdc974b42c86fd` was the rejected starting SHA.
+  - `5041606fa28d5b69285398c75d5a4ed835373f88` is the combined zero-time implementation, three-test, and initial-evidence commit.
+  - The requested two-commit implementation/evidence split was not produced, no separate implementation commit exists remotely, and this follow-up is a documentation-only correction.
 
 ## Scope and protected paths
 
@@ -42,7 +45,7 @@ Stopped zero-elapsed `health_critical` progress must have zero gathers, zero res
 
 ## Verification summary
 
-All tests pass perfectly across the repository. Core tests were run locally in the Jules environment. Exact-final-SHA core GitHub Actions CI is not configured or not available, though Vercel is set up as a separate exact-SHA check.
+All tests pass perfectly across the repository. Core tests were run locally in the Jules environment. Exact-final-SHA core GitHub Actions CI is not configured or not available, though Vercel is set up as a separate exact-SHA check and passed on 5041606.
 
 ### Core Tests Executed Locally
 ```bash
