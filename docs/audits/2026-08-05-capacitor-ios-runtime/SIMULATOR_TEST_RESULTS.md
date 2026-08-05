@@ -6,11 +6,21 @@ for what still needs a real iPhone.
 
 ## Run identification
 
-- GitHub Actions run: [30976961883](https://github.com/rockyjojo1/everloom/actions/runs/30976961883)
-- Head SHA: `4429f54d74fcc6f8f3fbda33d0cecca12ae4f51a`
+- GitHub Actions run: [30979283286](https://github.com/rockyjojo1/everloom/actions/runs/30979283286) (final, stable pass)
+- Head SHA: `a6f456825d5d8d33679c61673b367633d2673989`
 - Runner: `macos-26`, macOS `26.5.2`, Xcode `26.6` (Build 17F113)
-- Simulator: `Gate5B-30976961883-1`, iPhone 17 Pro, iOS 26.5, UDID `0FF60F50-8FAE-48DD-A9A5-3164845C7DCA` (ephemeral -- created and deleted within the run)
-- XCUITest command: `xcodebuild test -project App.xcodeproj -scheme App -destination "id=0FF60F50-8FAE-48DD-A9A5-3164845C7DCA" -resultBundlePath gate5b.xcresult CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""`
+- Simulator: `Gate5B-30979283286-1`, iPhone 17 Pro, iOS 26.5, UDID `78668796-3499-456F-929F-797A7870B477` (ephemeral -- created and deleted within the run)
+- XCUITest command: `xcodebuild test -project App.xcodeproj -scheme App -destination "id=78668796-3499-456F-929F-797A7870B477" -resultBundlePath gate5b.xcresult CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY=""`
+
+Note: an earlier run on the functionally-identical SHA `4429f54`
+([30976961883](https://github.com/rockyjojo1/everloom/actions/runs/30976961883))
+also passed with the same journey and the same phase results below; two
+runs of the same code between them ([30978021086](https://github.com/rockyjojo1/everloom/actions/runs/30978021086),
+[30978650087](https://github.com/rockyjojo1/everloom/actions/runs/30978650087))
+failed on CI-runner launch-timing variance alone (the app's very first
+cold launch exceeding the then-30s timeout), not a functional defect --
+see `VERIFICATION_LOG.md` "Attempts 8-9". `launchTimeout` was raised to
+60s in `a6f4568`, and this run is the stable result reported below.
 
 ## Test counts
 
@@ -18,9 +28,9 @@ for what still needs a real iPhone.
 - Passed: **1**
 - Failed: **0**
 - Skipped: **0**
-- Duration: 179.591 seconds
+- Duration: 220.212 seconds
 - `xcodebuild` exit code: **0**
-- Result line: `Test Suite 'AppUITests' passed ... Executed 1 test, with 0 failures (0 unexpected) in 179.591 (179.599) seconds`
+- Result line: `Test Suite 'AppUITests' passed ... Executed 1 test, with 0 failures (0 unexpected) in 220.212 (220.226) seconds`
 - `** TEST SUCCEEDED **`
 
 ## Phase-by-phase results
@@ -52,10 +62,10 @@ regardless of pass/fail; on a passing run the four explicitly named
 attachments (`01-fresh-native-launch`, `02-meadowrest-world-ready`,
 `03-background-resume`, `04-terminated-relaunched-save-present`) are
 present inside `gate5b.xcresult`, uploaded as part of the
-`everloom-gate5b-ios-runtime` artifact (64,383,944 bytes, artifact ID
-`8918804972`, 14-day retention). Individual screenshot files were not
-separately extracted for this document since the `.xcresult` bundle
-itself is the durable, complete evidence artifact.
+`everloom-gate5b-ios-runtime` artifact (75,397,595 bytes, artifact ID
+`8919724797`, run 30979283286, 14-day retention). Individual screenshot
+files were not separately extracted for this document since the
+`.xcresult` bundle itself is the durable, complete evidence artifact.
 
 ## Crash and warning summary
 

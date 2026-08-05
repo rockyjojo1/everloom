@@ -39,9 +39,11 @@ verification, and it does not begin TestFlight or App Store work.
 | `e3ed985` | Fix the real root cause: Hud renders behind the still-open character creator | Fourth CI run, diagnosed from the actual downloaded `.xcresult` accessibility-tree dump: `Hud` renders unconditionally once a save exists, so HUD-control presence was never proof entry worked; fixed by requiring the character creator to actually disappear |
 | `fa489e3` | Fix compile error: XCUIElement has no tripleTap() API | Fifth CI run: a build-time Swift compile error from an invented API |
 | `2172c3a` | Fix device-orientation rotation glitch causing wrong tap coordinates | Sixth CI run: a downloaded failure screenshot showed the WKWebView content rendered sideways; added `ensureLandscapeOrientation()` after launch/activate (later shown not to be the actual root cause, but kept as a harmless reinforcement) |
-| **`4429f54`** | **Fix the actual root cause: Enter Meadowrest is scrolled below the fold** | Seventh CI run, diagnosed from a second downloaded accessibility-tree dump: the character-creation form is taller than the 402pt-tall landscape viewport, and `'Enter Meadowrest'` sits below the fold (`y=456` in a `{874, 402}` window) -- `isHittable == false` was accurate, not a WKWebView quirk, and the coordinate-tap fallback was targeting a point that was never on screen. Fixed with `scrollUntilHittable()`, a real swipe-up gesture. **This is the implementation SHA whose CI run passed.** |
+| `4429f54` | Fix the actual root cause: Enter Meadowrest is scrolled below the fold | Seventh CI run, diagnosed from a second downloaded accessibility-tree dump: the character-creation form is taller than the 402pt-tall landscape viewport, and `'Enter Meadowrest'` sits below the fold (`y=456` in a `{874, 402}` window) -- `isHittable == false` was accurate, not a WKWebView quirk, and the coordinate-tap fallback was targeting a point that was never on screen. Fixed with `scrollUntilHittable()`, a real swipe-up gesture. This exact commit's CI run ([30976961883](https://github.com/rockyjojo1/everloom/actions/runs/30976961883)) passed. |
+| `71ae3ac` | Record Gate 5B simulator runtime evidence | Evidence/docs commit for `4429f54`. Re-running CI on this exact (docs-only, functionally identical) SHA to confirm the evidence commit itself was clean surfaced a genuine timing flake: two separate re-runs both failed at Phase A's very first assertion (30s launch timeout), never reached by the earlier passing run of the byte-identical app/test code |
+| **`a6f4568`** | **Increase launch timeout for CI simulator boot variance** | Root-caused the flake as a too-tight 30s timeout for a cold-booted CI simulator's first app launch (JIT warmup + cold WebView + parsing/executing the JS bundle), not a real app defect -- the identical code had both passed and failed the same assertion. Raised `launchTimeout` from 30s to 60s; does not weaken what is asserted. **This is the final implementation SHA whose CI run passed: [30979283286](https://github.com/rockyjojo1/everloom/actions/runs/30979283286).** |
 
-**Implementation SHA (CI passed on this exact commit): `4429f54d74fcc6f8f3fbda33d0cecca12ae4f51a`**
+**Implementation SHA (CI passed on this exact commit): `a6f456825d5d8d33679c61673b367633d2673989`**
 
 The correction history above is preserved rather than squashed, per this
 project's standing practice (see the Gate 4/5A correction histories) --
@@ -49,7 +51,7 @@ every failed CI attempt was diagnosed from real evidence (logs, and twice
 from downloaded `.xcresult` accessibility-tree dumps), not guessed at or
 weakened past.
 
-## Why 7 CI round-trips were needed
+## Why 9 CI runs were needed to reach a stable pass
 
 Every failure was a genuine, different root cause, each confirmed from
 real CI evidence (never assumed):
@@ -60,7 +62,8 @@ real CI evidence (never assumed):
 4. **`Hud` renders unconditionally, even under the still-open character creator** -- discovered directly from a downloaded accessibility-tree dump showing both the HUD dock buttons and the character-creator form's elements coexisting in one snapshot. `apps/game/src/App.tsx` gates `WorldBoundary`/`GameWorld` and `EscapeIntro` on `!intro`, but not `<Hud />`. This made the test's original "HUD control exists" check meaningless as proof of successful entry.
 5. **Invented API** -- `XCUIElement.tripleTap()` does not exist; a real compile error.
 6. **A red-herring orientation screenshot** -- a captured screenshot showed rotated/glitched content, which looked like a device-orientation bug. The fix (re-asserting orientation post-launch) was applied and is harmless, but did not resolve the actual failure.
-7. **The real root cause** -- a second downloaded accessibility-tree dump showed the Window's own accessibility frame was `{874, 402}` while `'Enter Meadowrest'` sat at `y=456`: genuinely below the visible viewport, in a form confirmed scrollable by a `"Vertical scroll bar, 1 page"` element in the same dump. `isHittable == false` was reporting the truth. The coordinate-tap fallback (added in round 2 for a different, legitimate WKWebView quirk) was blindly tapping that same off-screen point every time. Fixed with a real swipe-up gesture (`scrollUntilHittable()`) before tapping.
+7. **The real root cause** -- a second downloaded accessibility-tree dump showed the Window's own accessibility frame was `{874, 402}` while `'Enter Meadowrest'` sat at `y=456`: genuinely below the visible viewport, in a form confirmed scrollable by a `"Vertical scroll bar, 1 page"` element in the same dump. `isHittable == false` was reporting the truth. The coordinate-tap fallback (added in round 2 for a different, legitimate WKWebView quirk) was blindly tapping that same off-screen point every time. Fixed with a real swipe-up gesture (`scrollUntilHittable()`) before tapping. This run passed.
+8. **CI-runner launch-timing variance** -- re-running the exact same passing, unchanged app/test code (via the docs-only evidence commit, then again via `workflow_dispatch` on that same SHA) failed twice in a row on the very first assertion (30s launch timeout), which the earlier run of the identical code had cleared comfortably. A too-tight timeout for a cold-booted simulator's first app launch, not a defect. Raised `launchTimeout` 30s → 60s.
 
 Diagnosis for rounds 4 and 7 required downloading and reading the actual
 `.xcresult` bundle's exported accessibility-tree text attachments via the
@@ -95,7 +98,7 @@ different storage origins by design -- see Gate 5A's
 - Xcode: `26.6` (Build 17F113)
 - iOS Simulator runtime selected (dynamically, not hardcoded): `com.apple.CoreSimulator.SimRuntime.iOS-26-5`
 - Device type selected (dynamically, preferring the newest available "iPhone \* Pro"): `com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro` ("iPhone 17 Pro")
-- Simulator created: `Gate5B-30976961883-1`, UDID `0FF60F50-8FAE-48DD-A9A5-3164845C7DCA` (ephemeral -- created, used, and deleted within the workflow run)
+- Simulator created: `Gate5B-30979283286-1`, UDID `78668796-3499-456F-929F-797A7870B477` (ephemeral -- created, used, and deleted within the workflow run)
 - Signing: none anywhere in the workflow (`CODE_SIGNING_ALLOWED=NO`, `CODE_SIGNING_REQUIRED=NO`, `CODE_SIGN_IDENTITY=""`)
 
 See `VERIFICATION_LOG.md` and `SIMULATOR_TEST_RESULTS.md` for the exact

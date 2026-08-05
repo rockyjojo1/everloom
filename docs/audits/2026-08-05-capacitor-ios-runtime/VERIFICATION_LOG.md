@@ -5,7 +5,7 @@
 - Base SHA (Gate 5A accepted, verified exact): `2024830b518e892d0734d2664652dae0c08d0958`
 - Branch: `claude/capacitor-ios-simulator-runtime`
 - `git rev-list --left-right --count origin/claude/capacitor-ios-bakeoff...HEAD` at branch creation: `0 0`
-- Implementation SHA whose runtime workflow passed: `4429f54d74fcc6f8f3fbda33d0cecca12ae4f51a`
+- Implementation SHA whose runtime workflow passed (final, stable): `a6f456825d5d8d33679c61673b367633d2673989`
 
 ## Phase 0: starting-state verification
 
@@ -24,7 +24,7 @@ git rev-list --left-right --count origin/claude/capacitor-ios-bakeoff...HEAD -> 
 - OS: Windows (MINGW64_NT-10.0-26200, Git Bash/MSYS) -- no macOS, no Xcode, no `xcodebuild`. XCUITest execution is CI-only.
 - Node: v24.17.0, pnpm: 11.17.0 (both matching the repository's declared versions, unchanged from Gate 5A).
 
-## Local regression commands (all run on implementation SHA `4429f54`)
+## Local regression commands (run against the Gate 5B branch; app/test code identical from `4429f54` through the final `a6f4568` -- only the launch-timeout constant changed between them)
 
 ```
 pnpm install --frozen-lockfile
@@ -162,7 +162,7 @@ exists anywhere.
 Workflow: `.github/workflows/capacitor-ios-runtime.yml`, job `iOS Simulator
 runtime + XCUITest journey`.
 
-### Attempts 1-6 (all on earlier commits, all failed for genuine, diagnosed reasons -- see GATE5B_RUNTIME_REPORT.md "Why 7 CI round-trips were needed")
+### Attempts 1-6 (all on earlier commits, all failed for genuine, diagnosed reasons -- see GATE5B_RUNTIME_REPORT.md "Why 9 CI runs were needed to reach a stable pass")
 
 | Run ID | SHA | Result | Root cause |
 |---|---|---|---|
@@ -173,7 +173,7 @@ runtime + XCUITest journey`.
 | 30974415135 | `e3ed985` | failure | `Hud` renders unconditionally under the still-open character creator; HUD-presence was not proof of entry |
 | 30974847156 | `fa489e3` | failure | `tripleTap()` compile error (invented API) |
 
-### Attempt 7 (final, passing)
+### Attempt 7 (passed, code-complete)
 
 **Run ID:** 30976961883
 **URL:** https://github.com/rockyjojo1/everloom/actions/runs/30976961883
@@ -251,6 +251,56 @@ Artifact: `everloom-gate5b-ios-runtime`, 64,383,944 bytes, artifact ID
 bundle, `test-summary.json`, `environment-info.txt`,
 `simulator.logarchive`, and `crash-report-search.txt`. Retained 14 days.
 
+### Attempts 8-9 (docs-only evidence commit and a manual re-run of the same SHA, both failed on CI-runner launch timing)
+
+After committing `71ae3ac` (Gate 5B evidence/docs -- no app or test code
+changed from the passing `4429f54`), CI was re-run on that exact SHA to
+confirm the evidence commit was clean, per this gate's own instruction to
+verify CI on the final evidence SHA.
+
+| Run ID | Trigger | Result | Detail |
+|---|---|---|---|
+| 30978021086 | `push` of `71ae3ac` | failure | Phase A: `"Who washed ashore?"` did not appear within the then-30s `launchTimeout`, on byte-identical app/test code that had just passed |
+| 30978650087 | manual `workflow_dispatch` re-run of the exact same `71ae3ac` SHA | failure | Same assertion, same 30s timeout, same result -- confirming this was CI-runner timing variance on a cold simulator boot, not a code regression (nothing had changed) |
+
+Both re-runs were triggered via the GitHub Actions API
+(`POST /repos/rockyjojo1/everloom/actions/workflows/{id}/dispatches`)
+authenticated with the same `git-credential-manager` OAuth token used
+throughout this session -- not a manual cancellation, and not a
+fabricated result; both are genuine, logged CI failures that informed the
+real fix in `a6f4568` (see attempt 10 below).
+
+### Attempt 10 (final, stable, passing)
+
+**Run ID:** 30979283286
+**URL:** https://github.com/rockyjojo1/everloom/actions/runs/30979283286
+**Head SHA:** `a6f456825d5d8d33679c61673b367633d2673989` (`launchTimeout` raised 30s → 60s)
+**Conclusion:** `success`
+
+```
+Test Suite 'AppUITests' started at 2026-08-05 05:56:xx
+...
+Test Suite 'AppUITests' passed
+	 Executed 1 test, with 0 failures (0 unexpected) in 220.212 (220.226) seconds
+** TEST SUCCEEDED **
+Captured xcodebuild test exit code: 0
+```
+
+Environment (same runner class as before):
+
+```
+ProductVersion:         26.5.2
+Xcode 26.6 (Build 17F113)
+Selected runtime: com.apple.CoreSimulator.SimRuntime.iOS-26-5
+Selected device type name: iPhone 17 Pro
+Created simulator: Gate5B-30979283286-1 (78668796-3499-456F-929F-797A7870B477)
+```
+
+Crash search: `No crash reports found for com.rockyjojo1.everloom.`
+
+This is the final implementation SHA for Gate 5B:
+`a6f456825d5d8d33679c61673b367633d2673989`.
+
 ## Vercel
 
 The `Vercel Preview Comments` check reported success for this branch's
@@ -273,6 +323,6 @@ Gate 5A -- this gate made no change to anything Vercel builds.
 ✅ `saveDb.ts` and `store.ts` byte-identical to the base SHA
 ✅ Existing `capacitor-ios.yml` untouched
 ✅ No Android platform, no `server.url`, no live-reload address
-✅ GitHub Actions runtime workflow: **success** on the exact implementation SHA `4429f54d74fcc6f8f3fbda33d0cecca12ae4f51a` -- 1 test executed, 0 failures, full lifecycle + persistence journey proven
+✅ GitHub Actions runtime workflow: **success** on the final implementation SHA `a6f456825d5d8d33679c61673b367633d2673989` (run [30979283286](https://github.com/rockyjojo1/everloom/actions/runs/30979283286)) -- 1 test executed, 0 failures, full lifecycle + persistence journey proven. Two intermediate CI runs on the prior, functionally-identical SHA `71ae3ac` failed on CI-runner launch-timing variance (a too-tight 30s timeout, not a defect) -- see the "Attempts 8-9" section above
 ❌ Physical iPhone verification -- NOT ATTEMPTED
 ❌ TestFlight / App Store submission -- NOT STARTED

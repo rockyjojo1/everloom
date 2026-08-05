@@ -190,7 +190,7 @@ only what it directly exercises.
 ## Gate 5B: real iOS Simulator runtime, lifecycle and local-save persistence proof (branch `claude/capacitor-ios-simulator-runtime`, based on the Gate 5A base SHA, not yet merged)
 
 - Base SHA: `2024830b518e892d0734d2664652dae0c08d0958` (the accepted Gate 5A evidence commit).
-- Implementation SHA (the exact commit whose CI runtime workflow passed): `4429f54d74fcc6f8f3fbda33d0cecca12ae4f51a`.
+- Implementation SHA (the exact commit whose CI runtime workflow passed): `a6f456825d5d8d33679c61673b367633d2673989`.
 - Added a real XCUITest target (`AppUITests`, bundle ID
   `com.rockyjojo1.everloom.AppUITests`) to the accepted Gate 5A iOS
   project, plus a shared Xcode scheme and a dedicated
@@ -208,9 +208,9 @@ only what it directly exercises.
   surviving that termination/relaunch inside the same simulator
   installation. CI result: 1 test executed, 0 failures, `**TEST
   SUCCEEDED**`, run
-  [30976961883](https://github.com/rockyjojo1/everloom/actions/runs/30976961883)
+  [30979283286](https://github.com/rockyjojo1/everloom/actions/runs/30979283286)
   on `macos-26` / Xcode 26.6 / iOS 26.5 / iPhone 17 Pro simulator.
-- Reaching that passing result took 7 CI round-trips, each a genuinely
+- Reaching a stable passing result took 9 CI runs, each a genuinely
   different, evidence-diagnosed root cause (not a guess): a masked exit
   code from a GitHub Actions bash default hiding the real xcodebuild
   failure; WKWebView keyboard-focus timing; a real, previously-unknown
@@ -218,13 +218,17 @@ only what it directly exercises.
   accessibility-tree dump — **`Hud` renders unconditionally once a local
   save exists, including underneath the still-open character-creation
   modal**, so HUD-control presence alone was never valid proof that
-  entry actually completed; an invented Swift API; and, found from a
-  second downloaded accessibility-tree dump, the real final root cause —
-  the character-creation form is taller than the 402pt landscape
-  viewport and `'Enter Meadowrest'` sits below the fold, so `isHittable
-  == false` was accurate (not a WKWebView quirk) and a coordinate-tap
-  fallback was targeting a point that was never on screen. Full
-  diagnosis history: `docs/audits/2026-08-05-capacitor-ios-runtime/GATE5B_RUNTIME_REPORT.md`.
+  entry actually completed; an invented Swift API; a real root cause
+  found from a second downloaded accessibility-tree dump — the
+  character-creation form is taller than the 402pt landscape viewport
+  and `'Enter Meadowrest'` sits below the fold, so `isHittable ==
+  false` was accurate (not a WKWebView quirk) and a coordinate-tap
+  fallback was targeting a point that was never on screen; and finally
+  CI-runner launch-timing variance on a cold-booted simulator's first
+  app launch, confirmed by two re-runs of byte-identical code both
+  failing the same 30s timeout that an earlier run of that same code had
+  cleared, fixed by raising it to 60s. Full diagnosis history:
+  `docs/audits/2026-08-05-capacitor-ios-runtime/GATE5B_RUNTIME_REPORT.md`.
 - `apps/game/scripts/verify-capacitor-ios.mjs`'s bundle-identifier check
   was narrowly extended to allow the new `AppUITests` target's ID
   alongside the app's own — the app's own identity requirement is

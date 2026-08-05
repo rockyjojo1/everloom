@@ -69,7 +69,7 @@ passing the bake-off gates below.
   that termination — all against the real production web bundle in the
   real Capacitor WKWebView, no mocking. CI: 1 test, 0 failures,
   `**TEST SUCCEEDED**`, run
-  [30976961883](https://github.com/rockyjojo1/everloom/actions/runs/30976961883).
+  [30979283286](https://github.com/rockyjojo1/everloom/actions/runs/30979283286).
 - **No physical iPhone build has been attempted anywhere in this
   project.** "Capacitor project exists," "iOS Simulator compile passes,"
   "app runs correctly inside a booted Simulator," and "physical iPhone
@@ -122,5 +122,5 @@ booted iOS Simulator via a real XCUITest journey, rather than only
 proving it compiles. See "Platform wrapper status" above for the precise
 claim, and
 `docs/audits/2026-08-05-capacitor-ios-runtime/GATE5B_RUNTIME_REPORT.md`
-for full detail, including the diagnosed root cause of each of the 7 CI
-attempts this took to get right.
+for full detail, including the diagnosed root cause of each of the 9 CI
+runs this took to reach a stable pass.
