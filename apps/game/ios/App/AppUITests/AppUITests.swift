@@ -76,6 +76,19 @@ final class AppUITests: XCTestCase {
         }
     }
 
+    /// A tap is delivered to a WKWebView-hosted `<input>` before WebKit has
+    /// necessarily finished focusing the underlying DOM element and
+    /// surfacing the system keyboard; `typeText()` requires genuine
+    /// keyboard focus to synthesize key events, so typing immediately
+    /// after `tap()` can fail with "Neither element nor any descendant has
+    /// keyboard focus" even though the tap itself succeeded. Waiting for
+    /// the keyboard to actually appear is the real signal that focus
+    /// landed, confirmed directly against this app in CI.
+    private func tapAndWaitForKeyboardFocus(_ el: XCUIElement) {
+        tap(el)
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: shortTimeout), "Keyboard never appeared after tapping '\(el.label)' -- the field did not receive focus.")
+    }
+
     // MARK: - The journey
 
     func testEverloomNativeLifecycleAndPersistenceJourney() throws {
@@ -97,12 +110,20 @@ final class AppUITests: XCTestCase {
         attach("01-fresh-native-launch")
 
         // ===== PHASE B: real user entry =====
-        tap(nameField)
+        tapAndWaitForKeyboardFocus(nameField)
         if let currentValue = nameField.value as? String, !currentValue.isEmpty {
             let deleteAll = String(repeating: XCUIKeyboardKey.delete.rawValue, count: currentValue.count)
             nameField.typeText(deleteAll)
         }
         nameField.typeText("Native QA")
+
+        // Dismiss the keyboard before tapping Enter Meadowrest: in
+        // landscape the on-screen keyboard can obscure controls further
+        // down the character-creation form. Tapping the (non-interactive)
+        // heading blurs the text field without touching any real control
+        // under test.
+        tap(washedAshore)
+        _ = app.keyboards.firstMatch.waitForNonExistence(timeout: shortTimeout)
 
         tap(enterButton)
 
