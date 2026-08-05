@@ -27,6 +27,19 @@ final class AppUITests: XCTestCase {
         XCUIDevice.shared.orientation = .landscapeLeft
     }
 
+    /// A screenshot captured in Gate 5B CI showed the app rendered sideways
+    /// with black bars -- setting XCUIDevice.shared.orientation before the
+    /// app has an active window session did not reliably take effect, and
+    /// a stale/incorrect orientation almost certainly explains why
+    /// coordinate-based taps (used when isHittable reports false) were
+    /// landing at the wrong physical location. Re-asserting orientation
+    /// after launch, with a real settle wait, is the fix: there is now an
+    /// active window session for the rotation to actually apply to.
+    private func ensureLandscapeOrientation() {
+        XCUIDevice.shared.orientation = .landscapeLeft
+        Thread.sleep(forTimeInterval: 1)
+    }
+
     override func tearDownWithError() throws {
         if app.state != .notRunning {
             app.terminate()
@@ -112,6 +125,7 @@ final class AppUITests: XCTestCase {
     func testEverloomNativeLifecycleAndPersistenceJourney() throws {
         // ===== PHASE A: fresh native launch =====
         app.launch()
+        ensureLandscapeOrientation()
 
         let washedAshore = element(labeled: "Who washed ashore?")
         waitAndAssert(washedAshore, "Fresh-install character creator heading 'Who washed ashore?' did not appear -- app may be blank, crashed, or stuck loading.", timeout: launchTimeout)
@@ -195,6 +209,7 @@ final class AppUITests: XCTestCase {
         XCUIDevice.shared.press(.home)
         Thread.sleep(forTimeInterval: 3)
         app.activate()
+        ensureLandscapeOrientation()
 
         waitAndAssert(packButton, "HUD 'Pack' control is gone after returning from the background -- resume did not restore the world.", timeout: launchTimeout)
 
@@ -207,6 +222,7 @@ final class AppUITests: XCTestCase {
         // ===== PHASE D: terminate and relaunch =====
         app.terminate()
         app.launch()
+        ensureLandscapeOrientation()
 
         // The fresh character creator must NOT return: the local save from
         // Phase B must have persisted across a genuine process termination.
