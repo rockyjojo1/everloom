@@ -14,19 +14,19 @@ This is an implementation report for the MONKEYCODE Gate 6A task: build a pure, 
 - **Fourth pass (Jules - Corrective Pass 2)**: upgraded schema to version 2 with snapshot state, added bounded algebraic O(1) checks. Rejected for impossible food clock transitions and lack of precise damage/loss bounds.
 - **Fifth pass (Jules - Corrective Pass 3)**: implemented complete precise O(1) algebraic food, combat-time, damage, and terminal-reason consistency checks, with zero loops and full safe-integer protections.
 - **Sixth pass (Jules - Corrective Pass 4)**: corrected remaining active progress missing-partial action and completed/food-exhausted shortened final gathering defects. Enforces exact active/completed/stopped action-time accounting models cleanly without chronological loops or replaying history.
+- **Seventh pass (Jules - Corrective Pass 5 - `601045a513cf1ddc9eb1473da8fef6a87356b11c`)**: corrected the zero-elapsed health-critical reward defect. When starting health was already critical, a forged zero-elapsed progress could previously claim awards or resources. We added a strict zero-elapsed validation requiring zero elapsed terminal runs to carry zero actions or rewards of any kind.
 
 ## Scope and protected paths
 
-Only the following files were created or modified:
+Only the following files were modified:
 
 | File | Change |
 |---|---|
-| `packages/core/src/expedition-contract.ts` | **Modified** — schema, types, stable validation, error class/codes; O(1) plan-aware validator |
-| `packages/core/src/expedition-contract.test.ts` | **Modified** — contract/validation tests (73 tests) |
-| `packages/core/src/expedition-adversarial.test.ts` | **Created** — 48 adversarial/gap test scenarios |
-| `docs/audits/2026-08-05-deterministic-expedition-kernel/*` | **Created** — audit reports and logs |
+| `packages/core/src/expedition-contract.ts` | **Modified** — O(1) plan-aware validator with zero-elapsed health-critical rewards integrity checks |
+| `packages/core/src/expedition-adversarial.test.ts` | **Modified** — added 3 new tests (A, B, C) bringing total to 51 adversarial tests |
+| `docs/audits/2026-08-05-deterministic-expedition-kernel/*` | **Modified** — audit reports and logs updated to record final evidence |
 
-All other packages/app files, save integrations, database rules, and locks were kept clean and untouched.
+Note: `packages/core/src/expedition-contract.test.ts` was byte-identical during this corrective pass and has not been modified. All other core legacy files or locked packages were kept clean and untouched.
 
 ## Active Progress Action-Time accounting:
 Enforces `productiveGatheringMs === completedGatherings * rules.gatheringWindowMs + partialGatheringMs` and `combatInterruptionMs === encounters * rules.combatDurationMs + partialCombatMs`, requiring `partialAction !== null` if there is elapsed action time, or that it is at an exact completed action boundary.
@@ -37,17 +37,20 @@ Allows a single shortened gathering at plan end (`elapsedResolvedMs === plan.req
 ## Food exhausted at plan end:
 At `requestedDurationMs` terminal boundary, residual combat and gathering times must equal 0, and gathering time is validated using the same `all-full-or-one-short-final` rule.
 
+## Zero-Elapsed Health-Critical Integrity:
+Stopped zero-elapsed `health_critical` progress must have zero gathers, zero resources, zero XP, zero damage, zero food, and exact matching slot counts and starting stack status with `initialState`.
+
 ## Verification summary
 
-All tests pass perfectly across the repository.
+All tests pass perfectly across the repository. Core tests were run locally in the Jules environment. Exact-final-SHA core GitHub Actions CI is not configured or not available, though Vercel is set up as a separate exact-SHA check.
 
-### Core Tests Executed
+### Core Tests Executed Locally
 ```bash
 pnpm --filter @everloom/core run test
 ```
 - **Total Test Files**: 6 passed
-- **Total Tests Passed**: 321 passed
-- **Targeted Test Count**: 242 passed (`expedition-contract.test.ts` (73), `expedition-kernel.test.ts` (121), `expedition-adversarial.test.ts` (48))
+- **Total Tests Passed**: 324 passed
+- **Targeted Test Count**: 245 passed (`expedition-contract.test.ts` (73), `expedition-kernel.test.ts` (121), `expedition-adversarial.test.ts` (51))
 - **Skipped Test Count**: 0 skipped
 
 ### Build & Typecheck Compilation
@@ -60,9 +63,10 @@ pnpm --filter @everloom/core run test
 
 ## State
 
-- **GATE 6A FINAL BOUNDED-INVARIANT CORRECTION: COMPLETE**
+- **GATE 6A ZERO-TIME REWARD CORRECTION: COMPLETE**
 - **GATE 6A ACCEPTANCE: PENDING INDEPENDENT SUPERVISOR RE-AUDIT**
 - **FULL-HISTORY REPLAY: ABSENT**
+- **EXACT-SHA CORE CI: NOT CONFIGURED**
 - **GATE 4 BRANCH: UNTOUCHED**
 - **GATE 5 BRANCH: UNTOUCHED**
 - **RECEIPT/SAVE INTEGRATION: NOT STARTED**

@@ -826,11 +826,26 @@ export function validateDeterministicExpeditionProgressAgainstPlan(
       }
 
       if (progress.elapsedResolvedMs === 0) {
-        if (progress.encounters !== 0 || progress.encountersLost !== 0 || progress.damageTaken !== 0) {
-          fail(code, "invalid health_critical stop at 0ms");
-        }
-        if (progress.initialState.startingHealth > rules.minimumHealthToContinue) {
-          fail(code, "starting health must be critical to stop at 0ms");
+        if (
+          completedGatherings !== 0 ||
+          progress.resourcesObtained !== 0 ||
+          progress.resourceXpGained !== 0 ||
+          progress.combatXpGained !== 0 ||
+          progress.encounters !== 0 ||
+          progress.encountersWon !== 0 ||
+          progress.encountersLost !== 0 ||
+          progress.damageTaken !== 0 ||
+          progress.foodConsumed !== 0 ||
+          progress.productiveGatheringMs !== 0 ||
+          progress.combatInterruptionMs !== 0 ||
+          progress.nextActionSequence !== 0 ||
+          progress.health !== progress.initialState.startingHealth ||
+          progress.availableFood !== progress.initialState.availableFood ||
+          progress.inventoryUsedSlots !== progress.initialState.startingInventoryUsedSlots ||
+          progress.existingResourceStackPresent !== progress.initialState.existingResourceStackPresent ||
+          progress.initialState.startingHealth > rules.minimumHealthToContinue
+        ) {
+          fail(code, "forged zero-elapsed health_critical stop is rejected");
         }
       } else {
         if (progress.encountersLost !== 1) {

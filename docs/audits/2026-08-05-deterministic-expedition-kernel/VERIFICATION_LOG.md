@@ -12,28 +12,25 @@ All commands below were run from the repository root unless noted. Exit codes ar
 git branch --show-current
   -> jules/gate6a-adversarial-hardening-11945358711948676083
 git rev-parse HEAD
-  -> 5ae8627d1ac74b645cb635452cdb8a00a104ba84
+  -> f5ce8f5f8275018bf5419061e8cdc974b42c86fd
 git status --short
   -> (clean)
 ```
 
-## 2. Corrective implementation (Phase 4 Corrective Pass 4)
+## 2. Corrective implementation (Phase 4 Corrective Pass 5 - `601045a513cf1ddc9eb1473da8fef6a87356b11c`)
 
-We resolved the two remaining O(1) action-time gaps without loops or historical action replay:
-- **Active Progress Action-Time Accounting**: We enforce that active progress with elapsed time must have `partialAction !== null`, except when it sits exactly at a completed action boundary. We enforce:
-  - `productiveGatheringMs === completedGatherings * rules.gatheringWindowMs + partialGatheringMs`
-  - `combatInterruptionMs === encounters * rules.combatDurationMs + partialCombatMs`
-- **Completed Progress Gathering Deficits**: We support exactly one shortened final completed gathering (only ending at `requestedDurationMs` of type gathering) and nominal-full-duration gatherings otherwise. We reject multiple deficits or non-matching deterministic sequences.
-- **Health Critical Progress**: We enforce that positive-elapsed health_critical stops require all completed gatherings to be exactly full duration.
-- **Food Exhausted Progress**:
-  - If before plan end: enforce all completed gatherings are full duration plus `residualGatheringMs`.
-  - If at plan end: enforce `residualCombatMs === 0`, `residualGatheringMs === 0`, and use completed progress all-full-or-one-short-final rule.
+We resolved the zero-elapsed `health_critical` stopped progress rewards-forge defect without chronological action replay or loops:
+- Enforce strict no-action/no-reward constraints for `elapsedResolvedMs === 0` under `health_critical` stops.
+- Validate that all reward, sequence, combat, productive, food counters, damage Taken, and health values remain strictly unchanged and matched to initial state values.
+- Verify `initialState.startingHealth <= rules.minimumHealthToContinue`.
 
 ## 3. Targeted new-test runs
 
+Core tests were run locally in the Jules environment. Exact-final-SHA core GitHub Actions CI is not configured or not available, though Vercel is set up as a separate exact-SHA check.
+
 ```bash
 pnpm --filter @everloom/core exec vitest run src/expedition-adversarial.test.ts
-  -> 1 file, 48 tests passed, exit 0
+  -> 1 file, 51 tests passed, exit 0
 pnpm --filter @everloom/core exec vitest run src/expedition-contract.test.ts src/expedition-kernel.test.ts
   -> 2 files, 194 tests passed, exit 0
 ```
@@ -42,8 +39,8 @@ pnpm --filter @everloom/core exec vitest run src/expedition-contract.test.ts src
 
 ```bash
 pnpm --filter @everloom/core run test
-  -> 6 files, 321 tests passed, exit 0
-     new:   expedition-adversarial.test.ts (48), expedition-contract.test.ts (73), expedition-kernel.test.ts (121)
+  -> 6 files, 324 tests passed, exit 0
+     new:   expedition-adversarial.test.ts (51), expedition-contract.test.ts (73), expedition-kernel.test.ts (121)
      regr.: core.test.ts (45), expedition.test.ts (22), expedition-e2e.test.ts (12)
      legacy expedition/save tests unchanged and green; no tests skipped
 ```

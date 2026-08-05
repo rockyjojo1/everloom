@@ -1279,6 +1279,102 @@ describe("deterministic expedition adversarial hardening audit - corrective pass
       );
     });
   });
+
+  describe("Zero-Elapsed Health-Critical Integrity Gaps", () => {
+    it("A. Reject forged zero-time health_critical progress with completed gathering rewards", () => {
+      const plan = makePlan();
+      const progress = makeProgress({
+        status: "stopped",
+        stopReason: "health_critical",
+        elapsedResolvedMs: 0,
+        health: plan.rules.minimumHealthToContinue,
+        encounters: 0,
+        encountersWon: 0,
+        encountersLost: 0,
+        damageTaken: 0,
+        productiveGatheringMs: 0,
+        combatInterruptionMs: 0,
+        resourcesObtained: plan.rules.resourceQuantityPerGather,
+        resourceXpGained: plan.rules.resourceXpPerGather,
+        nextActionSequence: 1,
+        existingResourceStackPresent: true,
+        inventoryUsedSlots: 1,
+        initialState: {
+          startingHealth: plan.rules.minimumHealthToContinue,
+          startingInventoryUsedSlots: 0,
+          existingResourceStackPresent: false,
+          availableFood: 20,
+        },
+      });
+
+      expectError(
+        () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
+        "invalid_progress",
+        "forged zero-elapsed health_critical stop is rejected",
+      );
+    });
+
+    it("B. Real critical start, no existing stack, resolved for positive time, stopped immediately, passes validation and works as no-op", () => {
+      const plan = makePlan();
+      const startingState = makeStartingState({
+        startingHealth: plan.rules.minimumHealthToContinue,
+        startingInventoryUsedSlots: 0,
+        existingResourceStackPresent: false,
+      });
+
+      const progress = createDeterministicExpeditionProgress(plan, startingState);
+      const resolved = resolveDeterministicExpedition(plan, progress, 10_000);
+
+      const resolvedProgress = resolved.progress;
+      expect(resolvedProgress.status).toBe("stopped");
+      expect(resolvedProgress.stopReason).toBe("health_critical");
+      expect(resolvedProgress.elapsedResolvedMs).toBe(0);
+      expect(resolvedProgress.resourcesObtained).toBe(0);
+      expect(resolvedProgress.resourceXpGained).toBe(0);
+      expect(resolvedProgress.combatXpGained).toBe(0);
+      expect(resolvedProgress.encounters).toBe(0);
+      expect(resolvedProgress.encountersWon).toBe(0);
+      expect(resolvedProgress.encountersLost).toBe(0);
+      expect(resolvedProgress.damageTaken).toBe(0);
+      expect(resolvedProgress.foodConsumed).toBe(0);
+      expect(resolvedProgress.productiveGatheringMs).toBe(0);
+      expect(resolvedProgress.combatInterruptionMs).toBe(0);
+      expect(resolvedProgress.nextActionSequence).toBe(0);
+      expect(resolvedProgress.health).toBe(plan.rules.minimumHealthToContinue);
+      expect(resolvedProgress.availableFood).toBe(startingState.availableFood);
+      expect(resolvedProgress.inventoryUsedSlots).toBe(startingState.startingInventoryUsedSlots);
+      expect(resolvedProgress.existingResourceStackPresent).toBe(startingState.existingResourceStackPresent);
+
+      // Assert plan-aware validation passes
+      expect(() => validateDeterministicExpeditionProgressAgainstPlan(plan, resolvedProgress)).not.toThrow();
+
+      // Pass back to real resolver as a terminal no-op
+      const noOpResolved = resolveDeterministicExpedition(plan, resolvedProgress, 10_000);
+      expect(noOpResolved.progress).toEqual(resolvedProgress);
+    });
+
+    it("C. Real critical start, existing stack, validates successfully and keeps existing stack/slot counts unchanged", () => {
+      const plan = makePlan();
+      const startingState = makeStartingState({
+        startingHealth: plan.rules.minimumHealthToContinue,
+        startingInventoryUsedSlots: 3,
+        existingResourceStackPresent: true,
+      });
+
+      const progress = createDeterministicExpeditionProgress(plan, startingState);
+      const resolved = resolveDeterministicExpedition(plan, progress, 10_000);
+
+      const resolvedProgress = resolved.progress;
+      expect(resolvedProgress.status).toBe("stopped");
+      expect(resolvedProgress.stopReason).toBe("health_critical");
+      expect(resolvedProgress.elapsedResolvedMs).toBe(0);
+      expect(resolvedProgress.inventoryUsedSlots).toBe(3);
+      expect(resolvedProgress.existingResourceStackPresent).toBe(true);
+
+      // Assert plan-aware validation passes
+      expect(() => validateDeterministicExpeditionProgressAgainstPlan(plan, resolvedProgress)).not.toThrow();
+    });
+  });
 });
 
 function makeProgress(overrides: Partial<DeterministicExpeditionProgress> = {}): DeterministicExpeditionProgress {
