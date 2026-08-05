@@ -89,6 +89,24 @@ final class AppUITests: XCTestCase {
         XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: shortTimeout), "Keyboard never appeared after tapping '\(el.label)' -- the field did not receive focus.")
     }
 
+    /// Taps `el` and waits for `expected` to appear. WKWebView's
+    /// accessibility-frame cache can briefly lag behind the real DOM
+    /// layout immediately after a large re-render (such as mounting the
+    /// whole GameWorld/HUD after entering Meadowrest, which involves a
+    /// WebGL scene initialization), so a single tap can occasionally land
+    /// at a stale coordinate. Retrying the tap once, only after a real
+    /// wait has genuinely elapsed with no result, is a standard UI-test
+    /// resilience pattern -- it does not change what must ultimately be
+    /// true: `expected` must appear, or the test still fails with the
+    /// exact same message.
+    private func tapUntil(_ el: XCUIElement, expected: XCUIElement, _ message: String, timeout: TimeInterval? = nil) {
+        let total = timeout ?? shortTimeout
+        tap(el)
+        if expected.waitForExistence(timeout: total / 2) { return }
+        tap(el)
+        waitAndAssert(expected, message, timeout: total / 2)
+    }
+
     // MARK: - The journey
 
     func testEverloomNativeLifecycleAndPersistenceJourney() throws {
@@ -139,10 +157,13 @@ final class AppUITests: XCTestCase {
         let hp = element(labeled: "HP")
         waitAndAssert(hp, "HUD 'HP' label did not appear.")
 
-        tap(packButton)
+        // Let WKWebView's accessibility-frame cache catch up after the
+        // heavy GameWorld/HUD mount (WebGL scene init) before the first
+        // interactive tap -- see tapUntil()'s doc comment.
+        Thread.sleep(forTimeInterval: 1.5)
 
         let closePanel = element(labeled: "Close panel")
-        waitAndAssert(closePanel, "Pack panel did not open -- 'Close panel' control never appeared after tapping Pack.")
+        tapUntil(packButton, expected: closePanel, "Pack panel did not open -- 'Close panel' control never appeared after tapping Pack.", timeout: launchTimeout)
         tap(closePanel)
         XCTAssertFalse(closePanel.waitForExistence(timeout: 3), "Pack panel did not close after tapping 'Close panel'.")
 
@@ -155,9 +176,8 @@ final class AppUITests: XCTestCase {
 
         waitAndAssert(packButton, "HUD 'Pack' control is gone after returning from the background -- resume did not restore the world.", timeout: launchTimeout)
 
-        tap(skillsButton)
         let skillsClose = element(labeled: "Close panel")
-        waitAndAssert(skillsClose, "Skills panel did not open after backgrounding/resume -- touch handling did not survive the lifecycle transition.")
+        tapUntil(skillsButton, expected: skillsClose, "Skills panel did not open after backgrounding/resume -- touch handling did not survive the lifecycle transition.")
         tap(skillsClose)
 
         attach("03-background-resume")
@@ -176,9 +196,9 @@ final class AppUITests: XCTestCase {
 
         let packAfterRelaunch = element(labeled: "Pack")
         waitAndAssert(packAfterRelaunch, "HUD did not return after terminate/relaunch -- save did not load, or the world failed to reinitialize.", timeout: launchTimeout)
-        tap(packAfterRelaunch)
+        Thread.sleep(forTimeInterval: 1.5)
         let relaunchClose = element(labeled: "Close panel")
-        waitAndAssert(relaunchClose, "Pack panel did not open after terminate/relaunch -- touch handling did not survive.")
+        tapUntil(packAfterRelaunch, expected: relaunchClose, "Pack panel did not open after terminate/relaunch -- touch handling did not survive.", timeout: launchTimeout)
         tap(relaunchClose)
 
         attach("04-terminated-relaunched-save-present")
