@@ -17,7 +17,15 @@ import XCTest
 final class AppUITests: XCTestCase {
     private let app = XCUIApplication()
     private let shortTimeout: TimeInterval = 15
-    private let launchTimeout: TimeInterval = 30
+    // A cold-booted CI simulator's very first app launch pays a one-time
+    // JIT/WebView-initialization cost on top of downloading, parsing, and
+    // executing the app's JS bundle (Three.js chunks included) -- CI runs
+    // 30976961883 (pass, ~15s to first paint) and two subsequent identical
+    // re-runs both timed out waiting >30s for the same fresh-launch signal
+    // on the same unchanged app/test code, indicating 30s was simply too
+    // tight for CI-runner variance, not a real defect. 60s is still a hard
+    // failure if the app is genuinely broken or hung.
+    private let launchTimeout: TimeInterval = 60
 
     override func setUpWithError() throws {
         continueAfterFailure = false
