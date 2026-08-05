@@ -1,6 +1,13 @@
 # Gate 5A: Capacitor iOS Foundation
 
-**Status:** GATE 5A CAPACITOR FOUNDATION COMPLETE — GATE 5 ACCEPTANCE PENDING NATIVE BUILD AND OWNER DEVICE TEST
+**Status:**
+```
+GATE 5A CAPACITOR FOUNDATION: COMPLETE
+IOS SIMULATOR BUILD: PASS
+PHYSICAL IPHONE VERIFICATION: NOT STARTED
+GATE 5 ACCEPTANCE: PENDING OWNER DEVICE TEST
+APP STORE SUBMISSION: NOT STARTED
+```
 
 This report covers Capacitor iOS *foundation* work only: integrating
 Capacitor into the existing `apps/game` monorepo, generating and
@@ -22,7 +29,7 @@ verification. It is explicitly **not**:
 | Capacitor configured | ✅ Done — `capacitor.config.ts`, no `server.url`, SPM-based iOS platform added |
 | Web bundle synced | ✅ Done — `cap sync ios` copies `dist/` into `ios/App/App/public`, verified byte-identical (sha256) |
 | Static verifier passed | ✅ Done — `verify:capacitor:ios`, 0 failures, 0 warnings |
-| iOS simulator compiled | ⬜ See "Native build" below — depends on GitHub Actions CI, not run locally |
+| iOS simulator compiled | ✅ Done — unsigned, via GitHub Actions on `macos-26`/Xcode 26 (run [30968977638](https://github.com/rockyjojo1/everloom/actions/runs/30968977638), conclusion: success); bundle ID verified in-workflow |
 | Physical iPhone installed | ❌ NOT STARTED |
 | Physical iPhone tested | ❌ NOT STARTED |
 | App Store submission | ❌ NOT STARTED |

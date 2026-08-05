@@ -252,12 +252,40 @@ created and pushed with this branch. It:
 - uploads the build log and `.app` bundle as a workflow artifact;
 - never handles signing secrets and never deploys anywhere.
 
-**Result of this run:** see the FINAL RESPONSE section of the handoff
-message for whether this workflow had completed and what it reported by
-the time this gate was handed off. If it had not yet completed or could
-not run (Actions disabled, no runner availability, quota), that is stated
-there explicitly — this section does not claim a simulator compile passed
-unless the workflow's own logs prove it.
+**Result of this run:** GitHub Actions is enabled for this repository and
+the workflow ran automatically on push. Confirmed via the public GitHub
+Actions API (unauthenticated, read-only — no `gh` CLI or admin access was
+used):
+
+```
+Run: https://github.com/rockyjojo1/everloom/actions/runs/30968977638
+SHA: 65a3a3dc56b71960a546f95a57efef10b6d7ea9a (the final evidence commit)
+status: completed | conclusion: success
+started_at: 2026-08-05T02:18:34Z, completed ~85s later
+```
+
+Every step in the `iOS simulator build (unsigned)` job succeeded,
+including, specifically:
+
+- `Setup Node` / `Setup pnpm` / `Install dependencies (frozen lockfile)`
+- `Build apps/game`
+- `Sync Capacitor iOS`
+- `Run static Capacitor verifier`
+- `Report Xcode toolchain`
+- **`Unsigned iOS simulator compile`** — the actual `xcodebuild` invocation, on `macos-26` (Xcode 26 preinstalled), targeting `-sdk iphonesimulator -destination "generic/platform=iOS Simulator"` with `CODE_SIGNING_ALLOWED=NO`
+- **`Locate and inspect the built .app`** — found `App.app` under the derived-data path and asserted its `CFBundleIdentifier` equals `com.rockyjojo1.everloom` (the step would have failed the job otherwise)
+- `Upload build logs and app bundle` — artifact `capacitor-ios-simulator-build`, 12,517,718 bytes, containing `xcodebuild.log`, `app-path.txt`, and the built `App.app`, retained 14 days (expires 2026-08-19)
+
+Raw `xcodebuild` log text (exact warning count, precise `xcodebuild
+-version` output, exact scheme/SDK strings as printed) requires either
+repository-admin GitHub access or downloading the workflow artifact
+directly — both need the owner's GitHub credentials, which this
+environment does not have. The owner can view the full log and download
+the artifact at the run URL above.
+
+**This is a genuine, CI-verified unsigned iOS Simulator compile — not a
+claim of a physical-device build.** No signing identity was used anywhere
+in this workflow.
 
 ## Physical iPhone
 
@@ -280,6 +308,6 @@ evidence. See `OWNER_IPHONE_TEST_GUIDE.md`.
 ✅ client3d tests and build passed
 ✅ Root typecheck and build passed
 ✅ `git diff --check` clean
-⬜ iOS Simulator compile — CI-dependent, see "Native build" above
+✅ iOS Simulator compile — CI run 30968977638, conclusion: success, unsigned, bundle ID verified
 ❌ Physical iPhone verification — NOT ATTEMPTED
 ❌ App Store submission — NOT STARTED
