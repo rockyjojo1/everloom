@@ -173,3 +173,15 @@ git rev-parse HEAD
 `save.test.ts`, `types.ts`, `simulation.ts`, `simulation.test.ts`, `rng.ts`
 were read as references and **not modified**. Gate 4 branch
 `claude/meadowrest-production-room-bakeoff` was not touched.
+
+## 12. Independent Jules Hardening Pass (2026-08-05)
+
+- **Targeted Test Execution**: `pnpm --filter @everloom/core exec vitest run src/expedition-adversarial.test.ts src/expedition-contract.test.ts src/expedition-kernel.test.ts`
+  - 216 tests passed, exit 0
+- **Full Test Suite Execution**: `pnpm --filter @everloom/core run test`
+  - 6 files, 301 tests passed, exit 0
+- **Workspace Verification**:
+  - `pnpm typecheck` -> exit 0
+  - `pnpm build` -> exit 0
+- **Git Tree Status**: Clean tree, modified files strictly match the ownership guidelines (only `expedition-contract.ts`, `expedition-kernel.ts`, `expedition-contract.test.ts`, `expedition-kernel.test.ts`, `expedition-adversarial.test.ts` changed).
+- **Prohibited Ambient APIs Scan**: Run mechanical scan on changed production source, verified 100% clean (Date, Math.random, performance, fetch, storage patterns absent from executable code blocks).

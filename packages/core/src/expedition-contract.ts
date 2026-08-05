@@ -1,4 +1,5 @@
 import { PROBABILITY_SCALE } from "./types";
+import { deterministicRollPpm, deterministicRange } from "./rng";
 
 /**
  * Deterministic expedition contract.
@@ -339,6 +340,197 @@ export function validateDeterministicExpeditionProgress(progress: DeterministicE
   }
 }
 
+function simulateUpTo(
+  plan: DeterministicExpeditionPlan,
+  startingHealth: number,
+  startingFood: number,
+  startingInventoryUsedSlots: number,
+  startingResourceStackPresent: boolean,
+  targetMs: number
+) {
+  const rules = plan.rules;
+  let elapsed = 0;
+  let nextActionSequence = 0;
+  let health = startingHealth;
+  let availableFood = startingFood;
+  let inventoryUsedSlots = startingInventoryUsedSlots;
+  let existingResourceStackPresent = startingResourceStackPresent;
+  let resourcesObtained = 0;
+  let resourceXpGained = 0;
+  let combatXpGained = 0;
+  let encounters = 0;
+  let encountersWon = 0;
+  let encountersLost = 0;
+  let damageTaken = 0;
+  let foodConsumed = 0;
+  let productiveGatheringMs = 0;
+  let combatInterruptionMs = 0;
+  let partialAction: DeterministicExpeditionPartialAction | null = null;
+  let status: DeterministicExpeditionStatus = "active";
+  let stopReason: DeterministicExpeditionStopReason = null;
+
+  if (health <= rules.minimumHealthToContinue) {
+    status = "stopped";
+    stopReason = "health_critical";
+  }
+
+  let currentKind: DeterministicExpeditionActionKind | null = null;
+  let currentSequence = 0;
+  let currentStartMs = 0;
+  let currentEndMs = 0;
+
+  while (elapsed < targetMs && stopReason === null) {
+    if (currentKind === null) {
+      if (plan.requestedDurationMs <= elapsed) {
+        break;
+      }
+      const remainingAvailableMs = plan.requestedDurationMs - elapsed;
+      const nextWindowMs = Math.min(rules.gatheringWindowMs, remainingAvailableMs);
+      if (nextWindowMs <= 0) {
+        break;
+      }
+
+      const encounter = deterministicRollPpm(
+        plan.seed,
+        nextActionSequence,
+        "expedition_encounter",
+        plan.activityId,
+        rules.encounterChancePpm,
+      );
+      if (encounter && nextWindowMs >= rules.combatDurationMs) {
+        currentKind = "encounter";
+        currentSequence = nextActionSequence;
+        currentStartMs = elapsed;
+        currentEndMs = elapsed + rules.combatDurationMs;
+      } else {
+        currentKind = "gathering";
+        currentSequence = nextActionSequence;
+        currentStartMs = elapsed;
+        currentEndMs = elapsed + nextWindowMs;
+      }
+    }
+
+    const timeToFoodBoundary = rules.foodConsumptionIntervalMs - (elapsed % rules.foodConsumptionIntervalMs);
+    let nextBoundaryMs = elapsed + timeToFoodBoundary;
+    if (!Number.isSafeInteger(nextBoundaryMs)) {
+      nextBoundaryMs = Number.MAX_SAFE_INTEGER;
+    }
+
+    const nextEventMs = Math.min(targetMs, currentEndMs, nextBoundaryMs);
+    const advanceMs = nextEventMs - elapsed;
+    if (advanceMs <= 0) {
+      break;
+    }
+
+    if (currentKind === "gathering") {
+      productiveGatheringMs += advanceMs;
+    } else {
+      combatInterruptionMs += advanceMs;
+    }
+    elapsed += advanceMs;
+
+    // Action completion exactly on a boundary
+    if (elapsed === currentEndMs) {
+      if (currentKind === "gathering") {
+        if (!existingResourceStackPresent) {
+          if (inventoryUsedSlots >= rules.inventorySlotLimit) {
+            stopReason = "inventory_full";
+          }
+        }
+        if (stopReason === null) {
+          resourcesObtained += rules.resourceQuantityPerGather;
+          resourceXpGained += rules.resourceXpPerGather;
+          if (!existingResourceStackPresent) {
+            inventoryUsedSlots += 1;
+            existingResourceStackPresent = true;
+          }
+          nextActionSequence = currentSequence + 1;
+        }
+      } else {
+        const damage = deterministicRange(
+          plan.seed,
+          currentSequence,
+          "wolf_damage",
+          plan.activityId,
+          rules.enemyDamageMin,
+          rules.enemyDamageMax,
+        );
+        encounters += 1;
+        damageTaken += damage;
+        health = Math.max(0, health - damage);
+        nextActionSequence = currentSequence + 1;
+
+        if (health > rules.minimumHealthToContinue) {
+          encountersWon += 1;
+          combatXpGained += rules.combatXpPerWin;
+        } else {
+          encountersLost += 1;
+          stopReason = "health_critical";
+        }
+      }
+      currentKind = null;
+      if (stopReason !== null) {
+        break;
+      }
+    }
+
+    // Food consumption boundary
+    if (elapsed === nextBoundaryMs) {
+      if (availableFood === 0) {
+        stopReason = "food_exhausted";
+        break;
+      }
+      availableFood -= 1;
+      foodConsumed += 1;
+    }
+
+    // Target reached
+    if (elapsed === targetMs) {
+      if (elapsed < currentEndMs) {
+        partialAction = {
+          kind: currentKind!,
+          actionSequence: currentSequence,
+          elapsedInActionMs: elapsed - currentStartMs,
+        };
+      }
+      break;
+    }
+  }
+
+  if (stopReason !== null) {
+    status = "stopped";
+  } else if (elapsed >= plan.requestedDurationMs) {
+    status = "completed";
+    stopReason = "duration_reached";
+    partialAction = null;
+  } else {
+    status = "active";
+    stopReason = null;
+  }
+
+  return {
+    elapsedResolvedMs: elapsed,
+    partialAction,
+    nextActionSequence,
+    health,
+    inventoryUsedSlots,
+    existingResourceStackPresent,
+    availableFood,
+    resourcesObtained,
+    resourceXpGained,
+    combatXpGained,
+    encounters,
+    encountersWon,
+    encountersLost,
+    damageTaken,
+    foodConsumed,
+    productiveGatheringMs,
+    combatInterruptionMs,
+    status,
+    stopReason,
+  };
+}
+
 /**
  * Plan-aware progress validation. This validator checks a progress against the
  * plan it belongs to, catching structural corruption that the schema-only
@@ -426,5 +618,181 @@ export function validateDeterministicExpeditionProgressAgainstPlan(
       code,
       `productiveGatheringMs + combatInterruptionMs (${progress.productiveGatheringMs} + ${progress.combatInterruptionMs}) must equal elapsedResolvedMs (${progress.elapsedResolvedMs})`,
     );
+  }
+
+  if (progress.elapsedResolvedMs === 0) {
+    if (progress.partialAction !== null) fail(code, "starting progress cannot have partial action");
+    if (progress.nextActionSequence !== 0) fail(code, "starting nextActionSequence must be 0");
+    if (progress.resourcesObtained !== 0) fail(code, "starting resourcesObtained must be 0");
+    if (progress.resourceXpGained !== 0) fail(code, "starting resourceXpGained must be 0");
+    if (progress.combatXpGained !== 0) fail(code, "starting combatXpGained must be 0");
+    if (progress.encounters !== 0) fail(code, "starting encounters must be 0");
+    if (progress.encountersWon !== 0) fail(code, "starting encountersWon must be 0");
+    if (progress.encountersLost !== 0) fail(code, "starting encountersLost must be 0");
+    if (progress.damageTaken !== 0) fail(code, "starting damageTaken must be 0");
+    if (progress.foodConsumed !== 0) fail(code, "starting foodConsumed must be 0");
+    if (progress.productiveGatheringMs !== 0) fail(code, "starting productiveGatheringMs must be 0");
+    if (progress.combatInterruptionMs !== 0) fail(code, "starting combatInterruptionMs must be 0");
+
+    const critical = progress.health <= rules.minimumHealthToContinue;
+    if (critical) {
+      if (progress.status === "active") {
+        if (progress.stopReason !== null) fail(code, "active progress must have null stopReason");
+      } else if (progress.status === "stopped") {
+        if (progress.stopReason !== "health_critical") fail(code, "stopped starting progress must have health_critical stopReason");
+      } else {
+        fail(code, "invalid starting progress status");
+      }
+    } else {
+      if (progress.status !== "active") fail(code, "non-critical starting progress must be active");
+      if (progress.stopReason !== null) fail(code, "non-critical starting progress must have null stopReason");
+    }
+    return;
+  }
+
+  // Reconstruct completed action history and verify cursor integrity.
+  const startingHealth = progress.health + progress.damageTaken;
+  if (!Number.isSafeInteger(startingHealth) || startingHealth < 0) {
+    fail(code, "startingHealth must be a safe non-negative integer");
+  }
+  const startingFood = progress.availableFood + progress.foodConsumed;
+  if (!Number.isSafeInteger(startingFood) || startingFood < 0) {
+    fail(code, "startingFood must be a safe non-negative integer");
+  }
+
+  let match = false;
+  let lastErrorMsg = "";
+
+  const combos = [
+    {
+      present: progress.existingResourceStackPresent,
+      slots: progress.inventoryUsedSlots,
+    },
+  ];
+  if (
+    progress.resourcesObtained > 0 &&
+    progress.existingResourceStackPresent &&
+    progress.inventoryUsedSlots >= 1
+  ) {
+    combos.push({
+      present: false,
+      slots: progress.inventoryUsedSlots - 1,
+    });
+  }
+
+  for (const combo of combos) {
+    const sim = simulateUpTo(
+      plan,
+      startingHealth,
+      startingFood,
+      combo.slots,
+      combo.present,
+      progress.elapsedResolvedMs,
+    );
+
+    // Compare fields
+    if (sim.elapsedResolvedMs !== progress.elapsedResolvedMs) {
+      lastErrorMsg = `elapsedResolvedMs mismatch: simulated ${sim.elapsedResolvedMs}, got ${progress.elapsedResolvedMs}`;
+      continue;
+    }
+    if (sim.nextActionSequence !== progress.nextActionSequence) {
+      lastErrorMsg = `nextActionSequence mismatch: simulated ${sim.nextActionSequence}, got ${progress.nextActionSequence}`;
+      continue;
+    }
+    if (sim.health !== progress.health) {
+      lastErrorMsg = `health mismatch: simulated ${sim.health}, got ${progress.health}`;
+      continue;
+    }
+    if (sim.inventoryUsedSlots !== progress.inventoryUsedSlots) {
+      lastErrorMsg = `inventoryUsedSlots mismatch: simulated ${sim.inventoryUsedSlots}, got ${progress.inventoryUsedSlots}`;
+      continue;
+    }
+    if (sim.existingResourceStackPresent !== progress.existingResourceStackPresent) {
+      lastErrorMsg = `existingResourceStackPresent mismatch: simulated ${sim.existingResourceStackPresent}, got ${progress.existingResourceStackPresent}`;
+      continue;
+    }
+    if (sim.availableFood !== progress.availableFood) {
+      lastErrorMsg = `availableFood mismatch: simulated ${sim.availableFood}, got ${progress.availableFood}`;
+      continue;
+    }
+    if (sim.resourcesObtained !== progress.resourcesObtained) {
+      lastErrorMsg = `resourcesObtained mismatch: simulated ${sim.resourcesObtained}, got ${progress.resourcesObtained}`;
+      continue;
+    }
+    if (sim.resourceXpGained !== progress.resourceXpGained) {
+      lastErrorMsg = `resourceXpGained mismatch: simulated ${sim.resourceXpGained}, got ${progress.resourceXpGained}`;
+      continue;
+    }
+    if (sim.combatXpGained !== progress.combatXpGained) {
+      lastErrorMsg = `combatXpGained mismatch: simulated ${sim.combatXpGained}, got ${progress.combatXpGained}`;
+      continue;
+    }
+    if (sim.encounters !== progress.encounters) {
+      lastErrorMsg = `encounters mismatch: simulated ${sim.encounters}, got ${progress.encounters}`;
+      continue;
+    }
+    if (sim.encountersWon !== progress.encountersWon) {
+      lastErrorMsg = `encountersWon mismatch: simulated ${sim.encountersWon}, got ${progress.encountersWon}`;
+      continue;
+    }
+    if (sim.encountersLost !== progress.encountersLost) {
+      lastErrorMsg = `encountersLost mismatch: simulated ${sim.encountersLost}, got ${progress.encountersLost}`;
+      continue;
+    }
+    if (sim.damageTaken !== progress.damageTaken) {
+      lastErrorMsg = `damageTaken mismatch: simulated ${sim.damageTaken}, got ${progress.damageTaken}`;
+      continue;
+    }
+    if (sim.foodConsumed !== progress.foodConsumed) {
+      lastErrorMsg = `foodConsumed mismatch: simulated ${sim.foodConsumed}, got ${progress.foodConsumed}`;
+      continue;
+    }
+    if (sim.productiveGatheringMs !== progress.productiveGatheringMs) {
+      lastErrorMsg = `productiveGatheringMs mismatch: simulated ${sim.productiveGatheringMs}, got ${progress.productiveGatheringMs}`;
+      continue;
+    }
+    if (sim.combatInterruptionMs !== progress.combatInterruptionMs) {
+      lastErrorMsg = `combatInterruptionMs mismatch: simulated ${sim.combatInterruptionMs}, got ${progress.combatInterruptionMs}`;
+      continue;
+    }
+    if (sim.status !== progress.status) {
+      lastErrorMsg = `status mismatch: simulated ${sim.status}, got ${progress.status}`;
+      continue;
+    }
+    if (sim.stopReason !== progress.stopReason) {
+      lastErrorMsg = `stopReason mismatch: simulated ${sim.stopReason}, got ${progress.stopReason}`;
+      continue;
+    }
+
+    // Compare partial action
+    if (sim.partialAction === null && progress.partialAction !== null) {
+      lastErrorMsg = `partialAction mismatch: simulated null, got ${JSON.stringify(progress.partialAction)}`;
+      continue;
+    }
+    if (sim.partialAction !== null && progress.partialAction === null) {
+      lastErrorMsg = `partialAction mismatch: simulated ${JSON.stringify(sim.partialAction)}, got null`;
+      continue;
+    }
+    if (sim.partialAction !== null && progress.partialAction !== null) {
+      if (sim.partialAction.kind !== progress.partialAction.kind) {
+        lastErrorMsg = `partialAction.kind mismatch: simulated ${sim.partialAction.kind}, got ${progress.partialAction.kind}`;
+        continue;
+      }
+      if (sim.partialAction.actionSequence !== progress.partialAction.actionSequence) {
+        lastErrorMsg = `partialAction.actionSequence mismatch: simulated ${sim.partialAction.actionSequence}, got ${progress.partialAction.actionSequence}`;
+        continue;
+      }
+      if (sim.partialAction.elapsedInActionMs !== progress.partialAction.elapsedInActionMs) {
+        lastErrorMsg = `partialAction.elapsedInActionMs mismatch: simulated ${sim.partialAction.elapsedInActionMs}, got ${progress.partialAction.elapsedInActionMs}`;
+        continue;
+      }
+    }
+
+    match = true;
+    break;
+  }
+
+  if (!match) {
+    fail(code, `deterministic history simulation mismatch: ${lastErrorMsg}`);
   }
 }

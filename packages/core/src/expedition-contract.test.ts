@@ -12,6 +12,10 @@ import {
   type DeterministicExpeditionRules,
   type DeterministicExpeditionStartingState,
 } from "./expedition-contract";
+import {
+  createDeterministicExpeditionProgress,
+  resolveDeterministicExpedition,
+} from "./expedition-kernel";
 
 function makeRules(overrides: Partial<DeterministicExpeditionRules> = {}): DeterministicExpeditionRules {
   return {
@@ -264,23 +268,23 @@ describe("deterministic expedition contract", () => {
   describe("plan-aware progress validation", () => {
     it("accepts a valid active progress carrying a partial action", () => {
       const plan = makePlan();
-      const progress = makeProgress({
-        elapsedResolvedMs: 5_000,
-        partialAction: { kind: "gathering", actionSequence: 0, elapsedInActionMs: 5_000 },
-        nextActionSequence: 0,
-        productiveGatheringMs: 5_000,
-      });
+      const startingState = makeStartingState();
+      const progress = resolveDeterministicExpedition(
+        plan,
+        createDeterministicExpeditionProgress(plan, startingState),
+        5_000,
+      ).progress;
       expect(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress)).not.toThrow();
     });
 
     it("accepts a valid completed progress", () => {
       const plan = makePlan();
-      const progress = makeProgress({
-        elapsedResolvedMs: 120_000,
-        status: "completed",
-        stopReason: "duration_reached",
-        productiveGatheringMs: 120_000,
-      });
+      const startingState = makeStartingState();
+      const progress = resolveDeterministicExpedition(
+        plan,
+        createDeterministicExpeditionProgress(plan, startingState),
+        120_000,
+      ).progress;
       expect(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress)).not.toThrow();
     });
 
