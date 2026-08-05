@@ -1,0 +1,110 @@
+name: Capacitor iOS (Gate 5A)
+
+# Gate 5A verification only: builds the authoritative apps/game Vite bundle,
+# syncs it into the committed Capacitor iOS project, runs the static
+# verifier, and performs an UNSIGNED iOS SIMULATOR compile as a build proof.
+# This workflow does not sign, does not deploy to a device, and does not
+# submit to the App Store. Physical iPhone verification requires an actual
+# device and a human tester -- see
+# docs/audits/2026-08-05-capacitor-ios-bakeoff/OWNER_IPHONE_TEST_GUIDE.md.
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - claude/capacitor-ios-bakeoff
+  pull_request:
+    branches:
+      - claude/capacitor-ios-bakeoff
+
+concurrency:
+  group: capacitor-ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios-simulator-build:
+    name: iOS simulator build (unsigned)
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.17.0
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Build apps/game
+        run: pnpm --filter @everloom/game run build
+
+      - name: Sync Capacitor iOS
+        run: pnpm --filter @everloom/game run cap:sync:ios
+
+      - name: Run static Capacitor verifier
+        run: pnpm --filter @everloom/game run verify:capacitor:ios
+
+      - name: Report Xcode toolchain
+        run: |
+          xcodebuild -version
+          xcodebuild -showsdks | grep -i simulator || true
+
+      - name: Unsigned iOS simulator compile
+        working-directory: apps/game/ios/App
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project App.xcodeproj \
+            -scheme App \
+            -sdk iphonesimulator \
+            -destination "generic/platform=iOS Simulator" \
+            -configuration Debug \
+            -derivedDataPath "$GITHUB_WORKSPACE/ios-build" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            build 2>&1 | tee "$GITHUB_WORKSPACE/xcodebuild.log"
+
+      - name: Locate and inspect the built .app
+        run: |
+          APP_PATH=$(find "$GITHUB_WORKSPACE/ios-build" -maxdepth 6 -name "App.app" -type d | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "FAIL: no App.app produced by the simulator build"
+            exit 1
+          fi
+          echo "Built app: $APP_PATH"
+          BUNDLE_ID=$(/usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP_PATH/Info.plist")
+          echo "Bundle identifier: $BUNDLE_ID"
+          if [ "$BUNDLE_ID" != "com.rockyjojo1.everloom" ]; then
+            echo "FAIL: bundle identifier mismatch, expected com.rockyjojo1.everloom, got $BUNDLE_ID"
+            exit 1
+          fi
+          echo "$APP_PATH" > "$GITHUB_WORKSPACE/app-path.txt"
+
+      - name: Summarize warnings
+        if: always()
+        run: |
+          if [ -f "$GITHUB_WORKSPACE/xcodebuild.log" ]; then
+            WARNING_COUNT=$(grep -c "warning:" "$GITHUB_WORKSPACE/xcodebuild.log" || true)
+            echo "xcodebuild warning count: ${WARNING_COUNT:-0}"
+          fi
+
+      - name: Upload build logs and app bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: capacitor-ios-simulator-build
+          path: |
+            xcodebuild.log
+            app-path.txt
+            ios-build/Build/Products/Debug-iphonesimulator/App.app
+          retention-days: 14
+          if-no-files-found: warn

@@ -6,7 +6,7 @@ export default defineConfig({
   testDir: "./tests",
   // Service-worker behaviour is validated against the production preview by
   // playwright.pwa.config.ts, never against Vite's development server.
-  testIgnore: "pwa-offline.spec.ts",
+  testIgnore: ["pwa-offline.spec.ts", "capacitor-native-policy.spec.ts"],
   timeout: 75_000,
   workers: 1,
   expect: { timeout: 12_000 },
