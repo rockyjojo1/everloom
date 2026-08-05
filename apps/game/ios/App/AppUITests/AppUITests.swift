@@ -129,10 +129,12 @@ final class AppUITests: XCTestCase {
 
         // ===== PHASE B: real user entry =====
         tapAndWaitForKeyboardFocus(nameField)
-        if let currentValue = nameField.value as? String, !currentValue.isEmpty {
-            let deleteAll = String(repeating: XCUIKeyboardKey.delete.rawValue, count: currentValue.count)
-            nameField.typeText(deleteAll)
-        }
+        // A freshly focused field's cursor lands at index 0 (start), not
+        // the end -- deleting backward from there deletes nothing.
+        // Triple-tap is the standard iOS/WebKit gesture to select all
+        // existing text in a single-line field, so typing next replaces
+        // it, rather than prepending onto the untouched default value.
+        nameField.tripleTap()
         nameField.typeText("Native QA")
 
         // Dismiss the keyboard before tapping Enter Meadowrest: in
@@ -144,6 +146,23 @@ final class AppUITests: XCTestCase {
         _ = app.keyboards.firstMatch.waitForNonExistence(timeout: shortTimeout)
 
         tap(enterButton)
+
+        // `Hud` (Pack/Skills/Thread/Options/HP/etc.) renders unconditionally
+        // once a local save exists -- including *underneath* the character
+        // creator, before it is ever dismissed. So the HUD's controls
+        // existing in the accessibility tree is not proof Enter Meadowrest
+        // actually worked: a full-screen accessibility-tree capture taken
+        // during Gate 5B CI debugging showed the HUD and the still-present
+        // character creator coexisting in the same snapshot. The only
+        // unambiguous signal that entry actually completed is the
+        // character creator itself disappearing.
+        if !washedAshore.waitForNonExistence(timeout: shortTimeout) {
+            tap(enterButton)
+        }
+        XCTAssertTrue(
+            washedAshore.waitForNonExistence(timeout: launchTimeout),
+            "Character creator ('Who washed ashore?') did not dismiss after tapping 'Enter Meadowrest' -- the HUD renders behind it regardless, so its presence alone would not prove entry worked."
+        )
 
         let packButton = element(labeled: "Pack")
         waitAndAssert(packButton, "HUD 'Pack' control did not appear -- the game world/HUD did not become ready after entering Meadowrest.", timeout: launchTimeout)
