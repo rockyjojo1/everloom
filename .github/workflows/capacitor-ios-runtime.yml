@@ -1,0 +1,225 @@
+name: Capacitor iOS Simulator Runtime (Gate 5B)
+
+# Gate 5B: proves the committed Capacitor app actually boots inside a real
+# iOS Simulator and that its existing local save survives backgrounding and
+# a genuine native process termination/relaunch. This is a real XCUITest
+# run against the real production web bundle inside the real Capacitor
+# WKWebView -- not a mock, not Playwright, no injected save, no remote
+# server. Unsigned throughout; no signing secrets, no Apple account, no
+# deployment credentials are used anywhere in this workflow.
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - claude/capacitor-ios-simulator-runtime
+
+concurrency:
+  group: capacitor-ios-runtime-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios-simulator-runtime:
+    name: iOS Simulator runtime + XCUITest journey
+    runs-on: macos-26
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.17.0
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Build apps/game
+        run: pnpm --filter @everloom/game run build
+
+      - name: Sync Capacitor iOS
+        run: pnpm --filter @everloom/game run cap:sync:ios
+
+      - name: Run accepted Gate 5A static verifier
+        run: pnpm --filter @everloom/game run verify:capacitor:ios
+
+      - name: Report macOS, Xcode and Simulator runtime info
+        run: |
+          sw_vers | tee "$GITHUB_WORKSPACE/environment-info.txt"
+          xcodebuild -version | tee -a "$GITHUB_WORKSPACE/environment-info.txt"
+          echo "---" >> "$GITHUB_WORKSPACE/environment-info.txt"
+          xcrun simctl list runtimes | tee -a "$GITHUB_WORKSPACE/environment-info.txt"
+
+      - name: Select an available iOS runtime and iPhone device type
+        id: select-sim
+        run: |
+          set -euo pipefail
+          RUNTIME_ID=$(xcrun simctl list runtimes --json | node -e "
+            const d = JSON.parse(require('fs').readFileSync(0,'utf8'));
+            const ios = d.runtimes.filter(r => r.isAvailable && r.identifier.includes('com.apple.CoreSimulator.SimRuntime.iOS'));
+            if (ios.length === 0) { console.error('No available iOS runtime found'); process.exit(1); }
+            ios.sort((a,b) => b.version.localeCompare(a.version, undefined, {numeric:true}));
+            console.log(ios[0].identifier);
+          ")
+          echo "Selected runtime: $RUNTIME_ID"
+
+          DEVICE_TYPE_ID=$(xcrun simctl list devicetypes --json | node -e "
+            const d = JSON.parse(require('fs').readFileSync(0,'utf8'));
+            const preferred = d.devicetypes.filter(t => /iPhone (1[5-9]|[2-9][0-9]) Pro\$/.test(t.name));
+            const fallbackPro = d.devicetypes.filter(t => /iPhone.*Pro\$/.test(t.name));
+            const fallbackAny = d.devicetypes.filter(t => /^iPhone /.test(t.name));
+            const pool = preferred.length ? preferred : (fallbackPro.length ? fallbackPro : fallbackAny);
+            if (pool.length === 0) { console.error('No iPhone device type found'); process.exit(1); }
+            pool.sort((a,b) => b.name.localeCompare(a.name, undefined, {numeric:true}));
+            console.log(pool[0].identifier);
+            console.error('Selected device type name: ' + pool[0].name);
+          ")
+          echo "Selected device type: $DEVICE_TYPE_ID"
+
+          echo "runtime_id=$RUNTIME_ID" >> "$GITHUB_OUTPUT"
+          echo "device_type_id=$DEVICE_TYPE_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Create and boot the Gate 5B simulator
+        id: boot-sim
+        run: |
+          set -euo pipefail
+          SIM_NAME="Gate5B-${{ github.run_id }}-${{ github.run_attempt }}"
+          UDID=$(xcrun simctl create "$SIM_NAME" "${{ steps.select-sim.outputs.device_type_id }}" "${{ steps.select-sim.outputs.runtime_id }}")
+          echo "Created simulator: $SIM_NAME ($UDID)"
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+          echo "sim_name=$SIM_NAME" >> "$GITHUB_OUTPUT"
+          {
+            echo "Simulator name: $SIM_NAME"
+            echo "Simulator UDID: $UDID"
+            echo "Device type: ${{ steps.select-sim.outputs.device_type_id }}"
+            echo "Runtime: ${{ steps.select-sim.outputs.runtime_id }}"
+          } >> "$GITHUB_WORKSPACE/environment-info.txt"
+
+      - name: Mark log-collection start time
+        id: log-window
+        run: echo "start=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
+      - name: Run XCUITest journey
+        id: xctest
+        working-directory: apps/game/ios/App
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project App.xcodeproj \
+            -scheme App \
+            -destination "id=${{ steps.boot-sim.outputs.udid }}" \
+            -resultBundlePath "$GITHUB_WORKSPACE/gate5b.xcresult" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            2>&1 | tee "$GITHUB_WORKSPACE/xcodebuild-test.log"
+          echo "exit_code=${PIPESTATUS[0]:-$?}" >> "$GITHUB_OUTPUT"
+
+      - name: Extract test summary from .xcresult
+        if: always()
+        run: |
+          set +e
+          if [ -d "$GITHUB_WORKSPACE/gate5b.xcresult" ]; then
+            xcrun xcresulttool get test-results summary --path "$GITHUB_WORKSPACE/gate5b.xcresult" \
+              > "$GITHUB_WORKSPACE/test-summary.json" 2>"$GITHUB_WORKSPACE/test-summary-stderr.log"
+            if [ ! -s "$GITHUB_WORKSPACE/test-summary.json" ]; then
+              echo "New xcresulttool syntax produced no output, trying legacy syntax" >> "$GITHUB_WORKSPACE/test-summary-stderr.log"
+              xcrun xcresulttool get --legacy --format json --path "$GITHUB_WORKSPACE/gate5b.xcresult" \
+                > "$GITHUB_WORKSPACE/test-summary.json" 2>>"$GITHUB_WORKSPACE/test-summary-stderr.log"
+            fi
+            cat "$GITHUB_WORKSPACE/test-summary.json" || true
+          else
+            echo "FAIL: no .xcresult bundle was produced" | tee "$GITHUB_WORKSPACE/test-summary.json"
+          fi
+
+      - name: Extract screenshot attachments from .xcresult
+        if: always()
+        run: |
+          set +e
+          mkdir -p "$GITHUB_WORKSPACE/screenshots"
+          if [ -d "$GITHUB_WORKSPACE/gate5b.xcresult" ]; then
+            xcrun xcresulttool export attachments --path "$GITHUB_WORKSPACE/gate5b.xcresult" \
+              --output-path "$GITHUB_WORKSPACE/screenshots" 2>"$GITHUB_WORKSPACE/screenshot-export-stderr.log" \
+              || echo "xcresulttool export attachments not available on this Xcode version; screenshots remain inside the .xcresult bundle" | tee -a "$GITHUB_WORKSPACE/screenshot-export-stderr.log"
+          fi
+          ls -la "$GITHUB_WORKSPACE/screenshots" || true
+
+      - name: Collect simulator system/app logs for the tested window
+        if: always()
+        run: |
+          set +e
+          xcrun simctl spawn "${{ steps.boot-sim.outputs.udid }}" log collect \
+            --output "$GITHUB_WORKSPACE/simulator.logarchive" || true
+
+      - name: Search for Everloom crash reports
+        if: always()
+        run: |
+          set +e
+          {
+            echo "=== DiagnosticReports (host) ==="
+            find ~/Library/Logs/DiagnosticReports -iname "*Everloom*" -o -iname "*rockyjojo1*" 2>/dev/null
+            echo "=== Simulator CrashReporter ==="
+            find "$HOME/Library/Developer/CoreSimulator/Devices/${{ steps.boot-sim.outputs.udid }}/data/Library/Logs/CrashReporter" \
+              -iname "*Everloom*" -o -iname "*rockyjojo1*" 2>/dev/null
+          } | tee "$GITHUB_WORKSPACE/crash-report-search.txt"
+          if grep -qE "Everloom|rockyjojo1" "$GITHUB_WORKSPACE/crash-report-search.txt"; then
+            echo "FAIL: a crash report referencing the Everloom app was found"
+            exit 1
+          fi
+          echo "No crash reports found for com.rockyjojo1.everloom." >> "$GITHUB_WORKSPACE/crash-report-search.txt"
+
+      - name: Shut down and delete the Gate 5B simulator
+        if: always()
+        run: |
+          set +e
+          xcrun simctl shutdown "${{ steps.boot-sim.outputs.udid }}"
+          xcrun simctl delete "${{ steps.boot-sim.outputs.udid }}"
+
+      - name: Fail the job if the XCUITest run did not pass
+        if: always()
+        run: |
+          set -e
+          if [ "${{ steps.xctest.outputs.exit_code }}" != "0" ]; then
+            echo "FAIL: xcodebuild test exited ${{ steps.xctest.outputs.exit_code }}"
+            exit 1
+          fi
+          if [ ! -d "$GITHUB_WORKSPACE/gate5b.xcresult" ]; then
+            echo "FAIL: no .xcresult bundle was produced"
+            exit 1
+          fi
+          if ! grep -q "testEverloomNativeLifecycleAndPersistenceJourney" "$GITHUB_WORKSPACE/xcodebuild-test.log"; then
+            echo "FAIL: the expected test method never appears in the xcodebuild log -- zero tests may have executed"
+            exit 1
+          fi
+          if ! grep -qiE "Test Suite 'AppUITests' passed|\*\* TEST SUCCEEDED \*\*" "$GITHUB_WORKSPACE/xcodebuild-test.log"; then
+            echo "FAIL: no explicit test-success marker found in the xcodebuild log"
+            exit 1
+          fi
+          echo "OK: XCUITest journey passed with a produced .xcresult bundle."
+
+      - name: Upload Gate 5B evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: everloom-gate5b-ios-runtime
+          path: |
+            xcodebuild-test.log
+            gate5b.xcresult
+            test-summary.json
+            test-summary-stderr.log
+            screenshots
+            environment-info.txt
+            simulator.logarchive
+            crash-report-search.txt
+          retention-days: 14
+          if-no-files-found: warn

@@ -19,6 +19,11 @@ import {
 const appRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 
 const EXPECTED_APP_ID = "com.rockyjojo1.everloom";
+// Gate 5B adds a real XCUITest target (AppUITests) alongside the App
+// target. Its bundle ID is a legitimate, expected second identifier -- not
+// a drift from the app's own identity, which must still be exactly
+// EXPECTED_APP_ID.
+const EXPECTED_UI_TEST_BUNDLE_ID = "com.rockyjojo1.everloom.AppUITests";
 const EXPECTED_APP_NAME = "Everloom";
 const EXPECTED_WEB_DIR = "dist";
 const REJECTED_GATE4_SHA = "40fa44878bfb7105ed5d15f4ad406898a4b799e6";
@@ -144,12 +149,16 @@ if (!existsSync(pbxprojPath)) {
   pass("Xcode project.pbxproj exists");
   const pbxprojSource = read(pbxprojPath);
   const bundleIds = extractBundleIdentifiers(pbxprojSource);
+  const allowedBundleIds = new Set([EXPECTED_APP_ID, EXPECTED_UI_TEST_BUNDLE_ID]);
   if (bundleIds.length === 0) {
     fail("No PRODUCT_BUNDLE_IDENTIFIER found in project.pbxproj");
-  } else if (bundleIds.every((id) => id === EXPECTED_APP_ID)) {
-    pass(`All PRODUCT_BUNDLE_IDENTIFIER entries equal ${EXPECTED_APP_ID}`);
+  } else if (!bundleIds.includes(EXPECTED_APP_ID)) {
+    fail(`PRODUCT_BUNDLE_IDENTIFIER for the App target is missing; found [${bundleIds.join(", ")}], expected to include "${EXPECTED_APP_ID}"`);
+  } else if (bundleIds.every((id) => allowedBundleIds.has(id))) {
+    pass(`All PRODUCT_BUNDLE_IDENTIFIER entries are within the allowed set [${[...allowedBundleIds].join(", ")}]`);
   } else {
-    fail(`PRODUCT_BUNDLE_IDENTIFIER mismatch: found [${bundleIds.join(", ")}], expected all "${EXPECTED_APP_ID}"`);
+    const unexpected = bundleIds.filter((id) => !allowedBundleIds.has(id));
+    fail(`Unexpected PRODUCT_BUNDLE_IDENTIFIER entries: [${unexpected.join(", ")}], allowed set is [${[...allowedBundleIds].join(", ")}]`);
   }
 }
 
