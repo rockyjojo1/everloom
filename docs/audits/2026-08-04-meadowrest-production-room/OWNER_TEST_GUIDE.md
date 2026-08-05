@@ -3,7 +3,14 @@
 ## Deployed Branch
 
 - **Branch:** `claude/meadowrest-production-room-bakeoff`
+- **Implementation SHA:** `64359ce4d146804e28e30b5e5919bba63af9a0c2`
 - **Deployment alias:** https://everloom-web-git-claude-meadowrest-production-ro-ac5979-rj-44cb.vercel.app
+
+**Note:** `40fa44878bfb7105ed5d15f4ad406898a4b799e6` was reviewed and rejected
+by independent supervisor re-audit — the Quality shadow policy wrongly
+excluded all `cliff-*` placements, and grass clearance used partially
+hardcoded coordinates instead of the actual layout. Both are fixed as of
+the implementation SHA above; do not test against the rejected SHA.
 
 ## Test Profiles
 

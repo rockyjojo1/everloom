@@ -112,6 +112,40 @@ only what it directly exercises.
   `docs/audits/2026-08-04-canonical-asset-foundation/GATE3_IMPLEMENTATION_REPORT.md`
   and the accompanying `VERIFICATION_LOG.md`.
 
+## Gate 4: Meadowrest production room browser bake-off (branch `claude/meadowrest-production-room-bakeoff`, not yet merged)
+
+- Implementation SHA: `64359ce4d146804e28e30b5e5919bba63af9a0c2`.
+- Rejected SHA (superseded by independent supervisor re-audit, do not treat
+  as authoritative): `40fa44878bfb7105ed5d15f4ad406898a4b799e6` — the
+  Quality shadow policy wrongly excluded all `cliff-*` placements, and
+  grass clearance used partially hardcoded coordinates instead of the
+  actual layout/character positions. Both fixed in the implementation SHA
+  above.
+- Grass generation is a pure, Three.js-free helper
+  (`apps/game/src/bakeoff/grassLayout.ts`) taking room dimensions, actual
+  layout placements, and character positions as input; produces exactly
+  100 (Balanced) / 220 (Quality) deterministic transforms via a bounded
+  retry loop, or throws a stable error.
+- Shadow-caster metrics (`shadowCastingMeshes`, `shadowCasterInstanceIds`)
+  reflect actually-rendered `castShadow=true` meshes, filtered against a
+  pure per-profile contract (`getExpectedShadowCasterIds`). Balanced is
+  exactly the 10 core IDs (player, mara, skeleton, cottage-main,
+  bridge-main, campfire-main, oak-a/b/c, canopy-northwest). Quality is
+  every non-`additional-*` layout placement plus the three characters (45
+  IDs, verified in `METRICS.json`).
+- Placement-level readiness (`expectedInstanceIds`/`loadedInstanceIds`/
+  `failedInstanceIds`) requires exact set equality and zero failures
+  before `ready` is set. Verified: Balanced 70/70/0, Quality 86/86/0.
+- Combined Playwright `test:bakeoff` suite: 39 passed, 9 skipped
+  (project-aware filtering, not failures), 0 failed. Vitest unit suite: 86
+  passed, including a dependency-injected test proving a failed placement
+  using a duplicated runtime asset is not hidden by a sibling placement's
+  success.
+- Physical iPhone verification and Capacitor bake-off remain **not
+  started**.
+- Full detail: `docs/audits/2026-08-04-meadowrest-production-room/GATE4_BAKEOFF_REPORT.md`
+  and the accompanying `VERIFICATION_LOG.md`.
+
 ## Superseded / non-authoritative for current state
 
 - `docs/VERDANT_GROVE_HANDOFF.md` — detailed historical implementation

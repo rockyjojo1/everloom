@@ -72,3 +72,15 @@ following evidence must exist and point to a structural blocker first:
 - measured performance and memory over a real session;
 - observed background/resume behaviour;
 - a demonstrated structural blocker, not a stylistic preference.
+
+## Gate 4 browser bake-off status (branch `claude/meadowrest-production-room-bakeoff`)
+
+The first evidence item above — a representative browser/mobile room built
+with production-representative assets — has browser/mobile-emulation
+evidence at implementation SHA `64359ce4d146804e28e30b5e5919bba63af9a0c2`:
+60 FPS across Balanced/Quality × desktop/iPhone-landscape emulation, 0
+asset/instance failures, exact placement-level readiness (Balanced 70/70/0,
+Quality 86/86/0), and a contractually-exact shadow-caster policy per
+profile. This is **not** the physical-iPhone or Capacitor evidence
+required above — those remain not started. See
+`docs/audits/2026-08-04-meadowrest-production-room/GATE4_BAKEOFF_REPORT.md`.
