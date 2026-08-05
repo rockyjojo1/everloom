@@ -146,6 +146,47 @@ only what it directly exercises.
 - Full detail: `docs/audits/2026-08-04-meadowrest-production-room/GATE4_BAKEOFF_REPORT.md`
   and the accompanying `VERIFICATION_LOG.md`.
 
+## Gate 5A: Capacitor iOS foundation (branch `claude/capacitor-ios-bakeoff`, based on the Gate 4 base SHA, not yet merged)
+
+- Base SHA: `26f36e73b15a1c1e782ec3e4b8890c13ad53194a` (the accepted Gate 4 evidence commit).
+- Capacitor 8.5.0 (`@capacitor/core`, `@capacitor/cli`, `@capacitor/ios` — all pinned identically) integrated into `apps/game`. App ID `com.rockyjojo1.everloom`, app name `Everloom`, `webDir: dist` — the same unmodified Vite build output the browser and PWA targets already use.
+- iOS-only. No `android/` directory exists; the static verifier
+  (`apps/game/scripts/verify-capacitor-ios.mjs`) hard-fails if one is ever
+  introduced.
+- Uses Swift Package Manager (Capacitor 8's default), not CocoaPods — no
+  `Podfile`, no `.xcworkspace`; `ios/App/App.xcodeproj` is the real entry
+  point.
+- No `server.url`, no live-reload address, no remote/cleartext content
+  configuration anywhere in the config — verified by the static verifier,
+  which also confirms the synced `ios/App/App/public` assets are
+  byte-identical (sha256) to the current `dist/` build.
+- `Info.plist` restricted to landscape-only orientations (both iPhone and
+  iPad) — the product has no portrait gameplay. Launch screen background
+  changed from the generated white default to the app's actual `#17241f`
+  theme colour to avoid a white flash before the WebView paints.
+- **App icon and launch splash are still Capacitor's stock placeholder
+  graphics**, not final Everloom branding — explicitly labelled, not
+  final art (see `docs/audits/2026-08-05-capacitor-ios-bakeoff/GATE5A_IMPLEMENTATION_REPORT.md`).
+- The existing PWA service worker (`vite-plugin-pwa`) is now disabled at
+  runtime specifically when running under the native Capacitor wrapper
+  (`apps/game/src/native/serviceWorkerGuard.ts`, `apps/game/src/main.tsx`),
+  while remaining fully active for ordinary browser/PWA use — avoids
+  layering an independent, never-jointly-tested caching system on top of
+  Capacitor's own native asset pipeline. Verified with 32 new Vitest unit
+  tests and 3 new Playwright tests that simulate the native platform via
+  `@capacitor/core`'s real `window.CapacitorCustomPlatform` detection hook
+  (not a mock).
+- `apps/game/src/game/saveDb.ts` (the versioned IndexedDB save system) is
+  explicitly unchanged — verified by the static verifier via a git diff
+  against the Gate 4 base SHA, not merely "we didn't intend to touch it."
+- iOS Simulator compile is CI-only in this pass (no macOS/Xcode available
+  in the implementing environment): `.github/workflows/capacitor-ios.yml`
+  performs an unsigned simulator build on a `macos-26` GitHub-hosted
+  runner. **Physical iPhone verification has not been attempted.** App
+  Store submission has not been started.
+- Full detail: `docs/audits/2026-08-05-capacitor-ios-bakeoff/GATE5A_IMPLEMENTATION_REPORT.md`
+  and the accompanying `VERIFICATION_LOG.md`.
+
 ## Superseded / non-authoritative for current state
 
 - `docs/VERDANT_GROVE_HANDOFF.md` — detailed historical implementation
