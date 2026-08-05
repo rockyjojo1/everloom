@@ -373,6 +373,8 @@ describe("deterministic expedition contract", () => {
         inventoryUsedSlots: 19,
         existingResourceStackPresent: true,
         resourcesObtained: 1,
+        resourceXpGained: 25,
+        nextActionSequence: 1,
         productiveGatheringMs: 30_000,
         initialState: {
           startingHealth: 100,
@@ -403,6 +405,8 @@ describe("deterministic expedition contract", () => {
       const progress = makeProgress({
         elapsedResolvedMs: 30_000,
         resourcesObtained: 1,
+        resourceXpGained: 25,
+        nextActionSequence: 1,
         existingResourceStackPresent: false,
         productiveGatheringMs: 30_000,
       });
@@ -462,6 +466,8 @@ describe("deterministic expedition contract", () => {
         existingResourceStackPresent: true,
         inventoryUsedSlots: 1,
         nextActionSequence: 4,
+        foodConsumed: 1,
+        availableFood: 19,
       });
       expectError(
         () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
@@ -472,7 +478,17 @@ describe("deterministic expedition contract", () => {
 
     it("rejects productive plus combat time inconsistent with elapsed", () => {
       const plan = makePlan();
-      const progress = makeProgress({ elapsedResolvedMs: 10_000, productiveGatheringMs: 4_000, combatInterruptionMs: 2_000 });
+      const progress = makeProgress({
+        elapsedResolvedMs: 10_000,
+        productiveGatheringMs: 4_000,
+        combatInterruptionMs: 15_000,
+        encounters: 1,
+        encountersWon: 1,
+        combatXpGained: 50,
+        damageTaken: 10,
+        health: 90,
+        nextActionSequence: 1,
+      });
       expectError(
         () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
         "invalid_progress",

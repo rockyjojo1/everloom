@@ -238,22 +238,26 @@ designs around, recorded here for the audit trail:
 
 ## Independent Auditor (Jules) Adversarial Hardening & Bounded Invariants Correction (2026-08-05)
 
-An independent adversarial audit and subsequent corrective pass was completed by Jules on `2026-08-05`.
-To remove $O(N)$ chronological history replay (`simulateUpTo`) and correct the threat model, we upgraded the schema to version `2` and introduced an explicit `initialState` snapshot in `DeterministicExpeditionProgress`.
+An independent adversarial audit and subsequent corrective passes were completed by Jules on `2026-08-05`.
+To remove $O(N)$ chronological history replay (`simulateUpTo`), we upgraded the schema to version `2` and introduced an explicit `initialState` snapshot in `DeterministicExpeditionProgress`.
 
-The contract validator was completely refactored to enforce bounded $O(1)$ algebraic invariants:
-- Strict health, damageTaken, availableFood, and foodConsumed transitions relative to initial snapshots.
-- Divisibility, xp, and monotonically aligned transitions for resources and encounters.
-- Mathematical action-sequence accounting (`nextActionSequence === completedGatherings + encounters`).
-- Current partial-action validation derived locally with zero history loops.
+After supervisor re-audit of the first O(1) pass (which was rejected for allowing impossible food clocks and lacking precise damage/combat/loss invariants), we completed a final corrective pass. The contract validator now enforces absolute bounded $O(1)$ algebraic invariants:
+- Exact food consumption accounting (`foodConsumed` matches `boundaryCount` for active/completed progress, or `boundaryCount - 1` for inventory_full/health_critical action-outcome-first priority semantics exactly on food boundaries).
+- Stopped food_exhausted progress states are strictly validated (isFoodBoundary, availableFood is 0, foodConsumed === initialState.availableFood, and boundaryCount === availableFood + 1).
+- Damage is constrained to `encounters * enemyDamageMin <= damageTaken <= encounters * enemyDamageMax` with safe-integer protectors on all multiplication and sequence additions.
+- Encounter loss semantics are validated (encountersLost is 0 or 1, and can only be 1 when stopped on health_critical with health <= minimumHealthToContinue). Zero-elapsed low starting health stops are fully supported.
+- Terminal state and stopReason consistency is fully aligned (rejecting invalid inventory_full states, or activity_invalid completely).
+- Combat time is accounted exactly (combatInterruptionMs is compared to encounters * combatDurationMs for terminal and active progress with partials, and includes strict food_exhausted incomplete combat residual bounds).
 
-The test suite in `packages/core/src/expedition-adversarial.test.ts` was expanded to verify these bounded invariants, snapshot immutability, and O(1) performance scaling. All 292 tests are green, and workspace-wide builds/typechecks compile perfectly with 0 warnings.
+The test suite in `packages/core/src/expedition-adversarial.test.ts` was finalized with 24 robust tests verifying these safe, exact invariants. All 297 tests are green with zero skipped tests, and builds/typechecks are clean.
 
 ## State
 
-- **GATE 6A IMPLEMENTATION: COMPLETE** (second pass; first pass rejected; independent adversarial hardening and corrective passe complete)
+- **GATE 6A FINAL BOUNDED-INVARIANT CORRECTION: COMPLETE**
 - **GATE 6A ACCEPTANCE: PENDING INDEPENDENT SUPERVISOR RE-AUDIT**
+- **FULL-HISTORY REPLAY: ABSENT**
 - **GATE 4 BRANCH: UNTOUCHED**
 - **GATE 5 BRANCH: UNTOUCHED**
 - **RECEIPT/SAVE INTEGRATION: NOT STARTED**
 - **RUNTIME/UI INTEGRATION: NOT STARTED**
+- **MERGE: NOT PERFORMED**
