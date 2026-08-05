@@ -371,6 +371,8 @@ describe("deterministic expedition adversarial hardening audit - corrective pass
       const progress = makeProgress({
         status: "stopped",
         stopReason: "inventory_full",
+        elapsedResolvedMs: 30_000,
+        productiveGatheringMs: 30_000,
         inventoryUsedSlots: 17, // Free slot exists!
         initialState: {
           startingHealth: 100,
@@ -388,6 +390,8 @@ describe("deterministic expedition adversarial hardening audit - corrective pass
       const progress = makeProgress({
         status: "stopped",
         stopReason: "inventory_full",
+        elapsedResolvedMs: 30_000,
+        productiveGatheringMs: 30_000,
         inventoryUsedSlots: 18,
         existingResourceStackPresent: true, // Stack already exists, we shouldn't stop with full!
         initialState: {
@@ -634,6 +638,285 @@ describe("deterministic expedition adversarial hardening audit - corrective pass
           expect(strippedContent).not.toMatch(pattern);
         }
       }
+    });
+  });
+
+  // ==========================================================================
+  // PHASE 10 CORRECTIVE PASS GAPS
+  // ==========================================================================
+  describe("Phase 10 Corrective Pass Gaps", () => {
+    it("1. Reject completed progress with one winning encounter and health exactly equal to minimumHealthToContinue", () => {
+      const plan = makePlan();
+      const progress = makeProgress({
+        status: "completed",
+        stopReason: "duration_reached",
+        elapsedResolvedMs: 120_000,
+        encounters: 1,
+        encountersWon: 1,
+        encountersLost: 0,
+        combatXpGained: 50,
+        damageTaken: 10,
+        health: 5,
+        combatInterruptionMs: 15_000,
+        productiveGatheringMs: 105_000,
+        resourcesObtained: 3,
+        resourceXpGained: 75,
+        nextActionSequence: 4,
+        initialState: {
+          startingHealth: 15,
+          startingInventoryUsedSlots: 0,
+          existingResourceStackPresent: false,
+          availableFood: 20,
+        },
+      });
+
+      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress), "invalid_progress", "health must be strictly above minimumHealthToContinue");
+    });
+
+    it("2. Reject completed progress with health below the threshold and zero losses", () => {
+      const plan = makePlan();
+      const progress = makeProgress({
+        status: "completed",
+        stopReason: "duration_reached",
+        elapsedResolvedMs: 120_000,
+        encounters: 1,
+        encountersWon: 1,
+        encountersLost: 0,
+        combatXpGained: 50,
+        damageTaken: 10,
+        health: 4,
+        combatInterruptionMs: 15_000,
+        productiveGatheringMs: 105_000,
+        resourcesObtained: 3,
+        resourceXpGained: 75,
+        nextActionSequence: 4,
+        initialState: {
+          startingHealth: 14,
+          startingInventoryUsedSlots: 0,
+          existingResourceStackPresent: false,
+          availableFood: 20,
+        },
+      });
+
+      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress), "invalid_progress", "health must be strictly above minimumHealthToContinue");
+    });
+
+    it("3. Reject inventory_full at critical health", () => {
+      const plan = makePlan();
+      const progress = makeProgress({
+        status: "stopped",
+        stopReason: "inventory_full",
+        elapsedResolvedMs: 30_000,
+        productiveGatheringMs: 30_000,
+        combatInterruptionMs: 0,
+        inventoryUsedSlots: 18,
+        existingResourceStackPresent: false,
+        health: 4, // Critical health but stopReason is inventory_full
+        damageTaken: 0,
+        initialState: {
+          startingHealth: 4,
+          startingInventoryUsedSlots: 18,
+          existingResourceStackPresent: false,
+          availableFood: 20,
+        },
+      });
+
+      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress), "invalid_progress", "health must be strictly above minimumHealthToContinue");
+    });
+
+    it("4. Reject food_exhausted at critical health", () => {
+      const plan = makePlan({ rules: makeRules({ foodConsumptionIntervalMs: 30_000 }) });
+      const progress = makeProgress({
+        status: "stopped",
+        stopReason: "food_exhausted",
+        elapsedResolvedMs: 30_000,
+        productiveGatheringMs: 30_000,
+        combatInterruptionMs: 0,
+        foodConsumed: 0,
+        availableFood: 0,
+        health: 4, // Critical health but stopReason is food_exhausted
+        damageTaken: 0,
+        initialState: {
+          startingHealth: 4,
+          startingInventoryUsedSlots: 0,
+          existingResourceStackPresent: false,
+          availableFood: 0,
+        },
+      });
+
+      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress), "invalid_progress", "health must be strictly above minimumHealthToContinue");
+    });
+
+    it("5. Reject inventory_full at elapsed 0", () => {
+      const plan = makePlan();
+      const progress = makeProgress({
+        status: "stopped",
+        stopReason: "inventory_full",
+        elapsedResolvedMs: 0,
+        productiveGatheringMs: 0,
+      });
+
+      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress), "invalid_progress", "inventory_full must occur at positive elapsed time");
+    });
+
+    it("6. Reject inventory_full with productiveGatheringMs 0", () => {
+      const plan = makePlan({
+        seed: "partial-forgery-encounter",
+        rules: makeRules({ encounterChancePpm: PROBABILITY_SCALE, combatDurationMs: 15_000, gatheringWindowMs: 30_000, enemyDamageMin: 10, enemyDamageMax: 10 }),
+      });
+      const progress = makeProgress({
+        status: "stopped",
+        stopReason: "inventory_full",
+        elapsedResolvedMs: 30_000,
+        productiveGatheringMs: 0,
+        combatInterruptionMs: 30_000,
+        encounters: 2,
+        encountersWon: 2,
+        combatXpGained: 100,
+        nextActionSequence: 2,
+        damageTaken: 20,
+        health: 80, // Corrected to align with initial state minus damage taken!
+        initialState: {
+          startingHealth: 100,
+          startingInventoryUsedSlots: 18,
+          existingResourceStackPresent: false,
+          availableFood: 20,
+        },
+      });
+
+      // Let's explicitly fail productiveGatheringMs > 0 check first
+      const hijackedProgress = {
+        ...progress,
+        inventoryUsedSlots: 18, // inventory Used slots is correct
+      };
+
+      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, hijackedProgress), "invalid_progress", "inventory_full requires positive productiveGatheringMs");
+    });
+
+    it("7. Reject inventory_full whose terminal sequence deterministically schedules an encounter", () => {
+      const plan = makePlan({
+        seed: "partial-forgery-encounter",
+        rules: makeRules({ encounterChancePpm: PROBABILITY_SCALE, combatDurationMs: 15_000, gatheringWindowMs: 30_000 }),
+      });
+      const progress = makeProgress({
+        status: "stopped",
+        stopReason: "inventory_full",
+        elapsedResolvedMs: 30_000,
+        productiveGatheringMs: 30_000,
+        combatInterruptionMs: 0,
+        inventoryUsedSlots: 18,
+        initialState: {
+          startingHealth: 100,
+          startingInventoryUsedSlots: 18,
+          existingResourceStackPresent: false,
+          availableFood: 20,
+        },
+      });
+
+      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress), "invalid_progress", "inventory_full rejected because the scheduled terminal action was an encounter");
+    });
+
+    it("8. Reject inventory_full with a failed-gather duration inconsistent with gathering window bounds", () => {
+      const plan = makePlan();
+      const progress = makeProgress({
+        status: "stopped",
+        stopReason: "inventory_full",
+        elapsedResolvedMs: 20_000, // 20,000 is less than 30,000, but remaining plan window is 100,000 (meaning gather window was not cut short)
+        productiveGatheringMs: 20_000,
+        inventoryUsedSlots: 18,
+        initialState: {
+          startingHealth: 100,
+          startingInventoryUsedSlots: 18,
+          existingResourceStackPresent: false,
+          availableFood: 20,
+        },
+      });
+
+      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress), "invalid_progress", "does not match expected failed gather duration");
+    });
+
+    it("9. Reject encounterChancePpm === 0 with forged positive residual combat", () => {
+      const plan = makePlan({ rules: makeRules({ encounterChancePpm: 0, foodConsumptionIntervalMs: 10_000 }) });
+      const progress = makeProgress({
+        status: "stopped",
+        stopReason: "food_exhausted",
+        elapsedResolvedMs: 10_000,
+        foodConsumed: 0,
+        availableFood: 0,
+        combatInterruptionMs: 5_000,
+        productiveGatheringMs: 5_000,
+        initialState: {
+          startingHealth: 100,
+          startingInventoryUsedSlots: 0,
+          existingResourceStackPresent: false,
+          availableFood: 0,
+        },
+      });
+
+      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress), "invalid_progress", "residual combat is positive but scheduled action is gathering");
+    });
+
+    it("10. Reject encounterChancePpm === PROBABILITY_SCALE with forged positive residual gathering", () => {
+      const plan = makePlan({ rules: makeRules({ encounterChancePpm: PROBABILITY_SCALE, combatDurationMs: 15_000, foodConsumptionIntervalMs: 10_000 }) });
+      const progress = makeProgress({
+        status: "stopped",
+        stopReason: "food_exhausted",
+        elapsedResolvedMs: 10_000,
+        foodConsumed: 0,
+        availableFood: 0,
+        combatInterruptionMs: 0,
+        productiveGatheringMs: 10_000,
+        initialState: {
+          startingHealth: 100,
+          startingInventoryUsedSlots: 0,
+          existingResourceStackPresent: false,
+          availableFood: 0,
+        },
+      });
+
+      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress), "invalid_progress", "residual gathering is positive but scheduled action is encounter");
+    });
+
+    it("11. Reject simultaneous positive residual gathering and residual combat", () => {
+      const plan = makePlan({ rules: makeRules({ encounterChancePpm: PROBABILITY_SCALE, combatDurationMs: 15_000, foodConsumptionIntervalMs: 10_000 }) });
+      const progress = makeProgress({
+        status: "stopped",
+        stopReason: "food_exhausted",
+        elapsedResolvedMs: 10_000,
+        foodConsumed: 0,
+        availableFood: 0,
+        combatInterruptionMs: 5_000,
+        productiveGatheringMs: 5_000,
+        initialState: {
+          startingHealth: 100,
+          startingInventoryUsedSlots: 0,
+          existingResourceStackPresent: false,
+          availableFood: 0,
+        },
+      });
+
+      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress), "invalid_progress", "residual combat and residual gathering cannot both be positive");
+    });
+
+    it("12. Reject residual current-action time inconsistent with elapsedResolvedMs", () => {
+      const plan = makePlan({ rules: makeRules({ foodConsumptionIntervalMs: 10_000 }) });
+      const progress = makeProgress({
+        status: "stopped",
+        stopReason: "food_exhausted",
+        elapsedResolvedMs: 10_000,
+        foodConsumed: 0,
+        availableFood: 0,
+        combatInterruptionMs: 15_000, // residual combat is 15,000, equal to combatDurationMs (violates strictly below)
+        productiveGatheringMs: -5_000,
+        initialState: {
+          startingHealth: 100,
+          startingInventoryUsedSlots: 0,
+          existingResourceStackPresent: false,
+          availableFood: 0,
+        },
+      });
+
+      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress), "invalid_progress", "residualCombatMs must be 0 or strictly within (0, combatDurationMs)");
     });
   });
 });

@@ -438,6 +438,41 @@ export function validateDeterministicExpeditionProgressAgainstPlan(
     fail(code, `health mismatch against initial state: expected ${expectedHealth}, got ${progress.health}`);
   }
 
+  // --- HEALTH BOUNDED INVARIANT ---
+  const isUntouchedStartingCursor =
+    progress.status === "active" &&
+    progress.elapsedResolvedMs === 0 &&
+    progress.encounters === 0 &&
+    progress.encountersWon === 0 &&
+    progress.encountersLost === 0 &&
+    progress.damageTaken === 0 &&
+    progress.health === progress.initialState.startingHealth;
+
+  const isLegitimateZeroElapsedCriticalStop =
+    progress.status === "stopped" &&
+    progress.stopReason === "health_critical" &&
+    progress.elapsedResolvedMs === 0 &&
+    progress.encounters === 0 &&
+    progress.encountersLost === 0 &&
+    progress.damageTaken === 0 &&
+    progress.initialState.startingHealth <= rules.minimumHealthToContinue &&
+    progress.health === progress.initialState.startingHealth;
+
+  const isLegitimatePositiveCriticalStop =
+    progress.status === "stopped" &&
+    progress.stopReason === "health_critical" &&
+    progress.elapsedResolvedMs > 0 &&
+    progress.encountersLost === 1;
+
+  const isLegitimateCriticalState =
+    isUntouchedStartingCursor ||
+    isLegitimateZeroElapsedCriticalStop ||
+    isLegitimatePositiveCriticalStop;
+
+  if (progress.health <= rules.minimumHealthToContinue && !isLegitimateCriticalState) {
+    fail(code, "health must be strictly above minimumHealthToContinue in this state");
+  }
+
   // --- ENCOUNTER LOSS SEMANTICS ---
   if (progress.encountersLost !== 0 && progress.encountersLost !== 1) {
     fail(code, `encountersLost (${progress.encountersLost}) must be either 0 or 1`);
@@ -611,6 +646,44 @@ export function validateDeterministicExpeditionProgressAgainstPlan(
     }
 
     if (progress.stopReason === "inventory_full") {
+      if (progress.elapsedResolvedMs <= 0) {
+        fail(code, "inventory_full must occur at positive elapsed time");
+      }
+      if (progress.productiveGatheringMs <= 0 || progress.productiveGatheringMs > rules.gatheringWindowMs) {
+        fail(code, "inventory_full requires positive productiveGatheringMs within the gathering window");
+      }
+      if (progress.encountersLost !== 0) {
+        fail(code, "inventory_full cannot have lost encounters");
+      }
+      const expectedInterruptionMs = safeMul(progress.encounters, rules.combatDurationMs, "combatMs overflow");
+      if (progress.combatInterruptionMs !== expectedInterruptionMs) {
+        fail(code, "combatInterruptionMs mismatch for inventory_full stop");
+      }
+      if (progress.elapsedResolvedMs !== safeAdd(progress.combatInterruptionMs, progress.productiveGatheringMs, "elapsedResolvedMs overflow")) {
+        fail(code, "elapsedResolvedMs does not sum correctly for inventory_full");
+      }
+
+      const failedGatherStartMs = progress.elapsedResolvedMs - progress.productiveGatheringMs;
+      if (failedGatherStartMs < 0) {
+        fail(code, "failedGatherStartMs must be non-negative");
+      }
+      const remainingWindowMs = plan.requestedDurationMs - failedGatherStartMs;
+      const expectedFailedGatherDuration = Math.min(rules.gatheringWindowMs, remainingWindowMs);
+      if (progress.productiveGatheringMs !== expectedFailedGatherDuration) {
+        fail(code, `productiveGatheringMs (${progress.productiveGatheringMs}) does not match expected failed gather duration (${expectedFailedGatherDuration})`);
+      }
+
+      const encounter = deterministicRollPpm(
+        plan.seed,
+        progress.nextActionSequence,
+        "expedition_encounter",
+        plan.activityId,
+        rules.encounterChancePpm,
+      );
+      if (encounter && expectedFailedGatherDuration >= rules.combatDurationMs) {
+        fail(code, "inventory_full rejected because the scheduled terminal action was an encounter");
+      }
+
       if (
         progress.existingResourceStackPresent !== false ||
         progress.initialState.existingResourceStackPresent !== false ||
@@ -642,6 +715,62 @@ export function validateDeterministicExpeditionProgressAgainstPlan(
       }
       if (progress.encountersLost !== 0) {
         fail(code, "food_exhausted stop must not have lost encounters");
+      }
+
+      const completedCombatMs = safeMul(progress.encounters, rules.combatDurationMs, "combatMs overflow");
+      const residualCombatMs = progress.combatInterruptionMs - completedCombatMs;
+
+      if (residualCombatMs > 0) {
+        const actionStartMs = progress.elapsedResolvedMs - residualCombatMs;
+        if (actionStartMs < 0) {
+          fail(code, "actionStartMs must be non-negative for residual combat");
+        }
+        if (residualCombatMs >= rules.combatDurationMs) {
+          fail(code, "residualCombatMs must be strictly below combatDurationMs");
+        }
+        const remainingWindowMs = plan.requestedDurationMs - actionStartMs;
+        if (remainingWindowMs < rules.combatDurationMs) {
+          fail(code, "remaining plan window cannot contain combat duration");
+        }
+
+        const encounter = deterministicRollPpm(
+          plan.seed,
+          progress.nextActionSequence,
+          "expedition_encounter",
+          plan.activityId,
+          rules.encounterChancePpm,
+        );
+        if (!encounter) {
+          fail(code, "residual combat is positive but scheduled action is gathering");
+        }
+      }
+
+      const completedGatheringMs = safeMul(completedGatherings, rules.gatheringWindowMs, "gatheringMs overflow");
+      const residualGatheringMs = progress.productiveGatheringMs - completedGatheringMs;
+
+      if (residualGatheringMs < 0) {
+        fail(code, "residualGatheringMs must be non-negative");
+      }
+      if (residualGatheringMs >= rules.gatheringWindowMs) {
+        fail(code, "residualGatheringMs must be strictly below gatheringWindowMs");
+      }
+      if (residualCombatMs > 0 && residualGatheringMs > 0) {
+        fail(code, "residual combat and residual gathering cannot both be positive");
+      }
+      if (residualGatheringMs > 0) {
+        const remainingWindowMs = plan.requestedDurationMs - (progress.elapsedResolvedMs - residualGatheringMs);
+        const nextWindowMs = Math.min(rules.gatheringWindowMs, remainingWindowMs);
+        const encounter = deterministicRollPpm(
+          plan.seed,
+          progress.nextActionSequence,
+          "expedition_encounter",
+          plan.activityId,
+          rules.encounterChancePpm,
+        );
+        const isEncounter = (encounter && nextWindowMs >= rules.combatDurationMs);
+        if (isEncounter) {
+          fail(code, "residual gathering is positive but scheduled action is encounter");
+        }
       }
     }
 
