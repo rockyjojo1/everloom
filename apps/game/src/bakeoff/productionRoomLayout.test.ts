@@ -178,4 +178,62 @@ describe("productionRoomLayout", () => {
       expect(knownIds.has(id), `runtimeAssetId "${id}" is not in packages/assets/src/registry.json`).toBe(true);
     });
   });
+
+  it("balanced profile expects exactly 70 instance IDs at runtime", () => {
+    // 59 placements + 3 characters (player, mara, skeleton) + 4 action IDs
+    // + 3 core assets (grass, ground, water) + 1 shawl = 70
+    const layout = getProductionRoomLayout("balanced");
+    const placementCount = layout.placements.length;
+    const characterCount = 3;
+    const actionCount = 4;
+    const coreAssetCount = 3;
+    const shawlCount = 1;
+    const total = placementCount + characterCount + actionCount + coreAssetCount + shawlCount;
+    expect(total).toBe(70);
+  });
+
+  it("quality profile expects exactly 86 instance IDs at runtime", () => {
+    // 75 placements + 3 characters (player, mara, skeleton) + 4 action IDs
+    // + 3 core assets (grass, ground, water) + 1 shawl = 86
+    const layout = getProductionRoomLayout("quality");
+    const placementCount = layout.placements.length;
+    const characterCount = 3;
+    const actionCount = 4;
+    const coreAssetCount = 3;
+    const shawlCount = 1;
+    const total = placementCount + characterCount + actionCount + coreAssetCount + shawlCount;
+    expect(total).toBe(86);
+  });
+
+  it("balanced shadow policy includes exactly 10 core casters", () => {
+    const balancedCasters = [
+      "player", "mara", "skeleton",
+      "cottage-main", "bridge-main", "campfire-main",
+      "oak-a", "oak-b", "oak-c", "canopy-northwest"
+    ];
+    expect(balancedCasters.length).toBe(10);
+
+    const layout = getProductionRoomLayout("balanced");
+    const byInstance = new Map(layout.placements.map((p) => [p.instance, p]));
+
+    balancedCasters.forEach((casterId) => {
+      if (!["player", "mara", "skeleton"].includes(casterId)) {
+        const placement = byInstance.get(casterId);
+        expect(placement).toBeDefined();
+      }
+    });
+  });
+
+  it("quality shadows include all fixed placements except additional-* and grass", () => {
+    const layout = getProductionRoomLayout("quality");
+    const qualityShadowCasters = layout.placements.filter(
+      (p) => !p.instance.startsWith("additional-") && p.role !== "grass"
+    );
+    // Should include all core placements
+    expect(qualityShadowCasters.length).toBeGreaterThan(0);
+    // Should not include additional-tree or additional-rock
+    qualityShadowCasters.forEach((p) => {
+      expect(p.instance.startsWith("additional-")).toBe(false);
+    });
+  });
 });

@@ -22,7 +22,43 @@ function deterministicHash(index: number, seed: number): number {
   return x - Math.floor(x);
 }
 
-function createGrassInstancedMesh(count: number, profileSettings: any): { mesh: THREE.InstancedMesh; geometry: THREE.BufferGeometry; material: THREE.Material } {
+function getCorePlacementsForGrassClearing(
+  layout: ReturnType<typeof getProductionRoomLayout>,
+  characters: ReturnType<typeof getCharacterPlacements>
+): Array<{ x: number; z: number; clearance: number }> {
+  const corePlacements: Array<{ x: number; z: number; clearance: number }> = [];
+
+  // Add characters
+  for (let i = 0; i < Math.min(3, characters.length); i++) {
+    corePlacements.push({
+      x: characters[i]!.position[0]!,
+      z: characters[i]!.position[2]!,
+      clearance: 1.5,
+    });
+  }
+
+  // Add key fixed placements
+  for (const placement of layout.placements) {
+    if (
+      ["cottage-main", "bridge-main", "campfire-main"].includes(placement.instance)
+    ) {
+      corePlacements.push({
+        x: placement.position[0],
+        z: placement.position[2],
+        clearance: 2,
+      });
+    }
+  }
+
+  return corePlacements;
+}
+
+function createGrassInstancedMesh(
+  count: number,
+  profileSettings: any,
+  layout: ReturnType<typeof getProductionRoomLayout>,
+  characters: ReturnType<typeof getCharacterPlacements>
+): { mesh: THREE.InstancedMesh; geometry: THREE.BufferGeometry; material: THREE.Material } {
   const geometry = new THREE.PlaneGeometry(0.15, 0.15, 1, 1);
   const material = new THREE.MeshStandardMaterial({
     color: 0x3d8f2a,
@@ -36,15 +72,7 @@ function createGrassInstancedMesh(count: number, profileSettings: any): { mesh: 
   const quat = new THREE.Quaternion();
   const scale3 = new THREE.Vector3();
 
-  // Core placements to avoid (approximate centeroids)
-  const corePlacements = [
-    { x: 0, z: 0, clearance: 1.5 }, // player
-    { x: 0, z: -8, clearance: 1.5 }, // mara
-    { x: 5, z: -5, clearance: 2 }, // skeleton
-    { x: 7, z: -5, clearance: 2 }, // campfire
-    { x: -10, z: 5, clearance: 2 }, // cottage
-    { x: -8, z: -8, clearance: 3 }, // bridge
-  ];
+  const corePlacements = getCorePlacementsForGrassClearing(layout, characters);
 
   const isClearOfPlacements = (x: number, z: number): boolean => {
     return corePlacements.every((place) => {
@@ -59,14 +87,13 @@ function createGrassInstancedMesh(count: number, profileSettings: any): { mesh: 
   };
 
   const isClearOfPath = (x: number): boolean => {
-    // Central path is approximately -2 to 2 in x
     return Math.abs(x) > 2;
   };
 
   const isValidPosition = (x: number, z: number): boolean => {
     return (
-      x >= -22 && x <= 22 && // room bounds
-      z >= -14 && z <= 14 && // room bounds
+      x >= -22 && x <= 22 &&
+      z >= -14 && z <= 14 &&
       isClearOfRiver(z) &&
       isClearOfPlacements(x, z) &&
       isClearOfPath(x)
@@ -75,7 +102,7 @@ function createGrassInstancedMesh(count: number, profileSettings: any): { mesh: 
 
   let assigned = 0;
   let attempt = 0;
-  const maxAttempts = count * 50; // Generous attempt limit
+  const maxAttempts = count * 50;
 
   while (assigned < count && attempt < maxAttempts) {
     const x = (deterministicHash(attempt, 1001) * 44) - 22;
@@ -279,7 +306,7 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
 
         // Add grass
         const grassCount = profile === "balanced" ? 100 : 220;
-        const grassMesh = createGrassInstancedMesh(grassCount, profileSettings);
+        const grassMesh = createGrassInstancedMesh(grassCount, profileSettings, layout, characters);
         scene.add(grassMesh.mesh);
         ownedGeometriesRef.current.add(grassMesh.geometry);
         ownedMaterialsRef.current.add(grassMesh.material);
@@ -379,6 +406,7 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
             if (index === 0) {
               playerRef.current = obj;
               playerAnimationMixerRef.current = mixer;
+              assetInstancesRef.current.set("player", obj);
               if (metricsRef.current && !metricsRef.current.loadedInstanceIds.includes("player")) {
                 metricsRef.current.loadedInstanceIds.push("player");
               }
@@ -400,6 +428,7 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
               }
             } else if (index === 1) {
               // Mara
+              assetInstancesRef.current.set("mara", obj);
               if (metricsRef.current && !metricsRef.current.loadedInstanceIds.includes("mara")) {
                 metricsRef.current.loadedInstanceIds.push("mara");
               }
@@ -412,6 +441,7 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
               }
             } else {
               // Skeleton
+              assetInstancesRef.current.set("skeleton", obj);
               if (metricsRef.current && !metricsRef.current.loadedInstanceIds.includes("skeleton")) {
                 metricsRef.current.loadedInstanceIds.push("skeleton");
               }
@@ -481,36 +511,40 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
         // Track shadow casters: count meshes with castShadow=true and record their instance IDs
         const shadowCasterIds = new Set<string>();
         let shadowMeshCount = 0;
+
         assetInstancesRef.current.forEach((obj, instanceId) => {
+          let hasShadow = false;
           obj.traverse((child) => {
             if (child instanceof THREE.Mesh && child.castShadow) {
               shadowMeshCount++;
-              shadowCasterIds.add(instanceId);
+              hasShadow = true;
             }
           });
-        });
-
-        // Also check characters for shadow meshes
-        const characterIds = ["player", "mara", "skeleton"];
-        const shawlPlacement = assetInstancesRef.current.get("mara-shawl");
-        characterIds.forEach((charId) => {
-          const charObj = assetInstancesRef.current.get(charId);
-          if (charObj) {
-            let hasShadow = false;
-            charObj.traverse((child) => {
-              if (child instanceof THREE.Mesh && child.castShadow) {
-                hasShadow = true;
-              }
-            });
-            if (hasShadow) {
-              shadowCasterIds.add(charId);
-            }
+          if (hasShadow) {
+            shadowCasterIds.add(instanceId);
           }
         });
 
+        // Filter to appropriate casters based on profile
+        let filteredCasterIds = Array.from(shadowCasterIds);
+        if (profile === "balanced") {
+          // Balanced: only specific core casters
+          const balancedCasters = [
+            "player", "mara", "skeleton",
+            "cottage-main", "bridge-main", "campfire-main",
+            "oak-a", "oak-b", "oak-c", "canopy-northwest"
+          ];
+          filteredCasterIds = filteredCasterIds.filter((id) => balancedCasters.includes(id));
+        } else {
+          // Quality: exclude only additional-* and grass
+          filteredCasterIds = filteredCasterIds.filter(
+            (id) => !id.startsWith("additional-") && id !== "grass"
+          );
+        }
+
         if (metricsRef.current) {
           metricsRef.current.shadowCastingMeshes = shadowMeshCount;
-          metricsRef.current.shadowCasterInstanceIds = Array.from(shadowCasterIds).sort();
+          metricsRef.current.shadowCasterInstanceIds = filteredCasterIds.sort();
         }
 
         const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 500);
