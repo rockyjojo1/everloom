@@ -221,6 +221,12 @@ describe("deterministic expedition kernel", () => {
         combatInterruptionMs: 0,
         status: "active",
         stopReason: null,
+        initialState: {
+          startingHealth: 100,
+          startingInventoryUsedSlots: 0,
+          existingResourceStackPresent: false,
+          availableFood: 20,
+        },
       });
     });
 

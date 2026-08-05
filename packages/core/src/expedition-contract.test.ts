@@ -83,6 +83,12 @@ function makeProgress(overrides: Partial<DeterministicExpeditionProgress> = {}):
     combatInterruptionMs: 0,
     status: "active",
     stopReason: null,
+    initialState: {
+      startingHealth: 100,
+      startingInventoryUsedSlots: 0,
+      existingResourceStackPresent: false,
+      availableFood: 20,
+    },
     ...overrides,
   };
 }
@@ -368,6 +374,12 @@ describe("deterministic expedition contract", () => {
         existingResourceStackPresent: true,
         resourcesObtained: 1,
         productiveGatheringMs: 30_000,
+        initialState: {
+          startingHealth: 100,
+          startingInventoryUsedSlots: 18,
+          existingResourceStackPresent: false,
+          availableFood: 20,
+        },
       });
       expectError(
         () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
@@ -403,7 +415,16 @@ describe("deterministic expedition contract", () => {
 
     it("rejects an existing resource stack that occupies no slot", () => {
       const plan = makePlan();
-      const progress = makeProgress({ existingResourceStackPresent: true, inventoryUsedSlots: 0 });
+      const progress = makeProgress({
+        existingResourceStackPresent: true,
+        inventoryUsedSlots: 0,
+        initialState: {
+          startingHealth: 100,
+          startingInventoryUsedSlots: 0,
+          existingResourceStackPresent: true,
+          availableFood: 20,
+        },
+      });
       expectError(
         () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
         "invalid_progress",
@@ -418,6 +439,11 @@ describe("deterministic expedition contract", () => {
         status: "completed",
         stopReason: "duration_reached",
         productiveGatheringMs: 90_000,
+        resourcesObtained: 3,
+        resourceXpGained: 75,
+        existingResourceStackPresent: true,
+        inventoryUsedSlots: 1,
+        nextActionSequence: 3,
       });
       expectError(
         () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
@@ -428,7 +454,15 @@ describe("deterministic expedition contract", () => {
 
     it("rejects an active progress at or beyond the requested duration", () => {
       const plan = makePlan({ requestedDurationMs: 120_000 });
-      const progress = makeProgress({ elapsedResolvedMs: 120_000, productiveGatheringMs: 120_000 });
+      const progress = makeProgress({
+        elapsedResolvedMs: 120_000,
+        productiveGatheringMs: 120_000,
+        resourcesObtained: 4,
+        resourceXpGained: 100,
+        existingResourceStackPresent: true,
+        inventoryUsedSlots: 1,
+        nextActionSequence: 4,
+      });
       expectError(
         () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
         "invalid_progress",

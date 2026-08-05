@@ -11,7 +11,7 @@ import { deterministicRollPpm, deterministicRange } from "./rng";
  * the resolution logic lives in expedition-kernel.ts.
  */
 
-export const EXPEDITION_KERNEL_SCHEMA_VERSION = 1 as const;
+export const EXPEDITION_KERNEL_SCHEMA_VERSION = 2 as const;
 
 // ============================================================================
 // Types
@@ -91,6 +91,7 @@ export interface DeterministicExpeditionProgress {
   readonly combatInterruptionMs: number;
   readonly status: DeterministicExpeditionStatus;
   readonly stopReason: DeterministicExpeditionStopReason;
+  readonly initialState: DeterministicExpeditionStartingState;
 }
 
 export interface DeterministicExpeditionDelta {
@@ -338,197 +339,10 @@ export function validateDeterministicExpeditionProgress(progress: DeterministicE
   if (progress.status === "stopped" && progress.stopReason === null) {
     fail(code, "a stopped expedition must have a non-null stopReason");
   }
-}
-
-function simulateUpTo(
-  plan: DeterministicExpeditionPlan,
-  startingHealth: number,
-  startingFood: number,
-  startingInventoryUsedSlots: number,
-  startingResourceStackPresent: boolean,
-  targetMs: number
-) {
-  const rules = plan.rules;
-  let elapsed = 0;
-  let nextActionSequence = 0;
-  let health = startingHealth;
-  let availableFood = startingFood;
-  let inventoryUsedSlots = startingInventoryUsedSlots;
-  let existingResourceStackPresent = startingResourceStackPresent;
-  let resourcesObtained = 0;
-  let resourceXpGained = 0;
-  let combatXpGained = 0;
-  let encounters = 0;
-  let encountersWon = 0;
-  let encountersLost = 0;
-  let damageTaken = 0;
-  let foodConsumed = 0;
-  let productiveGatheringMs = 0;
-  let combatInterruptionMs = 0;
-  let partialAction: DeterministicExpeditionPartialAction | null = null;
-  let status: DeterministicExpeditionStatus = "active";
-  let stopReason: DeterministicExpeditionStopReason = null;
-
-  if (health <= rules.minimumHealthToContinue) {
-    status = "stopped";
-    stopReason = "health_critical";
+  if (!progress.initialState || typeof progress.initialState !== "object") {
+    fail(code, "initialState must be a snapshot object");
   }
-
-  let currentKind: DeterministicExpeditionActionKind | null = null;
-  let currentSequence = 0;
-  let currentStartMs = 0;
-  let currentEndMs = 0;
-
-  while (elapsed < targetMs && stopReason === null) {
-    if (currentKind === null) {
-      if (plan.requestedDurationMs <= elapsed) {
-        break;
-      }
-      const remainingAvailableMs = plan.requestedDurationMs - elapsed;
-      const nextWindowMs = Math.min(rules.gatheringWindowMs, remainingAvailableMs);
-      if (nextWindowMs <= 0) {
-        break;
-      }
-
-      const encounter = deterministicRollPpm(
-        plan.seed,
-        nextActionSequence,
-        "expedition_encounter",
-        plan.activityId,
-        rules.encounterChancePpm,
-      );
-      if (encounter && nextWindowMs >= rules.combatDurationMs) {
-        currentKind = "encounter";
-        currentSequence = nextActionSequence;
-        currentStartMs = elapsed;
-        currentEndMs = elapsed + rules.combatDurationMs;
-      } else {
-        currentKind = "gathering";
-        currentSequence = nextActionSequence;
-        currentStartMs = elapsed;
-        currentEndMs = elapsed + nextWindowMs;
-      }
-    }
-
-    const timeToFoodBoundary = rules.foodConsumptionIntervalMs - (elapsed % rules.foodConsumptionIntervalMs);
-    let nextBoundaryMs = elapsed + timeToFoodBoundary;
-    if (!Number.isSafeInteger(nextBoundaryMs)) {
-      nextBoundaryMs = Number.MAX_SAFE_INTEGER;
-    }
-
-    const nextEventMs = Math.min(targetMs, currentEndMs, nextBoundaryMs);
-    const advanceMs = nextEventMs - elapsed;
-    if (advanceMs <= 0) {
-      break;
-    }
-
-    if (currentKind === "gathering") {
-      productiveGatheringMs += advanceMs;
-    } else {
-      combatInterruptionMs += advanceMs;
-    }
-    elapsed += advanceMs;
-
-    // Action completion exactly on a boundary
-    if (elapsed === currentEndMs) {
-      if (currentKind === "gathering") {
-        if (!existingResourceStackPresent) {
-          if (inventoryUsedSlots >= rules.inventorySlotLimit) {
-            stopReason = "inventory_full";
-          }
-        }
-        if (stopReason === null) {
-          resourcesObtained += rules.resourceQuantityPerGather;
-          resourceXpGained += rules.resourceXpPerGather;
-          if (!existingResourceStackPresent) {
-            inventoryUsedSlots += 1;
-            existingResourceStackPresent = true;
-          }
-          nextActionSequence = currentSequence + 1;
-        }
-      } else {
-        const damage = deterministicRange(
-          plan.seed,
-          currentSequence,
-          "wolf_damage",
-          plan.activityId,
-          rules.enemyDamageMin,
-          rules.enemyDamageMax,
-        );
-        encounters += 1;
-        damageTaken += damage;
-        health = Math.max(0, health - damage);
-        nextActionSequence = currentSequence + 1;
-
-        if (health > rules.minimumHealthToContinue) {
-          encountersWon += 1;
-          combatXpGained += rules.combatXpPerWin;
-        } else {
-          encountersLost += 1;
-          stopReason = "health_critical";
-        }
-      }
-      currentKind = null;
-      if (stopReason !== null) {
-        break;
-      }
-    }
-
-    // Food consumption boundary
-    if (elapsed === nextBoundaryMs) {
-      if (availableFood === 0) {
-        stopReason = "food_exhausted";
-        break;
-      }
-      availableFood -= 1;
-      foodConsumed += 1;
-    }
-
-    // Target reached
-    if (elapsed === targetMs) {
-      if (elapsed < currentEndMs) {
-        partialAction = {
-          kind: currentKind!,
-          actionSequence: currentSequence,
-          elapsedInActionMs: elapsed - currentStartMs,
-        };
-      }
-      break;
-    }
-  }
-
-  if (stopReason !== null) {
-    status = "stopped";
-  } else if (elapsed >= plan.requestedDurationMs) {
-    status = "completed";
-    stopReason = "duration_reached";
-    partialAction = null;
-  } else {
-    status = "active";
-    stopReason = null;
-  }
-
-  return {
-    elapsedResolvedMs: elapsed,
-    partialAction,
-    nextActionSequence,
-    health,
-    inventoryUsedSlots,
-    existingResourceStackPresent,
-    availableFood,
-    resourcesObtained,
-    resourceXpGained,
-    combatXpGained,
-    encounters,
-    encountersWon,
-    encountersLost,
-    damageTaken,
-    foodConsumed,
-    productiveGatheringMs,
-    combatInterruptionMs,
-    status,
-    stopReason,
-  };
+  validateDeterministicExpeditionStartingState(progress.initialState);
 }
 
 /**
@@ -537,6 +351,9 @@ function simulateUpTo(
  * validator cannot see (impossible slot/stack states, counters inconsistent
  * with the plan's duration, partial actions that cannot resume, and so on).
  * `resolveDeterministicExpedition` runs it before accepting any elapsed time.
+ *
+ * It uses O(1) bounded algebraic invariants on the snapshot state and the current
+ * action, avoiding historical replay over very long idle periods.
  */
 export function validateDeterministicExpeditionProgressAgainstPlan(
   plan: DeterministicExpeditionPlan,
@@ -559,6 +376,110 @@ export function validateDeterministicExpeditionProgressAgainstPlan(
     fail(code, "terminal progress must not carry a partial action");
   }
 
+  // --- HEALTH BOUNDED INVARIANT ---
+  const expectedHealth = Math.max(0, progress.initialState.startingHealth - progress.damageTaken);
+  if (progress.health !== expectedHealth) {
+    fail(code, `health mismatch against initial state: expected ${expectedHealth}, got ${progress.health}`);
+  }
+  if (progress.damageTaken > 0 && progress.encounters === 0) {
+    fail(code, "damageTaken is positive but no encounters occurred");
+  }
+
+  // --- FOOD BOUNDED INVARIANT ---
+  if (progress.foodConsumed > progress.initialState.availableFood) {
+    fail(code, `foodConsumed (${progress.foodConsumed}) exceeds initial availableFood (${progress.initialState.availableFood})`);
+  }
+  const expectedAvailableFood = progress.initialState.availableFood - progress.foodConsumed;
+  if (progress.availableFood !== expectedAvailableFood) {
+    fail(code, `availableFood mismatch: expected ${expectedAvailableFood}, got ${progress.availableFood}`);
+  }
+  const maxFoodConsumed = Math.floor(progress.elapsedResolvedMs / rules.foodConsumptionIntervalMs);
+  if (progress.foodConsumed > maxFoodConsumed) {
+    fail(code, `foodConsumed (${progress.foodConsumed}) exceeds maximum possible for elapsedMs (${maxFoodConsumed})`);
+  }
+
+  // --- INVENTORY AND STACK SNAPSHOT TRANSITIONS ---
+  if (progress.initialState.startingInventoryUsedSlots > rules.inventorySlotLimit) {
+    fail(code, `initial startingInventoryUsedSlots (${progress.initialState.startingInventoryUsedSlots}) exceeds inventorySlotLimit (${rules.inventorySlotLimit})`);
+  }
+  if (progress.initialState.existingResourceStackPresent && progress.initialState.startingInventoryUsedSlots < 1) {
+    fail(code, "an existing resource stack must occupy a slot (startingInventoryUsedSlots must be >= 1)");
+  }
+  if (progress.initialState.existingResourceStackPresent && !progress.existingResourceStackPresent) {
+    fail(code, "existingResourceStackPresent cannot transition from true to false");
+  }
+  if (!progress.existingResourceStackPresent && progress.resourcesObtained > 0) {
+    fail(code, "resourcesObtained is positive but no resource stack exists");
+  }
+
+  let expectedInventoryUsedSlots = progress.initialState.startingInventoryUsedSlots;
+  if (!progress.initialState.existingResourceStackPresent && progress.existingResourceStackPresent) {
+    if (progress.resourcesObtained <= 0) {
+      fail(code, "existingResourceStackPresent transitioned to true but resourcesObtained is 0");
+    }
+    expectedInventoryUsedSlots += 1;
+  }
+  if (progress.inventoryUsedSlots !== expectedInventoryUsedSlots) {
+    fail(code, `inventoryUsedSlots mismatch: expected ${expectedInventoryUsedSlots}, got ${progress.inventoryUsedSlots}`);
+  }
+  if (progress.inventoryUsedSlots > rules.inventorySlotLimit) {
+    fail(
+      code,
+      `inventoryUsedSlots (${progress.inventoryUsedSlots}) exceeds inventorySlotLimit (${rules.inventorySlotLimit})`,
+    );
+  }
+
+  // --- REWARDS MONOTONIC TRANSITIONS AND DIVISION ---
+  if (progress.resourcesObtained % rules.resourceQuantityPerGather !== 0) {
+    fail(code, `resourcesObtained (${progress.resourcesObtained}) is not a multiple of resourceQuantityPerGather (${rules.resourceQuantityPerGather})`);
+  }
+  const completedGatherings = progress.resourcesObtained / rules.resourceQuantityPerGather;
+  const expectedResourceXp = completedGatherings * rules.resourceXpPerGather;
+  if (!Number.isSafeInteger(expectedResourceXp)) {
+    fail(code, "resourceXpGained overflow");
+  }
+  if (progress.resourceXpGained !== expectedResourceXp) {
+    fail(code, `resourceXpGained mismatch: expected ${expectedResourceXp}, got ${progress.resourceXpGained}`);
+  }
+
+  if (progress.encountersWon + progress.encountersLost !== progress.encounters) {
+    fail(
+      code,
+      `encountersWon + encountersLost (${progress.encountersWon} + ${progress.encountersLost}) must equal encounters (${progress.encounters})`,
+    );
+  }
+  const expectedCombatXp = progress.encountersWon * rules.combatXpPerWin;
+  if (!Number.isSafeInteger(expectedCombatXp)) {
+    fail(code, "combatXpGained overflow");
+  }
+  if (progress.combatXpGained !== expectedCombatXp) {
+    fail(code, `combatXpGained mismatch: expected ${expectedCombatXp}, got ${progress.combatXpGained}`);
+  }
+
+  // --- ACTION SEQUENCE ACCOUNTING ---
+  const expectedSequence = completedGatherings + progress.encounters;
+  if (progress.nextActionSequence !== expectedSequence) {
+    fail(code, `nextActionSequence mismatch: expected ${expectedSequence}, got ${progress.nextActionSequence}`);
+  }
+
+  // --- TIME BUCKETS BOUNDS ---
+  if (!Number.isSafeInteger(progress.productiveGatheringMs) || !Number.isSafeInteger(progress.combatInterruptionMs)) {
+    fail(code, "time buckets must be safe integers");
+  }
+  if (progress.productiveGatheringMs !== progress.elapsedResolvedMs - progress.combatInterruptionMs) {
+    fail(
+      code,
+      `productiveGatheringMs + combatInterruptionMs (${progress.productiveGatheringMs} + ${progress.combatInterruptionMs}) must equal elapsedResolvedMs (${progress.elapsedResolvedMs})`,
+    );
+  }
+  if (progress.combatInterruptionMs > 0 && progress.encounters === 0 && (progress.partialAction === null || progress.partialAction.kind !== "encounter")) {
+    fail(code, "combatInterruptionMs is positive but no encounters occurred or are active");
+  }
+  if (progress.productiveGatheringMs > 0 && completedGatherings === 0 && (progress.partialAction === null || progress.partialAction.kind !== "gathering")) {
+    fail(code, "productiveGatheringMs is positive but no gatherings completed or are active");
+  }
+
+  // --- CURRENT PARTIAL ACTION DETAILS ---
   if (progress.partialAction !== null) {
     const partial = progress.partialAction;
     if (partial.actionSequence !== progress.nextActionSequence) {
@@ -574,10 +495,25 @@ export function validateDeterministicExpeditionProgressAgainstPlan(
         `partialAction.elapsedInActionMs (${partial.elapsedInActionMs}) exceeds elapsedResolvedMs (${progress.elapsedResolvedMs})`,
       );
     }
-    const fullDurationMs =
-      partial.kind === "encounter"
-        ? rules.combatDurationMs
-        : Math.min(rules.gatheringWindowMs, plan.requestedDurationMs - actionStartMs);
+    const remainingWindowMs = plan.requestedDurationMs - actionStartMs;
+    const nextWindowMs = Math.min(rules.gatheringWindowMs, remainingWindowMs);
+    if (nextWindowMs <= 0) {
+      fail(code, "remaining plan duration is insufficient to contain partial action");
+    }
+
+    const encounter = deterministicRollPpm(
+      plan.seed,
+      partial.actionSequence,
+      "expedition_encounter",
+      plan.activityId,
+      rules.encounterChancePpm,
+    );
+    const expectedKind = (encounter && nextWindowMs >= rules.combatDurationMs) ? "encounter" : "gathering";
+    if (partial.kind !== expectedKind) {
+      fail(code, `partialAction.kind mismatch: expected ${expectedKind}, got ${partial.kind}`);
+    }
+
+    const fullDurationMs = expectedKind === "encounter" ? rules.combatDurationMs : nextWindowMs;
     if (partial.elapsedInActionMs <= 0 || partial.elapsedInActionMs >= fullDurationMs) {
       fail(
         code,
@@ -586,213 +522,29 @@ export function validateDeterministicExpeditionProgressAgainstPlan(
     }
   }
 
-  if (progress.inventoryUsedSlots > rules.inventorySlotLimit) {
-    fail(
-      code,
-      `inventoryUsedSlots (${progress.inventoryUsedSlots}) exceeds inventorySlotLimit (${rules.inventorySlotLimit})`,
-    );
+  // --- TERMINAL STATES INVARIANTS ---
+  if (progress.status === "completed") {
+    if (progress.elapsedResolvedMs !== plan.requestedDurationMs) {
+      fail(
+        code,
+        `completed progress must have elapsedResolvedMs (${progress.elapsedResolvedMs}) equal to requestedDurationMs (${plan.requestedDurationMs})`,
+      );
+    }
+    if (progress.stopReason !== "duration_reached") {
+      fail(code, "completed progress must have stopReason duration_reached");
+    }
   }
-  if (progress.encountersWon + progress.encountersLost !== progress.encounters) {
-    fail(
-      code,
-      `encountersWon + encountersLost (${progress.encountersWon} + ${progress.encountersLost}) must equal encounters (${progress.encounters})`,
-    );
+  if (progress.status === "active") {
+    if (progress.elapsedResolvedMs >= plan.requestedDurationMs) {
+      fail(code, "active progress must not have already reached the requested duration");
+    }
+    if (progress.stopReason !== null) {
+      fail(code, "active progress must have null stopReason");
+    }
   }
-  if (!progress.existingResourceStackPresent && progress.resourcesObtained > 0) {
-    fail(code, "resourcesObtained is positive but no resource stack exists");
-  }
-  if (progress.existingResourceStackPresent && progress.inventoryUsedSlots < 1) {
-    fail(code, "an existing resource stack must occupy a slot (inventoryUsedSlots must be >= 1)");
-  }
-  if (progress.status === "completed" && progress.elapsedResolvedMs !== plan.requestedDurationMs) {
-    fail(
-      code,
-      `completed progress must have elapsedResolvedMs (${progress.elapsedResolvedMs}) equal to requestedDurationMs (${plan.requestedDurationMs})`,
-    );
-  }
-  if (progress.status === "active" && progress.elapsedResolvedMs >= plan.requestedDurationMs) {
-    fail(code, "active progress must not have already reached the requested duration");
-  }
-  if (progress.productiveGatheringMs + progress.combatInterruptionMs !== progress.elapsedResolvedMs) {
-    fail(
-      code,
-      `productiveGatheringMs + combatInterruptionMs (${progress.productiveGatheringMs} + ${progress.combatInterruptionMs}) must equal elapsedResolvedMs (${progress.elapsedResolvedMs})`,
-    );
-  }
-
-  if (progress.elapsedResolvedMs === 0) {
-    if (progress.partialAction !== null) fail(code, "starting progress cannot have partial action");
-    if (progress.nextActionSequence !== 0) fail(code, "starting nextActionSequence must be 0");
-    if (progress.resourcesObtained !== 0) fail(code, "starting resourcesObtained must be 0");
-    if (progress.resourceXpGained !== 0) fail(code, "starting resourceXpGained must be 0");
-    if (progress.combatXpGained !== 0) fail(code, "starting combatXpGained must be 0");
-    if (progress.encounters !== 0) fail(code, "starting encounters must be 0");
-    if (progress.encountersWon !== 0) fail(code, "starting encountersWon must be 0");
-    if (progress.encountersLost !== 0) fail(code, "starting encountersLost must be 0");
-    if (progress.damageTaken !== 0) fail(code, "starting damageTaken must be 0");
-    if (progress.foodConsumed !== 0) fail(code, "starting foodConsumed must be 0");
-    if (progress.productiveGatheringMs !== 0) fail(code, "starting productiveGatheringMs must be 0");
-    if (progress.combatInterruptionMs !== 0) fail(code, "starting combatInterruptionMs must be 0");
-
-    const critical = progress.health <= rules.minimumHealthToContinue;
-    if (critical) {
-      if (progress.status === "active") {
-        if (progress.stopReason !== null) fail(code, "active progress must have null stopReason");
-      } else if (progress.status === "stopped") {
-        if (progress.stopReason !== "health_critical") fail(code, "stopped starting progress must have health_critical stopReason");
-      } else {
-        fail(code, "invalid starting progress status");
-      }
-    } else {
-      if (progress.status !== "active") fail(code, "non-critical starting progress must be active");
-      if (progress.stopReason !== null) fail(code, "non-critical starting progress must have null stopReason");
+  if (progress.status === "stopped") {
+    if (progress.stopReason === null || progress.stopReason === "duration_reached") {
+      fail(code, `stopped progress has invalid stopReason: ${progress.stopReason}`);
     }
-    return;
-  }
-
-  // Reconstruct completed action history and verify cursor integrity.
-  const startingHealth = progress.health + progress.damageTaken;
-  if (!Number.isSafeInteger(startingHealth) || startingHealth < 0) {
-    fail(code, "startingHealth must be a safe non-negative integer");
-  }
-  const startingFood = progress.availableFood + progress.foodConsumed;
-  if (!Number.isSafeInteger(startingFood) || startingFood < 0) {
-    fail(code, "startingFood must be a safe non-negative integer");
-  }
-
-  let match = false;
-  let lastErrorMsg = "";
-
-  const combos = [
-    {
-      present: progress.existingResourceStackPresent,
-      slots: progress.inventoryUsedSlots,
-    },
-  ];
-  if (
-    progress.resourcesObtained > 0 &&
-    progress.existingResourceStackPresent &&
-    progress.inventoryUsedSlots >= 1
-  ) {
-    combos.push({
-      present: false,
-      slots: progress.inventoryUsedSlots - 1,
-    });
-  }
-
-  for (const combo of combos) {
-    const sim = simulateUpTo(
-      plan,
-      startingHealth,
-      startingFood,
-      combo.slots,
-      combo.present,
-      progress.elapsedResolvedMs,
-    );
-
-    // Compare fields
-    if (sim.elapsedResolvedMs !== progress.elapsedResolvedMs) {
-      lastErrorMsg = `elapsedResolvedMs mismatch: simulated ${sim.elapsedResolvedMs}, got ${progress.elapsedResolvedMs}`;
-      continue;
-    }
-    if (sim.nextActionSequence !== progress.nextActionSequence) {
-      lastErrorMsg = `nextActionSequence mismatch: simulated ${sim.nextActionSequence}, got ${progress.nextActionSequence}`;
-      continue;
-    }
-    if (sim.health !== progress.health) {
-      lastErrorMsg = `health mismatch: simulated ${sim.health}, got ${progress.health}`;
-      continue;
-    }
-    if (sim.inventoryUsedSlots !== progress.inventoryUsedSlots) {
-      lastErrorMsg = `inventoryUsedSlots mismatch: simulated ${sim.inventoryUsedSlots}, got ${progress.inventoryUsedSlots}`;
-      continue;
-    }
-    if (sim.existingResourceStackPresent !== progress.existingResourceStackPresent) {
-      lastErrorMsg = `existingResourceStackPresent mismatch: simulated ${sim.existingResourceStackPresent}, got ${progress.existingResourceStackPresent}`;
-      continue;
-    }
-    if (sim.availableFood !== progress.availableFood) {
-      lastErrorMsg = `availableFood mismatch: simulated ${sim.availableFood}, got ${progress.availableFood}`;
-      continue;
-    }
-    if (sim.resourcesObtained !== progress.resourcesObtained) {
-      lastErrorMsg = `resourcesObtained mismatch: simulated ${sim.resourcesObtained}, got ${progress.resourcesObtained}`;
-      continue;
-    }
-    if (sim.resourceXpGained !== progress.resourceXpGained) {
-      lastErrorMsg = `resourceXpGained mismatch: simulated ${sim.resourceXpGained}, got ${progress.resourceXpGained}`;
-      continue;
-    }
-    if (sim.combatXpGained !== progress.combatXpGained) {
-      lastErrorMsg = `combatXpGained mismatch: simulated ${sim.combatXpGained}, got ${progress.combatXpGained}`;
-      continue;
-    }
-    if (sim.encounters !== progress.encounters) {
-      lastErrorMsg = `encounters mismatch: simulated ${sim.encounters}, got ${progress.encounters}`;
-      continue;
-    }
-    if (sim.encountersWon !== progress.encountersWon) {
-      lastErrorMsg = `encountersWon mismatch: simulated ${sim.encountersWon}, got ${progress.encountersWon}`;
-      continue;
-    }
-    if (sim.encountersLost !== progress.encountersLost) {
-      lastErrorMsg = `encountersLost mismatch: simulated ${sim.encountersLost}, got ${progress.encountersLost}`;
-      continue;
-    }
-    if (sim.damageTaken !== progress.damageTaken) {
-      lastErrorMsg = `damageTaken mismatch: simulated ${sim.damageTaken}, got ${progress.damageTaken}`;
-      continue;
-    }
-    if (sim.foodConsumed !== progress.foodConsumed) {
-      lastErrorMsg = `foodConsumed mismatch: simulated ${sim.foodConsumed}, got ${progress.foodConsumed}`;
-      continue;
-    }
-    if (sim.productiveGatheringMs !== progress.productiveGatheringMs) {
-      lastErrorMsg = `productiveGatheringMs mismatch: simulated ${sim.productiveGatheringMs}, got ${progress.productiveGatheringMs}`;
-      continue;
-    }
-    if (sim.combatInterruptionMs !== progress.combatInterruptionMs) {
-      lastErrorMsg = `combatInterruptionMs mismatch: simulated ${sim.combatInterruptionMs}, got ${progress.combatInterruptionMs}`;
-      continue;
-    }
-    if (sim.status !== progress.status) {
-      lastErrorMsg = `status mismatch: simulated ${sim.status}, got ${progress.status}`;
-      continue;
-    }
-    if (sim.stopReason !== progress.stopReason) {
-      lastErrorMsg = `stopReason mismatch: simulated ${sim.stopReason}, got ${progress.stopReason}`;
-      continue;
-    }
-
-    // Compare partial action
-    if (sim.partialAction === null && progress.partialAction !== null) {
-      lastErrorMsg = `partialAction mismatch: simulated null, got ${JSON.stringify(progress.partialAction)}`;
-      continue;
-    }
-    if (sim.partialAction !== null && progress.partialAction === null) {
-      lastErrorMsg = `partialAction mismatch: simulated ${JSON.stringify(sim.partialAction)}, got null`;
-      continue;
-    }
-    if (sim.partialAction !== null && progress.partialAction !== null) {
-      if (sim.partialAction.kind !== progress.partialAction.kind) {
-        lastErrorMsg = `partialAction.kind mismatch: simulated ${sim.partialAction.kind}, got ${progress.partialAction.kind}`;
-        continue;
-      }
-      if (sim.partialAction.actionSequence !== progress.partialAction.actionSequence) {
-        lastErrorMsg = `partialAction.actionSequence mismatch: simulated ${sim.partialAction.actionSequence}, got ${progress.partialAction.actionSequence}`;
-        continue;
-      }
-      if (sim.partialAction.elapsedInActionMs !== progress.partialAction.elapsedInActionMs) {
-        lastErrorMsg = `partialAction.elapsedInActionMs mismatch: simulated ${sim.partialAction.elapsedInActionMs}, got ${progress.partialAction.elapsedInActionMs}`;
-        continue;
-      }
-    }
-
-    match = true;
-    break;
-  }
-
-  if (!match) {
-    fail(code, `deterministic history simulation mismatch: ${lastErrorMsg}`);
   }
 }

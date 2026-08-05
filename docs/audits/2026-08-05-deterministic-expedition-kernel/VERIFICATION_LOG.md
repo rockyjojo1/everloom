@@ -185,3 +185,18 @@ were read as references and **not modified**. Gate 4 branch
   - `pnpm build` -> exit 0
 - **Git Tree Status**: Clean tree, modified files strictly match the ownership guidelines (only `expedition-contract.ts`, `expedition-kernel.ts`, `expedition-contract.test.ts`, `expedition-kernel.test.ts`, `expedition-adversarial.test.ts` changed).
 - **Prohibited Ambient APIs Scan**: Run mechanical scan on changed production source, verified 100% clean (Date, Math.random, performance, fetch, storage patterns absent from executable code blocks).
+
+## 13. Independent Jules Corrective Hardening Pass (2026-08-05)
+
+Following supervisor rejection of the initial O(N) full history simulation design (SHA `8b0a329`), we performed a corrective implementation on the same branch:
+- **Design Refactoring**: Completely removed `simulateUpTo` and historical chronological loops from contract validation. Upgraded schema version to `2` and introduced an explicit starting state copy `initialState: DeterministicExpeditionStartingState` inside the progress cursor.
+- **Bounded O(1) Validation**: Implemented strict, instant algebraic invariants linking initialState snapshot, current counters, and only the current active partial action.
+- **Verification Results**:
+  - **Targeted Test Execution**: `pnpm --filter @everloom/core exec vitest run src/expedition-adversarial.test.ts src/expedition-contract.test.ts src/expedition-kernel.test.ts`
+    - 213 tests passed, exit 0
+  - **Full Test Suite Execution**: `pnpm --filter @everloom/core run test`
+    - 6 files, 292 tests passed, exit 0 (none skipped)
+  - **Workspace typechecks/builds**:
+    - `pnpm typecheck` -> exit 0
+    - `pnpm build` -> exit 0
+- **Scaling Evidence**: Bounded validator code contains 0 loops (`for`, `while`) or chronological simulator calls.

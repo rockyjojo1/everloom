@@ -220,6 +220,12 @@ export function createDeterministicExpeditionProgress(
     combatInterruptionMs: 0,
     status: "active",
     stopReason: null,
+    initialState: {
+      startingHealth: startingState.startingHealth,
+      startingInventoryUsedSlots: startingState.startingInventoryUsedSlots,
+      existingResourceStackPresent: startingState.existingResourceStackPresent,
+      availableFood: startingState.availableFood,
+    },
   };
   validateDeterministicExpeditionProgress(progress);
   validateDeterministicExpeditionProgressAgainstPlan(plan, progress);

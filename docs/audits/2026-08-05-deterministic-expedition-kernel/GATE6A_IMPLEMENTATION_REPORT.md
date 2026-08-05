@@ -236,22 +236,24 @@ designs around, recorded here for the audit trail:
 - Full root verification (Turbo) and `git diff --check` recorded in
   `VERIFICATION_LOG.md`.
 
-## Independent Auditor (Jules) Adversarial Hardening (2026-08-05)
+## Independent Auditor (Jules) Adversarial Hardening & Bounded Invariants Correction (2026-08-05)
 
-An independent adversarial audit was performed by Jules on `2026-08-05`. This audit introduced a robust test suite of 28 targeted tests in `packages/core/src/expedition-adversarial.test.ts` designed to expose integrity gaps in:
-- Action sequence timelines (A)
-- Partial action kinds (B)
-- Resource/XP rewards consistency (C, D)
-- Terminal states and food boundaries (E, F)
-- Safe-integer boundaries (G)
-- Production source-purity verification (H)
+An independent adversarial audit and subsequent corrective pass was completed by Jules on `2026-08-05`.
+To remove $O(N)$ chronological history replay (`simulateUpTo`) and correct the threat model, we upgraded the schema to version `2` and introduced an explicit `initialState` snapshot in `DeterministicExpeditionProgress`.
 
-All production code and contract validation checks have been hardened to use chronological one-shot timeline reconstruction (`simulateUpTo`), guaranteeing 100% security against forged progress cursors. All 301 tests are green, and typecheck/build are 100% compliant.
+The contract validator was completely refactored to enforce bounded $O(1)$ algebraic invariants:
+- Strict health, damageTaken, availableFood, and foodConsumed transitions relative to initial snapshots.
+- Divisibility, xp, and monotonically aligned transitions for resources and encounters.
+- Mathematical action-sequence accounting (`nextActionSequence === completedGatherings + encounters`).
+- Current partial-action validation derived locally with zero history loops.
+
+The test suite in `packages/core/src/expedition-adversarial.test.ts` was expanded to verify these bounded invariants, snapshot immutability, and O(1) performance scaling. All 292 tests are green, and workspace-wide builds/typechecks compile perfectly with 0 warnings.
 
 ## State
 
-- **GATE 6A IMPLEMENTATION: COMPLETE** (second pass; first pass rejected; independent adversarial hardening pass complete)
+- **GATE 6A IMPLEMENTATION: COMPLETE** (second pass; first pass rejected; independent adversarial hardening and corrective passe complete)
 - **GATE 6A ACCEPTANCE: PENDING INDEPENDENT SUPERVISOR RE-AUDIT**
 - **GATE 4 BRANCH: UNTOUCHED**
+- **GATE 5 BRANCH: UNTOUCHED**
 - **RECEIPT/SAVE INTEGRATION: NOT STARTED**
 - **RUNTIME/UI INTEGRATION: NOT STARTED**
