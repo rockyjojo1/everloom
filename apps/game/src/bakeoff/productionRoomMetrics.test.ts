@@ -3,6 +3,7 @@ import {
   calculateAverageFps,
   calculateP95FrameMs,
   calculateWorstFrameMs,
+  isInstanceReady,
   ProductionRoomMetricsCollector,
 } from "./productionRoomMetrics";
 
@@ -201,5 +202,47 @@ describe("ProductionRoomMetricsCollector", () => {
     expect(metrics.currentPlayerAnimation).toBe("Idle");
     expect(metrics.movementTarget).toBe(null);
     expect(metrics.contextLost).toBe(false);
+  });
+});
+
+describe("isInstanceReady", () => {
+  it("is ready when expected and loaded sets exactly match with no failures", () => {
+    expect(isInstanceReady(["a", "b", "c"], ["a", "b", "c"], [])).toBe(true);
+  });
+
+  it("is not ready when a loaded instance is missing", () => {
+    expect(isInstanceReady(["a", "b", "c"], ["a", "b"], [])).toBe(false);
+  });
+
+  it("is not ready when an extra instance was loaded beyond expected", () => {
+    expect(isInstanceReady(["a", "b"], ["a", "b", "c"], [])).toBe(false);
+  });
+
+  it("is not ready when any instance failed, even with a complete loaded set", () => {
+    expect(isInstanceReady(["a", "b", "c"], ["a", "b", "c"], ["phantom"])).toBe(false);
+  });
+
+  it("dependency-injected duplicate-runtime-asset scenario: one placement succeeding does not hide a sibling placement's failure", () => {
+    // Two distinct placement instance IDs both resolve to the same
+    // runtime asset ID (e.g. two "oak" placements sharing "nature.oak").
+    // Simulate: cottage-main and a second placement "cottage-duplicate"
+    // both use runtimeAssetId "town.cottage". cottage-main's load
+    // succeeds and is recorded under its own instance ID; the duplicate
+    // placement's load fails and is recorded under *its* instance ID.
+    // Because failures are tracked per placement instance -- not per
+    // runtime asset -- the successful sibling must not mask the failure.
+    const expectedInstanceIds = ["cottage-main", "cottage-duplicate", "player"];
+    const loadedInstanceIds = ["cottage-main", "player"]; // cottage-duplicate never made it in
+    const failedInstanceIds = ["cottage-duplicate"]; // recorded under its own instance ID
+
+    expect(isInstanceReady(expectedInstanceIds, loadedInstanceIds, failedInstanceIds)).toBe(false);
+  });
+
+  it("dependency-injected scenario: readiness recovers once the failed sibling placement is corrected", () => {
+    const expectedInstanceIds = ["cottage-main", "cottage-duplicate", "player"];
+    const loadedInstanceIds = ["cottage-main", "cottage-duplicate", "player"];
+    const failedInstanceIds: string[] = [];
+
+    expect(isInstanceReady(expectedInstanceIds, loadedInstanceIds, failedInstanceIds)).toBe(true);
   });
 });

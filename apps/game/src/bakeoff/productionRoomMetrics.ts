@@ -182,3 +182,29 @@ export function calculateWorstFrameMs(frameDurations: number[]): number | null {
   if (frameDurations.length === 0) return null;
   return Math.max(...frameDurations);
 }
+
+/**
+ * Placement-level readiness: exact set equality between expected and loaded
+ * instance IDs, plus zero failures. A duplicate placement that resolves to
+ * the same runtime asset does not hide a genuine failure -- each placement
+ * has its own instance ID, so one succeeding does not remove the other's
+ * failure from failedInstanceIds.
+ */
+export function isInstanceReady(
+  expectedInstanceIds: string[],
+  loadedInstanceIds: string[],
+  failedInstanceIds: string[]
+): boolean {
+  if (failedInstanceIds.length > 0) return false;
+
+  const expectedSet = new Set(expectedInstanceIds);
+  const loadedSet = new Set(loadedInstanceIds);
+
+  if (expectedSet.size !== loadedSet.size) return false;
+
+  for (const id of expectedSet) {
+    if (!loadedSet.has(id)) return false;
+  }
+
+  return true;
+}

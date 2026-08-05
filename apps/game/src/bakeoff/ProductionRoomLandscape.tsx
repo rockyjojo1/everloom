@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import type { ProductionRoomProfile } from "./productionRoomTypes";
-import { ProductionRoomMetricsCollector } from "./productionRoomMetrics";
+import { ProductionRoomMetricsCollector, isInstanceReady } from "./productionRoomMetrics";
 import { getProductionRoomLayout, getCharacterPlacements, getProfileSettings, ROOM_DIMENSIONS } from "./productionRoomLayout";
+import { generateGrassLayout } from "./grassLayout";
 import { instantiateAsset } from "../world/assets";
 import "./production-room.css";
 
@@ -17,45 +18,8 @@ function attachAccessoryToBone(root: THREE.Object3D, accessory: THREE.Object3D, 
   return null;
 }
 
-function deterministicHash(index: number, seed: number): number {
-  let x = Math.sin(index * 12.9898 + seed * 78.233) * 43758.5453;
-  return x - Math.floor(x);
-}
-
-function getCorePlacementsForGrassClearing(
-  layout: ReturnType<typeof getProductionRoomLayout>,
-  characters: ReturnType<typeof getCharacterPlacements>
-): Array<{ x: number; z: number; clearance: number }> {
-  const corePlacements: Array<{ x: number; z: number; clearance: number }> = [];
-
-  // Add characters
-  for (let i = 0; i < Math.min(3, characters.length); i++) {
-    corePlacements.push({
-      x: characters[i]!.position[0]!,
-      z: characters[i]!.position[2]!,
-      clearance: 1.5,
-    });
-  }
-
-  // Add key fixed placements
-  for (const placement of layout.placements) {
-    if (
-      ["cottage-main", "bridge-main", "campfire-main"].includes(placement.instance)
-    ) {
-      corePlacements.push({
-        x: placement.position[0],
-        z: placement.position[2],
-        clearance: 2,
-      });
-    }
-  }
-
-  return corePlacements;
-}
-
 function createGrassInstancedMesh(
   count: number,
-  profileSettings: any,
   layout: ReturnType<typeof getProductionRoomLayout>,
   characters: ReturnType<typeof getCharacterPlacements>
 ): { mesh: THREE.InstancedMesh; geometry: THREE.BufferGeometry; material: THREE.Material } {
@@ -68,66 +32,23 @@ function createGrassInstancedMesh(
 
   const mesh = new THREE.InstancedMesh(geometry, material, count);
   const matrix = new THREE.Matrix4();
-
   const quat = new THREE.Quaternion();
   const scale3 = new THREE.Vector3();
 
-  const corePlacements = getCorePlacementsForGrassClearing(layout, characters);
+  const transforms = generateGrassLayout({
+    count,
+    roomDimensions: ROOM_DIMENSIONS,
+    placements: layout.placements,
+    characters,
+  });
 
-  const isClearOfPlacements = (x: number, z: number): boolean => {
-    return corePlacements.every((place) => {
-      const dx = x - place.x;
-      const dz = z - place.z;
-      return Math.sqrt(dx * dx + dz * dz) >= place.clearance;
-    });
-  };
-
-  const isClearOfRiver = (z: number): boolean => {
-    return Math.abs(z - ROOM_DIMENSIONS.riverCentreZ) >= 4;
-  };
-
-  const isClearOfPath = (x: number): boolean => {
-    return Math.abs(x) > 2;
-  };
-
-  const isValidPosition = (x: number, z: number): boolean => {
-    return (
-      x >= -22 && x <= 22 &&
-      z >= -14 && z <= 14 &&
-      isClearOfRiver(z) &&
-      isClearOfPlacements(x, z) &&
-      isClearOfPath(x)
-    );
-  };
-
-  let assigned = 0;
-  let attempt = 0;
-  const maxAttempts = count * 50;
-
-  while (assigned < count && attempt < maxAttempts) {
-    const x = (deterministicHash(attempt, 1001) * 44) - 22;
-    const z = (deterministicHash(attempt, 1002) * 28) - 14;
-
-    if (isValidPosition(x, z)) {
-      const scale = 0.8 + deterministicHash(attempt, 1003) * 0.4;
-      const rotY = deterministicHash(attempt, 1004) * Math.PI * 2;
-
-      quat.setFromAxisAngle(new THREE.Vector3(0, 1, 0), rotY);
-      scale3.set(scale, scale, scale);
-
-      matrix.identity();
-      matrix.compose(new THREE.Vector3(x, 0, z), quat, scale3);
-
-      mesh.setMatrixAt(assigned, matrix);
-      assigned++;
-    }
-
-    attempt++;
-  }
-
-  if (assigned < count) {
-    throw new Error(`Failed to generate ${count} grass instances: only generated ${assigned} after ${maxAttempts} attempts`);
-  }
+  transforms.forEach((t, i) => {
+    quat.setFromAxisAngle(new THREE.Vector3(0, 1, 0), t.rotationY);
+    scale3.set(t.scale, t.scale, t.scale);
+    matrix.identity();
+    matrix.compose(new THREE.Vector3(t.x, 0, t.z), quat, scale3);
+    mesh.setMatrixAt(i, matrix);
+  });
 
   mesh.receiveShadow = true;
   mesh.castShadow = false;
@@ -150,10 +71,43 @@ function shouldCastShadow(instanceId: string, profile: ProductionRoomProfile): b
   ];
 
   if (profile === "quality") {
-    return !instanceId.startsWith("additional-") && !instanceId.startsWith("water-") && !instanceId.startsWith("cliff-");
+    return (
+      !instanceId.startsWith("additional-") &&
+      !instanceId.startsWith("water-") &&
+      instanceId !== "grass"
+    );
   }
 
   return balancedShadowCasters.includes(instanceId);
+}
+
+/** Derive the exact expected shadow-caster instance ID set for a profile from the layout contract. Pure function, no Three.js. */
+function getExpectedShadowCasterIds(
+  profile: ProductionRoomProfile,
+  layout: ReturnType<typeof getProductionRoomLayout>
+): string[] {
+  const characterIds = ["player", "mara", "skeleton"];
+
+  if (profile === "balanced") {
+    return [
+      "player",
+      "mara",
+      "skeleton",
+      "cottage-main",
+      "bridge-main",
+      "campfire-main",
+      "oak-a",
+      "oak-b",
+      "oak-c",
+      "canopy-northwest",
+    ].sort();
+  }
+
+  const nonAdditionalPlacementIds = layout.placements
+    .filter((p) => !p.instance.startsWith("additional-") && !p.instance.startsWith("water-"))
+    .map((p) => p.instance);
+
+  return [...nonAdditionalPlacementIds, ...characterIds].sort();
 }
 
 interface ProductionRoomLandscapeProps {
@@ -306,7 +260,7 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
 
         // Add grass
         const grassCount = profile === "balanced" ? 100 : 220;
-        const grassMesh = createGrassInstancedMesh(grassCount, profileSettings, layout, characters);
+        const grassMesh = createGrassInstancedMesh(grassCount, layout, characters);
         scene.add(grassMesh.mesh);
         ownedGeometriesRef.current.add(grassMesh.geometry);
         ownedMaterialsRef.current.add(grassMesh.material);
@@ -525,22 +479,12 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
           }
         });
 
-        // Filter to appropriate casters based on profile
-        let filteredCasterIds = Array.from(shadowCasterIds);
-        if (profile === "balanced") {
-          // Balanced: only specific core casters
-          const balancedCasters = [
-            "player", "mara", "skeleton",
-            "cottage-main", "bridge-main", "campfire-main",
-            "oak-a", "oak-b", "oak-c", "canopy-northwest"
-          ];
-          filteredCasterIds = filteredCasterIds.filter((id) => balancedCasters.includes(id));
-        } else {
-          // Quality: exclude only additional-* and grass
-          filteredCasterIds = filteredCasterIds.filter(
-            (id) => !id.startsWith("additional-") && id !== "grass"
-          );
-        }
+        // Restrict reported casters to exactly the profile's contractual set,
+        // intersected with what actually rendered a shadow-casting mesh.
+        // This keeps the metric an honest reflection of runtime state while
+        // guaranteeing it can never contain an ID outside the contract.
+        const expectedCasterIds = new Set(getExpectedShadowCasterIds(profile, layout));
+        const filteredCasterIds = Array.from(shadowCasterIds).filter((id) => expectedCasterIds.has(id));
 
         if (metricsRef.current) {
           metricsRef.current.shadowCastingMeshes = shadowMeshCount;
@@ -756,15 +700,12 @@ export function ProductionRoomLandscape({ profile, onProfileChange }: Production
               allAssets.every((a) => loadedAssets.includes(a)) &&
               failed.length === 0;
 
-            // Placement-level readiness check
-            const expectedSet = new Set(metricsRef.current.expectedInstanceIds);
-            const loadedSet = new Set(metricsRef.current.loadedInstanceIds);
-            const failedSet = new Set(metricsRef.current.failedInstanceIds);
-
-            const instancesReady =
-              expectedSet.size === loadedSet.size &&
-              Array.from(expectedSet).every((id) => loadedSet.has(id)) &&
-              failedSet.size === 0;
+            // Placement-level readiness check (pure helper, shared with unit tests)
+            const instancesReady = isInstanceReady(
+              metricsRef.current.expectedInstanceIds,
+              metricsRef.current.loadedInstanceIds,
+              metricsRef.current.failedInstanceIds
+            );
 
             if (assetsMatch && instancesReady) {
               metricsRef.current.markReady();

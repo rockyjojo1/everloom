@@ -1,4 +1,45 @@
 import { test, expect } from "@playwright/test";
+import { getProductionRoomLayout } from "../src/bakeoff/productionRoomLayout";
+
+const BALANCED_EXPECTED_CASTERS = [
+  "player",
+  "mara",
+  "skeleton",
+  "cottage-main",
+  "bridge-main",
+  "campfire-main",
+  "oak-a",
+  "oak-b",
+  "oak-c",
+  "canopy-northwest",
+].sort();
+
+function getQualityExpectedCasters(): string[] {
+  const layout = getProductionRoomLayout("quality");
+  const nonAdditionalPlacementIds = layout.placements
+    .filter((p) => !p.instance.startsWith("additional-") && !p.instance.startsWith("water-"))
+    .map((p) => p.instance);
+  return [...nonAdditionalPlacementIds, "player", "mara", "skeleton"].sort();
+}
+
+function getExpectedInstanceIds(profile: "balanced" | "quality"): string[] {
+  const layout = getProductionRoomLayout(profile);
+  const placementIds = layout.placements.map((p) => p.instance);
+  return [
+    ...placementIds,
+    "player",
+    "mara",
+    "skeleton",
+    "mara-shawl",
+    "player-idle-action",
+    "player-walking-a-action",
+    "mara-idle-action",
+    "skeleton-idle-action",
+    "grass",
+    "ground",
+    "water",
+  ].sort();
+}
 
 /**
  * Gate 4 Audit Test Suite
@@ -216,7 +257,7 @@ test.describe("Gate 4 Audit — Remaining Blockers", () => {
     expect(metrics.additionalRocks).toBe(20);
   });
 
-  test("balanced shadow policy applies to core characters and structures", async ({ page }) => {
+  test("balanced shadowCasterInstanceIds exactly equals the contractual 10-ID set", async ({ page }) => {
     test.skip(page.context().browser()?.browserType().name() !== "chromium", "Desktop only");
     await page.setViewportSize({ width: 1440, height: 900 });
     await page.goto(`/?bakeoff=meadowrest&profile=balanced`);
@@ -224,10 +265,65 @@ test.describe("Gate 4 Audit — Remaining Blockers", () => {
     await page.waitForFunction(() => (window as any).__EVERLOOM_BAKEOFF__?.ready === true, { timeout: 12000 });
 
     const metrics = await page.evaluate(() => (window as any).__EVERLOOM_BAKEOFF__);
+    const actual = [...metrics.shadowCasterInstanceIds].sort();
 
-    // Exposure: shadowCastingMeshes count
-    // Balanced: player, Mara, skeleton (3) + cottage, bridge, campfire (3) + 4 required trees (4) = 10+
-    expect(metrics.shadowCastingMeshes, "Balanced must apply shadows to core characters and structures").toBeGreaterThanOrEqual(10);
+    expect(
+      actual,
+      `Balanced shadowCasterInstanceIds must exactly equal ${JSON.stringify(BALANCED_EXPECTED_CASTERS)}, got ${JSON.stringify(actual)}`
+    ).toEqual(BALANCED_EXPECTED_CASTERS);
+  });
+
+  test("quality shadowCasterInstanceIds exactly equals every non-additional layout placement plus characters", async ({ page }) => {
+    test.skip(page.context().browser()?.browserType().name() !== "chromium", "Desktop only");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(`/?bakeoff=meadowrest&profile=quality`);
+
+    await page.waitForFunction(() => (window as any).__EVERLOOM_BAKEOFF__?.ready === true, { timeout: 12000 });
+
+    const metrics = await page.evaluate(() => (window as any).__EVERLOOM_BAKEOFF__);
+    const actual = [...metrics.shadowCasterInstanceIds].sort();
+    const expected = getQualityExpectedCasters();
+
+    expect(
+      actual,
+      `Quality shadowCasterInstanceIds must exactly equal the derived set. Missing: ${expected.filter((id) => !actual.includes(id)).join(", ") || "none"}. Extra: ${actual.filter((id: string) => !expected.includes(id)).join(", ") || "none"}`
+    ).toEqual(expected);
+  });
+
+  test("balanced placement-level readiness is exactly 70/70/0", async ({ page }) => {
+    test.skip(page.context().browser()?.browserType().name() !== "chromium", "Desktop only");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(`/?bakeoff=meadowrest&profile=balanced`);
+
+    await page.waitForFunction(() => (window as any).__EVERLOOM_BAKEOFF__?.ready === true, { timeout: 12000 });
+
+    const metrics = await page.evaluate(() => (window as any).__EVERLOOM_BAKEOFF__);
+    const expected = getExpectedInstanceIds("balanced");
+    const loaded = [...metrics.loadedInstanceIds].sort();
+
+    expect(expected.length, "Balanced expectedInstanceIds contract must be 70").toBe(70);
+    expect(metrics.expectedInstanceIds.length, "Balanced expectedInstanceIds length").toBe(70);
+    expect(metrics.loadedInstanceIds.length, "Balanced loadedInstanceIds length").toBe(70);
+    expect(metrics.failedInstanceIds, "Balanced failedInstanceIds must be empty").toEqual([]);
+    expect(loaded, "Balanced loadedInstanceIds must exactly equal expected set").toEqual(expected);
+  });
+
+  test("quality placement-level readiness is exactly 86/86/0", async ({ page }) => {
+    test.skip(page.context().browser()?.browserType().name() !== "chromium", "Desktop only");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto(`/?bakeoff=meadowrest&profile=quality`);
+
+    await page.waitForFunction(() => (window as any).__EVERLOOM_BAKEOFF__?.ready === true, { timeout: 12000 });
+
+    const metrics = await page.evaluate(() => (window as any).__EVERLOOM_BAKEOFF__);
+    const expected = getExpectedInstanceIds("quality");
+    const loaded = [...metrics.loadedInstanceIds].sort();
+
+    expect(expected.length, "Quality expectedInstanceIds contract must be 86").toBe(86);
+    expect(metrics.expectedInstanceIds.length, "Quality expectedInstanceIds length").toBe(86);
+    expect(metrics.loadedInstanceIds.length, "Quality loadedInstanceIds length").toBe(86);
+    expect(metrics.failedInstanceIds, "Quality failedInstanceIds must be empty").toEqual([]);
+    expect(loaded, "Quality loadedInstanceIds must exactly equal expected set").toEqual(expected);
   });
 
   // BLOCKER 7: Ready after first frame render
