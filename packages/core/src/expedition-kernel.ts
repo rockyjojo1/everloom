@@ -4,6 +4,7 @@ import {
   DeterministicExpeditionError,
   validateDeterministicExpeditionPlan,
   validateDeterministicExpeditionProgress,
+  validateDeterministicExpeditionProgressAgainstPlan,
   validateDeterministicExpeditionStartingState,
   type DeterministicExpeditionActionKind,
   type DeterministicExpeditionDelta,
@@ -39,14 +40,34 @@ export type {
  *    of elapsed time in a single call produces the same result as resolving it
  *    as any sequence of partitions with the same total.
  *
- * Time model:
- *  - `elapsedResolvedMs` advances only when a full action commits.
- *  - An action that spans a chunk boundary is carried in `partialAction` as
- *    `{ kind, actionSequence, elapsedInActionMs }`. `actionSequence` pins the
- *    RNG stream, so the resumed action never re-rolls; `elapsedInActionMs`
- *    records how much of the action was already consumed. On completion the
- *    full action duration is committed to `elapsedResolvedMs` and the RNG
- *    sequence advances by exactly one, identical to the one-shot path.
+ * Time model (chronological):
+ *  - `elapsedResolvedMs` is the total simulated time already consumed,
+ *    *including* time inside the current partial action.
+ *  - `partialAction.elapsedInActionMs` describes where that consumed time sits
+ *    within the current action (`actionStart = elapsedResolvedMs -
+ *    elapsedInActionMs`).
+ *  - Every call accepts exactly the requested elapsed it can accommodate and
+ *    advances `elapsedResolvedMs` by exactly that amount, so
+ *    `delta.elapsedAppliedMs` equals the accepted time and the remaining plan
+ *    time is always `requestedDurationMs - elapsedResolvedMs`.
+ *  - Elapsed is processed chronologically: actions resolve when they finish,
+ *    and food boundaries interrupt the clock exactly when they are crossed.
+ *    An action that completes before a boundary earns its outcome.
+ *
+ * Outcome model:
+ *  - Encounters apply damage first; the outcome is decided afterwards. If
+ *    post-damage health is above `minimumHealthToContinue` the encounter is
+ *    won (combat XP awarded); at or below it the encounter is lost (no XP) and
+ *    the expedition stops with `health_critical`. Every encounter is recorded
+ *    exactly once, so `encountersWon + encountersLost === encounters`.
+ *  - The first resource award that creates a new stack increments
+ *    `inventoryUsedSlots` by exactly one and sets
+ *    `existingResourceStackPresent`; later awards consume no further slot.
+ *  - Food is one cumulative clock across gathering, combat and partial time:
+ *    one unit is consumed at each multiple of `foodConsumptionIntervalMs` of
+ *    elapsed time. If food is unavailable at a crossed boundary the expedition
+ *    stops with `food_exhausted` exactly at the boundary, never advancing past
+ *    it and never taking food negative.
  */
 
 // ============================================================================
@@ -87,15 +108,40 @@ function scheduleNextAction(
   return { kind: "gathering", durationMs: nextWindowMs };
 }
 
-function foodConsumedBetween(intervalMs: number, fromMs: number, toMs: number): number {
-  const to = Math.floor(toMs / intervalMs);
-  const from = Math.floor(fromMs / intervalMs);
-  return Math.max(0, to - from);
+/**
+ * Commits a completed gathering window. Time has already been attributed by the
+ * chronological loop; this function applies the award and the inventory/stack
+ * mutation. The capacity check runs BEFORE the award, so an overflow never
+ * produces an invalid award.
+ */
+function completeGathering(
+  plan: DeterministicExpeditionPlan,
+  work: Mutable<DeterministicExpeditionProgress>,
+  actionSequence: number,
+): DeterministicExpeditionStopReason | null {
+  const rules = plan.rules;
+
+  if (!work.existingResourceStackPresent) {
+    if (work.inventoryUsedSlots >= rules.inventorySlotLimit) {
+      return "inventory_full";
+    }
+  }
+
+  work.resourcesObtained += rules.resourceQuantityPerGather;
+  work.resourceXpGained += rules.resourceXpPerGather;
+  if (!work.existingResourceStackPresent) {
+    work.inventoryUsedSlots += 1;
+    work.existingResourceStackPresent = true;
+  }
+  work.nextActionSequence = actionSequence + 1;
+  work.partialAction = null;
+  return null;
 }
 
 /**
  * Commits a completed encounter. Damage is re-derived from the pinned action
- * sequence so chunked and one-shot resolution agree exactly.
+ * sequence so chunked and one-shot resolution agree exactly, and it is applied
+ * before the win/lose outcome is decided. A loss always stops the expedition.
  */
 function completeEncounter(
   plan: DeterministicExpeditionPlan,
@@ -113,56 +159,19 @@ function completeEncounter(
   );
 
   work.encounters += 1;
-  work.encountersWon += 1;
-  work.combatXpGained += rules.combatXpPerWin;
   work.damageTaken += damage;
   work.health = Math.max(0, work.health - damage);
-  work.combatInterruptionMs += rules.combatDurationMs;
-  work.elapsedResolvedMs += rules.combatDurationMs;
   work.nextActionSequence = actionSequence + 1;
   work.partialAction = null;
 
-  if (work.health <= rules.minimumHealthToContinue) {
-    return "health_critical";
-  }
-  return null;
-}
-
-/**
- * Commits a completed gathering window. Order of side effects is fixed:
- *  1. inventory capacity is checked BEFORE the award (no invalid overflow),
- *  2. the award is committed,
- *  3. food is consumed across the cumulative clock, never going negative.
- */
-function completeGathering(
-  plan: DeterministicExpeditionPlan,
-  work: Mutable<DeterministicExpeditionProgress>,
-  durationMs: number,
-): DeterministicExpeditionStopReason | null {
-  const rules = plan.rules;
-
-  const stackCanFit = work.existingResourceStackPresent || work.inventoryUsedSlots < rules.inventorySlotLimit;
-  if (!stackCanFit) {
-    return "inventory_full";
+  if (work.health > rules.minimumHealthToContinue) {
+    work.encountersWon += 1;
+    work.combatXpGained += rules.combatXpPerWin;
+    return null;
   }
 
-  const elapsedBeforeMs = work.elapsedResolvedMs;
-  work.resourcesObtained += rules.resourceQuantityPerGather;
-  work.resourceXpGained += rules.resourceXpPerGather;
-  work.productiveGatheringMs += durationMs;
-  work.elapsedResolvedMs += durationMs;
-  work.nextActionSequence += 1;
-  work.partialAction = null;
-
-  const foodNeeded = foodConsumedBetween(rules.foodConsumptionIntervalMs, elapsedBeforeMs, elapsedBeforeMs + durationMs);
-  const foodConsumedNow = Math.min(work.availableFood, foodNeeded);
-  work.availableFood -= foodConsumedNow;
-  work.foodConsumed += foodConsumedNow;
-
-  if (foodConsumedNow < foodNeeded) {
-    return "food_exhausted";
-  }
-  return null;
+  work.encountersLost += 1;
+  return "health_critical";
 }
 
 // ============================================================================
@@ -175,6 +184,19 @@ export function createDeterministicExpeditionProgress(
 ): DeterministicExpeditionProgress {
   validateDeterministicExpeditionPlan(plan);
   validateDeterministicExpeditionStartingState(startingState);
+
+  if (startingState.startingInventoryUsedSlots > plan.rules.inventorySlotLimit) {
+    throw new DeterministicExpeditionError(
+      "invalid_starting_state",
+      `startingInventoryUsedSlots (${startingState.startingInventoryUsedSlots}) exceeds inventorySlotLimit (${plan.rules.inventorySlotLimit})`,
+    );
+  }
+  if (startingState.existingResourceStackPresent && startingState.startingInventoryUsedSlots < 1) {
+    throw new DeterministicExpeditionError(
+      "invalid_starting_state",
+      "an existing resource stack must occupy a slot (startingInventoryUsedSlots must be >= 1)",
+    );
+  }
 
   const progress: DeterministicExpeditionProgress = {
     schemaVersion: EXPEDITION_KERNEL_SCHEMA_VERSION,
@@ -200,6 +222,7 @@ export function createDeterministicExpeditionProgress(
     stopReason: null,
   };
   validateDeterministicExpeditionProgress(progress);
+  validateDeterministicExpeditionProgressAgainstPlan(plan, progress);
   return progress;
 }
 
@@ -210,6 +233,7 @@ export function resolveDeterministicExpedition(
 ): DeterministicExpeditionResolution {
   validateDeterministicExpeditionPlan(plan);
   validateDeterministicExpeditionProgress(currentProgress);
+  validateDeterministicExpeditionProgressAgainstPlan(plan, currentProgress);
 
   if (!Number.isSafeInteger(requestedElapsedMs) || requestedElapsedMs < 0) {
     throw new DeterministicExpeditionError(
@@ -217,6 +241,7 @@ export function resolveDeterministicExpedition(
       `requestedElapsedMs must be a non-negative safe integer; received ${String(requestedElapsedMs)}`,
     );
   }
+
   if (currentProgress.expeditionId !== plan.expeditionId) {
     throw new DeterministicExpeditionError(
       "plan_progress_mismatch",
@@ -229,14 +254,10 @@ export function resolveDeterministicExpedition(
       `progress schemaVersion (${currentProgress.schemaVersion}) does not match plan schemaVersion (${plan.schemaVersion})`,
     );
   }
-  if (currentProgress.elapsedResolvedMs + requestedElapsedMs > plan.requestedDurationMs) {
-    throw new DeterministicExpeditionError(
-      "invalid_elapsed",
-      `requestedElapsedMs (${requestedElapsedMs}) would exceed requestedDurationMs (${plan.requestedDurationMs})`,
-    );
-  }
 
-  // Terminal expeditions and zero elapsed are pure no-ops.
+  // Terminal progress and zero elapsed are pure no-ops. This check runs BEFORE
+  // the remaining-duration bound so a completed/stopped expedition never
+  // errors on a further non-negative request.
   if (currentProgress.status !== "active" || requestedElapsedMs === 0) {
     return {
       progress: currentProgress,
@@ -244,79 +265,120 @@ export function resolveDeterministicExpedition(
     };
   }
 
+  if (currentProgress.elapsedResolvedMs + requestedElapsedMs > plan.requestedDurationMs) {
+    throw new DeterministicExpeditionError(
+      "invalid_elapsed",
+      `requestedElapsedMs (${requestedElapsedMs}) would exceed requestedDurationMs (${plan.requestedDurationMs})`,
+    );
+  }
+
   const work: Mutable<DeterministicExpeditionProgress> = structuredClone(currentProgress);
-  let budget = requestedElapsedMs;
+  const statusBefore: DeterministicExpeditionStatus = work.status;
+  const targetMs = work.elapsedResolvedMs + requestedElapsedMs;
   let stopReason: DeterministicExpeditionStopReason = null;
 
+  // An expedition that already starts at or below the health threshold cannot
+  // continue: report it immediately without advancing time.
   if (work.health <= plan.rules.minimumHealthToContinue) {
     stopReason = "health_critical";
   }
 
-  while (budget > 0 && stopReason === null) {
-    const partial = work.partialAction;
-    if (partial !== null) {
-      if (partial.kind === "encounter") {
-        const fullDurationMs = plan.rules.combatDurationMs;
-        const remainingInActionMs = Math.max(0, fullDurationMs - partial.elapsedInActionMs);
-        if (budget >= remainingInActionMs) {
-          budget -= remainingInActionMs;
-          stopReason = completeEncounter(plan, work, partial.actionSequence);
-        } else {
-          work.partialAction = {
-            kind: "encounter",
-            actionSequence: partial.actionSequence,
-            elapsedInActionMs: partial.elapsedInActionMs + budget,
-          };
-          budget = 0;
-        }
+  // Chronological processing. Every loop iteration advances the clock to the
+  // next event: an action completion, a food boundary, or the requested target.
+  // The current action's identity (kind, sequence, start and end) is derived
+  // once and held across iterations so that an in-flight action is never lost
+  // when a mid-action food boundary is crossed.
+  let currentKind: ActionKind | null = null;
+  let currentSequence = 0;
+  let currentStartMs = 0;
+  let currentEndMs = 0;
+
+  while (work.elapsedResolvedMs < targetMs && stopReason === null) {
+    const rules = plan.rules;
+
+    if (currentKind === null) {
+      if (work.partialAction !== null) {
+        const partial = work.partialAction;
+        currentKind = partial.kind;
+        currentSequence = partial.actionSequence;
+        currentStartMs = work.elapsedResolvedMs - partial.elapsedInActionMs;
       } else {
-        const fullDurationMs = Math.min(
-          plan.rules.gatheringWindowMs,
-          plan.requestedDurationMs - work.elapsedResolvedMs,
-        );
-        const remainingInActionMs = Math.max(0, fullDurationMs - partial.elapsedInActionMs);
-        if (budget >= remainingInActionMs) {
-          budget -= remainingInActionMs;
-          stopReason = completeGathering(plan, work, fullDurationMs);
-        } else {
-          work.partialAction = {
-            kind: "gathering",
-            actionSequence: partial.actionSequence,
-            elapsedInActionMs: partial.elapsedInActionMs + budget,
-          };
-          budget = 0;
+        const scheduled = scheduleNextAction(plan, work);
+        if (scheduled === null) {
+          break;
         }
+        currentKind = scheduled.kind;
+        currentSequence = work.nextActionSequence;
+        currentStartMs = work.elapsedResolvedMs;
       }
-      continue;
+      currentEndMs =
+        currentStartMs +
+        (currentKind === "encounter"
+          ? rules.combatDurationMs
+          : Math.min(rules.gatheringWindowMs, plan.requestedDurationMs - currentStartMs));
     }
 
-    const action = scheduleNextAction(plan, work);
-    if (action === null) {
+    const nextBoundaryMs =
+      (Math.floor(work.elapsedResolvedMs / rules.foodConsumptionIntervalMs) + 1) *
+      rules.foodConsumptionIntervalMs;
+    const nextEventMs = Math.min(targetMs, currentEndMs, nextBoundaryMs);
+    const advanceMs = nextEventMs - work.elapsedResolvedMs;
+    if (advanceMs <= 0) {
       break;
     }
-    if (budget >= action.durationMs) {
-      budget -= action.durationMs;
-      if (action.kind === "encounter") {
-        stopReason = completeEncounter(plan, work, work.nextActionSequence);
-      } else {
-        stopReason = completeGathering(plan, work, action.durationMs);
-      }
+
+    // Attribute the accepted time to the current action's productivity bucket.
+    if (currentKind === "gathering") {
+      work.productiveGatheringMs += advanceMs;
     } else {
-      work.partialAction = {
-        kind: action.kind,
-        actionSequence: work.nextActionSequence,
-        elapsedInActionMs: budget,
-      };
-      budget = 0;
+      work.combatInterruptionMs += advanceMs;
+    }
+    work.elapsedResolvedMs += advanceMs;
+
+    // An action completing exactly at the boundary earns its outcome first.
+    if (work.elapsedResolvedMs === currentEndMs) {
+      if (currentKind === "gathering") {
+        stopReason = completeGathering(plan, work, currentSequence);
+      } else {
+        stopReason = completeEncounter(plan, work, currentSequence);
+      }
+      currentKind = null;
+      if (stopReason !== null) {
+        break;
+      }
+    }
+
+    // Crossing a food boundary consumes one unit; running out stops here.
+    if (work.elapsedResolvedMs === nextBoundaryMs) {
+      if (work.availableFood === 0) {
+        stopReason = "food_exhausted";
+        break;
+      }
+      work.availableFood -= 1;
+      work.foodConsumed += 1;
+    }
+
+    // Budget exhausted: persist a partial action only when still mid-action.
+    if (work.elapsedResolvedMs === targetMs) {
+      if (work.elapsedResolvedMs < currentEndMs) {
+        work.partialAction = {
+          kind: currentKind!,
+          actionSequence: currentSequence,
+          elapsedInActionMs: work.elapsedResolvedMs - currentStartMs,
+        };
+      }
+      break;
     }
   }
 
   if (stopReason !== null) {
     work.status = "stopped";
     work.stopReason = stopReason;
+    work.partialAction = null;
   } else if (work.elapsedResolvedMs >= plan.requestedDurationMs) {
     work.status = "completed";
     work.stopReason = "duration_reached";
+    work.partialAction = null;
   } else {
     work.status = "active";
     work.stopReason = null;
@@ -336,7 +398,7 @@ export function resolveDeterministicExpedition(
     combatInterruptionMs: work.combatInterruptionMs - currentProgress.combatInterruptionMs,
     startingHealth: currentProgress.health,
     endingHealth: work.health,
-    statusBefore: currentProgress.status,
+    statusBefore,
     statusAfter: work.status,
     stopReason: work.stopReason,
   };

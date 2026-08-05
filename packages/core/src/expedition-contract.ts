@@ -338,3 +338,93 @@ export function validateDeterministicExpeditionProgress(progress: DeterministicE
     fail(code, "a stopped expedition must have a non-null stopReason");
   }
 }
+
+/**
+ * Plan-aware progress validation. This validator checks a progress against the
+ * plan it belongs to, catching structural corruption that the schema-only
+ * validator cannot see (impossible slot/stack states, counters inconsistent
+ * with the plan's duration, partial actions that cannot resume, and so on).
+ * `resolveDeterministicExpedition` runs it before accepting any elapsed time.
+ */
+export function validateDeterministicExpeditionProgressAgainstPlan(
+  plan: DeterministicExpeditionPlan,
+  progress: DeterministicExpeditionProgress,
+): void {
+  const code: DeterministicExpeditionErrorCode = "invalid_progress";
+  if (!plan || typeof plan !== "object") fail(code, "plan must be an object");
+  if (!progress || typeof progress !== "object") fail(code, "progress must be an object");
+  const rules = plan.rules;
+
+  if (progress.elapsedResolvedMs > plan.requestedDurationMs) {
+    fail(
+      code,
+      `elapsedResolvedMs (${progress.elapsedResolvedMs}) exceeds requestedDurationMs (${plan.requestedDurationMs})`,
+    );
+  }
+
+  const isTerminal = progress.status === "completed" || progress.status === "stopped";
+  if (isTerminal && progress.partialAction !== null) {
+    fail(code, "terminal progress must not carry a partial action");
+  }
+
+  if (progress.partialAction !== null) {
+    const partial = progress.partialAction;
+    if (partial.actionSequence !== progress.nextActionSequence) {
+      fail(
+        code,
+        `partialAction.actionSequence (${partial.actionSequence}) must equal nextActionSequence (${progress.nextActionSequence})`,
+      );
+    }
+    const actionStartMs = progress.elapsedResolvedMs - partial.elapsedInActionMs;
+    if (actionStartMs < 0) {
+      fail(
+        code,
+        `partialAction.elapsedInActionMs (${partial.elapsedInActionMs}) exceeds elapsedResolvedMs (${progress.elapsedResolvedMs})`,
+      );
+    }
+    const fullDurationMs =
+      partial.kind === "encounter"
+        ? rules.combatDurationMs
+        : Math.min(rules.gatheringWindowMs, plan.requestedDurationMs - actionStartMs);
+    if (partial.elapsedInActionMs <= 0 || partial.elapsedInActionMs >= fullDurationMs) {
+      fail(
+        code,
+        `partialAction.elapsedInActionMs (${partial.elapsedInActionMs}) must be strictly within (0, ${fullDurationMs})`,
+      );
+    }
+  }
+
+  if (progress.inventoryUsedSlots > rules.inventorySlotLimit) {
+    fail(
+      code,
+      `inventoryUsedSlots (${progress.inventoryUsedSlots}) exceeds inventorySlotLimit (${rules.inventorySlotLimit})`,
+    );
+  }
+  if (progress.encountersWon + progress.encountersLost !== progress.encounters) {
+    fail(
+      code,
+      `encountersWon + encountersLost (${progress.encountersWon} + ${progress.encountersLost}) must equal encounters (${progress.encounters})`,
+    );
+  }
+  if (!progress.existingResourceStackPresent && progress.resourcesObtained > 0) {
+    fail(code, "resourcesObtained is positive but no resource stack exists");
+  }
+  if (progress.existingResourceStackPresent && progress.inventoryUsedSlots < 1) {
+    fail(code, "an existing resource stack must occupy a slot (inventoryUsedSlots must be >= 1)");
+  }
+  if (progress.status === "completed" && progress.elapsedResolvedMs !== plan.requestedDurationMs) {
+    fail(
+      code,
+      `completed progress must have elapsedResolvedMs (${progress.elapsedResolvedMs}) equal to requestedDurationMs (${plan.requestedDurationMs})`,
+    );
+  }
+  if (progress.status === "active" && progress.elapsedResolvedMs >= plan.requestedDurationMs) {
+    fail(code, "active progress must not have already reached the requested duration");
+  }
+  if (progress.productiveGatheringMs + progress.combatInterruptionMs !== progress.elapsedResolvedMs) {
+    fail(
+      code,
+      `productiveGatheringMs + combatInterruptionMs (${progress.productiveGatheringMs} + ${progress.combatInterruptionMs}) must equal elapsedResolvedMs (${progress.elapsedResolvedMs})`,
+    );
+  }
+}

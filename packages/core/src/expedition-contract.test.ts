@@ -4,6 +4,7 @@ import {
   DeterministicExpeditionError,
   validateDeterministicExpeditionPlan,
   validateDeterministicExpeditionProgress,
+  validateDeterministicExpeditionProgressAgainstPlan,
   validateDeterministicExpeditionRules,
   validateDeterministicExpeditionStartingState,
   type DeterministicExpeditionPlan,
@@ -256,6 +257,188 @@ describe("deterministic expedition contract", () => {
         () => validateDeterministicExpeditionProgress(makeProgress({ status: "stopped", stopReason: null })),
         "invalid_progress",
         "stopReason",
+      );
+    });
+  });
+
+  describe("plan-aware progress validation", () => {
+    it("accepts a valid active progress carrying a partial action", () => {
+      const plan = makePlan();
+      const progress = makeProgress({
+        elapsedResolvedMs: 5_000,
+        partialAction: { kind: "gathering", actionSequence: 0, elapsedInActionMs: 5_000 },
+        nextActionSequence: 0,
+        productiveGatheringMs: 5_000,
+      });
+      expect(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress)).not.toThrow();
+    });
+
+    it("accepts a valid completed progress", () => {
+      const plan = makePlan();
+      const progress = makeProgress({
+        elapsedResolvedMs: 120_000,
+        status: "completed",
+        stopReason: "duration_reached",
+        productiveGatheringMs: 120_000,
+      });
+      expect(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress)).not.toThrow();
+    });
+
+    it("rejects elapsedResolvedMs greater than requestedDurationMs", () => {
+      const plan = makePlan({ requestedDurationMs: 120_000 });
+      const progress = makeProgress({ elapsedResolvedMs: 150_000, productiveGatheringMs: 150_000 });
+      expectError(
+        () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
+        "invalid_progress",
+        "exceeds requestedDurationMs",
+      );
+    });
+
+    it("rejects a partial action on terminal progress", () => {
+      const plan = makePlan();
+      const progress = makeProgress({
+        elapsedResolvedMs: 5_000,
+        partialAction: { kind: "gathering", actionSequence: 0, elapsedInActionMs: 5_000 },
+        nextActionSequence: 0,
+        productiveGatheringMs: 5_000,
+        status: "stopped",
+        stopReason: "food_exhausted",
+      });
+      expectError(
+        () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
+        "invalid_progress",
+        "terminal progress",
+      );
+    });
+
+    it("rejects a partial action whose sequence differs from nextActionSequence", () => {
+      const plan = makePlan();
+      const progress = makeProgress({
+        elapsedResolvedMs: 5_000,
+        partialAction: { kind: "gathering", actionSequence: 3, elapsedInActionMs: 5_000 },
+        nextActionSequence: 0,
+        productiveGatheringMs: 5_000,
+      });
+      expectError(
+        () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
+        "invalid_progress",
+        "nextActionSequence",
+      );
+    });
+
+    it("rejects a partial action with zero or negative elapsed in action", () => {
+      const plan = makePlan();
+      const progress = makeProgress({
+        elapsedResolvedMs: 5_000,
+        partialAction: { kind: "gathering", actionSequence: 0, elapsedInActionMs: 0 },
+        nextActionSequence: 0,
+        productiveGatheringMs: 5_000,
+      });
+      expectError(
+        () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
+        "invalid_progress",
+        "strictly within",
+      );
+    });
+
+    it("rejects a partial action whose elapsed in action reaches the action duration", () => {
+      const plan = makePlan();
+      const progress = makeProgress({
+        elapsedResolvedMs: 30_000,
+        partialAction: { kind: "gathering", actionSequence: 0, elapsedInActionMs: 30_000 },
+        nextActionSequence: 0,
+        productiveGatheringMs: 30_000,
+      });
+      expectError(
+        () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
+        "invalid_progress",
+        "strictly within",
+      );
+    });
+
+    it("rejects an inventory used above the slot limit", () => {
+      const plan = makePlan();
+      const progress = makeProgress({
+        elapsedResolvedMs: 30_000,
+        inventoryUsedSlots: 19,
+        existingResourceStackPresent: true,
+        resourcesObtained: 1,
+        productiveGatheringMs: 30_000,
+      });
+      expectError(
+        () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
+        "invalid_progress",
+        "inventorySlotLimit",
+      );
+    });
+
+    it("rejects encounters whose won plus lost does not equal encounters", () => {
+      const plan = makePlan();
+      const progress = makeProgress({ encounters: 3, encountersWon: 2, encountersLost: 0 });
+      expectError(
+        () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
+        "invalid_progress",
+        "encounters",
+      );
+    });
+
+    it("rejects positive resources without an existing resource stack", () => {
+      const plan = makePlan();
+      const progress = makeProgress({
+        elapsedResolvedMs: 30_000,
+        resourcesObtained: 1,
+        existingResourceStackPresent: false,
+        productiveGatheringMs: 30_000,
+      });
+      expectError(
+        () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
+        "invalid_progress",
+        "no resource stack exists",
+      );
+    });
+
+    it("rejects an existing resource stack that occupies no slot", () => {
+      const plan = makePlan();
+      const progress = makeProgress({ existingResourceStackPresent: true, inventoryUsedSlots: 0 });
+      expectError(
+        () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
+        "invalid_progress",
+        "must be >= 1",
+      );
+    });
+
+    it("rejects a completed progress without exact duration", () => {
+      const plan = makePlan({ requestedDurationMs: 120_000 });
+      const progress = makeProgress({
+        elapsedResolvedMs: 90_000,
+        status: "completed",
+        stopReason: "duration_reached",
+        productiveGatheringMs: 90_000,
+      });
+      expectError(
+        () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
+        "invalid_progress",
+        "equal to requestedDurationMs",
+      );
+    });
+
+    it("rejects an active progress at or beyond the requested duration", () => {
+      const plan = makePlan({ requestedDurationMs: 120_000 });
+      const progress = makeProgress({ elapsedResolvedMs: 120_000, productiveGatheringMs: 120_000 });
+      expectError(
+        () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
+        "invalid_progress",
+        "must not have already reached",
+      );
+    });
+
+    it("rejects productive plus combat time inconsistent with elapsed", () => {
+      const plan = makePlan();
+      const progress = makeProgress({ elapsedResolvedMs: 10_000, productiveGatheringMs: 4_000, combatInterruptionMs: 2_000 });
+      expectError(
+        () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
+        "invalid_progress",
+        "must equal elapsedResolvedMs",
       );
     });
   });
