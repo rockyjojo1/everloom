@@ -187,6 +187,61 @@ only what it directly exercises.
 - Full detail: `docs/audits/2026-08-05-capacitor-ios-bakeoff/GATE5A_IMPLEMENTATION_REPORT.md`
   and the accompanying `VERIFICATION_LOG.md`.
 
+## Gate 5B: real iOS Simulator runtime, lifecycle and local-save persistence proof (branch `claude/capacitor-ios-simulator-runtime`, based on the Gate 5A base SHA, not yet merged)
+
+- Base SHA: `2024830b518e892d0734d2664652dae0c08d0958` (the accepted Gate 5A evidence commit).
+- Implementation SHA (the exact commit whose CI runtime workflow passed): `4429f54d74fcc6f8f3fbda33d0cecca12ae4f51a`.
+- Added a real XCUITest target (`AppUITests`, bundle ID
+  `com.rockyjojo1.everloom.AppUITests`) to the accepted Gate 5A iOS
+  project, plus a shared Xcode scheme and a dedicated
+  `.github/workflows/capacitor-ios-runtime.yml` CI workflow (the existing
+  accepted `capacitor-ios.yml` from Gate 5A is untouched).
+- One ordered XCUITest journey
+  (`testEverloomNativeLifecycleAndPersistenceJourney`) proved, against a
+  real booted iOS Simulator running the real, unmodified production web
+  bundle inside the real Capacitor WKWebView: fresh install and launch;
+  real touch/keyboard user entry through character creation; the HUD
+  becoming genuinely interactive (not merely rendering, which happens
+  even before entry completes — see below); backgrounding and
+  foreground resume with touch handling intact; a genuine native process
+  termination and relaunch; and the existing local IndexedDB save
+  surviving that termination/relaunch inside the same simulator
+  installation. CI result: 1 test executed, 0 failures, `**TEST
+  SUCCEEDED**`, run
+  [30976961883](https://github.com/rockyjojo1/everloom/actions/runs/30976961883)
+  on `macos-26` / Xcode 26.6 / iOS 26.5 / iPhone 17 Pro simulator.
+- Reaching that passing result took 7 CI round-trips, each a genuinely
+  different, evidence-diagnosed root cause (not a guess): a masked exit
+  code from a GitHub Actions bash default hiding the real xcodebuild
+  failure; WKWebView keyboard-focus timing; a real, previously-unknown
+  fact discovered by downloading and reading the actual `.xcresult`
+  accessibility-tree dump — **`Hud` renders unconditionally once a local
+  save exists, including underneath the still-open character-creation
+  modal**, so HUD-control presence alone was never valid proof that
+  entry actually completed; an invented Swift API; and, found from a
+  second downloaded accessibility-tree dump, the real final root cause —
+  the character-creation form is taller than the 402pt landscape
+  viewport and `'Enter Meadowrest'` sits below the fold, so `isHittable
+  == false` was accurate (not a WKWebView quirk) and a coordinate-tap
+  fallback was targeting a point that was never on screen. Full
+  diagnosis history: `docs/audits/2026-08-05-capacitor-ios-runtime/GATE5B_RUNTIME_REPORT.md`.
+- `apps/game/scripts/verify-capacitor-ios.mjs`'s bundle-identifier check
+  was narrowly extended to allow the new `AppUITests` target's ID
+  alongside the app's own — the app's own identity requirement is
+  unchanged.
+- Zero diff across every protected/prohibited path since the Gate 5A base
+  SHA (`packages/core`, `content`, `assets`, `engine`, `gamedata`,
+  `apps/game/src/game`, `apps/game/src/world`, `apps/game/src/bakeoff`,
+  `apps/client3d`, `apps/web`, every Gate 4/5A evidence directory,
+  `artifacts/`, `art-direction/`); `pnpm-lock.yaml`,
+  `apps/game/src/game/saveDb.ts`, and `store.ts` byte-identical; no
+  `android/` directory; no `server.url`.
+- **Physical iPhone verification has still not been attempted anywhere in
+  this project.** This gate proves Simulator behaviour only. TestFlight
+  and App Store submission remain not started.
+- Full detail: `docs/audits/2026-08-05-capacitor-ios-runtime/GATE5B_RUNTIME_REPORT.md`,
+  `VERIFICATION_LOG.md`, and `SIMULATOR_TEST_RESULTS.md`.
+
 ## Superseded / non-authoritative for current state
 
 - `docs/VERDANT_GROVE_HANDOFF.md` — detailed historical implementation

@@ -58,12 +58,25 @@ passing the bake-off gates below.
   (`claude/capacitor-ios-bakeoff`, base SHA
   `26f36e73b15a1c1e782ec3e4b8890c13ad53194a`), a Capacitor 8.5.0 iOS
   project exists, is committed, statically verified, and syncs the exact
-  same `apps/game` Vite build the browser/PWA targets use. This is
-  foundation-level evidence only: **no physical iPhone build has been
-  attempted**, and the iOS Simulator compile itself is CI-dependent (no
-  macOS available in the implementing environment). "Capacitor project
-  exists" and "physical iPhone build exists" remain two separate, distinct
-  claims — see `docs/audits/2026-08-05-capacitor-ios-bakeoff/GATE5A_IMPLEMENTATION_REPORT.md`
+  same `apps/game` Vite build the browser/PWA targets use, with an
+  unsigned iOS Simulator compile passing in CI.
+- As of Gate 5B (`claude/capacitor-ios-simulator-runtime`, base SHA
+  `2024830b518e892d0734d2664652dae0c08d0958`), that compiled app was
+  actually installed and run inside a real, booted iOS Simulator: a real
+  XCUITest journey proved fresh launch, real touch/keyboard character
+  creation, HUD interactivity, backgrounding/foreground resume, a genuine
+  native process termination/relaunch, and local-save persistence across
+  that termination — all against the real production web bundle in the
+  real Capacitor WKWebView, no mocking. CI: 1 test, 0 failures,
+  `**TEST SUCCEEDED**`, run
+  [30976961883](https://github.com/rockyjojo1/everloom/actions/runs/30976961883).
+- **No physical iPhone build has been attempted anywhere in this
+  project.** "Capacitor project exists," "iOS Simulator compile passes,"
+  "app runs correctly inside a booted Simulator," and "physical iPhone
+  build exists" are four separate, distinct claims — Gates 5A and 5B
+  together satisfy the first three; the fourth remains open. See
+  `docs/audits/2026-08-05-capacitor-ios-bakeoff/GATE5A_IMPLEMENTATION_REPORT.md`
+  and `docs/audits/2026-08-05-capacitor-ios-runtime/GATE5B_RUNTIME_REPORT.md`
   for exactly which is and isn't proven.
 - Godot/GDScript is a **strategy-level fallback only**, to be evaluated
   solely if the physical-device bake-off finds a structural blocker in the
@@ -76,10 +89,10 @@ following evidence must exist and point to a structural blocker first:
 
 - a representative browser/mobile room, built with production-representative
   assets — **satisfied at the browser/mobile-emulation level**, see Gate 4 below;
-- touch input and app lifecycle proof — **not yet proven on a real device**; Gate 5A only proves the native shell builds and syncs correctly, not that touch/lifecycle behave correctly on iOS;
+- touch input and app lifecycle proof — **satisfied at the Simulator level by Gate 5B** (real touch synthesis, real backgrounding/resume, real process termination/relaunch); **not yet proven on a real device**;
 - a physical iPhone build — **not started**;
-- measured performance and memory over a real session — **not started**;
-- observed background/resume behaviour — **not started**;
+- measured performance and memory over a real session — **not started** (the Simulator does not model real device memory/thermal behaviour);
+- observed background/resume behaviour — **satisfied at the Simulator level by Gate 5B**; not yet observed on a real device;
 - a demonstrated structural blocker, not a stylistic preference.
 
 ## Gate 4 browser bake-off status (branch `claude/meadowrest-production-room-bakeoff`)
@@ -101,3 +114,13 @@ around the same `apps/game` build. See "Platform wrapper status" above
 for the precise, narrow claim this gate makes, and
 `docs/audits/2026-08-05-capacitor-ios-bakeoff/GATE5A_IMPLEMENTATION_REPORT.md`
 for full detail.
+
+## Gate 5B real Simulator runtime status (branch `claude/capacitor-ios-simulator-runtime`)
+
+Builds directly on Gate 5A by actually running the compiled app inside a
+booted iOS Simulator via a real XCUITest journey, rather than only
+proving it compiles. See "Platform wrapper status" above for the precise
+claim, and
+`docs/audits/2026-08-05-capacitor-ios-runtime/GATE5B_RUNTIME_REPORT.md`
+for full detail, including the diagnosed root cause of each of the 7 CI
+attempts this took to get right.
