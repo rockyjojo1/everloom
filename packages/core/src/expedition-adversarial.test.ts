@@ -459,7 +459,7 @@ describe("deterministic expedition adversarial hardening audit - corrective pass
         combatInterruptionMs: 0, // Fraud!
       };
 
-      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, forged), "invalid_progress", "combatInterruptionMs mismatch");
+      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, forged), "invalid_progress", "active progress productiveGatheringMs");
     });
 
     it("18. Reject completed progress where combatInterruptionMs does not equal encounters * combatDurationMs", () => {
@@ -479,7 +479,7 @@ describe("deterministic expedition adversarial hardening audit - corrective pass
         productiveGatheringMs: 15_000,
       };
 
-      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, forged), "invalid_progress", "combatInterruptionMs mismatch");
+      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, forged), "invalid_progress", "completed progress must have exact nominal combat");
     });
 
     it("19. Reject health_critical with missing completed combat time", () => {
@@ -499,7 +499,7 @@ describe("deterministic expedition adversarial hardening audit - corrective pass
         productiveGatheringMs: 5_000,
       };
 
-      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, forged), "invalid_progress", "combatInterruptionMs mismatch");
+      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, forged), "invalid_progress", "health_critical stop");
     });
 
     it("20. Accept food exhaustion partway through an encounter when residual combat time is within the action duration", () => {
@@ -533,7 +533,7 @@ describe("deterministic expedition adversarial hardening audit - corrective pass
         productiveGatheringMs: -5_000,
       };
 
-      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, forged), "invalid_progress", "residualCombatMs must be 0 or strictly within (0, combatDurationMs)");
+      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, forged), "invalid_progress", "actionStartMs must be non-negative");
     });
   });
 
@@ -916,7 +916,367 @@ describe("deterministic expedition adversarial hardening audit - corrective pass
         },
       });
 
-      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress), "invalid_progress", "residualCombatMs must be 0 or strictly within (0, combatDurationMs)");
+      expectError(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress), "invalid_progress", "actionStartMs must be non-negative");
+    });
+  });
+
+  // ==========================================================================
+  // PHASE 4 CORRECTIVE PASS 4 GAPS
+  // ==========================================================================
+  describe("Phase 4 Corrective Pass 4 Gaps", () => {
+    // --- A. ACTIVE MISSING PARTIAL ---
+
+    it("1. Reject active progress with elapsedResolvedMs 5,000, productiveGatheringMs 5,000, zero completed gatherings, zero encounters, partialAction null", () => {
+      const plan = makePlan();
+      const progress = makeProgress({
+        status: "active",
+        stopReason: null,
+        elapsedResolvedMs: 5_000,
+        productiveGatheringMs: 5_000,
+        resourcesObtained: 0,
+        resourceXpGained: 0,
+        encounters: 0,
+        nextActionSequence: 0,
+        partialAction: null,
+      });
+      expectError(
+        () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
+        "invalid_progress",
+        "active progress productiveGatheringMs must exactly equal nominal completed plus partial elapsed",
+      );
+    });
+
+    it("2. Accept an active cursor at an exact completed-action boundary with no partialAction", () => {
+      const plan = makePlan();
+      const progress = makeProgress({
+        status: "active",
+        stopReason: null,
+        elapsedResolvedMs: 30_000,
+        productiveGatheringMs: 30_000,
+        resourcesObtained: 1,
+        resourceXpGained: 25,
+        existingResourceStackPresent: true,
+        inventoryUsedSlots: 1,
+        encounters: 0,
+        nextActionSequence: 1,
+        partialAction: null,
+      });
+      expect(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress)).not.toThrow();
+    });
+
+    it("3. Accept an active partial gathering with exact productive time", () => {
+      const plan = makePlan();
+      const progress = makeProgress({
+        status: "active",
+        stopReason: null,
+        elapsedResolvedMs: 5_000,
+        productiveGatheringMs: 5_000,
+        resourcesObtained: 0,
+        resourceXpGained: 0,
+        encounters: 0,
+        nextActionSequence: 0,
+        partialAction: {
+          kind: "gathering",
+          actionSequence: 0,
+          elapsedInActionMs: 5_000,
+        },
+      });
+      expect(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress)).not.toThrow();
+    });
+
+    it("4. Accept an active partial encounter with exact combat time", () => {
+      const plan = makePlan({
+        seed: "partial-forgery-encounter",
+        rules: makeRules({ encounterChancePpm: PROBABILITY_SCALE, combatDurationMs: 15_000, gatheringWindowMs: 30_000 }),
+      });
+      const progress = makeProgress({
+        status: "active",
+        stopReason: null,
+        elapsedResolvedMs: 5_000,
+        combatInterruptionMs: 5_000,
+        productiveGatheringMs: 0,
+        resourcesObtained: 0,
+        resourceXpGained: 0,
+        encounters: 0,
+        nextActionSequence: 0,
+        partialAction: {
+          kind: "encounter",
+          actionSequence: 0,
+          elapsedInActionMs: 5_000,
+        },
+      });
+      expect(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress)).not.toThrow();
+    });
+
+    it("5. Reject a partial gathering whose elapsed time is omitted from the productive bucket", () => {
+      const plan = makePlan();
+      const progress = makeProgress({
+        status: "active",
+        stopReason: null,
+        elapsedResolvedMs: 5_000,
+        productiveGatheringMs: 0,
+        combatInterruptionMs: 5_000, // Must sum up to 5,000 to pass the sum check
+        resourcesObtained: 0,
+        resourceXpGained: 0,
+        encounters: 0,
+        nextActionSequence: 0,
+        partialAction: {
+          kind: "gathering",
+          actionSequence: 0,
+          elapsedInActionMs: 5_000,
+        },
+      });
+      expectError(
+        () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
+        "invalid_progress",
+        "active progress productiveGatheringMs",
+      );
+    });
+
+    // --- B. SHORT FINAL GATHERING ---
+
+    it("6. Real resolver with short final plan window stops with food_exhausted at plan end and completes shortened gathering", () => {
+      const plan = makePlan({
+        requestedDurationMs: 25_000,
+        rules: makeRules({
+          gatheringWindowMs: 30_000,
+          encounterChancePpm: 0,
+          foodConsumptionIntervalMs: 25_000,
+        }),
+      });
+      const startingState = makeStartingState({
+        availableFood: 0,
+      });
+
+      const resolved = resolveDeterministicExpedition(
+        plan,
+        createDeterministicExpeditionProgress(plan, startingState),
+        25_000,
+      );
+
+      const progress = resolved.progress;
+      expect(progress.status).toBe("stopped");
+      expect(progress.stopReason).toBe("food_exhausted");
+      expect(progress.elapsedResolvedMs).toBe(25_000);
+      expect(progress.resourcesObtained).toBe(1); // Short final gathering completes and awards its resource!
+      expect(progress.productiveGatheringMs).toBe(25_000);
+
+      // Verify it passes validation
+      expect(() => validateDeterministicExpeditionProgressAgainstPlan(plan, progress)).not.toThrow();
+
+      // Can be passed back as a terminal no-op without throwing
+      const secondResolution = resolveDeterministicExpedition(plan, progress, 10_000);
+      expect(secondResolution.progress).toEqual(progress);
+    });
+
+    it("7. For same plan, reject forged food_exhausted cursor with zero completed gatherings and 25,000 productive gathering ms and no residual action", () => {
+      const plan = makePlan({
+        requestedDurationMs: 25_000,
+        rules: makeRules({
+          gatheringWindowMs: 30_000,
+          encounterChancePpm: 0,
+          foodConsumptionIntervalMs: 25_000,
+        }),
+      });
+      const progress = makeProgress({
+        status: "stopped",
+        stopReason: "food_exhausted",
+        elapsedResolvedMs: 25_000,
+        productiveGatheringMs: 25_000,
+        resourcesObtained: 0, // Fraud! Must have completed the shortened gathering since it reached plan end.
+        resourceXpGained: 0,
+        nextActionSequence: 0,
+        foodConsumed: 0,
+        availableFood: 0,
+        initialState: {
+          startingHealth: 100,
+          startingInventoryUsedSlots: 0,
+          existingResourceStackPresent: false,
+          availableFood: 0,
+        },
+      });
+      expectError(
+        () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
+        "invalid_progress",
+        "productiveGatheringMs exceeds nominal completed",
+      );
+    });
+
+    it("8. Accept a normally completed plan whose final gathering is shorter than gatheringWindowMs", () => {
+      const plan = makePlan({
+        requestedDurationMs: 45_000, // 30k first gather, 15k second gather (short final gathering)
+        rules: makeRules({
+          gatheringWindowMs: 30_000,
+          encounterChancePpm: 0,
+        }),
+      });
+      const startingState = makeStartingState({
+        availableFood: 10,
+      });
+
+      const resolved = resolveDeterministicExpedition(
+        plan,
+        createDeterministicExpeditionProgress(plan, startingState),
+        45_000,
+      );
+
+      expect(resolved.progress.status).toBe("completed");
+      expect(resolved.progress.elapsedResolvedMs).toBe(45_000);
+      expect(resolved.progress.resourcesObtained).toBe(2); // Both completed
+      expect(resolved.progress.productiveGatheringMs).toBe(45_000);
+
+      expect(() => validateDeterministicExpeditionProgressAgainstPlan(plan, resolved.progress)).not.toThrow();
+    });
+
+    it("9. Reject completed progress that represents two shortened gatherings", () => {
+      const plan = makePlan({
+        requestedDurationMs: 50_000,
+        rules: makeRules({
+          gatheringWindowMs: 30_000,
+          encounterChancePpm: 0,
+          enemyDamageMin: 10,
+          enemyDamageMax: 10,
+        }),
+      });
+      const progress = makeProgress({
+        status: "completed",
+        stopReason: "duration_reached",
+        elapsedResolvedMs: 50_000,
+        productiveGatheringMs: 20_000, // Nominal is 2 completed * 30k = 60k. Actual is 20k, deficit is 40k.
+        combatInterruptionMs: 30_000, // Sum must equal 50,000 elapsedResolvedMs
+        resourcesObtained: 2,
+        resourceXpGained: 50,
+        encounters: 2,
+        encountersWon: 2,
+        combatXpGained: 100,
+        nextActionSequence: 4,
+        damageTaken: 20,
+        health: 80,
+        existingResourceStackPresent: true,
+        inventoryUsedSlots: 1,
+        foodConsumed: 0,
+        availableFood: 20,
+        initialState: {
+          startingHealth: 100,
+          startingInventoryUsedSlots: 0,
+          existingResourceStackPresent: false,
+          availableFood: 20,
+        },
+      });
+      expectError(
+        () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
+        "invalid_progress",
+        "deficit does not match a single shortened final gathering",
+      );
+    });
+
+    it("10. Reject a shortened final gathering whose deterministic final sequence schedules an encounter that fits in the remaining window", () => {
+      // Create seed where sequence 1 is encounter
+      const plan = makePlan({
+        seed: "partial-forgery-encounter",
+        requestedDurationMs: 45_000,
+        rules: makeRules({
+          gatheringWindowMs: 30_000,
+          encounterChancePpm: PROBABILITY_SCALE,
+          combatDurationMs: 15_000,
+        }),
+      });
+      // Sequence 0: gathering (takes 30k, ending at 30k, remaining plan duration is 15k).
+      // Sequence 1: remaining duration 15k. encounter is scheduled deterministically and fits perfectly!
+      // If a forged progress claims sequence 1 was completed as a gathering instead, reject it.
+      const progress = makeProgress({
+        status: "completed",
+        stopReason: "duration_reached",
+        elapsedResolvedMs: 45_000,
+        productiveGatheringMs: 45_000, // Claims gathering!
+        resourcesObtained: 2, // Claims 2 gathers completed!
+        resourceXpGained: 50,
+        nextActionSequence: 2,
+        existingResourceStackPresent: true,
+        inventoryUsedSlots: 1,
+        foodConsumed: 0,
+        availableFood: 20,
+      });
+
+      expectError(
+        () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
+        "invalid_progress",
+        "shortened final gathering represented a deterministic final encounter",
+      );
+    });
+
+    // --- C. OTHER TERMINAL TIME ACCOUNTING ---
+
+    it("11. Reject health_critical progress with productiveGatheringMs exceeding completedGatherings * gatheringWindowMs", () => {
+      const plan = makePlan({
+        rules: makeRules({
+          encounterChancePpm: PROBABILITY_SCALE,
+          combatDurationMs: 15_000,
+          gatheringWindowMs: 30_000,
+          enemyDamageMin: 10,
+          enemyDamageMax: 10,
+          minimumHealthToContinue: 5,
+        }),
+      });
+      const progress = makeProgress({
+        status: "stopped",
+        stopReason: "health_critical",
+        elapsedResolvedMs: 45_000,
+        productiveGatheringMs: 30_001, // Nominal completed gatherings is 1 * 30k = 30k. Actual is 30,001!
+        combatInterruptionMs: 14_999,
+        resourcesObtained: 1,
+        resourceXpGained: 25,
+        existingResourceStackPresent: true,
+        inventoryUsedSlots: 1,
+        encounters: 1,
+        encountersLost: 1,
+        nextActionSequence: 2,
+        damageTaken: 10,
+        health: 2, // 12 - 10 = 2 < 5 (critical health!)
+        initialState: {
+          startingHealth: 12,
+          startingInventoryUsedSlots: 0,
+          existingResourceStackPresent: false,
+          availableFood: 20,
+        },
+      });
+      expectError(
+        () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
+        "invalid_progress",
+        "health_critical stop at positive elapsed requires all gatherings to be full duration",
+      );
+    });
+
+    it("12. Reject completed progress with unaccounted productive time and no completed or shortened final gathering", () => {
+      const plan = makePlan({
+        requestedDurationMs: 5_000,
+        rules: makeRules({
+          gatheringWindowMs: 30_000,
+          encounterChancePpm: 0,
+        }),
+      });
+      const progress = makeProgress({
+        status: "completed",
+        stopReason: "duration_reached",
+        elapsedResolvedMs: 5_000,
+        productiveGatheringMs: 5_000, // Zero completed gatherings but 5,000ms productive time!
+        resourcesObtained: 0,
+        resourceXpGained: 0,
+        nextActionSequence: 0,
+        foodConsumed: 0,
+        availableFood: 20,
+        initialState: {
+          startingHealth: 100,
+          startingInventoryUsedSlots: 0,
+          existingResourceStackPresent: false,
+          availableFood: 20,
+        },
+      });
+      expectError(
+        () => validateDeterministicExpeditionProgressAgainstPlan(plan, progress),
+        "invalid_progress",
+        "productiveGatheringMs exceeds nominal completed gathering duration",
+      );
     });
   });
 });

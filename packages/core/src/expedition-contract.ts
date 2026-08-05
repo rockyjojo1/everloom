@@ -537,34 +537,55 @@ export function validateDeterministicExpeditionProgressAgainstPlan(
     );
   }
 
-  // --- EXACT COMBAT-TIME ACCOUNTING ---
-  const completedCombatMs = safeMul(progress.encounters, rules.combatDurationMs, "combatMs overflow");
-
-  let expectedCombatInterruptionMs = completedCombatMs;
-  if (progress.status === "active" && progress.partialAction?.kind === "encounter") {
-    expectedCombatInterruptionMs = safeAdd(completedCombatMs, progress.partialAction.elapsedInActionMs, "active combatInterruptionMs overflow");
-  }
-
-  if (progress.status === "stopped" && progress.stopReason === "food_exhausted") {
-    if (progress.combatInterruptionMs < completedCombatMs) {
-      fail(code, "combatInterruptionMs cannot be less than completedCombatMs");
-    }
-    const residualCombatMs = progress.combatInterruptionMs - completedCombatMs;
-    if (residualCombatMs !== 0 && (residualCombatMs <= 0 || residualCombatMs >= rules.combatDurationMs)) {
-      fail(code, "residualCombatMs must be 0 or strictly within (0, combatDurationMs)");
-    }
-  } else {
-    if (progress.combatInterruptionMs !== expectedCombatInterruptionMs) {
-      fail(code, `combatInterruptionMs mismatch: expected ${expectedCombatInterruptionMs}, got ${progress.combatInterruptionMs}`);
-    }
-  }
-
+  // --- SUM OF BUCKETS EQUALS ELAPSED RESOLVED MS ---
   if (progress.productiveGatheringMs !== progress.elapsedResolvedMs - progress.combatInterruptionMs) {
     fail(
       code,
       `productiveGatheringMs + combatInterruptionMs (${progress.productiveGatheringMs} + ${progress.combatInterruptionMs}) must equal elapsedResolvedMs (${progress.elapsedResolvedMs})`,
     );
   }
+
+  // --- HELPERS FOR TIMELINE MODEL ---
+  const completedCombatMs = safeMul(progress.encounters, rules.combatDurationMs, "combatMs overflow");
+  const nominalGatheringMs = safeMul(completedGatherings, rules.gatheringWindowMs, "gatheringMs overflow");
+
+  // Validate completed and shortened final gathering logic for COMPLETED / food_exhausted at plan end
+  const validateCompletedGatheringTime = (actualGatheringMs: number) => {
+    if (actualGatheringMs === nominalGatheringMs) {
+      return; // All full-duration gatherings
+    }
+    if (actualGatheringMs < nominalGatheringMs) {
+      if (completedGatherings <= 0) {
+        fail(code, "cannot have a deficit with zero completed gatherings");
+      }
+      const deficitMs = nominalGatheringMs - actualGatheringMs;
+      const shortFinalGatheringMs = rules.gatheringWindowMs - deficitMs;
+      if (shortFinalGatheringMs <= 0 || shortFinalGatheringMs >= rules.gatheringWindowMs) {
+        fail(code, "deficit does not match a single shortened final gathering");
+      }
+      if (progress.elapsedResolvedMs !== plan.requestedDurationMs) {
+        fail(code, "shortened gathering can only occur at requestedDurationMs");
+      }
+      const finalActionSequence = progress.nextActionSequence - 1;
+      if (finalActionSequence < 0) {
+        fail(code, "nextActionSequence must be positive to have a completed final action");
+      }
+      const finalActionStartMs = plan.requestedDurationMs - shortFinalGatheringMs;
+      const encounter = deterministicRollPpm(
+        plan.seed,
+        finalActionSequence,
+        "expedition_encounter",
+        plan.activityId,
+        rules.encounterChancePpm,
+      );
+      const isEncounter = encounter && (shortFinalGatheringMs >= rules.combatDurationMs);
+      if (isEncounter) {
+        fail(code, "shortened final gathering represented a deterministic final encounter");
+      }
+      return; // Legitimate shortened final gathering
+    }
+    fail(code, "productiveGatheringMs exceeds nominal completed gathering duration");
+  };
 
   // --- CURRENT PARTIAL ACTION DETAILS ---
   if (progress.partialAction !== null) {
@@ -609,22 +630,7 @@ export function validateDeterministicExpeditionProgressAgainstPlan(
     }
   }
 
-  // --- TERMINAL STATES & REASONS STATE CONSISTENCY ---
-  if (progress.status === "completed") {
-    if (progress.elapsedResolvedMs !== plan.requestedDurationMs) {
-      fail(
-        code,
-        `completed progress must have elapsedResolvedMs (${progress.elapsedResolvedMs}) equal to requestedDurationMs (${plan.requestedDurationMs})`,
-      );
-    }
-    if (progress.stopReason !== "duration_reached") {
-      fail(code, "completed progress must have stopReason duration_reached");
-    }
-    if (progress.initialState.availableFood < boundaryCount) {
-      fail(code, "completed progress must have had sufficient food for all crossed boundaries");
-    }
-  }
-
+  // --- STATUS-SPECIFIC VALIDATION ---
   if (progress.status === "active") {
     if (progress.elapsedResolvedMs >= plan.requestedDurationMs) {
       fail(code, "active progress must not have already reached the requested duration");
@@ -638,6 +644,40 @@ export function validateDeterministicExpeditionProgressAgainstPlan(
     if (progress.initialState.availableFood < boundaryCount) {
       fail(code, "active progress must have had sufficient food for all crossed boundaries");
     }
+
+    // Exact active action-time accounting
+    const partialGatheringMs = progress.partialAction?.kind === "gathering" ? progress.partialAction.elapsedInActionMs : 0;
+    const partialCombatMs = progress.partialAction?.kind === "encounter" ? progress.partialAction.elapsedInActionMs : 0;
+
+    if (progress.productiveGatheringMs !== nominalGatheringMs + partialGatheringMs) {
+      fail(code, "active progress productiveGatheringMs must exactly equal nominal completed plus partial elapsed");
+    }
+    if (progress.combatInterruptionMs !== completedCombatMs + partialCombatMs) {
+      fail(code, "active progress combatInterruptionMs must exactly equal nominal completed plus partial elapsed");
+    }
+    if (progress.elapsedResolvedMs > 0 && progress.partialAction === null && progress.elapsedResolvedMs !== nominalGatheringMs + completedCombatMs) {
+      fail(code, "active progress with elapsed action time but no partialAction must be rejected");
+    }
+  }
+
+  if (progress.status === "completed") {
+    if (progress.elapsedResolvedMs !== plan.requestedDurationMs) {
+      fail(
+        code,
+        `completed progress must have elapsedResolvedMs (${progress.elapsedResolvedMs}) equal to requestedDurationMs (${plan.requestedDurationMs})`,
+      );
+    }
+    if (progress.stopReason !== "duration_reached") {
+      fail(code, "completed progress must have stopReason duration_reached");
+    }
+    if (progress.initialState.availableFood < boundaryCount) {
+      fail(code, "completed progress must have had sufficient food for all crossed boundaries");
+    }
+
+    if (progress.combatInterruptionMs !== completedCombatMs) {
+      fail(code, "completed progress must have exact nominal combat duration");
+    }
+    validateCompletedGatheringTime(progress.productiveGatheringMs);
   }
 
   if (progress.status === "stopped") {
@@ -717,60 +757,66 @@ export function validateDeterministicExpeditionProgressAgainstPlan(
         fail(code, "food_exhausted stop must not have lost encounters");
       }
 
-      const completedCombatMs = safeMul(progress.encounters, rules.combatDurationMs, "combatMs overflow");
-      const residualCombatMs = progress.combatInterruptionMs - completedCombatMs;
+      const isAtPlanEnd = progress.elapsedResolvedMs === plan.requestedDurationMs;
 
-      if (residualCombatMs > 0) {
-        const actionStartMs = progress.elapsedResolvedMs - residualCombatMs;
-        if (actionStartMs < 0) {
-          fail(code, "actionStartMs must be non-negative for residual combat");
-        }
-        if (residualCombatMs >= rules.combatDurationMs) {
-          fail(code, "residualCombatMs must be strictly below combatDurationMs");
-        }
-        const remainingWindowMs = plan.requestedDurationMs - actionStartMs;
-        if (remainingWindowMs < rules.combatDurationMs) {
-          fail(code, "remaining plan window cannot contain combat duration");
+      if (!isAtPlanEnd) {
+        const residualCombatMs = progress.combatInterruptionMs - completedCombatMs;
+        if (residualCombatMs > 0) {
+          const actionStartMs = progress.elapsedResolvedMs - residualCombatMs;
+          if (actionStartMs < 0) {
+            fail(code, "actionStartMs must be non-negative for residual combat");
+          }
+          if (residualCombatMs >= rules.combatDurationMs) {
+            fail(code, "residualCombatMs must be strictly below combatDurationMs");
+          }
+          const remainingWindowMs = plan.requestedDurationMs - actionStartMs;
+          if (remainingWindowMs < rules.combatDurationMs) {
+            fail(code, "remaining plan window cannot contain combat duration");
+          }
+
+          const encounter = deterministicRollPpm(
+            plan.seed,
+            progress.nextActionSequence,
+            "expedition_encounter",
+            plan.activityId,
+            rules.encounterChancePpm,
+          );
+          if (!encounter) {
+            fail(code, "residual combat is positive but scheduled action is gathering");
+          }
         }
 
-        const encounter = deterministicRollPpm(
-          plan.seed,
-          progress.nextActionSequence,
-          "expedition_encounter",
-          plan.activityId,
-          rules.encounterChancePpm,
-        );
-        if (!encounter) {
-          fail(code, "residual combat is positive but scheduled action is gathering");
+        const residualGatheringMs = progress.productiveGatheringMs - nominalGatheringMs;
+        if (residualGatheringMs < 0) {
+          fail(code, "residualGatheringMs must be non-negative");
         }
-      }
-
-      const completedGatheringMs = safeMul(completedGatherings, rules.gatheringWindowMs, "gatheringMs overflow");
-      const residualGatheringMs = progress.productiveGatheringMs - completedGatheringMs;
-
-      if (residualGatheringMs < 0) {
-        fail(code, "residualGatheringMs must be non-negative");
-      }
-      if (residualGatheringMs >= rules.gatheringWindowMs) {
-        fail(code, "residualGatheringMs must be strictly below gatheringWindowMs");
-      }
-      if (residualCombatMs > 0 && residualGatheringMs > 0) {
-        fail(code, "residual combat and residual gathering cannot both be positive");
-      }
-      if (residualGatheringMs > 0) {
-        const remainingWindowMs = plan.requestedDurationMs - (progress.elapsedResolvedMs - residualGatheringMs);
-        const nextWindowMs = Math.min(rules.gatheringWindowMs, remainingWindowMs);
-        const encounter = deterministicRollPpm(
-          plan.seed,
-          progress.nextActionSequence,
-          "expedition_encounter",
-          plan.activityId,
-          rules.encounterChancePpm,
-        );
-        const isEncounter = (encounter && nextWindowMs >= rules.combatDurationMs);
-        if (isEncounter) {
-          fail(code, "residual gathering is positive but scheduled action is encounter");
+        if (residualGatheringMs >= rules.gatheringWindowMs) {
+          fail(code, "residualGatheringMs must be strictly below gatheringWindowMs");
         }
+        if (residualCombatMs > 0 && residualGatheringMs > 0) {
+          fail(code, "residual combat and residual gathering cannot both be positive");
+        }
+        if (residualGatheringMs > 0) {
+          const remainingWindowMs = plan.requestedDurationMs - (progress.elapsedResolvedMs - residualGatheringMs);
+          const nextWindowMs = Math.min(rules.gatheringWindowMs, remainingWindowMs);
+          const encounter = deterministicRollPpm(
+            plan.seed,
+            progress.nextActionSequence,
+            "expedition_encounter",
+            plan.activityId,
+            rules.encounterChancePpm,
+          );
+          const isEncounter = (encounter && nextWindowMs >= rules.combatDurationMs);
+          if (isEncounter) {
+            fail(code, "residual gathering is positive but scheduled action is encounter");
+          }
+        }
+      } else {
+        // Food exhausted exactly at requestedDurationMs
+        if (progress.combatInterruptionMs !== completedCombatMs) {
+          fail(code, "food_exhausted at plan end must have zero residual combat time");
+        }
+        validateCompletedGatheringTime(progress.productiveGatheringMs);
       }
     }
 
@@ -789,6 +835,12 @@ export function validateDeterministicExpeditionProgressAgainstPlan(
       } else {
         if (progress.encountersLost !== 1) {
           fail(code, "stopped due to health_critical at positive elapsed must have exactly 1 lost encounter");
+        }
+        if (progress.productiveGatheringMs !== nominalGatheringMs) {
+          fail(code, "health_critical stop at positive elapsed requires all gatherings to be full duration");
+        }
+        if (progress.combatInterruptionMs !== completedCombatMs) {
+          fail(code, "health_critical stop requires exact nominal combat duration");
         }
       }
     }

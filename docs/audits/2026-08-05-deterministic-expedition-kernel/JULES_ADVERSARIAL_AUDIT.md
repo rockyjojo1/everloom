@@ -3,8 +3,7 @@
 Date: 2026-08-05
 Auditor: Jules
 Original MC Base SHA: `c8dc4f35f56316b01656cc21c74e963bb3ec493b`
-Rejected First Jules SHA: `8b0a329223b0c40b6fa08742f76ebaed7f7deade`
-Rejected Second Jules SHA: `b0dd3735462dcc0c965ad50d0ef346884c5ae7a9`
+Rejected Starting Corrective Pass 4 SHA: `5ae8627d1ac74b645cb635452cdb8a00a104ba84`
 Branch: `jules/gate6a-adversarial-hardening-11945358711948676083`
 
 ## Overview
@@ -17,8 +16,9 @@ This document records the independent adversarial audit of the deterministic exp
 
 1. **First Pass (MonkeyCode)**: Rejected for time model, inventory, and cumulative food clock bugs.
 2. **Second Pass (Jules - `8b0a329`)**: Exceeded performance limits by replaying history from zero (O(N) `simulateUpTo`), and allowed starting state forgery by inferring the snapshot from forged current values.
-3. **Third Pass (Jules - `b0dd373`)**: Replaced replay with schema version 2 and a copied starting snapshot. However, the supervisor re-audit found that the validator allowed impossible food-clock states (such as active completed hour-long progress on only 20 initial food units, whereas the resolver would have stopped on boundary 21 at 2,520,000ms), and lacked exact bounds for damage, encounters, terminal reasons, and combat time.
-4. **Fourth Pass (This corrective commit)**: Implements precise O(1) algebraic food, combat-time, damage, and terminal-reason consistency checks, with zero loops and full safe-integer protections.
+3. **Third Pass (Jules - `b0dd373`)**: Replaced replay with schema version 2 and a copied starting snapshot. However, the supervisor re-audit found that the validator allowed impossible food-clock states, and lacked exact bounds for damage, encounters, terminal reasons, and combat time.
+4. **Fourth Pass (Corrected in `5ae8627`)**: Implemented precise O(1) algebraic food, combat-time, damage, and terminal-reason consistency checks, with zero loops and full safe-integer protections.
+5. **Fifth Pass (This corrective commit)**: Solves the remaining active progress missing-partial action and completed/food-exhausted shortened final gathering defects. It enforces the exact O(1) active/completed/stopped action-time accounting models cleanly without chronological loops or replaying history.
 
 ---
 
@@ -39,29 +39,27 @@ Gate 6A does not provide cryptographic authenticity or server-authoritative inte
 
 We solved all supervisor findings without chronological loops or replaying history:
 
-### A. Exact Food-Clock Semantics
-- Enforces `boundaryCount = floor(elapsedResolvedMs / foodConsumptionIntervalMs)`.
-- For `active` and `completed` progress, enforces `foodConsumed === boundaryCount` and `availableFood === initialState.availableFood - foodConsumed` (ensuring sufficient food for all crossed boundaries).
-- For `stopped - food_exhausted` progress, enforces that it stops exactly at `isFoodBoundary === true`, `availableFood === 0`, `foodConsumed === initialState.availableFood`, and `boundaryCount === initialState.availableFood + 1`.
-- For `stopped - inventory_full` or `stopped - health_critical`, action outcomes take precedence. Expected food consumed is `boundaryCount - 1` if stopping exactly on a boundary, and `boundaryCount` otherwise.
+### A. Exact Active Action-Time Accounting
+We enforce:
+`productiveGatheringMs === completedGatherings * rules.gatheringWindowMs + partialGatheringMs`
+`combatInterruptionMs === encounters * rules.combatDurationMs + partialCombatMs`
+- Active progress with elapsed action time but no `partialAction` is rejected.
+- Active progress with no `partialAction` is valid only at an exact completed action boundary.
+- A partial gathering cannot assign its elapsed time to combat.
+- A partial encounter cannot assign its elapsed time to gathering.
+- `elapsedResolvedMs` is the exact sum of both buckets.
 
-### B. Damage & Encounter-Loss Bounds
-- Enforces safe damage taken range: `encounters * rules.enemyDamageMin <= damageTaken <= encounters * rules.enemyDamageMax`.
-- Enforces `encountersWon + encountersLost === encounters`.
-- Enforces `encountersLost` is either 0 or 1. If 1, it must stop with `health_critical` and health `<= minimumHealthToContinue` at positive elapsed.
-- Support starting critical-health immediate stops at 0ms safely.
+### B. Completed and Health-Critical Gathering Time
+- For legimate `health_critical` stopped progress at positive elapsed:
+  - `productiveGatheringMs === completedGatherings * rules.gatheringWindowMs` (no partial or short gatherings).
+- For `completed` progress:
+  - Nominal gathering is `nominalGatheringMs = completedGatherings * rules.gatheringWindowMs`.
+  - Enforce `actualGatheringMs === nominalGatheringMs` (all full), OR exactly one final gathering was shortened at `requestedDurationMs` of type gathering (deficit is < `gatheringWindowMs`, and deterministic kind scheduled at its start timestamp is indeed gathering).
+  - Reject actual exceeds nominal, multiple shortened gatherings, shortened gathering before plan end, or a deterministic final encounter represented as a shortened gathering.
 
-### C. Terminal-Reason State Consistency
-- Enforces strict terminal state invariants. For example, `inventory_full` stops require `existingResourceStackPresent === false`, `inventoryUsedSlots === rules.inventorySlotLimit`, `resourcesObtained === 0`, and `encountersLost === 0`.
-- Reject `activity_invalid` stopReason because the kernel cannot emit it.
-
-### D. Exact Combat-Time Accounting
-- Enforces `productiveGatheringMs === elapsedResolvedMs - combatInterruptionMs`.
-- Enforces `combatInterruptionMs === completedCombatMs` (where `completedCombatMs = encounters * rules.combatDurationMs`) for completed, health_critical, and inventory_full terminal runs.
-- Enforces active partial combat accounting and strict food-exhaustion residual bounds partway through incomplete combats.
-
-### E. Safe-Integer Arithmetic
-- Protected all additions and multiplications (XP, damage, combat time, action sequence) with safe-integer checks, throwing `invalid_progress` on overflow.
+### C. Food Exhausted Progress
+- If before plan end: enforce all completed gatherings are full duration plus `residualGatheringMs`.
+- If at plan end: enforce `residualCombatMs === 0`, `residualGatheringMs === 0`, and use completed progress all-full-or-one-short-final rule.
 
 ---
 
@@ -74,8 +72,8 @@ All tests pass perfectly across the repository.
 pnpm --filter @everloom/core run test
 ```
 - **Total Test Files**: 6 passed
-- **Total Tests Passed**: 297 passed (73 contract, 121 kernel, 24 adversarial, 22 legacy core, 12 e2e, 45 core.test)
-- **Targeted Test Count**: 218 passed (`expedition-contract.test.ts`, `expedition-kernel.test.ts`, `expedition-adversarial.test.ts`)
+- **Total Tests Passed**: 321 passed
+- **Targeted Test Count**: 242 passed (`expedition-contract.test.ts` (73), `expedition-kernel.test.ts` (121), `expedition-adversarial.test.ts` (48))
 - **Skipped Test Count**: 0 skipped
 
 ### Build & Typecheck Compilation
