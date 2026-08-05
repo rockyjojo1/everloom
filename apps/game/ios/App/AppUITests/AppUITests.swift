@@ -131,10 +131,13 @@ final class AppUITests: XCTestCase {
         tapAndWaitForKeyboardFocus(nameField)
         // A freshly focused field's cursor lands at index 0 (start), not
         // the end -- deleting backward from there deletes nothing.
-        // Triple-tap is the standard iOS/WebKit gesture to select all
-        // existing text in a single-line field, so typing next replaces
-        // it, rather than prepending onto the untouched default value.
-        nameField.tripleTap()
+        // XCUIElement has no public triple-tap/select-all API; tapping
+        // near the field's right edge positions the text cursor after the
+        // existing content (WebKit/UIKit place the cursor at the tapped
+        // x-position), so backspacing from there actually removes it.
+        nameField.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
+        let deleteExisting = String(repeating: XCUIKeyboardKey.delete.rawValue, count: 20)
+        nameField.typeText(deleteExisting)
         nameField.typeText("Native QA")
 
         // Dismiss the keyboard before tapping Enter Meadowrest: in
