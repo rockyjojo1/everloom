@@ -113,6 +113,15 @@ jobs:
         working-directory: apps/game/ios/App
         continue-on-error: true
         run: |
+          # GitHub Actions bash steps run with `set -eo pipefail` by
+          # default. If that were left active here, a failing xcodebuild
+          # pipeline would abort the script immediately -- before the
+          # exit_code line below ever ran -- silently leaving
+          # steps.xctest.outputs.exit_code empty rather than capturing the
+          # real result. `set +e` disables the abort-on-error behaviour for
+          # this step only, so the exit code is always captured correctly
+          # regardless of whether the test passed or failed.
+          set +e
           set -o pipefail
           xcodebuild test \
             -project App.xcodeproj \
@@ -123,7 +132,9 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
             2>&1 | tee "$GITHUB_WORKSPACE/xcodebuild-test.log"
-          echo "exit_code=${PIPESTATUS[0]:-$?}" >> "$GITHUB_OUTPUT"
+          EXIT_CODE=${PIPESTATUS[0]}
+          echo "Captured xcodebuild test exit code: $EXIT_CODE"
+          echo "exit_code=$EXIT_CODE" >> "$GITHUB_OUTPUT"
 
       - name: Extract test summary from .xcresult
         if: always()
