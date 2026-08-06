@@ -12,6 +12,7 @@ import { audio, type AudioCue } from "../game/audio";
 import { defaultVerbFor } from "../game/interactionCommands";
 import { blockedSet, findPathResult, pathToTargetResult } from "../game/pathfinding";
 import { PlayerCommandController } from "../game/playerCommand";
+import { sanitiseTestDelayOverride } from "../game/testDelayOverride";
 import { useGameStore } from "../game/store";
 import { addInteractionHitbox, instantiateAsset } from "./assets";
 import {
@@ -891,13 +892,16 @@ export function GameWorld() {
         // menu DOM node appears within some real-time window. Read-only:
         // this does not set, clear, or fire the timer itself.
         longPressPending: () => longPressTimer !== null,
-        // See pickupPresentationMsOverride above.
+        // See pickupPresentationMsOverride above. Sanitised so a test can
+        // only ever widen this real delay, never shorten it below the
+        // production PICKUP_PRESENTATION_MS.
         setPickupPresentationMs: (ms: number) => {
-          pickupPresentationMsOverride = ms;
+          pickupPresentationMsOverride = sanitiseTestDelayOverride(PICKUP_PRESENTATION_MS, ms);
         },
-        // See longPressMsOverride above.
+        // See longPressMsOverride above. Same widen-only sanitising against
+        // the production LONG_PRESS_MS.
         setLongPressMs: (ms: number) => {
-          longPressMsOverride = ms;
+          longPressMsOverride = sanitiseTestDelayOverride(LONG_PRESS_MS, ms);
         },
       };
     }
@@ -1242,6 +1246,11 @@ export function GameWorld() {
     return () => {
       disposed = true;
       commands.cancel();
+      // Reset dev-only test-delay overrides so a leftover widened value from
+      // one test/session can never leak into another (e.g. HMR remount or a
+      // later fresh-world test run within the same page).
+      pickupPresentationMsOverride = null;
+      longPressMsOverride = null;
       observer.disconnect();
       clearLongPressTimer();
       useGameStore.getState().closeContextMenu();
