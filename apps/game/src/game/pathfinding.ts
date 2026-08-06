@@ -42,6 +42,15 @@ export function surfaceAt(zone: ZoneDefinition, x: number, z: number): ZoneDefin
   return surface;
 }
 
+// findPath()'s legacy [] return is ambiguous: it means both "already at a
+// destination cell" and "no route exists". Callers that need to tell those
+// apart (an unreachable target must never trigger its action) should use
+// findPathResult()/pathToTargetResult() below instead.
+export type PathResult =
+  | { readonly status: "already_there" }
+  | { readonly status: "found"; readonly path: GridPosition[] }
+  | { readonly status: "unreachable" };
+
 export function findPath(zone: ZoneDefinition, start: GridPosition, destinations: readonly GridPosition[], blocked = blockedSet(zone)): GridPosition[] {
   const goals = new Set(destinations.map(key));
   if (goals.has(key(start))) return [];
@@ -84,9 +93,17 @@ export function findPath(zone: ZoneDefinition, start: GridPosition, destinations
   return [];
 }
 
-export function pathToTarget(zone: ZoneDefinition, start: GridPosition, target: ZoneInteractable): GridPosition[] {
-  const blocked = blockedSet(zone, target.id);
-  if (!target.blocks && target.interactionRadius === 0) return findPath(zone, start, [{ x: target.x, z: target.z }], blocked);
+// Explicit-result counterpart to findPath(): distinguishes "start is already
+// a legal destination" from "no route exists" instead of collapsing both to
+// an empty array.
+export function findPathResult(zone: ZoneDefinition, start: GridPosition, destinations: readonly GridPosition[], blocked = blockedSet(zone)): PathResult {
+  if (destinations.some((destination) => key(destination) === key(start))) return { status: "already_there" };
+  const path = findPath(zone, start, destinations, blocked);
+  return path.length > 0 ? { status: "found", path } : { status: "unreachable" };
+}
+
+function destinationsForTarget(zone: ZoneDefinition, target: ZoneInteractable, blocked: Set<string>): GridPosition[] {
+  if (!target.blocks && target.interactionRadius === 0) return [{ x: target.x, z: target.z }];
   const radius = Math.max(1, target.interactionRadius);
   const destinations: GridPosition[] = [];
   for (let x = Math.floor(target.x - radius); x <= Math.ceil(target.x + radius); x += 1) {
@@ -97,6 +114,17 @@ export function pathToTarget(zone: ZoneDefinition, start: GridPosition, target: 
       }
     }
   }
-  return findPath(zone, start, destinations, blocked);
+  return destinations;
+}
+
+export function pathToTarget(zone: ZoneDefinition, start: GridPosition, target: ZoneInteractable): GridPosition[] {
+  const blocked = blockedSet(zone, target.id);
+  return findPath(zone, start, destinationsForTarget(zone, target, blocked), blocked);
+}
+
+// Explicit-result counterpart to pathToTarget(): see findPathResult() above.
+export function pathToTargetResult(zone: ZoneDefinition, start: GridPosition, target: ZoneInteractable): PathResult {
+  const blocked = blockedSet(zone, target.id);
+  return findPathResult(zone, start, destinationsForTarget(zone, target, blocked), blocked);
 }
 

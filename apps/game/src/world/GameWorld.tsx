@@ -7,7 +7,8 @@ import {
   objectiveGuidanceTarget,
   type ObjectiveRouteDetail,
 } from "../game/objectiveGuidance";
-import { blockedSet, findPath, pathToTarget } from "../game/pathfinding";
+import { blockedSet, findPathResult, pathToTargetResult } from "../game/pathfinding";
+import { PlayerCommandController } from "../game/playerCommand";
 import { useGameStore } from "../game/store";
 import { addInteractionHitbox, instantiateAsset } from "./assets";
 import {
@@ -289,13 +290,12 @@ export function GameWorld() {
     let oneShotUntil = 0;
     let route: GridPosition[] = [];
     let afterArrival: (() => void) | null = null;
-    let pendingPickupTimeout: ReturnType<typeof setTimeout> | null = null;
-    const cancelPendingPickup = () => {
-      if (pendingPickupTimeout !== null) {
-        clearTimeout(pendingPickupTimeout);
-        pendingPickupTimeout = null;
-      }
-    };
+    // Explicit command identity (see game/playerCommand.ts): every walk/act
+    // helper below cancels whatever came before it and mints a fresh id, so
+    // a stale arrival callback or a stale pickup/reward timer from an
+    // abandoned command can prove it is no longer current instead of firing
+    // regardless.
+    const commands = new PlayerCommandController();
     let disposed = false;
     let playerModel: THREE.Object3D | null = null;
     let handSlot: THREE.Object3D | null = null;
@@ -559,29 +559,46 @@ export function GameWorld() {
         callback?.();
       }
     };
-    const actOn = (target: ZoneInteractable) => {
+    // Runs the target's default action once the player has physically
+    // arrived (or was already standing at a legal interaction cell). `id` is
+    // the moving_to_interact command's id: every branch below must first
+    // transition() that exact id forward, which fails harmlessly if the
+    // command was cancelled or replaced while travelling.
+    const actOn = (target: ZoneInteractable, id: number) => {
       const store = useGameStore.getState();
       const direction = world(target).sub(playerRoot.position);
       playerRoot.rotation.y = Math.atan2(direction.x, direction.z);
       store.setSelectedTarget(target.id);
       if (target.kind === "ground_item") {
+        if (!commands.transition(id, { type: "picking_up", id, targetId: target.id })) return;
         // Physical pickup: the item stays visible and in the world through
         // the reach/bend animation, and only disappears (together with the
         // inventory update) at the pickup event itself — never at the
-        // initial tap. cancelPendingPickup() (called on every new pointer
-        // command and on unmount) guarantees a cancelled pickup never
-        // grants the item late.
+        // initial tap. The isActive(id) check inside the timeout is what
+        // guarantees a cancelled pickup never grants the item late; any new
+        // command (commands.begin()) invalidates this id immediately.
         play("PickUp", true);
-        cancelPendingPickup();
-        pendingPickupTimeout = setTimeout(() => {
-          pendingPickupTimeout = null;
+        setTimeout(() => {
+          if (!commands.isActive(id)) return;
           useGameStore.getState().pickup(target.id);
+          commands.cancel();
         }, PICKUP_PRESENTATION_MS);
       } else if (target.kind === "npc" || target.kind === "landmark") {
+        if (!commands.transition(id, { type: "talking", id, targetId: target.id })) return;
         play("Interact", true);
         store.interact(target.id);
+        // This codebase's interact() is a single synchronous world-flag
+        // write, not a suspended dialogue session, so the command completes
+        // the instant it runs.
+        commands.cancel();
+      } else {
+        if (!commands.transition(id, { type: "gathering", id, targetId: target.id })) return;
+        store.startTargetActivity(target.id);
+        // Left active on purpose: gathering's reward cadence is owned by the
+        // authoritative simulation (see the animate loop's currentActivity
+        // sync below), not by this command object. It is cancelled the
+        // moment a new command begins.
       }
-      else store.startTargetActivity(target.id);
     };
     // Default action for a ground tap: cancel whatever the player was doing
     // and route to the tapped cell. Shared by the ordinary tap handler and
@@ -590,28 +607,51 @@ export function GameWorld() {
       const save = useGameStore.getState().save;
       if (!save) return;
       useGameStore.getState().cancelCurrentActivity();
-      cancelPendingPickup();
+      commands.cancel();
       const destination = grid(point);
-      setRoute(findPath(zone, save.position, [destination], blockedSet(zone)), null);
+      const result = findPathResult(zone, save.position, [destination], blockedSet(zone));
       useGameStore.getState().setSelectedTarget(null);
+      if (result.status === "unreachable") {
+        useGameStore.getState().pushLog("I can't reach that.", "warning");
+        setRoute([], null);
+        return;
+      }
+      commands.begin((id) => ({ type: "moving", id, destination }));
+      setRoute(result.status === "found" ? result.path : [], null);
     };
     // Default action for a target tap: route to a legal interaction cell and
     // run actOn on arrival. Shared by the ordinary tap handler and the
-    // long-press default-verb context menu option.
+    // long-press default-verb context menu option. Never begins movement,
+    // never acts, and never grants a reward for a target that cannot
+    // actually be reached.
     const walkAndActOn = (target: ZoneInteractable) => {
       const save = useGameStore.getState().save;
       if (!save || !targetAvailable(target, save)) return;
       useGameStore.getState().cancelCurrentActivity();
-      cancelPendingPickup();
-      setRoute(pathToTarget(zone, save.position, target), () => actOn(target));
+      commands.cancel();
+      const result = pathToTargetResult(zone, save.position, target);
+      if (result.status === "unreachable") {
+        useGameStore.getState().pushLog("I can't reach that.", "warning");
+        useGameStore.getState().setSelectedTarget(null);
+        marker.visible = false;
+        return;
+      }
+      const command = commands.begin((id) => ({ type: "moving_to_interact", id, targetId: target.id }));
+      setRoute(result.status === "found" ? result.path : [], () => actOn(target, command.id));
     };
     // "Walk here" on a target from the context menu: route only, never acts.
     const walkToTargetOnly = (target: ZoneInteractable) => {
       const save = useGameStore.getState().save;
       if (!save) return;
       useGameStore.getState().cancelCurrentActivity();
-      cancelPendingPickup();
-      setRoute(pathToTarget(zone, save.position, target), null);
+      commands.cancel();
+      const result = pathToTargetResult(zone, save.position, target);
+      if (result.status === "unreachable") {
+        useGameStore.getState().pushLog("I can't reach that.", "warning");
+        return;
+      }
+      commands.begin((id) => ({ type: "moving", id, destination: result.status === "found" ? result.path.at(-1)! : save.position }));
+      setRoute(result.status === "found" ? result.path : [], null);
     };
     const defaultVerbFor = (target: ZoneInteractable): string => {
       if (target.kind === "ground_item") return `Take ${target.displayName}`;
@@ -722,7 +762,10 @@ export function GameWorld() {
     const onContextMenuSuppress = (event: Event) => event.preventDefault();
     renderer.domElement.addEventListener("contextmenu", onContextMenuSuppress);
     const renderObjectiveRoute = (target: ZoneInteractable, save: NonNullable<ReturnType<typeof useGameStore.getState>["save"]>) => {
-      const routePoints = pathToTarget(zone, save.position, target);
+      const result = pathToTargetResult(zone, save.position, target);
+      // An unreachable objective draws no trail rather than a route that
+      // silently stops short — nothing productive to show the player.
+      const routePoints = result.status === "found" ? result.path : [];
       const positions = routePoints.map((position) => {
         const point = world(position);
         point.y += 0.14;
@@ -796,8 +839,7 @@ export function GameWorld() {
           const target = zone.interactables.find((entry) => entry.id === targetId);
           const save = useGameStore.getState().save;
           if (!target || !save || !targetAvailable(target, save)) return false;
-          useGameStore.getState().cancelCurrentActivity();
-          setRoute(pathToTarget(zone, save.position, target), () => actOn(target));
+          walkAndActOn(target);
           return true;
         },
         // Navigation-only counterpart to activateTarget: walks the player into
@@ -815,9 +857,10 @@ export function GameWorld() {
           const target = zone.interactables.find((entry) => entry.id === targetId);
           const save = useGameStore.getState().save;
           if (!target || !save || !targetAvailable(target, save)) return false;
-          setRoute(pathToTarget(zone, save.position, target), null);
+          walkToTargetOnly(target);
           return true;
         },
+        commandState: () => commands.current,
       };
     }
     // Read-only diagnostic bridge for Playwright, compiled only in the
@@ -892,6 +935,13 @@ export function GameWorld() {
         resize();
       }
       if (save) {
+        // The gathering command's reward cadence belongs to the
+        // authoritative simulation, not to this controller — if the
+        // activity ended on its own (inputs exhausted, resource depleted,
+        // etc. inside store.tick) without going through a new player
+        // command, sync the command back to idle here rather than leaving a
+        // "gathering" command referring to an activity that no longer runs.
+        if (commands.current.type === "gathering" && save.currentActivity?.type !== "gathering") commands.cancel();
         const equippedItemId = save.currentActivity?.type === "gathering"
           ? save.equipment.tool
           : save.currentActivity?.type === "combat"
@@ -912,7 +962,13 @@ export function GameWorld() {
               marker.visible = false;
               const callback = afterArrival;
               afterArrival = null;
-              callback?.();
+              if (callback) callback();
+              // A plain "moving" command (ground tap, or context-menu "Walk
+              // here") has no callback and is done the instant it arrives —
+              // return to idle so it can't be mistaken for still-active
+              // later. Commands with a callback (walkAndActOn) own their own
+              // terminal transition via actOn()/transition() above.
+              else commands.cancel();
             }
           } else {
             playerRoot.position.add(delta.normalize().multiplyScalar(Math.min(5.2 * movementDt, remaining)));
@@ -1119,7 +1175,7 @@ export function GameWorld() {
 
     return () => {
       disposed = true;
-      cancelPendingPickup();
+      commands.cancel();
       observer.disconnect();
       clearLongPressTimer();
       useGameStore.getState().closeContextMenu();
