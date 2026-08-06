@@ -201,13 +201,25 @@ function appendLogs(existing: readonly LogEntry[], events: readonly GameEvent[])
 }
 
 let xpDropSequence = 1;
+export const XP_DROP_LIFETIME_MS = 1600;
 // XP drops are tied only to real xp_gained events already produced by the
 // deterministic simulation — never fabricated, and never shown for actions
 // that did not actually grant XP (e.g. a cancelled or unavailable action).
-function appendXpDrops(existing: readonly XpDropEntry[], events: readonly GameEvent[]): readonly XpDropEntry[] {
+//
+// Expiry is scheduled here, once per drop, at the moment it is created —
+// not by a React effect keyed on the whole xpDrops array. Scheduling it in
+// a component effect meant every array change (i.e. every new drop) tore
+// down and recreated timers for ALL still-visible drops, silently resetting
+// how long the older ones had left. Owning expiry here means a later drop's
+// arrival can never extend or reset an earlier drop's lifetime.
+export function appendXpDrops(existing: readonly XpDropEntry[], events: readonly GameEvent[]): readonly XpDropEntry[] {
   const gains = events.filter((event): event is Extract<GameEvent, { type: "xp_gained" }> => event.type === "xp_gained");
   if (!gains.length) return existing;
-  const next = gains.map((event) => ({ id: xpDropSequence++, skill: event.skill, amount: event.amount }));
+  const next = gains.map((event) => {
+    const drop: XpDropEntry = { id: xpDropSequence++, skill: event.skill, amount: event.amount };
+    setTimeout(() => useGameStore.getState().dismissXpDrop(drop.id), XP_DROP_LIFETIME_MS);
+    return drop;
+  });
   return [...existing, ...next].slice(-6);
 }
 

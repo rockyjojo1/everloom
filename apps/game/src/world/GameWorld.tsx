@@ -7,6 +7,8 @@ import {
   objectiveGuidanceTarget,
   type ObjectiveRouteDetail,
 } from "../game/objectiveGuidance";
+import { didCycleComplete } from "../game/actionPresentation";
+import { audio, type AudioCue } from "../game/audio";
 import { blockedSet, findPathResult, pathToTargetResult } from "../game/pathfinding";
 import { PlayerCommandController } from "../game/playerCommand";
 import { useGameStore } from "../game/store";
@@ -309,6 +311,13 @@ export function GameWorld() {
     let lastHp: number | null = null;
     let lastCheerLogId: number | null = null;
     let restStartMs: number | null = null;
+    // Wind-up/impact/recovery presentation for the current gathering
+    // activity (see game/actionPresentation.ts). Tracks the authoritative
+    // simulation's own progressMs so impact FX/audio land on the exact tick
+    // a reward is granted, rather than running on a second, competing timer.
+    let lastGatherActivityKey: string | null = null;
+    let lastGatherProgressMs = 0;
+    let impactPulseUntil = 0;
     const criticalAssetJobs: Promise<unknown>[] = [];
     const sceneryAssetJobs: Promise<unknown>[] = [];
 
@@ -580,6 +589,7 @@ export function GameWorld() {
         play("PickUp", true);
         setTimeout(() => {
           if (!commands.isActive(id)) return;
+          audio.play("pickup");
           useGameStore.getState().pickup(target.id);
           commands.cancel();
         }, PICKUP_PRESENTATION_MS);
@@ -725,6 +735,10 @@ export function GameWorld() {
       });
     };
     const onPointerDown = (event: PointerEvent) => {
+      // Audio playback is blocked in most browsers until a real user
+      // gesture; the first pointer down on the world is as early and
+      // reliable a gesture as this scene gets.
+      audio.unlock();
       if (event.pointerType === "mouse" && event.button !== 0) return;
       longPressFired = false;
       pointerDownScreen = { x: event.clientX, y: event.clientY };
@@ -1104,6 +1118,29 @@ export function GameWorld() {
       const activityTarget = activity && activity.type !== "expedition"
         ? zone.interactables.find((target) => target.id === activity.targetId)
         : undefined;
+      // Impact detection: the authoritative simulation resets progressMs to
+      // 0 (or a small remainder) exactly when a gathering cycle completes
+      // and grants its item_gained/xp_gained reward — see
+      // packages/core/src/simulation.ts. Watching for that wrap, rather than
+      // running a second timer, is what keeps impact FX/audio truthfully in
+      // sync with the real reward instead of merely approximating it.
+      if (activity?.type === "gathering") {
+        const activityKey = `${activity.targetId}:${activity.resourceId}`;
+        if (activityKey !== lastGatherActivityKey) {
+          lastGatherActivityKey = activityKey;
+          lastGatherProgressMs = activity.progressMs;
+        } else {
+          if (didCycleComplete(lastGatherProgressMs, activity.progressMs)) {
+            impactPulseUntil = now + 220;
+            const skill = CONTENT.resources[activity.resourceId]?.skill;
+            const cue: AudioCue = skill === "fishing" ? "fishing" : skill === "mining" ? "mining" : "woodcutting";
+            audio.play(cue);
+          }
+          lastGatherProgressMs = activity.progressMs;
+        }
+      } else {
+        lastGatherActivityKey = null;
+      }
       if (activityTarget && activity) {
         activityEffect.position.copy(world(activityTarget));
         activityEffect.position.y += 0.2;
@@ -1121,6 +1158,11 @@ export function GameWorld() {
           ? CONTENT.recipes[activity.recipeId]?.skill
           : undefined;
         effectMaterial.color.set(activity.type === "combat" ? 0xef795f : productionSkill === "cooking" ? 0xffa34e : productionSkill === "smithing" ? 0xf3c66e : gatheringSkill === "fishing" ? 0x7fdce5 : 0xe9bd72);
+        // Brief, restrained impact pulse — a short scale/opacity bump on the
+        // real reward tick, not a giant particle burst.
+        const impactActive = now < impactPulseUntil;
+        activityEffect.scale.setScalar(impactActive ? 1.35 : 1);
+        effectMaterial.opacity = impactActive ? 1 : 0.82;
         activityEffect.visible = true;
       } else {
         activityEffect.visible = false;
