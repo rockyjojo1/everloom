@@ -37,12 +37,34 @@ test.describe("Unreachable interaction safety", () => {
 
     const box = await page.locator('[data-testid="game-world"]').boundingBox();
     if (!box) throw new Error("game-world has no bounding box");
-    // Bottom-left of the default camera frame is open water in Meadowrest's
-    // authored geometry (confirmed visually in
-    // docs/audits/2026-08-06-osrs-feel-production-slice/correction-pass/desktop-unreachable-feedback.png).
-    await page.mouse.click(box.x + 90, box.y + box.height - 5);
-    await page.waitForTimeout(700);
-
+    // Open water sits along the bottom-left of the default camera frame in
+    // Meadowrest's authored geometry (see
+    // docs/audits/.../correction-pass/desktop-unreachable-feedback.png), but
+    // its exact on-screen pixel shifts slightly with viewport/device
+    // presets. Try a small cluster of candidate points near there and
+    // require at least one to trigger the unreachable message, rather than
+    // depending on one brittle pixel offset.
+    const candidates: [number, number][] = [
+      [box.x + 90, box.y + box.height - 5],
+      [box.x + 40, box.y + box.height - 5],
+      [box.x + 10, box.y + box.height - 5],
+      [box.x + 60, box.y + box.height - 30],
+      [box.x + 120, box.y + box.height - 5],
+    ];
+    let reached = false;
+    for (const [x, y] of candidates) {
+      await page.mouse.click(x, y);
+      await page.waitForTimeout(500);
+      const lastLine = await page.evaluate(() => {
+        const spans = document.querySelectorAll(".chat-box span");
+        return spans.length ? spans[spans.length - 1]!.textContent : null;
+      });
+      if (lastLine === "I can't reach that.") {
+        reached = true;
+        break;
+      }
+    }
+    expect(reached, "expected at least one candidate water point to be unreachable").toBe(true);
     await expect(page.locator(".chat-box")).toContainText("I can't reach that.");
 
     const after = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.snapshot());
