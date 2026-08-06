@@ -7,6 +7,4 @@ export * from "./quests";
 export * from "./save";
 export * from "./simulation";
 export * from "./expedition";
-export * from "./expedition-contract";
-export * from "./expedition-kernel";
 export * from "./forecast";

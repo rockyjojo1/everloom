@@ -1,3 +1,14 @@
 dist/
 test-results/
 playwright-report/
+
+# iOS/Xcode: the ios/ project itself is committed (Capacitor's copied web
+# assets require it), but per-developer/derived Xcode state must not be.
+ios/App/App/public/
+ios/App/.build/
+ios/App/DerivedData/
+ios/App/**/xcuserdata/
+ios/App/**/*.xcuserstate
+ios/App/Pods/
+ios/App/*.xcworkspace/xcuserdata/
+ios/capacitor-cordova-ios-plugins/node_modules/

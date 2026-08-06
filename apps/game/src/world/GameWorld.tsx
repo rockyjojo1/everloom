@@ -19,6 +19,77 @@ import { buildEnvironment, terrainHeight, updateEnvironment } from "./environmen
 import { getEquipmentTransform } from "./equipmentPresentation";
 
 const zone = CONTENT.zones.meadowrest!;
+
+// Rework Meadowrest spawn area to be compact, dense and purpose-built
+const adjustMeadowrestInteractables = () => {
+  const mutableInteractables = zone.interactables.map((i) => ({ ...i })) as any[];
+  (zone as any).interactables = mutableInteractables;
+
+  // Spawn is around (19, 16).
+  // 1. Move Worn Hatchet closer to spawn (x: 19, z: 15)
+  const hatchet = mutableInteractables.find(i => i.id === "ground_worn_hatchet");
+  if (hatchet) {
+    hatchet.x = 19;
+    hatchet.z = 17;
+  }
+  // 2. Move Worn Pickaxe closer
+  const pickaxe = mutableInteractables.find(i => i.id === "ground_worn_pickaxe");
+  if (pickaxe) {
+    pickaxe.x = 18;
+    pickaxe.z = 18;
+  }
+  // 3. Move Worn Fishing Rod closer
+  const rod = mutableInteractables.find(i => i.id === "ground_worn_rod");
+  if (rod) {
+    rod.x = 20;
+    rod.z = 18;
+  }
+  // 4. Move early woodcutting Trees closer to spawn
+  const oak1 = mutableInteractables.find(i => i.id === "oak_west_1");
+  if (oak1) {
+    oak1.x = 17;
+    oak1.z = 17;
+  }
+  const oak2 = mutableInteractables.find(i => i.id === "oak_west_2");
+  if (oak2) {
+    oak2.x = 21;
+    oak2.z = 16;
+  }
+  // 5. Move early Mining rocks closer to spawn
+  const copper = mutableInteractables.find(i => i.id === "copper_north_1");
+  if (copper) {
+    copper.x = 17;
+    copper.z = 16;
+  }
+  // 6. Move early Fishing spot closer to spawn
+  const fish = mutableInteractables.find(i => i.id === "riverling_south");
+  if (fish) {
+    fish.x = 19;
+    fish.z = 14;
+    fish.interactionRadius = 1;
+  }
+
+  // 7. Inject a Bank Chest adjacent to the spawn area
+  if (!mutableInteractables.some(i => i.id === "bank_chest")) {
+    mutableInteractables.push({
+      id: "bank_chest",
+      kind: "landmark",
+      displayName: "Bank Chest",
+      assetId: "dungeon.crates",
+      x: 20,
+      z: 14,
+      resourceId: null,
+      itemId: null,
+      recipeId: null,
+      enemyId: null,
+      quantity: 0,
+      interactionRadius: 1,
+      blocks: true
+    });
+  }
+};
+adjustMeadowrestInteractables();
+
 // Multiplied against the shared adventurer model's own material colours, so
 // these need to be noticeably saturated to read as distinct outfits rather
 // than washing out to near-white. Chosen to stay ~120 degrees apart in hue
@@ -321,6 +392,12 @@ export function GameWorld() {
     let lastHp: number | null = null;
     let lastCheerLogId: number | null = null;
     let restStartMs: number | null = null;
+
+    // OSRS style Context Menu long-press and right-click trackers
+    let longPressTimer: ReturnType<typeof setTimeout> | null = null;
+    let pointerDownPos = { x: 0, y: 0 };
+    let isLongPressTriggered = false;
+
     const criticalAssetJobs: Promise<unknown>[] = [];
     const sceneryAssetJobs: Promise<unknown>[] = [];
 
@@ -331,6 +408,11 @@ export function GameWorld() {
       if (!clip) return;
       playerMixer.stopAllAction();
       const action = playerMixer.clipAction(clip).reset().fadeIn(0.12);
+      if (name.toLowerCase().includes("walk")) {
+        action.setEffectiveTimeScale(0.68);
+      } else {
+        action.setEffectiveTimeScale(1.0);
+      }
       if (once) {
         action.setLoop(THREE.LoopOnce, 1);
         action.clampWhenFinished = true;
@@ -573,21 +655,134 @@ export function GameWorld() {
     };
     const actOn = (target: ZoneInteractable) => {
       const store = useGameStore.getState();
+      const save = store.save;
       const direction = world(target).sub(playerRoot.position);
       playerRoot.rotation.y = Math.atan2(direction.x, direction.z);
       store.setSelectedTarget(target.id);
-      if (target.kind === "ground_item") {
+      if (target.id === "bank_chest") {
+        play("Interact", true);
+        store.setPanel("inventory");
+        useGameStore.setState((state) => ({
+          logs: [...state.logs, { id: Date.now(), text: "You open the Bank Chest. Your items are safe.", tone: "good" as const }].slice(-8)
+        }));
+      } else if (target.kind === "ground_item") {
+        const isFull = save && save.inventory.length >= save.inventorySlots;
+        if (isFull) {
+          play("Idle");
+          useGameStore.setState((state) => ({
+            logs: [...state.logs, { id: Date.now(), text: "Your pack is full!", tone: "warning" as const }].slice(-8)
+          }));
+          return;
+        }
         play("PickUp", true);
-        store.pickup(target.id);
+        setTimeout(() => {
+          store.pickup(target.id);
+        }, 500);
       } else if (target.kind === "npc" || target.kind === "landmark") {
         play("Interact", true);
         store.interact(target.id);
       }
       else store.startTargetActivity(target.id);
     };
-    const onPointer = (event: PointerEvent) => {
+    const triggerContextMenu = (clientX: number, clientY: number) => {
       const rect = renderer.domElement.getBoundingClientRect();
-      pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
+      pointer.set(((clientX - rect.left) / rect.width) * 2 - 1, -((clientY - rect.top) / rect.height) * 2 + 1);
+      raycaster.setFromCamera(pointer, camera);
+      const hit = raycaster.intersectObjects(scene.children, true).find((entry) => entry.object.userData.targetId || entry.object.userData.ground);
+      if (!hit) return;
+      const targetId = hit.object.userData.targetId as string | undefined;
+      const save = useGameStore.getState().save;
+      if (!save) return;
+
+      const options: { label: string; action: () => void }[] = [];
+
+      if (targetId) {
+        const target = zone.interactables.find((entry) => entry.id === targetId);
+        if (target && targetAvailable(target, save)) {
+          // Add default action
+          let defaultLabel = "Interact";
+          if (target.kind === "npc") defaultLabel = `Talk to ${target.displayName}`;
+          else if (target.kind === "resource") {
+            const skill = CONTENT.resources[target.resourceId!]?.skill;
+            if (skill === "mining") defaultLabel = "Mine Rock";
+            else if (skill === "fishing") defaultLabel = "Fish Spot";
+            else defaultLabel = "Chop Tree";
+          } else if (target.kind === "ground_item") {
+            defaultLabel = `Take ${target.displayName}`;
+          } else if (target.kind === "landmark") {
+            if (target.id === "bank_chest") defaultLabel = "Open Bank Chest";
+            else defaultLabel = `Inspect ${target.displayName}`;
+          }
+
+          options.push({
+            label: defaultLabel,
+            action: () => {
+              useGameStore.getState().cancelCurrentActivity();
+              setRoute(pathToTarget(zone, save.position, target), () => actOn(target));
+            }
+          });
+
+          // Add Walk here option
+          options.push({
+            label: "Walk here",
+            action: () => {
+              useGameStore.getState().cancelCurrentActivity();
+              setRoute(pathToTarget(zone, save.position, target), null);
+            }
+          });
+
+          // Add Examine option
+          options.push({
+            label: `Examine ${target.displayName}`,
+            action: () => {
+              let msg = "A curious object.";
+              if (target.id === "npc_mara") msg = "Mara Threadkeeper. An elder spinner of Meadowrest.";
+              else if (target.id === "bank_chest") msg = "A heavy wooden chest used for storing items.";
+              else if (target.kind === "resource") {
+                const skill = CONTENT.resources[target.resourceId!]?.skill;
+                if (skill === "mining") msg = "A rich vein of copper ore.";
+                else if (skill === "fishing") msg = "Shoals of riverling fish swimming about.";
+                else msg = "A mature oak tree, perfect for woodcutting.";
+              } else if (target.kind === "ground_item") {
+                msg = `A tool left on the ground: ${target.displayName}.`;
+              }
+              // Push message to log
+              useGameStore.setState((state) => ({
+                logs: [...state.logs, { id: Date.now(), text: msg, tone: "good" as const }].slice(-8)
+              }));
+            }
+          });
+        }
+      } else {
+        const destination = grid(hit.point);
+        options.push({
+          label: "Walk here",
+          action: () => {
+            useGameStore.getState().cancelCurrentActivity();
+            setRoute(findPath(zone, save.position, [destination], blockedSet(zone)), null);
+            useGameStore.getState().setSelectedTarget(null);
+          }
+        });
+      }
+
+      options.push({
+        label: "Cancel",
+        action: () => {}
+      });
+
+      useGameStore.getState().setContextMenu({
+        x: clientX,
+        y: clientY,
+        options
+      });
+    };
+
+    const handleRegularTap = (clientX: number, clientY: number) => {
+      // Clear context menu on standard tap
+      useGameStore.getState().setContextMenu(null);
+
+      const rect = renderer.domElement.getBoundingClientRect();
+      pointer.set(((clientX - rect.left) / rect.width) * 2 - 1, -((clientY - rect.top) / rect.height) * 2 + 1);
       raycaster.setFromCamera(pointer, camera);
       const hit = raycaster.intersectObjects(scene.children, true).find((entry) => entry.object.userData.targetId || entry.object.userData.ground);
       if (!hit) return;
@@ -604,7 +799,63 @@ export function GameWorld() {
         useGameStore.getState().setSelectedTarget(null);
       }
     };
-    renderer.domElement.addEventListener("pointerup", onPointer);
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (longPressTimer) clearTimeout(longPressTimer);
+      isLongPressTriggered = false;
+      pointerDownPos = { x: event.clientX, y: event.clientY };
+
+      const save = useGameStore.getState().save;
+      if (!save) return;
+
+      // Check for right-click (button === 2)
+      if (event.button === 2) {
+        event.preventDefault();
+        triggerContextMenu(event.clientX, event.clientY);
+        isLongPressTriggered = true;
+        return;
+      }
+
+      // Start 450ms timer for long-press
+      longPressTimer = setTimeout(() => {
+        triggerContextMenu(event.clientX, event.clientY);
+        isLongPressTriggered = true;
+      }, 450);
+    };
+
+    const onPointerMove = (event: PointerEvent) => {
+      const dx = event.clientX - pointerDownPos.x;
+      const dy = event.clientY - pointerDownPos.y;
+      if (Math.sqrt(dx * dx + dy * dy) > 10) {
+        if (longPressTimer) {
+          clearTimeout(longPressTimer);
+          longPressTimer = null;
+        }
+      }
+    };
+
+    const onPointerUp = (event: PointerEvent) => {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+      if (isLongPressTriggered) {
+        isLongPressTriggered = false;
+        return;
+      }
+      if (event.button === 2) return;
+
+      handleRegularTap(event.clientX, event.clientY);
+    };
+
+    const onContextMenu = (event: MouseEvent) => {
+      event.preventDefault();
+    };
+
+    renderer.domElement.addEventListener("pointerdown", onPointerDown);
+    renderer.domElement.addEventListener("pointermove", onPointerMove);
+    renderer.domElement.addEventListener("pointerup", onPointerUp);
+    renderer.domElement.addEventListener("contextmenu", onContextMenu);
     const renderObjectiveRoute = (target: ZoneInteractable, save: NonNullable<ReturnType<typeof useGameStore.getState>["save"]>) => {
       const routePoints = pathToTarget(zone, save.position, target);
       const positions = routePoints.map((position) => {
@@ -789,7 +1040,10 @@ export function GameWorld() {
           const delta = next.clone().sub(playerRoot.position);
           delta.y = 0;
           const remaining = delta.length();
-          if (remaining < 0.08) {
+          const speed = 3.0; // Snappier constant 3.0 units/sec walking speed
+          const step = speed * movementDt;
+          if (remaining <= step) {
+            playerRoot.position.copy(next); // Stop exactly at nodes/destination
             const arrived = route.shift()!;
             useGameStore.getState().setPosition(arrived);
             if (!route.length) {
@@ -799,12 +1053,12 @@ export function GameWorld() {
               callback?.();
             }
           } else {
-            playerRoot.position.add(delta.normalize().multiplyScalar(Math.min(5.2 * movementDt, remaining)));
+            playerRoot.position.add(delta.normalize().multiplyScalar(step));
             playerRoot.rotation.y = Math.atan2(delta.x, delta.z);
             if (!standUpIfSitting()) play("Walking_A");
           }
         } else {
-          playerRoot.position.lerp(desired, 0.25);
+          playerRoot.position.copy(desired); // Instant stop, absolutely no slide
 
           // Hurt reaction: a brief flinch whenever HP drops between frames,
           // layered in ahead of the main state selection below.
@@ -840,6 +1094,31 @@ export function GameWorld() {
                   ? "1H_Melee_Attack_Stab"
                   : "1H_Melee_Attack_Chop";
               if (!standUpIfSitting()) play(gatherClip);
+
+              // Apply repeatable fixed OSRS gathering cadence: wind-up, impact, recovery
+              const progress = save.currentActivity.progressMs;
+              const cycleLength = 1500;
+              const t = progress % cycleLength;
+              let timescale = 1.0;
+              if (t < cycleLength * 0.4) {
+                // Wind-up phase (slower swing back)
+                timescale = 0.55;
+              } else if (t < cycleLength * 0.6) {
+                // Impact phase (faster swing forward)
+                timescale = 2.2;
+              } else {
+                // Recovery phase (gentle return to stance)
+                timescale = 0.75;
+              }
+
+              if (playerMixer && currentClip === gatherClip) {
+                const options = (playerMixer as any)._root?.userData.animations as THREE.AnimationClip[] | undefined;
+                const clip = options?.find((entry) => entry.name === gatherClip) ?? options?.find((entry) => entry.name.toLowerCase().includes(gatherClip.toLowerCase()));
+                if (clip) {
+                  const action = playerMixer.clipAction(clip);
+                  action.setEffectiveTimeScale(timescale);
+                }
+              }
             } else if (save.currentActivity?.type === "production") {
               restStartMs = null;
               if (!standUpIfSitting()) play("Use_Item");
@@ -865,7 +1144,8 @@ export function GameWorld() {
           if (object) object.visible = targetVisible(target, save);
         }
         const focus = playerRoot.position.clone();
-        camera.position.lerp(focus.clone().add(new THREE.Vector3(17, 21, 22)), 0.035);
+        // Fixed elevated three-quarter perspective with zero lag
+        camera.position.copy(focus.clone().add(new THREE.Vector3(11.5, 13.5, 11.5)));
         camera.lookAt(focus);
       }
       for (const mixer of mixers) mixer.update(animationDt);
@@ -1004,7 +1284,10 @@ export function GameWorld() {
     return () => {
       disposed = true;
       observer.disconnect();
-      renderer.domElement.removeEventListener("pointerup", onPointer);
+      renderer.domElement.removeEventListener("pointerdown", onPointerDown);
+      renderer.domElement.removeEventListener("pointermove", onPointerMove);
+      renderer.domElement.removeEventListener("pointerup", onPointerUp);
+      renderer.domElement.removeEventListener("contextmenu", onContextMenu);
       window.removeEventListener(OBJECTIVE_ROUTE_EVENT, showObjectiveRoute);
       renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
       renderer.domElement.removeEventListener("webglcontextrestored", onContextRestored);

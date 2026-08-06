@@ -112,6 +112,140 @@ only what it directly exercises.
   `docs/audits/2026-08-04-canonical-asset-foundation/GATE3_IMPLEMENTATION_REPORT.md`
   and the accompanying `VERIFICATION_LOG.md`.
 
+## Gate 4: Meadowrest production room browser bake-off (branch `claude/meadowrest-production-room-bakeoff`, not yet merged)
+
+- Implementation SHA: `64359ce4d146804e28e30b5e5919bba63af9a0c2`.
+- Rejected SHA (superseded by independent supervisor re-audit, do not treat
+  as authoritative): `40fa44878bfb7105ed5d15f4ad406898a4b799e6` — the
+  Quality shadow policy wrongly excluded all `cliff-*` placements, and
+  grass clearance used partially hardcoded coordinates instead of the
+  actual layout/character positions. Both fixed in the implementation SHA
+  above.
+- Grass generation is a pure, Three.js-free helper
+  (`apps/game/src/bakeoff/grassLayout.ts`) taking room dimensions, actual
+  layout placements, and character positions as input; produces exactly
+  100 (Balanced) / 220 (Quality) deterministic transforms via a bounded
+  retry loop, or throws a stable error.
+- Shadow-caster metrics (`shadowCastingMeshes`, `shadowCasterInstanceIds`)
+  reflect actually-rendered `castShadow=true` meshes, filtered against a
+  pure per-profile contract (`getExpectedShadowCasterIds`). Balanced is
+  exactly the 10 core IDs (player, mara, skeleton, cottage-main,
+  bridge-main, campfire-main, oak-a/b/c, canopy-northwest). Quality is
+  every non-`additional-*` layout placement plus the three characters (45
+  IDs, verified in `METRICS.json`).
+- Placement-level readiness (`expectedInstanceIds`/`loadedInstanceIds`/
+  `failedInstanceIds`) requires exact set equality and zero failures
+  before `ready` is set. Verified: Balanced 70/70/0, Quality 86/86/0.
+- Combined Playwright `test:bakeoff` suite: 39 passed, 9 skipped
+  (project-aware filtering, not failures), 0 failed. Vitest unit suite: 86
+  passed, including a dependency-injected test proving a failed placement
+  using a duplicated runtime asset is not hidden by a sibling placement's
+  success.
+- Physical iPhone verification and Capacitor bake-off remain **not
+  started**.
+- Full detail: `docs/audits/2026-08-04-meadowrest-production-room/GATE4_BAKEOFF_REPORT.md`
+  and the accompanying `VERIFICATION_LOG.md`.
+
+## Gate 5A: Capacitor iOS foundation (branch `claude/capacitor-ios-bakeoff`, based on the Gate 4 base SHA, not yet merged)
+
+- Base SHA: `26f36e73b15a1c1e782ec3e4b8890c13ad53194a` (the accepted Gate 4 evidence commit).
+- Capacitor 8.5.0 (`@capacitor/core`, `@capacitor/cli`, `@capacitor/ios` — all pinned identically) integrated into `apps/game`. App ID `com.rockyjojo1.everloom`, app name `Everloom`, `webDir: dist` — the same unmodified Vite build output the browser and PWA targets already use.
+- iOS-only. No `android/` directory exists; the static verifier
+  (`apps/game/scripts/verify-capacitor-ios.mjs`) hard-fails if one is ever
+  introduced.
+- Uses Swift Package Manager (Capacitor 8's default), not CocoaPods — no
+  `Podfile`, no `.xcworkspace`; `ios/App/App.xcodeproj` is the real entry
+  point.
+- No `server.url`, no live-reload address, no remote/cleartext content
+  configuration anywhere in the config — verified by the static verifier,
+  which also confirms the synced `ios/App/App/public` assets are
+  byte-identical (sha256) to the current `dist/` build.
+- `Info.plist` restricted to landscape-only orientations (both iPhone and
+  iPad) — the product has no portrait gameplay. Launch screen background
+  changed from the generated white default to the app's actual `#17241f`
+  theme colour to avoid a white flash before the WebView paints.
+- **App icon and launch splash are still Capacitor's stock placeholder
+  graphics**, not final Everloom branding — explicitly labelled, not
+  final art (see `docs/audits/2026-08-05-capacitor-ios-bakeoff/GATE5A_IMPLEMENTATION_REPORT.md`).
+- The existing PWA service worker (`vite-plugin-pwa`) is now disabled at
+  runtime specifically when running under the native Capacitor wrapper
+  (`apps/game/src/native/serviceWorkerGuard.ts`, `apps/game/src/main.tsx`),
+  while remaining fully active for ordinary browser/PWA use — avoids
+  layering an independent, never-jointly-tested caching system on top of
+  Capacitor's own native asset pipeline. Verified with 32 new Vitest unit
+  tests and 3 new Playwright tests that simulate the native platform via
+  `@capacitor/core`'s real `window.CapacitorCustomPlatform` detection hook
+  (not a mock).
+- `apps/game/src/game/saveDb.ts` (the versioned IndexedDB save system) is
+  explicitly unchanged — verified by the static verifier via a git diff
+  against the Gate 4 base SHA, not merely "we didn't intend to touch it."
+- iOS Simulator compile is CI-only in this pass (no macOS/Xcode available
+  in the implementing environment): `.github/workflows/capacitor-ios.yml`
+  performs an unsigned simulator build on a `macos-26` GitHub-hosted
+  runner. **Physical iPhone verification has not been attempted.** App
+  Store submission has not been started.
+- Full detail: `docs/audits/2026-08-05-capacitor-ios-bakeoff/GATE5A_IMPLEMENTATION_REPORT.md`
+  and the accompanying `VERIFICATION_LOG.md`.
+
+## Gate 5B: real iOS Simulator runtime, lifecycle and local-save persistence proof (branch `claude/capacitor-ios-simulator-runtime`, based on the Gate 5A base SHA, not yet merged)
+
+- Base SHA: `2024830b518e892d0734d2664652dae0c08d0958` (the accepted Gate 5A evidence commit).
+- Implementation SHA (the exact commit whose CI runtime workflow passed): `a6f456825d5d8d33679c61673b367633d2673989`.
+- Added a real XCUITest target (`AppUITests`, bundle ID
+  `com.rockyjojo1.everloom.AppUITests`) to the accepted Gate 5A iOS
+  project, plus a shared Xcode scheme and a dedicated
+  `.github/workflows/capacitor-ios-runtime.yml` CI workflow (the existing
+  accepted `capacitor-ios.yml` from Gate 5A is untouched).
+- One ordered XCUITest journey
+  (`testEverloomNativeLifecycleAndPersistenceJourney`) proved, against a
+  real booted iOS Simulator running the real, unmodified production web
+  bundle inside the real Capacitor WKWebView: fresh install and launch;
+  real touch/keyboard user entry through character creation; the HUD
+  becoming genuinely interactive (not merely rendering, which happens
+  even before entry completes — see below); backgrounding and
+  foreground resume with touch handling intact; a genuine native process
+  termination and relaunch; and the existing local IndexedDB save
+  surviving that termination/relaunch inside the same simulator
+  installation. CI result: 1 test executed, 0 failures, `**TEST
+  SUCCEEDED**`, run
+  [30979283286](https://github.com/rockyjojo1/everloom/actions/runs/30979283286)
+  on `macos-26` / Xcode 26.6 / iOS 26.5 / iPhone 17 Pro simulator.
+- Reaching a stable passing result took 9 CI runs, each a genuinely
+  different, evidence-diagnosed root cause (not a guess): a masked exit
+  code from a GitHub Actions bash default hiding the real xcodebuild
+  failure; WKWebView keyboard-focus timing; a real, previously-unknown
+  fact discovered by downloading and reading the actual `.xcresult`
+  accessibility-tree dump — **`Hud` renders unconditionally once a local
+  save exists, including underneath the still-open character-creation
+  modal**, so HUD-control presence alone was never valid proof that
+  entry actually completed; an invented Swift API; a real root cause
+  found from a second downloaded accessibility-tree dump — the
+  character-creation form is taller than the 402pt landscape viewport
+  and `'Enter Meadowrest'` sits below the fold, so `isHittable ==
+  false` was accurate (not a WKWebView quirk) and a coordinate-tap
+  fallback was targeting a point that was never on screen; and finally
+  CI-runner launch-timing variance on a cold-booted simulator's first
+  app launch, confirmed by two re-runs of byte-identical code both
+  failing the same 30s timeout that an earlier run of that same code had
+  cleared, fixed by raising it to 60s. Full diagnosis history:
+  `docs/audits/2026-08-05-capacitor-ios-runtime/GATE5B_RUNTIME_REPORT.md`.
+- `apps/game/scripts/verify-capacitor-ios.mjs`'s bundle-identifier check
+  was narrowly extended to allow the new `AppUITests` target's ID
+  alongside the app's own — the app's own identity requirement is
+  unchanged.
+- Zero diff across every protected/prohibited path since the Gate 5A base
+  SHA (`packages/core`, `content`, `assets`, `engine`, `gamedata`,
+  `apps/game/src/game`, `apps/game/src/world`, `apps/game/src/bakeoff`,
+  `apps/client3d`, `apps/web`, every Gate 4/5A evidence directory,
+  `artifacts/`, `art-direction/`); `pnpm-lock.yaml`,
+  `apps/game/src/game/saveDb.ts`, and `store.ts` byte-identical; no
+  `android/` directory; no `server.url`.
+- **Physical iPhone verification has still not been attempted anywhere in
+  this project.** This gate proves Simulator behaviour only. TestFlight
+  and App Store submission remain not started.
+- Full detail: `docs/audits/2026-08-05-capacitor-ios-runtime/GATE5B_RUNTIME_REPORT.md`,
+  `VERIFICATION_LOG.md`, and `SIMULATOR_TEST_RESULTS.md`.
+
 ## Superseded / non-authoritative for current state
 
 - `docs/VERDANT_GROVE_HANDOFF.md` — detailed historical implementation

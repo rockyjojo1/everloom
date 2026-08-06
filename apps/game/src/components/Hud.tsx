@@ -8,7 +8,7 @@ import {
   masteryRankFromXp,
   playerCombatStats,
 } from "@everloom/core";
-import { Fragment, lazy, Suspense, useRef } from "react";
+import { Fragment, lazy, Suspense, useRef, useState, useEffect } from "react";
 import { objectiveGuidanceTarget, requestObjectiveRoute } from "../game/objectiveGuidance";
 import { inventoryCount, type PanelId, useGameStore } from "../game/store";
 import { Icon } from "./Icons";
@@ -29,6 +29,26 @@ export function Hud() {
   const store = useGameStore();
   const input = useRef<HTMLInputElement>(null);
   const save = store.save;
+
+  // React state for OSRS XP drops observer
+  const [xpDrops, setXpDrops] = useState<{ id: number; text: string }[]>([]);
+  const prevLogsLength = useRef(store.logs.length);
+
+  useEffect(() => {
+    if (store.logs.length > prevLogsLength.current) {
+      const newLogs = store.logs.slice(prevLogsLength.current);
+      newLogs.forEach((log) => {
+        if (log.text.startsWith("+") && log.text.endsWith("XP")) {
+          const id = Date.now() + Math.random();
+          setXpDrops((prev) => [...prev, { id, text: log.text }]);
+          setTimeout(() => {
+            setXpDrops((prev) => prev.filter((drop) => drop.id !== id));
+          }, 1500);
+        }
+      });
+    }
+    prevLogsLength.current = store.logs.length;
+  }, [store.logs]);
   if (!save) return null;
   const attunedSkills = countAttunedSkills(save.skills);
   const combatStats = playerCombatStats(save, CONTENT);
@@ -114,27 +134,80 @@ export function Hud() {
       <header><div><span className="eyebrow">MEADOWREST</span><h2>{tabs.find((t) => t.id === store.panel)?.label}</h2></div>
         <button className="icon-button" aria-label="Close panel" onClick={store.togglePanel}><Icon name="close" /></button></header>
       <div className="panel-body">
-        {store.panel === "inventory" && <>
-          <p className="muted">{save.inventory.length} / {save.inventorySlots} slots</p>
-          <div className="inventory">
-            {save.inventory.map((stack) => {
-              const item = CONTENT.items[stack.itemId]!;
-              const equipped = Object.values(save.equipment).includes(item.id);
-              return <article key={item.id}><div className={`item-glyph ${item.category}`}><ItemIcon iconId={item.iconId} /></div>
-                <div><strong>{item.name}</strong><small>{item.description}</small>
-                  {item.combatBonuses && <small className="combat-bonuses">
-                    {item.combatBonuses.accuracy > 0 && `Accuracy +${item.combatBonuses.accuracy} `}
-                    {item.combatBonuses.strength > 0 && `Strength +${item.combatBonuses.strength} `}
-                    {item.combatBonuses.defence > 0 && `Defence +${item.combatBonuses.defence}`}
-                  </small>}
-                </div><b>×{stack.quantity}</b>
-                {(item.equipmentSlot || item.healAmount > 0) && <button onClick={() => item.healAmount ? store.consumeFood(item.id) : store.equip(item.id)}>
-                  {item.healAmount ? "Eat" : equipped ? "Equipped" : "Equip"}</button>}
-              </article>;
-            })}
-            {!save.inventory.length && <p className="empty">Your pack is empty. Tools can be found around the village.</p>}
-          </div>
-        </>}
+        {store.panel === "inventory" && (() => {
+          const slots = Array.from({ length: save.inventorySlots }, (_, i) => save.inventory[i] || null);
+          return (
+            <>
+              <p className="muted">{save.inventory.length} / {save.inventorySlots} slots</p>
+              <div className="inventory-grid">
+                {slots.map((stack, index) => {
+                  if (!stack) {
+                    return <div key={`empty-${index}`} className="inventory-slot empty" />;
+                  }
+                  const item = CONTENT.items[stack.itemId]!;
+                  const equipped = Object.values(save.equipment).includes(item.id);
+                  return (
+                    <div
+                      key={item.id}
+                      className={`inventory-slot ${equipped ? "equipped" : ""}`}
+                      onPointerDown={(e) => {
+                        const startX = e.clientX;
+                        const startY = e.clientY;
+                        const timer = setTimeout(() => {
+                          const options = [
+                            {
+                              label: item.healAmount > 0 ? "Eat" : equipped ? "Unequip" : "Equip",
+                              action: () => item.healAmount ? store.consumeFood(item.id) : store.equip(item.id)
+                            },
+                            {
+                              label: "Examine",
+                              action: () => {
+                                useGameStore.setState((state) => ({
+                                  logs: [...state.logs, { id: Date.now(), text: `${item.name}: ${item.description}`, tone: "good" as const }].slice(-8)
+                                }));
+                              }
+                            },
+                            {
+                              label: "Cancel",
+                              action: () => {}
+                            }
+                          ];
+                          store.setContextMenu({
+                            x: e.clientX,
+                            y: e.clientY,
+                            options
+                          });
+                        }, 450);
+
+                        const handleMove = (me: PointerEvent) => {
+                          if (Math.hypot(me.clientX - startX, me.clientY - startY) > 10) {
+                            clearTimeout(timer);
+                          }
+                        };
+                        const handleUp = () => {
+                          clearTimeout(timer);
+                          window.removeEventListener("pointermove", handleMove);
+                          window.removeEventListener("pointerup", handleUp);
+                        };
+                        window.addEventListener("pointermove", handleMove);
+                        window.addEventListener("pointerup", handleUp);
+                      }}
+                      onClick={() => {
+                        if (item.healAmount > 0) store.consumeFood(item.id);
+                        else store.equip(item.id);
+                      }}
+                    >
+                      <div className={`item-glyph ${item.category}`}>
+                        <ItemIcon iconId={item.iconId} />
+                      </div>
+                      {stack.quantity > 1 && <span className="item-qty">{stack.quantity}</span>}
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          );
+        })()}
         {store.panel === "skills" && <div className="rows">
           <p className="muted">{attunedSkills} of {ATTUNEMENT_SKILL_COUNT} skills attuned to level {ATTUNEMENT_REQUIRED_LEVEL}.</p>
           {Object.entries(save.skills).map(([id, progress]) => {
@@ -272,5 +345,10 @@ export function Hud() {
         </div>}
       </div>
     </aside>}
+    <div className="xp-drops-container">
+      {xpDrops.map((drop) => (
+        <div key={drop.id} className="xp-drop">{drop.text}</div>
+      ))}
+    </div>
   </div>;
 }

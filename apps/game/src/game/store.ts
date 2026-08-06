@@ -80,6 +80,17 @@ function persistWorldAssistance(next: WorldAssistanceSettings): void {
   }
 }
 
+export interface ContextMenuOption {
+  label: string;
+  action: () => void;
+}
+
+export interface ContextMenuData {
+  x: number;
+  y: number;
+  options: ContextMenuOption[];
+}
+
 interface GameStore {
   readonly status: "booting" | "ready" | "error";
   readonly save: GameSave | null;
@@ -94,6 +105,8 @@ interface GameStore {
   readonly debug: DebugFlags;
   readonly worldAssistance: WorldAssistanceSettings;
   readonly highlightPulseUntil: number;
+  readonly contextMenu: ContextMenuData | null;
+  setContextMenu: (menu: ContextMenuData | null) => void;
   setWorldAssistance: <K extends keyof WorldAssistanceSettings>(key: K, value: WorldAssistanceSettings[K]) => void;
   highlightObjective: () => void;
   initialize: () => Promise<void>;
@@ -201,6 +214,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   debug: { grid: false, blocked: false, interactions: false },
   worldAssistance: loadWorldAssistance(),
   highlightPulseUntil: 0,
+  contextMenu: null,
+  setContextMenu: (menu) => set({ contextMenu: menu }),
 
   initialize: async () => {
     if (initializing) return initializing;
