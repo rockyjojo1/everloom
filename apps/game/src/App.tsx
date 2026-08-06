@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import type { PlayerAppearanceId } from "@everloom/core";
 import { CharacterCreatorPreview } from "./components/CharacterCreatorPreview";
+import { ContextMenu } from "./components/ContextMenu";
 import { DebugPanel } from "./components/DebugPanel";
 import { EscapeIntro } from "./components/EscapeIntro";
 import { Hud } from "./components/Hud";
@@ -107,6 +108,7 @@ export default function App() {
       </Suspense>
     </WorldBoundary>}
     <Hud />
+    <ContextMenu />
     {!intro && <EscapeIntro />}
     <OfflineReport />
     <DebugPanel />

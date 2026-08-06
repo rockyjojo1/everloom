@@ -37,6 +37,25 @@ export interface LogEntry {
   readonly tone: "normal" | "good" | "rare" | "warning";
 }
 
+export interface XpDropEntry {
+  readonly id: number;
+  readonly skill: string;
+  readonly amount: number;
+}
+
+export interface ContextMenuOption {
+  readonly label: string;
+  readonly onSelect: () => void;
+  readonly isCancel?: boolean;
+}
+
+export interface ContextMenuState {
+  readonly x: number;
+  readonly y: number;
+  readonly title: string;
+  readonly options: readonly ContextMenuOption[];
+}
+
 interface DebugFlags {
   readonly grid: boolean;
   readonly blocked: boolean;
@@ -91,6 +110,12 @@ interface GameStore {
   readonly panelOpen: boolean;
   readonly selectedTargetId: string | null;
   readonly logs: readonly LogEntry[];
+  readonly xpDrops: readonly XpDropEntry[];
+  dismissXpDrop: (id: number) => void;
+  readonly contextMenu: ContextMenuState | null;
+  openContextMenu: (menu: ContextMenuState) => void;
+  closeContextMenu: () => void;
+  pushLog: (text: string, tone?: LogEntry["tone"]) => void;
   readonly debug: DebugFlags;
   readonly worldAssistance: WorldAssistanceSettings;
   readonly highlightPulseUntil: number;
@@ -175,6 +200,17 @@ function appendLogs(existing: readonly LogEntry[], events: readonly GameEvent[])
   return [...existing, ...entries].slice(-8);
 }
 
+let xpDropSequence = 1;
+// XP drops are tied only to real xp_gained events already produced by the
+// deterministic simulation — never fabricated, and never shown for actions
+// that did not actually grant XP (e.g. a cancelled or unavailable action).
+function appendXpDrops(existing: readonly XpDropEntry[], events: readonly GameEvent[]): readonly XpDropEntry[] {
+  const gains = events.filter((event): event is Extract<GameEvent, { type: "xp_gained" }> => event.type === "xp_gained");
+  if (!gains.length) return existing;
+  const next = gains.map((event) => ({ id: xpDropSequence++, skill: event.skill, amount: event.amount }));
+  return [...existing, ...next].slice(-6);
+}
+
 function withWallClock(save: GameSave, now: number): GameSave {
   return { ...save, lastActiveAt: now };
 }
@@ -198,6 +234,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
   panelOpen: false,
   selectedTargetId: null,
   logs: [],
+  xpDrops: [],
+  dismissXpDrop: (id) => set((state) => ({ xpDrops: state.xpDrops.filter((drop) => drop.id !== id) })),
+  contextMenu: null,
+  openContextMenu: (menu) => set({ contextMenu: menu }),
+  closeContextMenu: () => set({ contextMenu: null }),
+  pushLog: (text, tone = "normal") => set((state) => ({ logs: [...state.logs, { id: logSequence++, text, tone }].slice(-8) })),
   debug: { grid: false, blocked: false, interactions: false },
   worldAssistance: loadWorldAssistance(),
   highlightPulseUntil: 0,
@@ -373,6 +415,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set({
       save: withWallClock(result.state, Date.now()),
       logs: result.events.length > 0 ? appendLogs(get().logs, result.events) : get().logs,
+      xpDrops: appendXpDrops(get().xpDrops, result.events),
     });
     if (important) scheduleSave("game-event", 100, true);
   },

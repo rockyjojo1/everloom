@@ -14,6 +14,7 @@ import { inventoryCount, type PanelId, useGameStore } from "../game/store";
 import { Icon } from "./Icons";
 import { Minimap } from "./Minimap";
 import { ItemIcon } from "./ItemIcon";
+import { XpDrops } from "./XpDrops";
 
 const tabs: { id: PanelId; label: string }[] = [
   { id: "inventory", label: "Pack" }, { id: "skills", label: "Skills" }, { id: "quest", label: "Thread" },
@@ -95,6 +96,7 @@ export function Hud() {
       <span>HP</span><div><i style={{ width: `${save.player.hp / save.player.maxHp * 100}%` }} /></div><b>{save.player.hp}/{save.player.maxHp}</b>
     </section>
     <Minimap />
+    <XpDrops />
     {activity && <section className="activity glass">
       <span>{activity.type === "gathering" ? CONTENT.resources[activity.resourceId]?.name : activity.type === "production" ? CONTENT.recipes[activity.recipeId]?.name : activity.type === "combat" ? CONTENT.enemies[activity.enemyId]?.name : activity.type === "expedition" ? `${activity.activityId} expedition` : "unknown"}
         {activity.type === "combat" && <small>Lv {CONTENT.enemies[activity.enemyId]?.combatLevel} · {activity.enemyHp}/{CONTENT.enemies[activity.enemyId]?.maxHp} HP</small>}

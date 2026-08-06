@@ -842,3 +842,97 @@
      transition even before the component mounts. */
   .creator-preview { animation: none !important; transition: none !important; }
 }
+
+/* Classic-fantasy client: opaque carved surfaces, no glassmorphism blur. */
+.glass {
+  backdrop-filter: none;
+}
+
+.xp-drops {
+  position: absolute;
+  z-index: 5;
+  top: max(52px, calc(env(safe-area-inset-top) + 42px));
+  right: max(10px, env(safe-area-inset-right));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.xp-drop {
+  padding: 3px 8px;
+  border: 1px solid #d5b66b55;
+  border-radius: 6px;
+  background: #171a16e0;
+  color: #ffe19b;
+  font-size: 11px;
+  font-weight: 800;
+  text-shadow: 0 1px 2px #000;
+  animation: xp-drop-rise 1.6s ease-out forwards;
+}
+
+.xp-drop b {
+  margin-left: 4px;
+  color: #d9f4d4;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+@keyframes xp-drop-rise {
+  0% { opacity: 0; transform: translateY(4px); }
+  12% { opacity: 1; transform: translateY(0); }
+  75% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
+
+/* Compact original long-press context menu. Opaque timber surface, no glass
+   blur, clamped inside the viewport by ContextMenu.tsx. */
+.context-menu-scrim {
+  position: fixed;
+  z-index: 29;
+  inset: 0;
+  background: transparent;
+}
+
+.context-menu {
+  position: fixed;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  min-width: 148px;
+  padding: 4px;
+  border: 2px solid rgba(207, 172, 103, .5);
+  border-radius: 8px;
+  background: linear-gradient(145deg, #2c2519f2, #17140ef2);
+  box-shadow: 0 4px 0 rgba(8, 11, 9, .36), 0 14px 34px rgba(3, 8, 6, .4);
+}
+
+.context-menu button {
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #f0e6c8;
+  font-size: 12px;
+  text-align: left;
+}
+
+.context-menu button:hover,
+.context-menu button:focus-visible {
+  background: rgba(228, 189, 103, .17);
+  color: #ffe19b;
+}
+
+.context-menu button.cancel {
+  color: #d3ac96;
+}
+
+.context-menu .context-menu-title {
+  padding: 4px 10px 6px;
+  color: #c6ad76;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
