@@ -396,12 +396,16 @@ requirement.
 79 prior); the full `@everloom/assets` build, verify, test suite exits 0
 with 0 errors, 1 expected warning (pre-existing lpc-legacy-sprites).
 
-**Exact final commit**: SHA `<to-be-determined-in-Step-9>`
+**Exact final commit**: SHA `f38b670f435c059edee91a47876c78c5004adce6`
 
 This correction remains backward compatible: complete-repository behavior
 is unchanged; shallow-repository builds now proceed with warnings instead
 of errors, and all file evidence (paths) remains mandatory and
 Git-tracked.
+
+The supervisor independently verified Vercel deployment success for this exact
+SHA. Gate 3 was accepted on 2026-08-04. This does not prove physical-iPhone
+behaviour.
 
 ## Gate 4 recommendation
 

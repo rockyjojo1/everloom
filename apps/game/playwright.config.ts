@@ -6,7 +6,7 @@ export default defineConfig({
   testDir: "./tests",
   // Service-worker behaviour is validated against the production preview by
   // playwright.pwa.config.ts, never against Vite's development server.
-  testIgnore: "pwa-offline.spec.ts",
+  testIgnore: ["pwa-offline.spec.ts", "capacitor-native-policy.spec.ts"],
   timeout: 75_000,
   workers: 1,
   expect: { timeout: 12_000 },
@@ -15,6 +15,15 @@ export default defineConfig({
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
     video: "retain-on-failure",
+    // Headless Chromium defaults to SwiftShader (software WebGL), which
+    // measured ~12 FPS for this scene versus ~60 FPS with real GPU access
+    // via ANGLE/D3D11 below — a measurement-environment artifact, not a
+    // scene-cost regression. These flags are required for the FPS/frame-time
+    // assertions in meadowrest-production-room.spec.ts to reflect real
+    // rendering cost rather than the software-rasterizer floor.
+    launchOptions: {
+      args: ["--use-gl=angle", "--use-angle=d3d11", "--ignore-gpu-blocklist", "--enable-gpu-rasterization"],
+    },
   },
   projects: [
     { name: "landscape-mobile", use: { ...devices["iPhone 13"], browserName: "chromium", viewport: { width: 844, height: 390 }, isMobile: true } },

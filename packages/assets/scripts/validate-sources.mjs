@@ -123,7 +123,7 @@ function makeDefaultResolvers(repoRoot) {
     },
     commitResolver: (commit) => {
       try {
-        execFileSync("git", ["cat-file", "-e", commit], { cwd: repoRoot, stdio: "ignore", shell: false });
+        execFileSync("git", ["cat-file", "-e", `${commit}^{commit}`], { cwd: repoRoot, stdio: "ignore", shell: false });
         return true;
       } catch {
         return false;

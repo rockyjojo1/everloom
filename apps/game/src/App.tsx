@@ -4,6 +4,7 @@ import { CharacterCreatorPreview } from "./components/CharacterCreatorPreview";
 import { DebugPanel } from "./components/DebugPanel";
 import { EscapeIntro } from "./components/EscapeIntro";
 import { Hud } from "./components/Hud";
+import { ContextMenu } from "./components/ContextMenu";
 import { OfflineReport } from "./components/OfflineReport";
 import { WorldBoundary } from "./components/WorldBoundary";
 import { useGameStore } from "./game/store";
@@ -43,6 +44,11 @@ const VisualProductionWorkbench = import.meta.env.DEV
     })
   : (() => null as never);
 
+const MeadowrestProductionRoom = lazy(async () => {
+  const module = await import("./bakeoff/MeadowrestProductionRoom");
+  return { default: module.MeadowrestProductionRoom };
+});
+
 export default function App() {
   const [characterName, setCharacterName] = useState("Wanderer");
   const [appearanceId, setAppearanceId] = useState<PlayerAppearanceId>("meadow");
@@ -52,8 +58,17 @@ export default function App() {
   const initialize = useGameStore((state) => state.initialize);
   const beginIntro = useGameStore((state) => state.beginIntro);
 
-  useEffect(() => { void initialize(); }, [initialize]);
+  const searchParams = new URLSearchParams(location.search);
+  const bakeoffMode = searchParams.get("bakeoff");
+  const isMeadowrestBakeoff = bakeoffMode === "meadowrest";
+
   useEffect(() => {
+    if (isMeadowrestBakeoff) return;
+    void initialize();
+  }, [initialize, isMeadowrestBakeoff]);
+
+  useEffect(() => {
+    if (isMeadowrestBakeoff) return;
     const persist = () => void useGameStore.getState().saveNow("lifecycle", true);
     const visibility = () => {
       if (document.hidden) persist();
@@ -67,7 +82,7 @@ export default function App() {
       window.removeEventListener("pagehide", persist);
       clearInterval(autosave);
     };
-  }, []);
+  }, [isMeadowrestBakeoff]);
 
   if (new URLSearchParams(location.search).has("asset-browser")) return <Suspense fallback={<main className="loading"><div className="loom-mark" /><span>Opening the asset archive…</span></main>}><AssetBrowser /></Suspense>;
   if (import.meta.env.DEV && new URLSearchParams(location.search).has("qa")) {
@@ -78,6 +93,9 @@ export default function App() {
     if (qaMode === "visual-production" && VisualProductionWorkbench) {
       return <Suspense fallback={<main className="loading"><div className="loom-mark" /><span>Opening production workbench…</span></main>}><VisualProductionWorkbench /></Suspense>;
     }
+  }
+  if (isMeadowrestBakeoff) {
+    return <Suspense fallback={<main className="loading"><div className="loom-mark" /><span>Preparing Meadowrest production room…</span></main>}><div data-everloom-authoritative-app="apps-game" data-everloom-bakeoff="meadowrest"><MeadowrestProductionRoom /></div></Suspense>;
   }
   if (status === "error") return <main className="fatal"><h1>The thread snagged.</h1><p>{error}</p><button onClick={() => location.reload()}>Try again</button></main>;
   if (status !== "ready" || !save) return <main className="loading"><div className="loom-mark" /><span>Weaving Meadowrest…</span></main>;
@@ -90,6 +108,7 @@ export default function App() {
       </Suspense>
     </WorldBoundary>}
     <Hud />
+    <ContextMenu />
     {!intro && <EscapeIntro />}
     <OfflineReport />
     <DebugPanel />
