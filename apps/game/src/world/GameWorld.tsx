@@ -319,6 +319,20 @@ export function GameWorld() {
     let lastGatherActivityKey: string | null = null;
     let lastGatherProgressMs = 0;
     let impactPulseUntil = 0;
+    // Test-only override for PICKUP_PRESENTATION_MS, settable exclusively
+    // through the dev-only __EVERLOOM_TEST__ bridge below (never touched in
+    // normal play). It exists because reliably proving "cancelling before
+    // the pickup event never grants the item late" requires a real click to
+    // land before the deadline; on this project's CI/sandbox environments a
+    // single synthetic input round-trip has been measured well past the
+    // production 480ms window (and separately, Playwright's fake-clock API
+    // was found to destabilise this page's Three.js render loop, so that
+    // was not a viable way to make the race deterministic either). Widening
+    // the real delay for an explicitly-opted-in test run gives a normal-
+    // speed click a comfortable, non-racy margin while going through the
+    // exact same setTimeout + isActive(id) cancellation guard production
+    // play uses — nothing about the callback itself changes.
+    let pickupPresentationMsOverride: number | null = null;
     const criticalAssetJobs: Promise<unknown>[] = [];
     const sceneryAssetJobs: Promise<unknown>[] = [];
 
@@ -593,7 +607,7 @@ export function GameWorld() {
           audio.play("pickup");
           useGameStore.getState().pickup(target.id);
           commands.cancel();
-        }, PICKUP_PRESENTATION_MS);
+        }, pickupPresentationMsOverride ?? PICKUP_PRESENTATION_MS);
       } else if (target.kind === "npc" || target.kind === "landmark") {
         if (!commands.transition(id, { type: "talking", id, targetId: target.id })) return;
         play("Interact", true);
@@ -688,6 +702,12 @@ export function GameWorld() {
     // and touch since it is built entirely on Pointer Events.
     const LONG_PRESS_MS = 460;
     const LONG_PRESS_TOLERANCE_PX = 14;
+    // Test-only override, mirroring pickupPresentationMsOverride above: lets
+    // a test widen the real long-press deadline so a real cancelling
+    // pointermove has a comfortable, non-racy margin, without changing any
+    // callback/cancellation logic. Settable only through the dev-only
+    // __EVERLOOM_TEST__ bridge.
+    let longPressMsOverride: number | null = null;
     let longPressTimer: ReturnType<typeof setTimeout> | null = null;
     let longPressFired = false;
     let pointerDownScreen = { x: 0, y: 0 };
@@ -738,7 +758,7 @@ export function GameWorld() {
         longPressTimer = null;
         longPressFired = true;
         openMenuForHit(hit, pointerDownScreen.x, pointerDownScreen.y);
-      }, LONG_PRESS_MS);
+      }, longPressMsOverride ?? LONG_PRESS_MS);
     };
     const onPointerMove = (event: PointerEvent) => {
       if (longPressTimer === null) return;
@@ -864,6 +884,21 @@ export function GameWorld() {
           return true;
         },
         commandState: () => commands.current,
+        // Narrowly-scoped read of the real long-press timer's own pending
+        // state (see longPressTimer above) — lets a test observe the exact
+        // moment onPointerMove's tolerance check clears it, deterministically,
+        // instead of inferring cancellation only from whether the context
+        // menu DOM node appears within some real-time window. Read-only:
+        // this does not set, clear, or fire the timer itself.
+        longPressPending: () => longPressTimer !== null,
+        // See pickupPresentationMsOverride above.
+        setPickupPresentationMs: (ms: number) => {
+          pickupPresentationMsOverride = ms;
+        },
+        // See longPressMsOverride above.
+        setLongPressMs: (ms: number) => {
+          longPressMsOverride = ms;
+        },
       };
     }
     // Read-only diagnostic bridge for Playwright, compiled only in the

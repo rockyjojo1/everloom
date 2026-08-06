@@ -16,6 +16,12 @@ type TestApi = {
   };
   navigation: () => { route: unknown[] };
   commandState: () => { type: string };
+  visibleTarget: (targetId: string) => boolean;
+  activateTarget: (id: string) => boolean;
+  longPressPending: () => boolean;
+  setPickupPresentationMs: (ms: number) => void;
+  setLongPressMs: (ms: number) => void;
+  targetPosition: (targetId: string) => { x: number; y: number } | null;
 };
 
 async function enterFreshWorld(page: Page) {
@@ -105,39 +111,85 @@ test.describe("Physical ground-item pickup", () => {
   test("cancelling before the pickup event never grants the item late", async ({ page }) => {
     await enterFreshWorld(page);
 
-    const ok = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: { activateTarget: (id: string) => boolean } }).__EVERLOOM_TEST__.activateTarget("ground_worn_hatchet"));
-    expect(ok).toBe(true);
-
-    // Wait for arrival (route empties) — the pickup presentation timer
-    // (~480ms, PICKUP_PRESENTATION_MS in GameWorld.tsx) is now pending —
-    // then immediately race a real cancelling click against it.
+    // Widen the real pickup deadline for this run only, through the
+    // narrowly-scoped, dev-only setPickupPresentationMs seam (see
+    // pickupPresentationMsOverride in GameWorld.tsx). This does NOT change
+    // any callback logic — the real setTimeout + isActive(id) cancellation
+    // guard in actOn() runs exactly as in normal play, just with a longer
+    // delay, so a normal-speed real click can reliably land before the
+    // deadline instead of racing this sandbox's synthetic-input latency.
     //
-    // __EVERLOOM_TEST__.stop() only cancels the STORE's currentActivity; it
-    // does not touch GameWorld's own PlayerCommandController, so a real new
-    // command (a real click, exactly like a player tapping elsewhere) is
-    // what actually calls commands.cancel() and invalidates the pending
-    // pickup's id — see game/playerCommand.ts and the isActive(id) check
-    // inside actOn()'s pickup setTimeout.
-    //
-    // Environment note: like the long-press movement-tolerance test above,
-    // this assertion depends on a real synthetic click reaching the page
-    // faster than a ~480ms in-page timer. On a sandbox where a single
-    // Playwright input round-trip has been observed to take 1.5-2s, this
-    // can lose the race even though the underlying cancellation guarantee
-    // (verified by the playerCommand unit tests and by code review) is
-    // correct — see the long-press test's comment for the same finding.
-    await expect.poll(async () => (await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.navigation())).route.length, { timeout: 40_000 }).toBe(0);
-    const box = await page.locator('[data-testid="game-world"]').boundingBox();
-    if (!box) throw new Error("game-world has no bounding box");
-    await page.mouse.click(box.x + box.width / 2 + 260, box.y + box.height / 2 + 220);
+    // Playwright's page.clock API was tried first and rejected: installing
+    // it destabilised this page's Three.js render loop (the browser tab
+    // was observed to close mid-test — "Target page, context or browser has
+    // been closed" — during clock.runFor()), so it is not a safe way to
+    // control this specific production timer.
+    const testPickupPresentationMs = 6000;
+    await page.evaluate((ms) => (window as unknown as { __EVERLOOM_TEST__: { setPickupPresentationMs: (ms: number) => void } }).__EVERLOOM_TEST__.setPickupPresentationMs(ms), testPickupPresentationMs);
 
-    // Give the (hopefully cancelled) 480ms pickup timer time to have fired
-    // if it were going to fire incorrectly.
-    await page.waitForTimeout(900);
+    const started = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.activateTarget("ground_worn_hatchet"));
+    expect(started, "activateTarget should find a real path to the worn hatchet").toBe(true);
+
+    // Wait for genuine arrival and entry into "picking_up" — real time, not
+    // a race, since we are only waiting for it to happen, not trying to
+    // beat a deadline.
+    await expect.poll(async () => {
+      const state = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.commandState());
+      return state.type;
+    }, { timeout: 40_000 }).toBe("picking_up");
+
+    // Genuine replacement command: a real pointer click elsewhere, exactly
+    // what a player tapping away mid-pickup would do.
+    // __EVERLOOM_TEST__.stop() is deliberately NOT used here — it only
+    // cancels the store's currentActivity and never touches
+    // PlayerCommandController, so it cannot exercise the real cancellation
+    // path this test is meant to prove.
+    //
+    // The click target is computed from targetPosition("npc_mara") (the
+    // real projected screen position of a known, always-present world
+    // object) rather than a fixed pixel offset from the canvas corner: once
+    // the player has walked to the hatchet, the camera has followed them,
+    // so a screen offset calibrated from spawn framing can miss all
+    // raycastable geometry entirely (confirmed by direct instrumentation —
+    // such a click produced no hit, so onPointer's `if (!hit) return`
+    // silently no-oped, leaving the original pickup command uncancelled).
+    // Clicking a real, currently-visible object's real projected position
+    // is what makes this deterministic regardless of where the player is
+    // standing. This still exercises the exact real command path a ground
+    // click would (walkAndActOn begins with the same commands.cancel(),
+    // then a real routed command) — it targets an NPC only because that is
+    // a reliable, camera-accurate hit, not because the target matters.
+    // Re-querying targetPosition() and retrying a few times (well within the
+    // widened 6s window) absorbs any single click landing a frame before
+    // the camera has fully settled onto its follow position — this sandbox
+    // has shown individual synthetic clicks can occasionally miss even a
+    // real, currently-rendered object's exact projected point.
+    let cancelled = false;
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const maraPosition = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.targetPosition("npc_mara"));
+      if (!maraPosition) throw new Error("npc_mara should have a projected screen position");
+      await page.mouse.click(maraPosition.x, maraPosition.y);
+      const state = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.commandState());
+      if (state.type !== "picking_up") {
+        cancelled = true;
+        break;
+      }
+      await page.waitForTimeout(300);
+    }
+    expect(cancelled, "the replacement click should have superseded the pickup command").toBe(true);
+
+    // Wait past the (widened, for this test only) pickup deadline.
+    // GameWorld.tsx's actOn() does not clearTimeout() the superseded pickup
+    // timer — it is deliberately left to fire and rely on isActive(id) to
+    // no-op, so this genuinely exercises that guard rather than
+    // sidestepping it.
+    await page.waitForTimeout(testPickupPresentationMs + 500);
+
     const snapshot = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.snapshot());
-    const state = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.commandState());
-    expect(state.type, "the cancelling click should have replaced the pickup command").not.toBe("picking_up");
-    expect(snapshot.inventory.some((stack) => stack.itemId === "worn_hatchet")).toBe(false);
+    expect(snapshot.inventory.some((stack) => stack.itemId === "worn_hatchet"), "the item must not be granted by the cancelled command").toBe(false);
+
+    const stillPresent = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.visibleTarget("ground_worn_hatchet"));
+    expect(stillPresent, "the ground item should still be physically present in the world").toBe(true);
   });
 });
 
@@ -167,16 +219,20 @@ test.describe("Long-press context menu", () => {
     const box = await page.locator('[data-testid="game-world"]').boundingBox();
     if (!box) throw new Error("game-world has no bounding box");
 
-    // Ordinary quick tap: no menu.
+    // Ordinary quick tap: no menu. Not a timing race — a plain click's
+    // pointerup fires (and clears the long-press timer) essentially
+    // instantly, long before LONG_PRESS_MS could ever elapse.
     await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2 + 60);
     await page.waitForTimeout(150);
     await expect(page.locator(".context-menu")).toHaveCount(0);
 
-    // Long hold near the right edge: menu opens and stays within the
-    // viewport (its bounding box must not exceed window width).
+    // Long hold near the right edge: the timer is meant to fire, so this is
+    // not a race either — a generous real wait comfortably past
+    // LONG_PRESS_MS (460ms) is deterministic here. The menu opens and stays
+    // within the viewport (its bounding box must not exceed window width).
     await page.mouse.move(box.x + box.width - 20, box.y + box.height / 2);
     await page.mouse.down();
-    await page.waitForTimeout(650);
+    await page.waitForTimeout(900);
     await expect(page.locator(".context-menu")).toBeVisible();
     const menuBox = await page.locator(".context-menu").boundingBox();
     const viewport = page.viewportSize();
@@ -189,32 +245,61 @@ test.describe("Long-press context menu", () => {
 
   test("pointer movement past tolerance cancels a pending long press", async ({ page }) => {
     await enterFreshWorld(page);
-    const box = await page.locator('[data-testid="game-world"]').boundingBox();
-    if (!box) throw new Error("game-world has no bounding box");
 
-    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-    await page.mouse.down();
-    // Move past the movement-tolerance threshold immediately after
-    // pointerdown, to race the long-press timer (LONG_PRESS_MS, ~460ms in
-    // GameWorld.tsx) as tightly as possible.
-    //
-    // Known environment limitation: in this specific sandbox, a single
-    // page.mouse.move() round-trip has been observed to take 1.5-2s end to
-    // end (confirmed by instrumenting real pointerdown/pointermove/pointerup
-    // DOM events — the long-press menu had already opened, and later
-    // synthetic pointermove events were landing on the menu's own DOM nodes
-    // instead of the canvas, well before this test's cancelling move ever
-    // reached the page). That is slower than the 460ms window this feature
-    // is built around, so this assertion can fail here even though the
-    // underlying cancellation logic (onPointerMove clearing longPressTimer
-    // once movement exceeds LONG_PRESS_TOLERANCE_PX — see GameWorld.tsx) is
-    // straightforward and was verified by direct instrumentation to be
-    // correct: it simply never receives the event in time on this runner.
-    // This is a synthetic-input-latency artifact of this sandbox, not a
-    // product defect — kept as a real regression test for environments with
-    // normal input latency.
-    await page.mouse.move(box.x + box.width / 2 + 80, box.y + box.height / 2 + 80);
-    await page.waitForTimeout(700);
+    // Widen the real long-press deadline for this run only, through the
+    // narrowly-scoped, dev-only setLongPressMs seam (see longPressMsOverride
+    // in GameWorld.tsx) — mirroring the pickup-cancellation test's approach
+    // and for the same reason: a single page.evaluate()/mouse round-trip in
+    // this sandbox has been observed to occasionally exceed the real 460ms
+    // deadline even with no artificial delay in the test itself, which
+    // previously produced a spurious "pending never became true" failure
+    // (the timer had already self-fired and nulled itself before the first
+    // poll ever ran). This does not change the real onPointerMove
+    // cancellation logic — only how long the window is before this specific
+    // test's own click needs to land.
+    const testLongPressMs = 6000;
+    await page.evaluate((ms) => (window as unknown as { __EVERLOOM_TEST__: { setLongPressMs: (ms: number) => void } }).__EVERLOOM_TEST__.setLongPressMs(ms), testLongPressMs);
+
+    const longPressPending = () => page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.longPressPending());
+
+    // Click on a real, currently-rendered object's real projected position
+    // (targetPosition("npc_mara")) rather than a fixed pixel offset from
+    // the canvas corner — the same fix applied to the pickup-cancellation
+    // test above, for the same reason: a raw guessed offset has been
+    // observed to occasionally miss all raycastable geometry in this
+    // sandbox even at world spawn, silently leaving onPointerDown's
+    // `if (!hit) return` to no-op and the long-press timer never arming.
+    let armed = false;
+    let downPosition: { x: number; y: number } | null = null;
+    for (let attempt = 0; attempt < 5 && !armed; attempt += 1) {
+      const maraPosition = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.targetPosition("npc_mara"));
+      if (!maraPosition) throw new Error("npc_mara should have a projected screen position");
+      downPosition = maraPosition;
+      await page.mouse.move(maraPosition.x, maraPosition.y);
+      await page.mouse.down();
+      armed = await longPressPending();
+      if (!armed) {
+        await page.mouse.up();
+        await page.waitForTimeout(150);
+      }
+    }
+    expect(armed, "pointerdown on a real target should arm the long-press timer").toBe(true);
+    if (!downPosition) throw new Error("expected a down position to have been recorded");
+
+    // Real pointermove past LONG_PRESS_TOLERANCE_PX, handled by the real
+    // onPointerMove listener — reading the timer's own pending state
+    // directly (a narrowly-scoped, read-only seam; see longPressPending in
+    // GameWorld.tsx) observes the exact real cancellation the production
+    // onPointerMove/clearLongPressTimer logic performs, deterministically,
+    // instead of inferring it only from whether the menu DOM node shows up
+    // within some window.
+    await page.mouse.move(downPosition.x - 80, downPosition.y + 80);
+    await expect.poll(longPressPending, { timeout: 5_000 }).toBe(false);
+
+    // With the timer provably cleared, waiting past the (widened, for this
+    // test only) deadline and confirming no menu ever appears is no longer
+    // a race against anything.
+    await page.waitForTimeout(testLongPressMs + 500);
     await expect(page.locator(".context-menu")).toHaveCount(0);
     await page.mouse.up();
   });
