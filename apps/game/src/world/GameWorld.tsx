@@ -19,6 +19,15 @@ import { buildEnvironment, terrainHeight, updateEnvironment } from "./environmen
 import { getEquipmentTransform } from "./equipmentPresentation";
 
 const zone = CONTENT.zones.meadowrest!;
+// Elevated three-quarter follow offset, tuned by screenshot at 852x393 and
+// 1440x900 rather than guessed from code — compact enough to keep nearby
+// gathering targets readable without a wide, distant strategy-game view.
+const CAMERA_OFFSET = new THREE.Vector3(13, 15.5, 16.5);
+const CAMERA_FOLLOW_SMOOTHING = 0.22;
+// How long the pickup "reach" reads before the item is actually removed
+// from the world and added to the inventory (kept in the OSRS-feel spec's
+// 350-650ms target range).
+const PICKUP_PRESENTATION_MS = 480;
 // Multiplied against the shared adventurer model's own material colours, so
 // these need to be noticeably saturated to read as distinct outfits rather
 // than washing out to near-white. Chosen to stay ~120 degrees apart in hue
@@ -99,7 +108,8 @@ export function GameWorld() {
     scene.background = new THREE.Color(0x91b9b7);
     scene.fog = new THREE.Fog(0x91b9b7, 45, 94);
     const camera = new THREE.PerspectiveCamera(43, 1, 0.1, 160);
-    camera.position.set(16, 19, 20);
+    const spawn = useGameStore.getState().save?.position ?? zone.spawn;
+    camera.position.copy(world(spawn)).add(CAMERA_OFFSET);
     let renderer: THREE.WebGLRenderer;
     try {
       renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
@@ -220,63 +230,34 @@ export function GameWorld() {
     targetHalo.visible = false;
     scene.add(targetHalo);
 
-    // The objective beacon is a persistent, always-visible marker over
-    // whatever the player's CURRENT quest step's physical target is — unlike
-    // targetHalo above (which only appears once the player has already
-    // clicked something), this needs no prior interaction. It exists so a
-    // new player can never lose track of a required tool or destination
-    // (e.g. the starter pickaxe) purely because it blends into scenery.
-    // Additive blending + a real point light (the same technique the
-    // smelter's ember glow already uses) so this reads clearly even against
-    // the bright daylight meadow/quarry palette, not just in shadow.
+    // The objective marker is a restrained, always-visible ring over the
+    // player's CURRENT quest step's physical target — unlike targetHalo
+    // above (which only appears once the player has already clicked
+    // something), this needs no prior interaction. Deliberately kept small
+    // and ground-level: no tutorial beam, no additive glow tower. It exists
+    // purely so a required tool or destination doesn't blend into scenery,
+    // not to dominate the frame.
     const objectiveBeaconGroup = new THREE.Group();
-    const objectiveBeaconBeam = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.045, 0.2, 2.4, 12, 1, true),
-      new THREE.MeshBasicMaterial({
-        color: 0xfff0a8,
-        transparent: true,
-        opacity: 0.85,
-        side: THREE.DoubleSide,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-      }),
-    );
-    objectiveBeaconBeam.position.y = 1.2;
     const objectiveBeaconRing = new THREE.Mesh(
-      new THREE.RingGeometry(0.36, 0.5, 28),
+      new THREE.RingGeometry(0.34, 0.44, 28),
       new THREE.MeshBasicMaterial({
-        color: 0xfff6cf,
+        color: 0xf4dc8c,
         transparent: true,
-        opacity: 1,
+        opacity: 0.75,
         side: THREE.DoubleSide,
         depthWrite: false,
-        blending: THREE.AdditiveBlending,
       }),
     );
     objectiveBeaconRing.rotation.x = -Math.PI / 2;
     objectiveBeaconRing.position.y = 0.06;
-    const objectiveBeaconLight = new THREE.PointLight(0xffd76a, 2.4, 5, 2);
-    objectiveBeaconLight.position.y = 1.1;
-    // Floating diamond marker well above head height: the ground ring/beam
-    // can end up fully behind the player's own model once they've walked
-    // right up to a ground-item objective (interactionRadius 0 means the
-    // route ends exactly on that tile) — this stays visible above the
-    // character regardless of standing distance, matching the common
-    // above-target marker convention from other RPGs/MMOs.
-    // Sized to read clearly at this game's fairly distant isometric follow
-    // camera (a small marker disappears among trees/rocks at that zoom) —
-    // tuned by actually viewing captured screenshots, not guessed.
-    const objectiveBeaconMarker = new THREE.Mesh(
-      new THREE.OctahedronGeometry(0.4, 0),
-      new THREE.MeshBasicMaterial({ color: 0xfff6cf, transparent: true, opacity: 0.98, blending: THREE.AdditiveBlending, depthWrite: false }),
-    );
-    objectiveBeaconMarker.position.y = 2.6;
-    objectiveBeaconGroup.add(objectiveBeaconBeam, objectiveBeaconRing, objectiveBeaconLight, objectiveBeaconMarker);
+    const objectiveBeaconLight = new THREE.PointLight(0xffd76a, 0.6, 3, 2);
+    objectiveBeaconLight.position.y = 0.6;
+    objectiveBeaconGroup.add(objectiveBeaconRing, objectiveBeaconLight);
     objectiveBeaconGroup.visible = false;
     scene.add(objectiveBeaconGroup);
     const objectiveRouteMaterial = new THREE.PointsMaterial({
       color: 0xffdf79,
-      size: 0.28,
+      size: 0.12,
       transparent: true,
       opacity: 0.9,
       depthWrite: false,
@@ -308,6 +289,13 @@ export function GameWorld() {
     let oneShotUntil = 0;
     let route: GridPosition[] = [];
     let afterArrival: (() => void) | null = null;
+    let pendingPickupTimeout: ReturnType<typeof setTimeout> | null = null;
+    const cancelPendingPickup = () => {
+      if (pendingPickupTimeout !== null) {
+        clearTimeout(pendingPickupTimeout);
+        pendingPickupTimeout = null;
+      }
+    };
     let disposed = false;
     let playerModel: THREE.Object3D | null = null;
     let handSlot: THREE.Object3D | null = null;
@@ -577,34 +565,162 @@ export function GameWorld() {
       playerRoot.rotation.y = Math.atan2(direction.x, direction.z);
       store.setSelectedTarget(target.id);
       if (target.kind === "ground_item") {
+        // Physical pickup: the item stays visible and in the world through
+        // the reach/bend animation, and only disappears (together with the
+        // inventory update) at the pickup event itself — never at the
+        // initial tap. cancelPendingPickup() (called on every new pointer
+        // command and on unmount) guarantees a cancelled pickup never
+        // grants the item late.
         play("PickUp", true);
-        store.pickup(target.id);
+        cancelPendingPickup();
+        pendingPickupTimeout = setTimeout(() => {
+          pendingPickupTimeout = null;
+          useGameStore.getState().pickup(target.id);
+        }, PICKUP_PRESENTATION_MS);
       } else if (target.kind === "npc" || target.kind === "landmark") {
         play("Interact", true);
         store.interact(target.id);
       }
       else store.startTargetActivity(target.id);
     };
-    const onPointer = (event: PointerEvent) => {
-      const rect = renderer.domElement.getBoundingClientRect();
-      pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
-      raycaster.setFromCamera(pointer, camera);
-      const hit = raycaster.intersectObjects(scene.children, true).find((entry) => entry.object.userData.targetId || entry.object.userData.ground);
-      if (!hit) return;
-      const targetId = hit.object.userData.targetId as string | undefined;
+    // Default action for a ground tap: cancel whatever the player was doing
+    // and route to the tapped cell. Shared by the ordinary tap handler and
+    // the long-press "Walk here" context menu option.
+    const walkToGround = (point: THREE.Vector3) => {
       const save = useGameStore.getState().save;
       if (!save) return;
       useGameStore.getState().cancelCurrentActivity();
+      cancelPendingPickup();
+      const destination = grid(point);
+      setRoute(findPath(zone, save.position, [destination], blockedSet(zone)), null);
+      useGameStore.getState().setSelectedTarget(null);
+    };
+    // Default action for a target tap: route to a legal interaction cell and
+    // run actOn on arrival. Shared by the ordinary tap handler and the
+    // long-press default-verb context menu option.
+    const walkAndActOn = (target: ZoneInteractable) => {
+      const save = useGameStore.getState().save;
+      if (!save || !targetAvailable(target, save)) return;
+      useGameStore.getState().cancelCurrentActivity();
+      cancelPendingPickup();
+      setRoute(pathToTarget(zone, save.position, target), () => actOn(target));
+    };
+    // "Walk here" on a target from the context menu: route only, never acts.
+    const walkToTargetOnly = (target: ZoneInteractable) => {
+      const save = useGameStore.getState().save;
+      if (!save) return;
+      useGameStore.getState().cancelCurrentActivity();
+      cancelPendingPickup();
+      setRoute(pathToTarget(zone, save.position, target), null);
+    };
+    const defaultVerbFor = (target: ZoneInteractable): string => {
+      if (target.kind === "ground_item") return `Take ${target.displayName}`;
+      if (target.kind === "npc") return `Talk-to ${target.displayName}`;
+      if (target.kind === "enemy") return `Attack ${target.displayName}`;
+      if (target.kind === "facility") return `Use ${target.displayName}`;
+      if (target.kind === "resource") {
+        const skill = target.resourceId ? CONTENT.resources[target.resourceId]?.skill : undefined;
+        const verb = skill === "fishing" ? "Fish" : skill === "mining" ? "Mine" : "Chop down";
+        return `${verb} ${target.displayName}`;
+      }
+      return `Interact with ${target.displayName}`;
+    };
+    type RaycastHit = ReturnType<typeof raycaster.intersectObjects>[number];
+    const raycastAt = (clientX: number, clientY: number): RaycastHit | undefined => {
+      const rect = renderer.domElement.getBoundingClientRect();
+      pointer.set(((clientX - rect.left) / rect.width) * 2 - 1, -((clientY - rect.top) / rect.height) * 2 + 1);
+      raycaster.setFromCamera(pointer, camera);
+      return raycaster.intersectObjects(scene.children, true).find((entry) => entry.object.userData.targetId || entry.object.userData.ground);
+    };
+    const onPointer = (event: PointerEvent) => {
+      const hit = raycastAt(event.clientX, event.clientY);
+      if (!hit) return;
+      const targetId = hit.object.userData.targetId as string | undefined;
       if (targetId) {
         const target = zone.interactables.find((entry) => entry.id === targetId);
-        if (target && targetAvailable(target, save)) setRoute(pathToTarget(zone, save.position, target), () => actOn(target));
+        if (target) walkAndActOn(target);
       } else {
-        const destination = grid(hit.point);
-        setRoute(findPath(zone, save.position, [destination], blockedSet(zone)), null);
-        useGameStore.getState().setSelectedTarget(null);
+        walkToGround(hit.point);
       }
     };
-    renderer.domElement.addEventListener("pointerup", onPointer);
+
+    // Long-press context menu: ~460ms hold with movement tolerance so an
+    // ordinary tap is never mistaken for a long press. Works for both mouse
+    // and touch since it is built entirely on Pointer Events.
+    const LONG_PRESS_MS = 460;
+    const LONG_PRESS_TOLERANCE_PX = 14;
+    let longPressTimer: ReturnType<typeof setTimeout> | null = null;
+    let longPressFired = false;
+    let pointerDownScreen = { x: 0, y: 0 };
+    const clearLongPressTimer = () => {
+      if (longPressTimer !== null) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+    };
+    const openMenuForHit = (hit: RaycastHit, clientX: number, clientY: number) => {
+      const store = useGameStore.getState();
+      const targetId = hit.object.userData.targetId as string | undefined;
+      if (!targetId) {
+        store.openContextMenu({
+          x: clientX, y: clientY, title: "Ground",
+          options: [
+            { label: "Walk here", onSelect: () => walkToGround(hit.point) },
+            { label: "Cancel", isCancel: true, onSelect: () => {} },
+          ],
+        });
+        return;
+      }
+      const target = zone.interactables.find((entry) => entry.id === targetId);
+      const save = store.save;
+      if (!target || !save || !targetVisible(target, save)) return;
+      store.openContextMenu({
+        x: clientX, y: clientY, title: target.displayName,
+        options: [
+          { label: defaultVerbFor(target), onSelect: () => walkAndActOn(target) },
+          { label: "Walk here", onSelect: () => walkToTargetOnly(target) },
+          { label: `Examine ${target.displayName}`, onSelect: () => store.pushLog(`You examine the ${target.displayName.toLowerCase()}.`) },
+          { label: "Cancel", isCancel: true, onSelect: () => {} },
+        ],
+      });
+    };
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+      longPressFired = false;
+      pointerDownScreen = { x: event.clientX, y: event.clientY };
+      const hit = raycastAt(event.clientX, event.clientY);
+      clearLongPressTimer();
+      if (!hit) return;
+      longPressTimer = setTimeout(() => {
+        longPressTimer = null;
+        longPressFired = true;
+        openMenuForHit(hit, pointerDownScreen.x, pointerDownScreen.y);
+      }, LONG_PRESS_MS);
+    };
+    const onPointerMove = (event: PointerEvent) => {
+      if (longPressTimer === null) return;
+      const dx = event.clientX - pointerDownScreen.x;
+      const dy = event.clientY - pointerDownScreen.y;
+      if (Math.hypot(dx, dy) > LONG_PRESS_TOLERANCE_PX) clearLongPressTimer();
+    };
+    const onPointerUp = (event: PointerEvent) => {
+      clearLongPressTimer();
+      if (longPressFired) {
+        longPressFired = false;
+        return;
+      }
+      onPointer(event);
+    };
+    const onPointerCancel = () => {
+      clearLongPressTimer();
+      longPressFired = false;
+    };
+    renderer.domElement.addEventListener("pointerdown", onPointerDown);
+    renderer.domElement.addEventListener("pointermove", onPointerMove);
+    renderer.domElement.addEventListener("pointerup", onPointerUp);
+    renderer.domElement.addEventListener("pointercancel", onPointerCancel);
+    const onContextMenuSuppress = (event: Event) => event.preventDefault();
+    renderer.domElement.addEventListener("contextmenu", onContextMenuSuppress);
     const renderObjectiveRoute = (target: ZoneInteractable, save: NonNullable<ReturnType<typeof useGameStore.getState>["save"]>) => {
       const routePoints = pathToTarget(zone, save.position, target);
       const positions = routePoints.map((position) => {
@@ -864,8 +980,12 @@ export function GameWorld() {
           const object = targets.get(target.id);
           if (object) object.visible = targetVisible(target, save);
         }
+        // Near-fixed elevated three-quarter camera: a small smoothing factor
+        // takes out per-frame jitter without producing the cinematic
+        // trailing/catch-up feel of a slow follow. The player should never
+        // see the camera visibly swing or lag behind a direction change.
         const focus = playerRoot.position.clone();
-        camera.position.lerp(focus.clone().add(new THREE.Vector3(17, 21, 22)), 0.035);
+        camera.position.lerp(focus.clone().add(CAMERA_OFFSET), CAMERA_FOLLOW_SMOOTHING);
         camera.lookAt(focus);
       }
       for (const mixer of mixers) mixer.update(animationDt);
@@ -904,13 +1024,9 @@ export function GameWorld() {
       const emphasized = Date.now() < useGameStore.getState().highlightPulseUntil;
       if ((worldAssistance.objectiveHighlighting || emphasized) && objectiveTarget && save && targetVisible(objectiveTarget, save)) {
         objectiveBeaconGroup.position.copy(world(objectiveTarget));
-        objectiveBeaconGroup.position.y += Math.sin(now / 420) * 0.12;
-        const emphasisScale = emphasized ? 1.9 : 1;
-        objectiveBeaconRing.scale.setScalar((1 + Math.sin(now / 280) * 0.12) * emphasisScale);
-        objectiveBeaconLight.intensity = emphasized ? 2.4 + Math.sin(now / 90) * 1.1 : 2.4;
-        objectiveBeaconMarker.scale.setScalar(emphasized ? 1.4 : 1);
-        objectiveBeaconMarker.rotation.y += animationDt * (emphasized ? 4.2 : 1.6);
-        objectiveBeaconMarker.rotation.x += animationDt * 0.9;
+        const emphasisScale = emphasized ? 1.35 : 1;
+        objectiveBeaconRing.scale.setScalar((1 + Math.sin(now / 280) * 0.06) * emphasisScale);
+        objectiveBeaconLight.intensity = emphasized ? 1.1 : 0.6;
         objectiveBeaconGroup.visible = true;
         objectiveBeaconGroup.userData.emphasized = emphasized;
       } else {
@@ -927,7 +1043,7 @@ export function GameWorld() {
         objectiveRouteTrail.visible = false;
         objectiveRouteTargetId = null;
       }
-      objectiveRouteMaterial.opacity = 0.72 + Math.sin(now / 230) * 0.2;
+      objectiveRouteMaterial.opacity = 0.45;
       const activity = save?.currentActivity;
       const activityTarget = activity && activity.type !== "expedition"
         ? zone.interactables.find((target) => target.id === activity.targetId)
@@ -1003,8 +1119,15 @@ export function GameWorld() {
 
     return () => {
       disposed = true;
+      cancelPendingPickup();
       observer.disconnect();
-      renderer.domElement.removeEventListener("pointerup", onPointer);
+      clearLongPressTimer();
+      useGameStore.getState().closeContextMenu();
+      renderer.domElement.removeEventListener("pointerdown", onPointerDown);
+      renderer.domElement.removeEventListener("pointermove", onPointerMove);
+      renderer.domElement.removeEventListener("pointerup", onPointerUp);
+      renderer.domElement.removeEventListener("pointercancel", onPointerCancel);
+      renderer.domElement.removeEventListener("contextmenu", onContextMenuSuppress);
       window.removeEventListener(OBJECTIVE_ROUTE_EVENT, showObjectiveRoute);
       renderer.domElement.removeEventListener("webglcontextlost", onContextLost);
       renderer.domElement.removeEventListener("webglcontextrestored", onContextRestored);
