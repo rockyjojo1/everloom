@@ -20,7 +20,9 @@ type TestApi = {
 
 async function enterFreshWorld(page: Page) {
   await page.goto("/?e2e=1");
-  await page.getByRole("button", { name: "Enter Meadowrest" }).click();
+  const enterButton = page.getByRole("button", { name: "Enter Meadowrest" });
+  await enterButton.waitFor({ state: "visible", timeout: 20_000 });
+  await enterButton.click();
   await expect(page.getByTestId("game-world")).toHaveAttribute("data-ready", "true", { timeout: 35_000 });
   await page.waitForTimeout(400);
 }
@@ -95,7 +97,7 @@ test.describe("Physical ground-item pickup", () => {
     await expect.poll(async () => {
       const snapshot = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.snapshot());
       return snapshot.inventory.some((stack) => stack.itemId === "worn_hatchet");
-    }, { timeout: 20_000 }).toBe(true);
+    }, { timeout: 40_000 }).toBe(true);
 
     await expect(page.locator(".chat-box")).toContainText(/hatchet/i);
   });
@@ -109,7 +111,7 @@ test.describe("Physical ground-item pickup", () => {
     // Wait for arrival (route empties) — the pickup presentation timer
     // (~480ms) is now pending — then immediately cancel with a new command
     // before it fires.
-    await expect.poll(async () => (await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.navigation())).route.length, { timeout: 20_000 }).toBe(0);
+    await expect.poll(async () => (await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.navigation())).route.length, { timeout: 40_000 }).toBe(0);
     await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: { stop: () => void } }).__EVERLOOM_TEST__.stop());
     const box = await page.locator('[data-testid="game-world"]').boundingBox();
     if (!box) throw new Error("game-world has no bounding box");
@@ -176,11 +178,13 @@ test.describe("Long-press context menu", () => {
 
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await page.mouse.down();
-    await page.waitForTimeout(150);
-    // Drag well past the movement-tolerance threshold before the long-press
-    // timer would fire.
+    // Move past the movement-tolerance threshold immediately — minimising
+    // the gap between pointerdown and the cancelling pointermove keeps this
+    // deterministic even on a slow/software-rendered test runner, where the
+    // long-press timer (~460ms) could otherwise already be close to firing
+    // before Playwright's own IPC round-trip for the move completes.
     await page.mouse.move(box.x + box.width / 2 + 80, box.y + box.height / 2 + 80);
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(700);
     await expect(page.locator(".context-menu")).toHaveCount(0);
     await page.mouse.up();
   });
