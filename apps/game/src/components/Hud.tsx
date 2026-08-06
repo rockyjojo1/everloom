@@ -8,7 +8,7 @@ import {
   masteryRankFromXp,
   playerCombatStats,
 } from "@everloom/core";
-import { Fragment, lazy, Suspense, useRef } from "react";
+import { Fragment, lazy, Suspense, useRef, useState } from "react";
 import { objectiveGuidanceTarget, requestObjectiveRoute } from "../game/objectiveGuidance";
 import { inventoryCount, type PanelId, useGameStore } from "../game/store";
 import { Icon } from "./Icons";
@@ -29,6 +29,7 @@ const CloudAccount = lazy(async () => {
 export function Hud() {
   const store = useGameStore();
   const input = useRef<HTMLInputElement>(null);
+  const [selectedSlotItemId, setSelectedSlotItemId] = useState<string | null>(null);
   const save = store.save;
   if (!save) return null;
   const attunedSkills = countAttunedSkills(save.skills);
@@ -92,10 +93,12 @@ export function Hud() {
         <button className="objective-action" onClick={store.highlightObjective}>Highlight target</button>
       </div>}
     </section>
-    <section className="vitals glass">
-      <span>HP</span><div><i style={{ width: `${save.player.hp / save.player.maxHp * 100}%` }} /></div><b>{save.player.hp}/{save.player.maxHp}</b>
-    </section>
-    <Minimap />
+    <div className="corner-cluster">
+      <section className="vitals glass">
+        <span>HP</span><div><i style={{ width: `${save.player.hp / save.player.maxHp * 100}%` }} /></div><b>{save.player.hp}/{save.player.maxHp}</b>
+      </section>
+      <Minimap />
+    </div>
     <XpDrops />
     {activity && <section className="activity glass">
       <span>{activity.type === "gathering" ? CONTENT.resources[activity.resourceId]?.name : activity.type === "production" ? CONTENT.recipes[activity.recipeId]?.name : activity.type === "combat" ? CONTENT.enemies[activity.enemyId]?.name : activity.type === "expedition" ? `${activity.activityId} expedition` : "unknown"}
@@ -105,8 +108,11 @@ export function Hud() {
       <i className="activity-progress"><b style={{ width: `${activityProgress}%` }} /></i>
       <button onClick={store.cancelCurrentActivity}>Stop</button>
     </section>}
-    <div className="log" aria-live="polite">{store.logs.map((entry) => <span key={entry.id} className={entry.tone}>{entry.text}</span>)}</div>
-    <nav className="dock glass" aria-label="Game panels">
+    <div className="chat-box glass" aria-live="polite">
+      {store.logs.slice(-5).map((entry) => <span key={entry.id} className={entry.tone}>{entry.text}</span>)}
+      {!store.logs.length && <span className="muted">Meadowrest is quiet.</span>}
+    </div>
+    <nav className="tab-rail glass" aria-label="Game panels">
       {tabs.map((tab) => <button key={tab.id} aria-label={tab.label} className={store.panelOpen && store.panel === tab.id ? "active" : ""}
         onClick={() => store.panelOpen && store.panel === tab.id ? store.togglePanel() : store.setPanel(tab.id)}>
         <Icon name={tab.id} /><small>{tab.label}</small>
@@ -118,24 +124,44 @@ export function Hud() {
       <div className="panel-body">
         {store.panel === "inventory" && <>
           <p className="muted">{save.inventory.length} / {save.inventorySlots} slots</p>
-          <div className="inventory">
-            {save.inventory.map((stack) => {
+          <div className="inventory-grid" data-testid="inventory-grid">
+            {Array.from({ length: save.inventorySlots }, (_, index) => {
+              const stack = save.inventory[index];
+              if (!stack) return <button key={`empty-${index}`} className="inventory-slot empty" disabled aria-label="Empty slot" />;
               const item = CONTENT.items[stack.itemId]!;
-              const equipped = Object.values(save.equipment).includes(item.id);
-              return <article key={item.id}><div className={`item-glyph ${item.category}`}><ItemIcon iconId={item.iconId} /></div>
-                <div><strong>{item.name}</strong><small>{item.description}</small>
-                  {item.combatBonuses && <small className="combat-bonuses">
-                    {item.combatBonuses.accuracy > 0 && `Accuracy +${item.combatBonuses.accuracy} `}
-                    {item.combatBonuses.strength > 0 && `Strength +${item.combatBonuses.strength} `}
-                    {item.combatBonuses.defence > 0 && `Defence +${item.combatBonuses.defence}`}
-                  </small>}
-                </div><b>×{stack.quantity}</b>
-                {(item.equipmentSlot || item.healAmount > 0) && <button onClick={() => item.healAmount ? store.consumeFood(item.id) : store.equip(item.id)}>
-                  {item.healAmount ? "Eat" : equipped ? "Equipped" : "Equip"}</button>}
-              </article>;
+              const selected = selectedSlotItemId === item.id;
+              const defaultAction = () => {
+                if (item.healAmount > 0) store.consumeFood(item.id);
+                else if (item.equipmentSlot) store.equip(item.id);
+                else setSelectedSlotItemId(selected ? null : item.id);
+              };
+              return <button
+                key={item.id}
+                className={`inventory-slot ${item.category}${selected ? " selected" : ""}`}
+                aria-label={`${item.name} × ${stack.quantity}`}
+                onClick={defaultAction}
+              >
+                <ItemIcon iconId={item.iconId} />
+                <b className="slot-qty">×{stack.quantity}</b>
+              </button>;
             })}
-            {!save.inventory.length && <p className="empty">Your pack is empty. Tools can be found around the village.</p>}
           </div>
+          {!save.inventory.length && <p className="empty">Your pack is empty. Tools can be found around the village.</p>}
+          {selectedSlotItemId && (() => {
+            const item = CONTENT.items[selectedSlotItemId];
+            if (!item) return null;
+            const equipped = Object.values(save.equipment).includes(item.id);
+            return <section className="slot-detail">
+              <strong>{item.name}</strong><small>{item.description}</small>
+              {item.combatBonuses && <small className="combat-bonuses">
+                {item.combatBonuses.accuracy > 0 && `Accuracy +${item.combatBonuses.accuracy} `}
+                {item.combatBonuses.strength > 0 && `Strength +${item.combatBonuses.strength} `}
+                {item.combatBonuses.defence > 0 && `Defence +${item.combatBonuses.defence}`}
+              </small>}
+              {(item.equipmentSlot || item.healAmount > 0) && <button onClick={() => item.healAmount ? store.consumeFood(item.id) : store.equip(item.id)}>
+                {item.healAmount ? "Eat" : equipped ? "Equipped" : "Equip"}</button>}
+            </section>;
+          })()}
         </>}
         {store.panel === "skills" && <div className="rows">
           <p className="muted">{attunedSkills} of {ATTUNEMENT_SKILL_COUNT} skills attuned to level {ATTUNEMENT_REQUIRED_LEVEL}.</p>

@@ -9,6 +9,7 @@ import {
 } from "../game/objectiveGuidance";
 import { didCycleComplete } from "../game/actionPresentation";
 import { audio, type AudioCue } from "../game/audio";
+import { defaultVerbFor } from "../game/interactionCommands";
 import { blockedSet, findPathResult, pathToTargetResult } from "../game/pathfinding";
 import { PlayerCommandController } from "../game/playerCommand";
 import { useGameStore } from "../game/store";
@@ -662,18 +663,6 @@ export function GameWorld() {
       }
       commands.begin((id) => ({ type: "moving", id, destination: result.status === "found" ? result.path.at(-1)! : save.position }));
       setRoute(result.status === "found" ? result.path : [], null);
-    };
-    const defaultVerbFor = (target: ZoneInteractable): string => {
-      if (target.kind === "ground_item") return `Take ${target.displayName}`;
-      if (target.kind === "npc") return `Talk-to ${target.displayName}`;
-      if (target.kind === "enemy") return `Attack ${target.displayName}`;
-      if (target.kind === "facility") return `Use ${target.displayName}`;
-      if (target.kind === "resource") {
-        const skill = target.resourceId ? CONTENT.resources[target.resourceId]?.skill : undefined;
-        const verb = skill === "fishing" ? "Fish" : skill === "mining" ? "Mine" : "Chop down";
-        return `${verb} ${target.displayName}`;
-      }
-      return `Interact with ${target.displayName}`;
     };
     type RaycastHit = ReturnType<typeof raycaster.intersectObjects>[number];
     const raycastAt = (clientX: number, clientY: number): RaycastHit | undefined => {
