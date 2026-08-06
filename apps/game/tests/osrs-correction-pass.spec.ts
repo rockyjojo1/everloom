@@ -109,18 +109,34 @@ test.describe("Physical ground-item pickup", () => {
     expect(ok).toBe(true);
 
     // Wait for arrival (route empties) — the pickup presentation timer
-    // (~480ms) is now pending — then immediately cancel with a new command
-    // before it fires.
+    // (~480ms, PICKUP_PRESENTATION_MS in GameWorld.tsx) is now pending —
+    // then immediately race a real cancelling click against it.
+    //
+    // __EVERLOOM_TEST__.stop() only cancels the STORE's currentActivity; it
+    // does not touch GameWorld's own PlayerCommandController, so a real new
+    // command (a real click, exactly like a player tapping elsewhere) is
+    // what actually calls commands.cancel() and invalidates the pending
+    // pickup's id — see game/playerCommand.ts and the isActive(id) check
+    // inside actOn()'s pickup setTimeout.
+    //
+    // Environment note: like the long-press movement-tolerance test above,
+    // this assertion depends on a real synthetic click reaching the page
+    // faster than a ~480ms in-page timer. On a sandbox where a single
+    // Playwright input round-trip has been observed to take 1.5-2s, this
+    // can lose the race even though the underlying cancellation guarantee
+    // (verified by the playerCommand unit tests and by code review) is
+    // correct — see the long-press test's comment for the same finding.
     await expect.poll(async () => (await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.navigation())).route.length, { timeout: 40_000 }).toBe(0);
-    await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: { stop: () => void } }).__EVERLOOM_TEST__.stop());
     const box = await page.locator('[data-testid="game-world"]').boundingBox();
     if (!box) throw new Error("game-world has no bounding box");
-    await page.mouse.click(box.x + box.width / 2 + 30, box.y + box.height / 2 + 30);
+    await page.mouse.click(box.x + box.width / 2 + 260, box.y + box.height / 2 + 220);
 
-    // Give the (now-cancelled) 480ms pickup timer time to have fired if it
-    // were going to fire incorrectly.
+    // Give the (hopefully cancelled) 480ms pickup timer time to have fired
+    // if it were going to fire incorrectly.
     await page.waitForTimeout(900);
     const snapshot = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.snapshot());
+    const state = await page.evaluate(() => (window as unknown as { __EVERLOOM_TEST__: TestApi }).__EVERLOOM_TEST__.commandState());
+    expect(state.type, "the cancelling click should have replaced the pickup command").not.toBe("picking_up");
     expect(snapshot.inventory.some((stack) => stack.itemId === "worn_hatchet")).toBe(false);
   });
 });
@@ -178,11 +194,25 @@ test.describe("Long-press context menu", () => {
 
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await page.mouse.down();
-    // Move past the movement-tolerance threshold immediately — minimising
-    // the gap between pointerdown and the cancelling pointermove keeps this
-    // deterministic even on a slow/software-rendered test runner, where the
-    // long-press timer (~460ms) could otherwise already be close to firing
-    // before Playwright's own IPC round-trip for the move completes.
+    // Move past the movement-tolerance threshold immediately after
+    // pointerdown, to race the long-press timer (LONG_PRESS_MS, ~460ms in
+    // GameWorld.tsx) as tightly as possible.
+    //
+    // Known environment limitation: in this specific sandbox, a single
+    // page.mouse.move() round-trip has been observed to take 1.5-2s end to
+    // end (confirmed by instrumenting real pointerdown/pointermove/pointerup
+    // DOM events — the long-press menu had already opened, and later
+    // synthetic pointermove events were landing on the menu's own DOM nodes
+    // instead of the canvas, well before this test's cancelling move ever
+    // reached the page). That is slower than the 460ms window this feature
+    // is built around, so this assertion can fail here even though the
+    // underlying cancellation logic (onPointerMove clearing longPressTimer
+    // once movement exceeds LONG_PRESS_TOLERANCE_PX — see GameWorld.tsx) is
+    // straightforward and was verified by direct instrumentation to be
+    // correct: it simply never receives the event in time on this runner.
+    // This is a synthetic-input-latency artifact of this sandbox, not a
+    // product defect — kept as a real regression test for environments with
+    // normal input latency.
     await page.mouse.move(box.x + box.width / 2 + 80, box.y + box.height / 2 + 80);
     await page.waitForTimeout(700);
     await expect(page.locator(".context-menu")).toHaveCount(0);
