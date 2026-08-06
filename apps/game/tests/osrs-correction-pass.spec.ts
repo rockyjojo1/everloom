@@ -173,6 +173,17 @@ test.describe("Physical ground-item pickup", () => {
   });
 
   test("cancelling before the pickup event never grants the item late", async ({ page }) => {
+    // This test's own designed budget already consumes most of the global
+    // 75s test timeout before any CI/runner slowness is even considered:
+    // up to 40s waiting for "picking_up" (waitForCommandType below) plus a
+    // flat 14.5s wait past the widened, test-only pickup deadline
+    // (testPickupPresentationMs + 500ms) is 54.5s of intentional real-time
+    // waiting by design, on top of world load, real walk time, and click
+    // retries. Raising this one test's own timeout (not the shared
+    // playwright.config.ts default used by every other test) gives it
+    // headroom that actually matches what it was built to wait for.
+    test.setTimeout(150_000);
+
     await enterFreshWorld(page);
 
     // Widen the real pickup deadline for this run only, through the
