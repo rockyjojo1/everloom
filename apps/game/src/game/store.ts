@@ -27,6 +27,7 @@ import {
   type PlayerAppearanceId,
   type QualityLevel,
 } from "@everloom/core";
+import { sanitisePlayerPosition } from "./positionSafety";
 import { clearSaves, loadSave, writeSave } from "./saveDb";
 
 export type PanelId = "inventory" | "skills" | "quest" | "collection" | "settings";
@@ -268,6 +269,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           save = createNewSave(now, seedFromCrypto(), CONTENT.zones.meadowrest?.spawn ?? { x: 19, z: 16 });
           await writeSave(save, "new-game", false);
         } else {
+          save = sanitisePlayerPosition(save);
           const elapsed = calculateOfflineElapsed(now, save.lastActiveAt);
           const result = advanceSimulation(save, elapsed, CONTENT);
           save = { ...result.state, lastActiveAt: now, lastSavedAt: now };
@@ -494,7 +496,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   },
 
   importSaveText: async (text) => {
-    const imported = deserializeSave(text);
+    const imported = sanitisePlayerPosition(deserializeSave(text));
     const now = Date.now();
     const elapsed = calculateOfflineElapsed(now, imported.lastActiveAt);
     const result = advanceSimulation(imported, elapsed, CONTENT);
