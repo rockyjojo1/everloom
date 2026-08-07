@@ -1,16 +1,20 @@
 name: OSRS-feel verification
 
-# Independent CI verification for the OSRS-feel production slice work:
+# Independent CI verification for the OSRS-feel production slice and the
+# Meadowrest persistent-playable-state slice built on top of it:
 # apps/game unit tests, typecheck, production build, and the real-pointer
-# osrs-correction-pass.spec.ts Playwright suite. Narrowly scoped to this
-# branch (and future osrs-feel branches) rather than every branch in the
-# repository.
+# osrs-correction-pass.spec.ts and meadowrest-persistence.spec.ts
+# Playwright suites. Narrowly scoped to these branches (and future
+# osrs-feel/meadowrest-persistence branches) rather than every branch in
+# the repository.
 on:
   workflow_dispatch: {}
   push:
     branches:
       - claude/osrs-feel-production-slice-6ff2wi
+      - claude/meadowrest-persistence-slice
       - "**/osrs-feel-**"
+      - "**/meadowrest-persistence-**"
 
 concurrency:
   group: osrs-feel-verification-${{ github.ref }}
@@ -20,7 +24,7 @@ jobs:
   verify:
     name: Verify apps/game
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -54,6 +58,9 @@ jobs:
 
       - name: OSRS correction-pass Playwright suite
         run: pnpm --filter @everloom/game exec playwright test tests/osrs-correction-pass.spec.ts
+
+      - name: Meadowrest persistence Playwright suite
+        run: pnpm --filter @everloom/game exec playwright test tests/meadowrest-persistence.spec.ts
 
       - name: git diff --check (no whitespace errors)
         run: git diff --check
